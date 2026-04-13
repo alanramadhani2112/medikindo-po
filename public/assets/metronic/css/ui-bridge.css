@@ -1,0 +1,152 @@
+/* Compatibility bridge for existing ui-* classes on legacy Blade views. */
+
+.ui-page-title {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.ui-section-label {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    text-transform: uppercase;
+    color: #6b7280;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+}
+
+.ui-card-title {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.ui-value {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.ui-value-sm {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.ui-text {
+    font-size: 0.875rem;
+    line-height: 1.4rem;
+    color: #4b5563;
+}
+
+.ui-muted {
+    font-size: 0.875rem;
+    line-height: 1.4rem;
+    color: #6b7280;
+}
+
+.ui-button {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.ui-badge {
+    font-size: 0.625rem;
+    line-height: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.ui-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    padding: 1.5rem;
+}
+
+.ui-card-primary {
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    border-left: 4px solid #2563eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    padding: 1.5rem;
+}
+
+.ui-card-dark {
+    background: #111827;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    color: #f9fafb;
+}
+
+.ui-progress-track {
+    width: 100%;
+    height: 0.5rem;
+    background: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.ui-progress-bar {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 9999px;
+    transition: width 0.3s ease;
+}
+
+.ui-progress-bar-danger {
+    background: #ef4444;
+}
+
+.ui-table-wrapper {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.ui-table-header {
+    background: #f9fafb;
+    color: #6b7280;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.ui-table-cell {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.ui-table-row {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+}
+
+.ui-table-row:hover {
+    background: #f9fafb;
+}
+
+.ui-table-row:last-child {
+    border-bottom: 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 9999px;
+}

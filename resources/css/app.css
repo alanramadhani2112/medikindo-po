@@ -1,0 +1,49 @@
+/* Minimal Custom CSS - Let Metronic handle the layout */
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Utility Classes */
+.text-mono {
+    font-family: 'Courier New', monospace;
+}
+
+/* Ensure proper layout rendering */
+.app-root {
+    min-height: 100vh;
+}
+
+.app-wrapper {
+    min-height: calc(100vh - 70px);
+}
+
+/* Print styles */
+@media print {
+    .app-header,
+    .app-sidebar,
+    .app-toolbar,
+    .app-footer,
+    .no-print {
+        display: none !important;
+    }
+    
+    .app-main {
+        padding: 0 !important;
+    }
+}
