@@ -68,7 +68,7 @@ Add narcotic classification column to product management table to clearly identi
 ### Narkotika Badge
 ```html
 <span class="badge badge-danger fs-7 fw-bold">
-    <i class="ki-duotone ki-shield-cross fs-6 me-1"></i>
+    <i class="ki-solid ki-shield-cross fs-6 me-1"></i>
     NARKOTIKA
 </span>
 ```
@@ -82,7 +82,7 @@ Add narcotic classification column to product management table to clearly identi
 ### Non-Narkotika Badge
 ```html
 <span class="badge badge-light-success fs-7 fw-semibold">
-    <i class="ki-duotone ki-shield-tick fs-6 me-1"></i>
+    <i class="ki-solid ki-shield-tick fs-6 me-1"></i>
     NON-NARKOTIKA
 </span>
 ```

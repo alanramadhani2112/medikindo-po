@@ -66,7 +66,7 @@ Setiap halaman dengan tabel HARUS mengikuti struktur ini:
             <!-- LEFT: Search Input -->
             <div class="flex-grow-1" style="max-width: 400px;">
                 <div class="position-relative">
-                    <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                     <input type="text" name="search" value="{{ request('search') }}" 
                            class="form-control form-control-solid ps-12" 
                            placeholder="Cari...">
@@ -80,14 +80,14 @@ Setiap halaman dengan tabel HARUS mengikuti struktur ini:
             
             <!-- Search Button -->
             <button type="submit" class="btn btn-light-primary">
-                <i class="ki-duotone ki-magnifier fs-2"></i>
+                <i class="ki-solid ki-magnifier fs-2"></i>
                 Cari
             </button>
             
             <!-- Reset Button (conditional) -->
             @if(request()->filled('search'))
                 <a href="{{ route('...') }}" class="btn btn-light">
-                    <i class="ki-duotone ki-cross fs-2"></i>
+                    <i class="ki-solid ki-cross fs-2"></i>
                     Reset
                 </a>
             @endif
@@ -95,7 +95,7 @@ Setiap halaman dengan tabel HARUS mengikuti struktur ini:
             <!-- RIGHT: Action Button -->
             <div class="ms-auto">
                 <a href="{{ route('...create') }}" class="btn btn-primary">
-                    <i class="ki-duotone ki-plus fs-2"></i>
+                    <i class="ki-solid ki-plus fs-2"></i>
                     Create New
                 </a>
             </div>
@@ -126,7 +126,7 @@ Setiap halaman dengan tabel HARUS mengikuti struktur ini:
                 <li class="nav-item">
                     <a href="{{ route('...', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
                        class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                        <i class="ki-duotone {{ $tabData['icon'] }} fs-4 me-2"></i>
+                        <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
                         <span class="d-flex flex-column align-items-start">
                             <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
                             <span class="fs-7 fw-semibold text-muted">{{ $count }} item</span>
@@ -150,25 +150,25 @@ Setiap halaman dengan tabel HARUS mengikuti struktur ini:
 ```html
 <!-- Create/Submit -->
 <button class="btn btn-primary">
-    <i class="ki-duotone ki-plus fs-2"></i>
+    <i class="ki-solid ki-plus fs-2"></i>
     Create
 </button>
 
 <!-- Approve/Confirm -->
 <button class="btn btn-success">
-    <i class="ki-duotone ki-check fs-2"></i>
+    <i class="ki-solid ki-check fs-2"></i>
     Approve
 </button>
 
 <!-- Delete/Reject -->
 <button class="btn btn-danger">
-    <i class="ki-duotone ki-trash fs-2"></i>
+    <i class="ki-solid ki-trash fs-2"></i>
     Delete
 </button>
 
 <!-- View/Cancel -->
 <button class="btn btn-light">
-    <i class="ki-duotone ki-eye fs-2"></i>
+    <i class="ki-solid ki-eye fs-2"></i>
     View
 </button>
 ```
@@ -176,17 +176,17 @@ Setiap halaman dengan tabel HARUS mengikuti struktur ini:
 ### Small Actions (in table)
 ```html
 <a href="..." class="btn btn-sm btn-light-primary">
-    <i class="ki-duotone ki-eye fs-4"></i>
+    <i class="ki-solid ki-eye fs-4"></i>
     Lihat
 </a>
 
 <a href="..." class="btn btn-sm btn-light">
-    <i class="ki-duotone ki-pencil fs-4"></i>
+    <i class="ki-solid ki-pencil fs-4"></i>
     Edit
 </a>
 
 <button class="btn btn-sm btn-light-danger">
-    <i class="ki-duotone ki-trash fs-4"></i>
+    <i class="ki-solid ki-trash fs-4"></i>
     Hapus
 </button>
 ```
@@ -289,7 +289,7 @@ Setiap halaman dengan tabel HARUS mengikuti struktur ini:
 <tr>
     <td colspan="X" class="text-center py-10">
         <div class="d-flex flex-column align-items-center">
-            <i class="ki-duotone ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+            <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
             <h3 class="fs-5 fw-bold text-gray-800 mb-1">No Data Found</h3>
             <p class="text-muted fs-7">Description of empty state.</p>
         </div>

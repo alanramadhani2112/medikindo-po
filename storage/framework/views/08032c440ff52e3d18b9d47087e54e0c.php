@@ -1,66 +1,64 @@
-@extends('layouts.app')
-
-@section('content')
-    {{-- Success Alert --}}
-    @if(session('success'))
+<?php $__env->startSection('content'); ?>
+    
+    <?php if(session('success')): ?>
         <div class="alert alert-success d-flex align-items-center mb-5">
             <i class="ki-solid ki-check-circle fs-2 me-3"></i>
-            <div>{{ session('success') }}</div>
+            <div><?php echo e(session('success')); ?></div>
         </div>
-    @endif
+    <?php endif; ?>
 
-    {{-- Page Header with Add Button --}}
+    
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
             <h1 class="fs-2hx fw-bold text-gray-900 mb-2">Manajemen Supplier</h1>
             <p class="text-gray-600 fs-6 mb-0">Kelola data supplier dan distributor</p>
         </div>
-        @can('manage_suppliers')
-            <a href="{{ route('web.suppliers.create') }}" class="btn btn-primary">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage_suppliers')): ?>
+            <a href="<?php echo e(route('web.suppliers.create')); ?>" class="btn btn-primary">
                 <i class="ki-solid ki-plus fs-2"></i>
                 Tambah Supplier
             </a>
-        @endcan
+        <?php endif; ?>
     </div>
 
-    {{-- Filter Bar (STANDARD) --}}
+    
     <div class="card mb-5">
         <div class="card-body">
-            <form action="{{ route('web.suppliers.index') }}" method="GET" class="d-flex flex-wrap gap-3">
-                <input type="hidden" name="status" value="{{ request('status') }}">
+            <form action="<?php echo e(route('web.suppliers.index')); ?>" method="GET" class="d-flex flex-wrap gap-3">
+                <input type="hidden" name="status" value="<?php echo e(request('status')); ?>">
                 
-                {{-- LEFT: Search --}}
+                
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
                         <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
-                        <input type="text" name="search" value="{{ request('search') }}" 
+                        <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nama, kode, atau email...">
                     </div>
                 </div>
                 
-                {{-- Search Button --}}
+                
                 <button type="submit" class="btn btn-light-primary">
                     <i class="ki-solid ki-magnifier fs-2"></i>
                     Cari
                 </button>
                 
-                {{-- Reset Button --}}
-                @if(request()->filled('search'))
-                    <a href="{{ route('web.suppliers.index', ['status' => request('status')]) }}" class="btn btn-light">
+                
+                <?php if(request()->filled('search')): ?>
+                    <a href="<?php echo e(route('web.suppliers.index', ['status' => request('status')])); ?>" class="btn btn-light">
                         <i class="ki-solid ki-cross fs-2"></i>
                         Reset
                     </a>
-                @endif
+                <?php endif; ?>
             </form>
         </div>
     </div>
 
-    {{-- Tabs (STANDARD) --}}
+    
     <div class="card mb-5">
         <div class="card-header border-0 pt-6 pb-2">
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
-                @php
+                <?php
                     $tabOptions = [
                         '' => ['label' => 'Semua', 'icon' => 'ki-home-2'],
                         'active' => ['label' => 'Aktif', 'icon' => 'ki-check-circle'],
@@ -72,26 +70,27 @@
                         'active' => \App\Models\Supplier::where('is_active', true)->count(),
                         'inactive' => \App\Models\Supplier::where('is_active', false)->count(),
                     ];
-                @endphp
-                @foreach($tabOptions as $val => $tabData)
-                    @php
+                ?>
+                <?php $__currentLoopData = $tabOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $tabData): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $isActive = (string)$currentTab === (string)$val;
-                    @endphp
+                    ?>
                     <li class="nav-item">
-                        <a href="{{ route('web.suppliers.index', array_merge(request()->except(['status', 'page']), ['status' => $val === '' ? null : $val])) }}" 
-                           class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
-                            <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
-                            <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
-                                {{ $counts[$val] }}
+                        <a href="<?php echo e(route('web.suppliers.index', array_merge(request()->except(['status', 'page']), ['status' => $val === '' ? null : $val]))); ?>" 
+                           class="nav-link text-active-primary d-flex align-items-center <?php echo e($isActive ? 'active' : ''); ?>">
+                            <i class="ki-solid <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
+                            <span class="fs-6 fw-bold"><?php echo e($tabData['label']); ?></span>
+                            <span class="badge <?php echo e($isActive ? 'badge-primary' : 'badge-light-secondary'); ?> ms-auto">
+                                <?php echo e($counts[$val]); ?>
+
                             </span>
                         </a>
                     </li>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
         </div>
         <div class="card-body pt-6">
-            {{-- Table --}}
+            
             <div class="table-responsive">
                 <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
                     <thead>
@@ -104,36 +103,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($suppliers as $supplier)
+                        <?php $__empty_1 = true; $__currentLoopData = $suppliers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $supplier): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                             <tr>
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="symbol symbol-40px">
                                             <div class="symbol-label fs-6 fw-bold bg-light-primary text-primary">
-                                                {{ strtoupper(substr($supplier->name, 0, 2)) }}
+                                                <?php echo e(strtoupper(substr($supplier->name, 0, 2))); ?>
+
                                             </div>
                                         </div>
                                         <div class="d-flex flex-column">
-                                            <span class="text-gray-800 fw-bold">{{ $supplier->name }}</span>
-                                            <span class="text-gray-500 fs-7">{{ $supplier->code }}</span>
+                                            <span class="text-gray-800 fw-bold"><?php echo e($supplier->name); ?></span>
+                                            <span class="text-gray-500 fs-7"><?php echo e($supplier->code); ?></span>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="d-flex flex-column">
-                                        <span class="text-gray-800 fw-semibold">{{ $supplier->email ?? '—' }}</span>
-                                        <span class="text-gray-600 fs-7">{{ $supplier->phone ?? '—' }}</span>
+                                        <span class="text-gray-800 fw-semibold"><?php echo e($supplier->email ?? '—'); ?></span>
+                                        <span class="text-gray-600 fs-7"><?php echo e($supplier->phone ?? '—'); ?></span>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="text-gray-700">{{ Str::limit($supplier->address ?? '—', 50) }}</span>
+                                    <span class="text-gray-700"><?php echo e(Str::limit($supplier->address ?? '—', 50)); ?></span>
                                 </td>
                                 <td>
-                                    @if($supplier->is_active)
+                                    <?php if($supplier->is_active): ?>
                                         <span class="badge badge-light-success fs-7 fw-semibold">AKTIF</span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="badge badge-light-secondary fs-7 fw-semibold">NONAKTIF</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end">
@@ -143,52 +143,55 @@
                                             Aksi
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="{{ route('web.suppliers.edit', $supplier) }}" class="dropdown-item">
+                                            <a href="<?php echo e(route('web.suppliers.edit', $supplier)); ?>" class="dropdown-item">
                                                 <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
                                                 Edit Supplier
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <form method="POST" action="{{ route('web.suppliers.toggle_status', $supplier) }}" 
-                                                  onsubmit="return confirm('{{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }} supplier ini?')" class="d-inline">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="dropdown-item {{ $supplier->is_active ? 'text-warning' : 'text-success' }}">
-                                                    <i class="ki-solid ki-{{ $supplier->is_active ? 'shield-cross' : 'shield-tick' }} fs-4 me-2"></i>
-                                                    {{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Supplier
+                                            <form method="POST" action="<?php echo e(route('web.suppliers.toggle_status', $supplier)); ?>" 
+                                                  onsubmit="return confirm('<?php echo e($supplier->is_active ? 'Nonaktifkan' : 'Aktifkan'); ?> supplier ini?')" class="d-inline">
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('PATCH'); ?>
+                                                <button type="submit" class="dropdown-item <?php echo e($supplier->is_active ? 'text-warning' : 'text-success'); ?>">
+                                                    <i class="ki-solid ki-<?php echo e($supplier->is_active ? 'shield-cross' : 'shield-tick'); ?> fs-4 me-2"></i>
+                                                    <?php echo e($supplier->is_active ? 'Nonaktifkan' : 'Aktifkan'); ?> Supplier
                                                 </button>
                                             </form>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
                                 <td colspan="5" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
                                         <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum ada data supplier</span>
                                         <span class="text-gray-500 fs-6">Data supplier akan muncul setelah proses registrasi.</span>
-                                        @can('manage_supplier')
-                                            <a href="{{ route('web.suppliers.create') }}" class="btn btn-primary mt-5">
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage_supplier')): ?>
+                                            <a href="<?php echo e(route('web.suppliers.create')); ?>" class="btn btn-primary mt-5">
                                                 <i class="ki-solid ki-plus fs-2"></i>
                                                 Tambah Supplier
                                             </a>
-                                        @endcan
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
 
-            {{-- Pagination --}}
-            @if($suppliers->hasPages())
+            
+            <?php if($suppliers->hasPages()): ?>
                 <div class="pagination-wrapper">
-                    {{ $suppliers->links() }}
+                    <?php echo e($suppliers->links()); ?>
+
                 </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\medikindo-po\resources\views/suppliers/index.blade.php ENDPATH**/ ?>

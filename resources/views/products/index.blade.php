@@ -4,7 +4,7 @@
     {{-- Success Alert --}}
     @if(session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-duotone ki-check-circle fs-2 me-3"></i>
+            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
             <div>{{ session('success') }}</div>
         </div>
     @endif
@@ -17,7 +17,7 @@
         </div>
         @can('manage_products')
             <a href="{{ route('web.products.create') }}" class="btn btn-primary">
-                <i class="ki-duotone ki-plus fs-2"></i>
+                <i class="ki-solid ki-plus fs-2"></i>
                 Tambah Produk
             </a>
         @endcan
@@ -32,7 +32,7 @@
                 {{-- LEFT: Search --}}
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="{{ request('search') }}" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nama atau SKU...">
@@ -41,14 +41,14 @@
                 
                 {{-- Search Button --}}
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-duotone ki-magnifier fs-2"></i>
+                    <i class="ki-solid ki-magnifier fs-2"></i>
                     Cari
                 </button>
                 
                 {{-- Reset Button --}}
                 @if(request()->filled('search'))
                     <a href="{{ route('web.products.index', ['type' => request('type')]) }}" class="btn btn-light">
-                        <i class="ki-duotone ki-cross fs-2"></i>
+                        <i class="ki-solid ki-cross fs-2"></i>
                         Reset
                     </a>
                 @endif
@@ -80,7 +80,7 @@
                     <li class="nav-item">
                         <a href="{{ route('web.products.index', array_merge(request()->except(['type', 'page']), ['type' => $val === '' ? null : $val])) }}" 
                            class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-duotone {{ $tabData['icon'] }} fs-4 me-2"></i>
+                            <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
                             <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
                             <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                                 {{ $counts[$val] }}
@@ -130,12 +130,12 @@
                                 <td>
                                     @if($product->is_narcotic)
                                         <span class="badge badge-danger fs-7 fw-bold">
-                                            <i class="ki-duotone ki-shield-cross fs-6 me-1"></i>
+                                            <i class="ki-solid ki-shield-cross fs-6 me-1"></i>
                                             NARKOTIKA
                                         </span>
                                     @else
                                         <span class="badge badge-light-success fs-7 fw-semibold">
-                                            <i class="ki-duotone ki-shield-tick fs-6 me-1"></i>
+                                            <i class="ki-solid ki-shield-tick fs-6 me-1"></i>
                                             NON-NARKOTIKA
                                         </span>
                                     @endif
@@ -175,12 +175,12 @@
                                         <div class="d-flex justify-content-end">
                                             <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
                                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ki-duotone ki-dots-vertical fs-3"></i>
+                                                <i class="ki-solid ki-dots-vertical fs-3"></i>
                                                 Aksi
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a href="{{ route('web.products.edit', $product) }}" class="dropdown-item">
-                                                    <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
+                                                    <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
                                                     Edit Produk
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -189,7 +189,7 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="ki-duotone ki-trash fs-4 me-2"></i>
+                                                        <i class="ki-solid ki-trash fs-4 me-2"></i>
                                                         Hapus Produk
                                                     </button>
                                                 </form>
@@ -202,12 +202,12 @@
                             <tr>
                                 <td colspan="8" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-duotone ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum ada produk terdaftar</span>
                                         <span class="text-gray-500 fs-6">Mulai dengan menambahkan produk baru ke katalog.</span>
                                         @can('manage_products')
                                             <a href="{{ route('web.products.create') }}" class="btn btn-primary mt-5">
-                                                <i class="ki-duotone ki-plus fs-2"></i>
+                                                <i class="ki-solid ki-plus fs-2"></i>
                                                 Tambah Produk
                                             </a>
                                         @endcan

@@ -9,7 +9,7 @@
     </div>
     @can('create_purchase_orders')
     <a href="{{ route('web.po.create') }}" class="btn btn-primary">
-        <i class="ki-duotone ki-plus fs-2"></i>
+        <i class="ki-solid ki-plus fs-2"></i>
         Buat PO Baru
     </a>
     @endcan
@@ -27,7 +27,7 @@
                         <span class="text-white fw-bold fs-2x">{{ $card['value'] }}</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-20 rounded" style="width:60px;height:60px;">
-                        <i class="ki-duotone {{ $card['icon'] }} fs-2x text-white"></i>
+                        <i class="ki-solid {{ $card['icon'] }} fs-2x text-white"></i>
                     </div>
                 </div>
             </div>
@@ -49,7 +49,7 @@
                 <div class="card-toolbar">
                     <a href="{{ route('web.po.index') }}" class="btn btn-sm btn-light-primary">
                         Lihat Semua
-                        <i class="ki-duotone ki-right fs-5 ms-1"></i>
+                        <i class="ki-solid ki-right fs-5 ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -98,7 +98,7 @@
                             <tr>
                                 <td colspan="5" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-duotone ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold">Belum ada purchase order</span>
                                     </div>
                                 </td>
@@ -124,7 +124,7 @@
                 <div class="d-flex flex-column gap-3">
                     @can('create_purchase_orders')
                     <a href="{{ route('web.po.create') }}" class="btn btn-light-primary justify-content-start">
-                        <i class="ki-duotone ki-plus fs-3 me-3"></i>
+                        <i class="ki-solid ki-plus fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Buat PO</div>
                             <div class="text-muted fs-7">Ajukan purchase order baru</div>
@@ -133,7 +133,7 @@
                     @endcan
                     @can('create_payment')
                     <a href="{{ route('web.payments.index') }}" class="btn btn-light-success justify-content-start">
-                        <i class="ki-duotone ki-wallet fs-3 me-3"></i>
+                        <i class="ki-solid ki-wallet fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Konfirmasi Pembayaran</div>
                             <div class="text-muted fs-7">Catat pembayaran ke supplier</div>
@@ -155,7 +155,7 @@
             <div class="card-body pt-3">
                 @foreach($alerts as $alert)
                 <div class="alert alert-{{ $alert['type'] }} d-flex align-items-center p-5 mb-5">
-                    <i class="ki-duotone {{ $alert['icon'] }} fs-2hx text-{{ $alert['type'] }} me-4"></i>
+                    <i class="ki-solid {{ $alert['icon'] }} fs-2hx text-{{ $alert['type'] }} me-4"></i>
                     <div class="d-flex flex-column flex-grow-1">
                         <h4 class="mb-1 text-{{ $alert['type'] }} fw-bold">{{ $alert['title'] }}</h4>
                         <span class="fs-6">{{ $alert['message'] }}</span>

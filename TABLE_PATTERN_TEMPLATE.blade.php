@@ -18,7 +18,7 @@
             <p class="text-gray-600 fs-6 mb-0">Module description goes here.</p>
         </div>
         <a href="{{ route('module.create') }}" class="btn btn-primary">
-            <i class="ki-duotone ki-plus fs-2"></i>
+            <i class="ki-solid ki-plus fs-2"></i>
             Create New
         </a>
     </div>
@@ -82,7 +82,7 @@
                 
                 {{-- Filter button --}}
                 <button type="submit" class="btn btn-dark">
-                    <i class="ki-duotone ki-magnifier fs-2"></i>
+                    <i class="ki-solid ki-magnifier fs-2"></i>
                     Filter
                 </button>
                 
@@ -90,7 +90,7 @@
                 @if(request('search') || request('filter1'))
                     <a href="{{ route('module.index', request()->except(['search', 'filter1', 'page'])) }}" 
                        class="btn btn-light">
-                        <i class="ki-duotone ki-cross fs-2"></i>
+                        <i class="ki-solid ki-cross fs-2"></i>
                         Reset
                     </a>
                 @endif
@@ -123,7 +123,7 @@
                     <li class="nav-item">
                         <a href="{{ route('module.index', array_merge(request()->except(['status', 'page']), ['status' => $value === '' ? null : $value])) }}" 
                            class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-duotone {{ $tab['icon'] }} fs-4 me-2 text-{{ $tab['color'] }}"></i>
+                            <i class="ki-solid {{ $tab['icon'] }} fs-4 me-2 text-{{ $tab['color'] }}"></i>
                             <span class="fs-6 fw-bold">{{ $tab['label'] }}</span>
                             <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-' . $tab['color'] }} ms-auto">
                                 {{ $count }}
@@ -212,14 +212,14 @@
                                         {{-- View button --}}
                                         <a href="{{ route('module.show', $item) }}" 
                                            class="btn btn-sm btn-light-primary">
-                                            <i class="ki-duotone ki-eye fs-4"></i>
+                                            <i class="ki-solid ki-eye fs-4"></i>
                                             View
                                         </a>
                                         
                                         {{-- Edit button --}}
                                         <a href="{{ route('module.edit', $item) }}" 
                                            class="btn btn-sm btn-light">
-                                            <i class="ki-duotone ki-pencil fs-4"></i>
+                                            <i class="ki-solid ki-pencil fs-4"></i>
                                         </a>
                                         
                                         {{-- Delete button --}}
@@ -230,7 +230,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-light-danger">
-                                                <i class="ki-duotone ki-trash fs-4"></i>
+                                                <i class="ki-solid ki-trash fs-4"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -241,7 +241,7 @@
                             <tr>
                                 <td colspan="6" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-duotone ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">No items found</span>
                                         <span class="text-gray-500 fs-6">Try adjusting your filters or create a new item.</span>
                                     </div>
@@ -292,7 +292,7 @@
     - Primary: badge-primary (submitted/active)
     
     ICONS:
-    - Format: ki-duotone ki-{name}
+    - Format: ki-solid ki-{name}
     - Button size: fs-2
     - Inline size: fs-4
     

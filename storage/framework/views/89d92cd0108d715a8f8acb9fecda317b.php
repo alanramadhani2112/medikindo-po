@@ -46,19 +46,19 @@
                             <div id="kt_app_content_container" class="app-container container-fluid">
                                 <?php if(session('success')): ?>
                                     <div class="alert alert-success d-flex align-items-center mb-5">
-                                        <i class="ki-duotone ki-check-circle fs-2 text-success me-3"></i>
+                                        <i class="ki-solid ki-check-circle fs-2 text-success me-3"></i>
                                         <span><?php echo e(session('success')); ?></span>
                                     </div>
                                 <?php endif; ?>
                                 <?php if(session('error')): ?>
                                     <div class="alert alert-danger d-flex align-items-center mb-5">
-                                        <i class="ki-duotone ki-cross-circle fs-2 text-danger me-3"></i>
+                                        <i class="ki-solid ki-cross-circle fs-2 text-danger me-3"></i>
                                         <span><?php echo e(session('error')); ?></span>
                                     </div>
                                 <?php endif; ?>
                                 <?php if($errors->any()): ?>
                                     <div class="alert alert-danger d-flex align-items-start mb-5">
-                                        <i class="ki-duotone ki-information-5 fs-2 text-danger me-3 mt-1"></i>
+                                        <i class="ki-solid ki-information-5 fs-2 text-danger me-3 mt-1"></i>
                                         <div>
                                             <div class="fw-bold mb-1">Terdapat kesalahan validasi:</div>
                                             <ul class="mb-0 ps-4">

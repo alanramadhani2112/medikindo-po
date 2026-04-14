@@ -61,7 +61,7 @@ FINANCE
     <a class="menu-link {{ request()->routeIs('web.invoices.*') ? 'active' : '' }}" 
        href="{{ route('web.invoices.index') }}">
         <span class="menu-icon">
-            <i class="ki-duotone ki-file-sheet fs-2"></i>
+            <i class="ki-solid ki-file-sheet fs-2"></i>
         </span>
         <span class="menu-title">Invoices</span>
     </a>
@@ -76,7 +76,7 @@ FINANCE
     <a class="menu-link {{ request()->routeIs('web.invoices.*') && request('tab') === 'supplier' ? 'active' : '' }}" 
        href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}">
         <span class="menu-icon">
-            <i class="ki-duotone ki-arrow-down fs-2 text-danger"></i>
+            <i class="ki-solid ki-arrow-down fs-2 text-danger"></i>
         </span>
         <span class="menu-title">Hutang Pemasok</span>
     </a>
@@ -86,7 +86,7 @@ FINANCE
     <a class="menu-link {{ request()->routeIs('web.invoices.*') && request('tab') === 'customer' ? 'active' : '' }}" 
        href="{{ route('web.invoices.index', ['tab' => 'customer']) }}">
         <span class="menu-icon">
-            <i class="ki-duotone ki-arrow-up fs-2 text-success"></i>
+            <i class="ki-solid ki-arrow-up fs-2 text-success"></i>
         </span>
         <span class="menu-title">Tagihan ke RS/Klinik</span>
     </a>

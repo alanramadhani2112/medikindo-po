@@ -202,7 +202,7 @@ Spacing: mb-5 (cards), pt-7 (pagination)
 ### Components
 - ✅ Buttons: primary, light, danger
 - ✅ Badges: success, warning, danger
-- ✅ Icons: Keenicons (ki-duotone)
+- ✅ Icons: Keenicons (ki-solid)
 - ✅ Tables: table-row-dashed
 - ✅ Forms: form-control-solid
 

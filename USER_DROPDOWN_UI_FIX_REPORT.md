@@ -61,7 +61,7 @@
 
 <!--begin::Logout Button-->
 <button type="submit" class="btn btn-light-danger btn-sm w-100 d-flex align-items-center justify-content-center">
-    <i class="ki-duotone ki-exit-right fs-3 me-2"></i>
+    <i class="ki-solid ki-exit-right fs-3 me-2"></i>
     <span class="fw-bold">Keluar</span>
 </button>
 <!--end::Logout Button-->

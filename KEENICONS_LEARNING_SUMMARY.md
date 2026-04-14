@@ -23,7 +23,7 @@
 
 Keenicons tersedia dalam **4 STYLES** (bukan 3 seperti yang saya kira sebelumnya):
 
-### 1. **Duotone** (`ki-duotone`)
+### 1. **Duotone** (`ki-solid`)
 - **Karakteristik**: Visually striking duo colors (dua warna)
 - **Struktur**: Memerlukan inline SVG atau HTML dengan span tags untuk setiap color style
 - **Penggunaan**: Modern, eye-catching, memberikan depth visual
@@ -31,7 +31,7 @@ Keenicons tersedia dalam **4 STYLES** (bukan 3 seperti yang saya kira sebelumnya
 
 **Format**:
 ```html
-<i class="ki-duotone ki-{icon-name}">
+<i class="ki-solid ki-{icon-name}">
     <span class="path1"></span>
     <span class="path2"></span>
     <!-- Multiple paths untuk duo colors -->
@@ -106,7 +106,7 @@ src/vendors/keenicons/
 </head>
 <body>
     <!-- Duotone Icon -->
-    <i class="ki-duotone ki-home">
+    <i class="ki-solid ki-home">
         <span class="path1"></span>
         <span class="path2"></span>
     </i>
@@ -134,7 +134,7 @@ Keenicons inherit warna dari parent atau class:
 <i class="ki-solid ki-home text-primary"></i>
 
 <!-- Success Color -->
-<i class="ki-duotone ki-check-circle text-success"></i>
+<i class="ki-solid ki-check-circle text-success"></i>
 
 <!-- Danger Color -->
 <i class="ki-outline ki-trash text-danger"></i>
@@ -279,7 +279,7 @@ Keenicons diorganisir dalam 29 kategori:
 <nav class="sidebar">
     <i class="ki-solid ki-home"></i>
     <i class="ki-outline ki-wallet"></i>
-    <i class="ki-duotone ki-package"></i>
+    <i class="ki-solid ki-package"></i>
 </nav>
 ```
 
@@ -321,13 +321,13 @@ Keenicons diorganisir dalam 29 kategori:
 ### 4. Duotone Structure
 ```html
 <!-- ✅ GOOD: Proper duotone structure -->
-<i class="ki-duotone ki-home">
+<i class="ki-solid ki-home">
     <span class="path1"></span>
     <span class="path2"></span>
 </i>
 
 <!-- ❌ BAD: Missing spans -->
-<i class="ki-duotone ki-home"></i>
+<i class="ki-solid ki-home"></i>
 ```
 
 ---
@@ -339,7 +339,7 @@ Keenicons diorganisir dalam 29 kategori:
 **Solution**: 
 ```html
 <!-- Add proper span structure -->
-<i class="ki-duotone ki-{icon-name}">
+<i class="ki-solid ki-{icon-name}">
     <span class="path1"></span>
     <span class="path2"></span>
     <span class="path3"></span> <!-- if needed -->

@@ -82,7 +82,7 @@
         @click="addItem()" 
         x-bind:disabled="!supplierId"
         onclick="if(!window.Alpine) { alert('Mohon tunggu, halaman sedang dimuat...'); }">
-    <i class="ki-duotone ki-plus fs-3"></i>
+    <i class="ki-solid ki-plus fs-3"></i>
     <span class="fw-bold">Tambah Produk</span>
 </button>
 ```

@@ -14,7 +14,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-duotone ki-shop fs-2 me-2"></i>
+                        <i class="ki-solid ki-shop fs-2 me-2"></i>
                         Registrasi Supplier Baru
                     </h3>
                 </div>
@@ -116,11 +116,11 @@
                         {{-- Action Buttons --}}
                         <div class="d-flex justify-content-end gap-3 mt-7 pt-7 border-top">
                             <a href="{{ route('web.suppliers.index') }}" class="btn btn-light">
-                                <i class="ki-duotone ki-cross fs-2"></i>
+                                <i class="ki-solid ki-cross fs-2"></i>
                                 Batal
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="ki-duotone ki-check fs-2"></i>
+                                <i class="ki-solid ki-check fs-2"></i>
                                 Simpan Registrasi Supplier
                             </button>
                         </div>

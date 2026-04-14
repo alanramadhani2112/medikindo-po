@@ -64,12 +64,12 @@
 
             <div class="col-md-5 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="ki-duotone ki-magnifier fs-3"></i>
+                    <i class="ki-solid ki-magnifier fs-3"></i>
                     Cari
                 </button>
                 @if($request->hasAny(array_column($filters, 'name')))
                     <a href="{{ $request->url() }}" class="btn btn-light">
-                        <i class="ki-duotone ki-cross fs-3"></i>
+                        <i class="ki-solid ki-cross fs-3"></i>
                         Reset
                     </a>
                 @endif
@@ -114,7 +114,7 @@
                                        class="text-muted text-hover-primary">
                                         {{ $label }}
                                         @if($isSorted)
-                                            <i class="ki-duotone ki-{{ $currentDirection === 'asc' ? 'up' : 'down' }} fs-7 ms-1"></i>
+                                            <i class="ki-solid ki-{{ $currentDirection === 'asc' ? 'up' : 'down' }} fs-7 ms-1"></i>
                                         @endif
                                     </a>
                                 @else

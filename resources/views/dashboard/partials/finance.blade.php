@@ -8,7 +8,7 @@
         <p class="text-gray-600 fs-6 mb-0">Selamat datang, {{ auth()->user()->name }}</p>
     </div>
     <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-primary">
-        <i class="ki-duotone ki-bill fs-2"></i>
+        <i class="ki-solid ki-bill fs-2"></i>
         Kelola Invoice
     </a>
 </div>
@@ -25,7 +25,7 @@
                         <span class="text-white fw-bold fs-2x">{{ $card['value'] }}</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-20 rounded" style="width:60px;height:60px;">
-                        <i class="ki-duotone {{ $card['icon'] }} fs-2x text-white"></i>
+                        <i class="ki-solid {{ $card['icon'] }} fs-2x text-white"></i>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
     <div class="col-12">
         @foreach($alerts as $alert)
         <div class="alert alert-{{ $alert['type'] }} d-flex align-items-center p-5 mb-5">
-            <i class="ki-duotone {{ $alert['icon'] }} fs-2hx text-{{ $alert['type'] }} me-4"></i>
+            <i class="ki-solid {{ $alert['icon'] }} fs-2hx text-{{ $alert['type'] }} me-4"></i>
             <div class="d-flex flex-column flex-grow-1">
                 <h4 class="mb-1 text-{{ $alert['type'] }} fw-bold">{{ $alert['title'] }}</h4>
                 <span class="fs-6">{{ $alert['message'] }}</span>
@@ -67,7 +67,7 @@
                 <div class="card-toolbar">
                     <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-sm btn-light-primary">
                         Lihat Semua
-                        <i class="ki-duotone ki-right fs-5 ms-1"></i>
+                        <i class="ki-solid ki-right fs-5 ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -116,7 +116,7 @@
                             <tr>
                                 <td colspan="5" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-duotone ki-check-circle fs-3x text-success mb-3"></i>
+                                        <i class="ki-solid ki-check-circle fs-3x text-success mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold">Tidak ada invoice outstanding</span>
                                     </div>
                                 </td>
@@ -141,7 +141,7 @@
                 <div class="d-flex flex-column gap-3">
                     @can('create_invoice')
                     <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light-primary justify-content-start">
-                        <i class="ki-duotone ki-bill fs-3 me-3"></i>
+                        <i class="ki-solid ki-bill fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Generate Invoice</div>
                             <div class="text-muted fs-7">Buat invoice baru</div>
@@ -150,7 +150,7 @@
                     @endcan
                     @can('verify_payment')
                     <a href="{{ route('web.payments.index') }}" class="btn btn-light-success justify-content-start">
-                        <i class="ki-duotone ki-check-circle fs-3 me-3"></i>
+                        <i class="ki-solid ki-check-circle fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Konfirmasi Pembayaran</div>
                             <div class="text-muted fs-7">Verifikasi pembayaran masuk</div>
@@ -158,7 +158,7 @@
                     </a>
                     @endcan
                     <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-danger justify-content-start">
-                        <i class="ki-duotone ki-wallet fs-3 me-3"></i>
+                        <i class="ki-solid ki-wallet fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Bayar Distributor</div>
                             <div class="text-muted fs-7">Catat pembayaran ke supplier</div>
@@ -183,7 +183,7 @@
                 <div class="card-toolbar">
                     <a href="{{ route('web.payments.index') }}" class="btn btn-sm btn-light-primary">
                         Lihat Semua
-                        <i class="ki-duotone ki-right fs-5 ms-1"></i>
+                        <i class="ki-solid ki-right fs-5 ms-1"></i>
                     </a>
                 </div>
             </div>

@@ -11,7 +11,7 @@
 **User Request**: "Saya ingin menggunakan Keenicons yang Duotone"
 
 **Tujuan**:
-- Mengganti semua icon dari format **Outline** (`ki-outline`) menjadi **Duotone** (`ki-duotone`)
+- Mengganti semua icon dari format **Outline** (`ki-outline`) menjadi **Duotone** (`ki-solid`)
 - Memberikan tampilan visual yang lebih modern dengan efek dua warna
 - Mempertahankan semua icon yang sama, hanya mengubah style-nya
 
@@ -31,7 +31,7 @@
 - Icon dengan dua warna (primary + secondary opacity)
 - Lebih modern dan eye-catching
 - Memberikan depth visual
-- Format: `ki-duotone ki-{name}`
+- Format: `ki-solid ki-{name}`
 
 ### Scope Perubahan
 
@@ -61,7 +61,7 @@
 
 **After**:
 ```html
-<i class="ki-duotone ki-{icon-name} fs-{size}"></i>
+<i class="ki-solid ki-{icon-name} fs-{size}"></i>
 ```
 
 ### 2. Contoh Perubahan per Komponen
@@ -76,9 +76,9 @@
 
 **After**:
 ```blade
-<i class="ki-duotone ki-element-11 fs-2"></i> <!-- Dashboard -->
-<i class="ki-duotone ki-purchase fs-2"></i> <!-- Purchase Orders -->
-<i class="ki-duotone ki-package fs-2"></i> <!-- Goods Receipt -->
+<i class="ki-solid ki-element-11 fs-2"></i> <!-- Dashboard -->
+<i class="ki-solid ki-purchase fs-2"></i> <!-- Purchase Orders -->
+<i class="ki-solid ki-package fs-2"></i> <!-- Goods Receipt -->
 ```
 
 #### Action Buttons
@@ -93,7 +93,7 @@
 **After**:
 ```blade
 <button class="btn btn-primary">
-    <i class="ki-duotone ki-plus fs-2"></i>
+    <i class="ki-solid ki-plus fs-2"></i>
     Tambah
 </button>
 ```
@@ -107,8 +107,8 @@
 
 **After**:
 ```blade
-<i class="ki-duotone ki-check-circle fs-2 text-success"></i>
-<i class="ki-duotone ki-cross-circle fs-2 text-danger"></i>
+<i class="ki-solid ki-check-circle fs-2 text-success"></i>
+<i class="ki-solid ki-cross-circle fs-2 text-danger"></i>
 ```
 
 ---
@@ -155,19 +155,19 @@ Keenicons Duotone menggunakan sistem warna otomatis:
 
 ```html
 <!-- Success Icon -->
-<i class="ki-duotone ki-check-circle text-success">
+<i class="ki-solid ki-check-circle text-success">
     <!-- Primary: Green 100% -->
     <!-- Secondary: Green 30% opacity -->
 </i>
 
 <!-- Danger Icon -->
-<i class="ki-duotone ki-trash text-danger">
+<i class="ki-solid ki-trash text-danger">
     <!-- Primary: Red 100% -->
     <!-- Secondary: Red 30% opacity -->
 </i>
 
 <!-- Primary Icon -->
-<i class="ki-duotone ki-pencil text-primary">
+<i class="ki-solid ki-pencil text-primary">
     <!-- Primary: Blue 100% -->
     <!-- Secondary: Blue 30% opacity -->
 </i>
@@ -184,14 +184,14 @@ Menggunakan PowerShell untuk replace otomatis:
 # Replace di semua Blade files
 Get-ChildItem -Path resources/views -Filter "*.blade.php" -Recurse | 
     ForEach-Object { 
-        (Get-Content $_.FullName -Raw) -replace 'ki-outline', 'ki-duotone' | 
+        (Get-Content $_.FullName -Raw) -replace 'ki-outline', 'ki-solid' | 
         Set-Content $_.FullName -NoNewline 
     }
 
 # Replace di semua dokumentasi
 Get-ChildItem -Path . -Filter "*.md" -File | 
     ForEach-Object { 
-        (Get-Content $_.FullName -Raw) -replace 'ki-outline', 'ki-duotone' | 
+        (Get-Content $_.FullName -Raw) -replace 'ki-outline', 'ki-solid' | 
         Set-Content $_.FullName -NoNewline 
     }
 ```
@@ -199,9 +199,9 @@ Get-ChildItem -Path . -Filter "*.md" -File |
 ### Verification
 
 ```powershell
-# Cek jumlah ki-duotone (should be 365+)
+# Cek jumlah ki-solid (should be 365+)
 Get-ChildItem -Path resources/views -Filter "*.blade.php" -Recurse | 
-    Select-String -Pattern "ki-duotone" | 
+    Select-String -Pattern "ki-solid" | 
     Measure-Object | 
     Select-Object -ExpandProperty Count
 
@@ -213,7 +213,7 @@ Get-ChildItem -Path resources/views -Filter "*.blade.php" -Recurse |
 ```
 
 **Result**:
-- ✅ ki-duotone: 366 instances
+- ✅ ki-solid: 366 instances
 - ✅ ki-outline: 0 instances
 - ✅ 100% migration success
 
@@ -368,14 +368,14 @@ Jika perlu kembali ke Outline style:
 # Rollback Blade files
 Get-ChildItem -Path resources/views -Filter "*.blade.php" -Recurse | 
     ForEach-Object { 
-        (Get-Content $_.FullName -Raw) -replace 'ki-duotone', 'ki-outline' | 
+        (Get-Content $_.FullName -Raw) -replace 'ki-solid', 'ki-outline' | 
         Set-Content $_.FullName -NoNewline 
     }
 
 # Rollback Documentation
 Get-ChildItem -Path . -Filter "*.md" -File | 
     ForEach-Object { 
-        (Get-Content $_.FullName -Raw) -replace 'ki-duotone', 'ki-outline' | 
+        (Get-Content $_.FullName -Raw) -replace 'ki-solid', 'ki-outline' | 
         Set-Content $_.FullName -NoNewline 
     }
 ```

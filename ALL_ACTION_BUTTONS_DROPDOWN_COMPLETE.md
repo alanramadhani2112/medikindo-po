@@ -117,7 +117,7 @@ Semua action buttons di table telah diubah menjadi dropdown menu yang rapi dan k
 ```blade
 <div class="dropdown-menu dropdown-menu-end">
     <a href="..." class="dropdown-item">
-        <i class="ki-duotone ki-eye fs-4 me-2 text-primary"></i>
+        <i class="ki-solid ki-eye fs-4 me-2 text-primary"></i>
         Lihat Detail
     </a>
 </div>
@@ -128,11 +128,11 @@ Semua action buttons di table telah diubah menjadi dropdown menu yang rapi dan k
 ```blade
 <div class="dropdown-menu dropdown-menu-end">
     <a href="..." class="dropdown-item">
-        <i class="ki-duotone ki-eye fs-4 me-2 text-primary"></i>
+        <i class="ki-solid ki-eye fs-4 me-2 text-primary"></i>
         Lihat Detail
     </a>
     <a href="..." class="dropdown-item" target="_blank">
-        <i class="ki-duotone ki-file-down fs-4 me-2 text-info"></i>
+        <i class="ki-solid ki-file-down fs-4 me-2 text-info"></i>
         Download PDF
     </a>
 </div>
@@ -143,13 +143,13 @@ Semua action buttons di table telah diubah menjadi dropdown menu yang rapi dan k
 ```blade
 <div class="dropdown-menu dropdown-menu-end">
     <a href="..." class="dropdown-item">
-        <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
+        <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
         Edit Item
     </a>
     <div class="dropdown-divider"></div>
     <form method="POST" action="...">
         <button type="submit" class="dropdown-item text-warning">
-            <i class="ki-duotone ki-shield-cross fs-4 me-2"></i>
+            <i class="ki-solid ki-shield-cross fs-4 me-2"></i>
             Nonaktifkan Item
         </button>
     </form>
@@ -161,13 +161,13 @@ Semua action buttons di table telah diubah menjadi dropdown menu yang rapi dan k
 ```blade
 <div class="dropdown-menu dropdown-menu-end">
     <a href="..." class="dropdown-item">
-        <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
+        <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
         Edit Item
     </a>
     <div class="dropdown-divider"></div>
     <form method="POST" action="...">
         <button type="submit" class="dropdown-item text-danger">
-            <i class="ki-duotone ki-trash fs-4 me-2"></i>
+            <i class="ki-solid ki-trash fs-4 me-2"></i>
             Hapus Item
         </button>
     </form>
@@ -179,24 +179,24 @@ Semua action buttons di table telah diubah menjadi dropdown menu yang rapi dan k
 ```blade
 <div class="dropdown-menu dropdown-menu-end">
     <a href="..." class="dropdown-item">
-        <i class="ki-duotone ki-eye fs-4 me-2 text-primary"></i>
+        <i class="ki-solid ki-eye fs-4 me-2 text-primary"></i>
         Lihat Detail
     </a>
     @if($condition)
         <a href="..." class="dropdown-item">
-            <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
+            <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
             Edit PO
         </a>
     @endif
     <a href="..." class="dropdown-item" target="_blank">
-        <i class="ki-duotone ki-file-down fs-4 me-2 text-info"></i>
+        <i class="ki-solid ki-file-down fs-4 me-2 text-info"></i>
         Download PDF
     </a>
     @if($condition)
         <div class="dropdown-divider"></div>
         <form method="POST" action="...">
             <button type="submit" class="dropdown-item text-danger">
-                <i class="ki-duotone ki-trash fs-4 me-2"></i>
+                <i class="ki-solid ki-trash fs-4 me-2"></i>
                 Hapus PO
             </button>
         </form>

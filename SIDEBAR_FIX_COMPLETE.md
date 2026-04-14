@@ -10,7 +10,7 @@
 - **Code Removed**:
 ```html
 <div id="kt_app_sidebar_toggle" class="app-sidebar-toggle btn btn-icon btn-sm btn-color-muted btn-active-color-primary h-30px w-30px position-absolute top-50 start-100 translate-middle rotate" data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body" data-kt-toggle-name="app-sidebar-minimize">
-    <i class="ki-duotone ki-double-left fs-2 rotate-180"></i>
+    <i class="ki-solid ki-double-left fs-2 rotate-180"></i>
 </div>
 ```
 
@@ -51,7 +51,7 @@ data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle" // Mobile toggle button
 ### Mobile Toggle Button (in header)
 ```html
 <div class="btn btn-icon btn-active-color-primary w-35px h-35px me-2" id="kt_app_sidebar_mobile_toggle">
-    <i class="ki-duotone ki-abstract-14 fs-2"></i>
+    <i class="ki-solid ki-abstract-14 fs-2"></i>
 </div>
 ```
 

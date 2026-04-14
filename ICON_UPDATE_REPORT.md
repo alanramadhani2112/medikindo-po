@@ -91,7 +91,7 @@
 ### 2. Konsisten
 - Semua icon dari Keenicons
 - Ukuran konsisten (fs-2)
-- Style konsisten (ki-duotone)
+- Style konsisten (ki-solid)
 
 ### 3. Modern
 - Icon yang lebih modern dan clean

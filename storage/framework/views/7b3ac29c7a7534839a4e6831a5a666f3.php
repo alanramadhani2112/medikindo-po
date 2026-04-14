@@ -5,7 +5,7 @@
         <!--begin::Sidebar toggle-->
         <div class="d-flex align-items-center d-block d-lg-none ms-n3" title="Show sidebar menu">
             <div class="btn btn-icon btn-active-color-primary w-35px h-35px me-2" id="kt_app_sidebar_mobile_toggle">
-                <i class="ki-duotone ki-abstract-14 fs-2"></i>
+                <i class="ki-solid ki-abstract-14 fs-2"></i>
             </div>
         </div>
         <!--end::Sidebar toggle-->
@@ -53,7 +53,7 @@
                 <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px position-relative">
                     <?php $notifCount = auth()->user()?->unreadNotifications()->count() ?? 0; ?>
                     <a href="<?php echo e(route('web.notifications.index')); ?>" class="text-gray-500">
-                        <i class="ki-duotone ki-notification-bing fs-2">
+                        <i class="ki-solid ki-notification-bing fs-2">
                             <span class="path1"></span>
                             <span class="path2"></span>
                             <span class="path3"></span>
@@ -110,7 +110,7 @@
                         <form method="POST" action="<?php echo e(route('logout')); ?>" class="w-100">
                             <?php echo csrf_field(); ?>
                             <button type="submit" class="btn btn-light-danger btn-sm w-100 d-flex align-items-center justify-content-center">
-                                <i class="ki-duotone ki-exit-right fs-3 me-2"></i>
+                                <i class="ki-solid ki-exit-right fs-3 me-2"></i>
                                 <span class="fw-bold">Keluar</span>
                             </button>
                         </form>

@@ -176,12 +176,12 @@ Successfully standardized **ALL 12 table modules** in the Medikindo PO System to
         <form class="d-flex flex-wrap gap-3">
             <input type="text" name="search" class="form-control form-control-solid">
             <button type="submit" class="btn btn-dark">
-                <i class="ki-duotone ki-magnifier fs-2"></i>
+                <i class="ki-solid ki-magnifier fs-2"></i>
                 Filter
             </button>
             @if(request('search'))
                 <a href="..." class="btn btn-light">
-                    <i class="ki-duotone ki-cross fs-2"></i>
+                    <i class="ki-solid ki-cross fs-2"></i>
                     Reset
                 </a>
             @endif
@@ -210,7 +210,7 @@ Successfully standardized **ALL 12 table modules** in the Medikindo PO System to
 - 100% Keenicons usage
 - No mixed icon systems
 - Consistent sizing (fs-2, fs-4)
-- Proper class format: `ki-duotone ki-{name}`
+- Proper class format: `ki-solid ki-{name}`
 
 ---
 

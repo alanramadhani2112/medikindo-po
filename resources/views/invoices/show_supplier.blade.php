@@ -20,11 +20,11 @@
         <div class="d-flex gap-3">
             <button onclick="window.open('{{ route('web.invoices.supplier.pdf', $invoice) }}', '_blank')" 
                     class="btn btn-light-primary">
-                <i class="ki-duotone ki-file-down fs-2"></i>
+                <i class="ki-solid ki-file-down fs-2"></i>
                 PDF
             </button>
             <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light">
-                <i class="ki-duotone ki-arrow-left fs-2"></i>
+                <i class="ki-solid ki-arrow-left fs-2"></i>
                 Kembali
             </a>
         </div>
@@ -64,7 +64,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-duotone ki-information-5 fs-2 me-2"></i>
+                        <i class="ki-solid ki-information-5 fs-2 me-2"></i>
                         Informasi Referensi
                     </h3>
                 </div>
@@ -82,7 +82,7 @@
                                    class="d-flex align-items-center gap-3 p-3 rounded bg-light-primary text-primary">
                                     <div class="symbol symbol-30px">
                                         <div class="symbol-label bg-white text-primary">
-                                            <i class="ki-duotone ki-package fs-4"></i>
+                                            <i class="ki-solid ki-package fs-4"></i>
                                         </div>
                                     </div>
                                     <span class="fs-7 fw-semibold">{{ $invoice->goodsReceipt?->gr_number ?? 'Dokumen GR' }}</span>
@@ -91,7 +91,7 @@
                                 <div class="d-flex align-items-center gap-3 p-3 rounded bg-light-secondary text-muted">
                                     <div class="symbol symbol-30px">
                                         <div class="symbol-label bg-white text-muted">
-                                            <i class="ki-duotone ki-package fs-4"></i>
+                                            <i class="ki-solid ki-package fs-4"></i>
                                         </div>
                                     </div>
                                     <span class="fs-7 fw-semibold">Goods Receipt belum tersedia</span>
@@ -101,7 +101,7 @@
                                class="d-flex align-items-center gap-3 p-3 rounded bg-light-primary text-primary">
                                 <div class="symbol symbol-30px">
                                     <div class="symbol-label bg-white text-primary">
-                                        <i class="ki-duotone ki-document fs-4"></i>
+                                        <i class="ki-solid ki-document fs-4"></i>
                                     </div>
                                 </div>
                                 <span class="fs-7 fw-semibold">{{ $invoice->purchaseOrder?->po_number ?? 'Dokumen PO' }}</span>
@@ -117,14 +117,14 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-duotone ki-wallet fs-2 me-2"></i>
+                        <i class="ki-solid ki-wallet fs-2 me-2"></i>
                         Riwayat Pembayaran
                     </h3>
                     @if($invoice->status !== 'paid')
                         <div class="card-toolbar">
                             <a href="{{ route('web.payments.create.outgoing', ['invoice_id' => $invoice->id]) }}" 
                                class="btn btn-sm btn-danger">
-                                <i class="ki-duotone ki-wallet fs-4"></i>
+                                <i class="ki-solid ki-wallet fs-4"></i>
                                 Catat Pembayaran Outgoing
                             </a>
                         </div>
@@ -154,7 +154,7 @@
                                         </td>
                                         <td class="text-end pe-4">
                                             <div class="d-flex align-items-center justify-content-end gap-2">
-                                                <i class="ki-duotone ki-time fs-6 text-gray-400"></i>
+                                                <i class="ki-solid ki-time fs-6 text-gray-400"></i>
                                                 <span class="text-gray-600 fs-7">{{ $alloc->created_at->format('d M Y H:i') }}</span>
                                             </div>
                                         </td>
@@ -163,7 +163,7 @@
                                     <tr>
                                         <td colspan="3" class="text-center py-10">
                                             <div class="d-flex flex-column align-items-center">
-                                                <i class="ki-duotone ki-wallet fs-3x text-gray-400 mb-3"></i>
+                                                <i class="ki-solid ki-wallet fs-3x text-gray-400 mb-3"></i>
                                                 <span class="text-gray-500 fs-6">Belum ada catatan pembayaran riil terkait tagihan ini.</span>
                                             </div>
                                         </td>

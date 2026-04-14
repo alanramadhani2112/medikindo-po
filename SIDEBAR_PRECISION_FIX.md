@@ -111,7 +111,7 @@ Memperbaiki CSS dan struktur HTML sidebar untuk presisi maksimal dengan mengguna
     <a href="..." class="d-flex align-items-center">
         <div class="d-flex align-items-center justify-content-center bg-primary rounded" 
              style="width:35px;height:35px;">
-            <i class="ki-duotone ki-hospital text-white fs-2"></i>
+            <i class="ki-solid ki-hospital text-white fs-2"></i>
         </div>
         <div class="ms-3">
             <span class="text-gray-900 fw-bold fs-5">Medikindo</span>
@@ -125,7 +125,7 @@ Memperbaiki CSS dan struktur HTML sidebar untuk presisi maksimal dengan mengguna
 <div class="app-sidebar-logo">
     <a href="..." class="d-flex align-items-center text-decoration-none">
         <div class="symbol symbol-40px bg-primary rounded">
-            <i class="ki-duotone ki-hospital text-white fs-2"></i>
+            <i class="ki-solid ki-hospital text-white fs-2"></i>
         </div>
         <span class="text-gray-900 fw-bold fs-5 ms-3">Medikindo</span>
     </a>

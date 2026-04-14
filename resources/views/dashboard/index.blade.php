@@ -16,7 +16,7 @@ Conversion Metadata:
         </div>
         @can('create_po')
         <a href="{{ route('web.po.create') }}" class="btn btn-primary">
-            <i class="ki-duotone ki-plus fs-2"></i>
+            <i class="ki-solid ki-plus fs-2"></i>
             Buat PO Baru
         </a>
         @endcan
@@ -155,7 +155,7 @@ Conversion Metadata:
                     @empty
                         <div class="text-center py-10">
                             <div class="d-flex flex-column align-items-center">
-                                <i class="ki-duotone ki-information-5 fs-3x text-gray-400 mb-3"></i>
+                                <i class="ki-solid ki-information-5 fs-3x text-gray-400 mb-3"></i>
                                 <span class="text-gray-600 fs-5">Belum ada aktivitas tercatat.</span>
                             </div>
                         </div>
@@ -197,18 +197,18 @@ Conversion Metadata:
                 <div class="card-body pt-0">
                     <div class="d-flex flex-column gap-2">
                         <a href="{{ route('web.po.index') }}" class="btn btn-light-primary justify-content-start">
-                            <i class="ki-duotone ki-document fs-3 me-2"></i>
+                            <i class="ki-solid ki-document fs-3 me-2"></i>
                             Manajemen PO
                         </a>
                         @can('view_invoice')
                         <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light-primary justify-content-start">
-                            <i class="ki-duotone ki-dollar fs-3 me-2"></i>
+                            <i class="ki-solid ki-dollar fs-3 me-2"></i>
                             Faktur & Keuangan
                         </a>
                         @endcan
                         @can('manage_supplier')
                         <a href="{{ route('web.suppliers.index') }}" class="btn btn-light-primary justify-content-start">
-                            <i class="ki-duotone ki-basket fs-3 me-2"></i>
+                            <i class="ki-solid ki-basket fs-3 me-2"></i>
                             Master Supplier
                         </a>
                         @endcan

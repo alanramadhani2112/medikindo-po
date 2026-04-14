@@ -38,7 +38,7 @@
                 {{-- LEFT: Search --}}
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="{{ request('search') }}" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari deskripsi atau referensi...">
@@ -62,14 +62,14 @@
                 
                 {{-- Search Button --}}
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-duotone ki-magnifier fs-2"></i>
+                    <i class="ki-solid ki-magnifier fs-2"></i>
                     Cari
                 </button>
                 
                 {{-- Reset Button --}}
                 @if(request()->filled('search') || request()->filled('type') || request()->filled('date_from'))
                     <a href="{{ route('web.payments.index', ['tab' => $tab ?? 'all']) }}" class="btn btn-light">
-                        <i class="ki-duotone ki-cross fs-2"></i>
+                        <i class="ki-solid ki-cross fs-2"></i>
                         Reset
                     </a>
                 @endif
@@ -106,7 +106,7 @@
                     <li class="nav-item">
                         <a href="{{ route('web.payments.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
                            class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-duotone {{ $tabData['icon'] }} fs-4 me-2"></i>
+                            <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
                                 <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
                             <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                                 {{ $count }}
@@ -122,7 +122,7 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">
-                <i class="ki-duotone ki-wallet fs-2 me-2"></i>
+                <i class="ki-solid ki-wallet fs-2 me-2"></i>
                 Riwayat Transaksi
             </h3>
         </div>
@@ -154,7 +154,7 @@
                                 <td>
                                     <div class="fw-bold text-gray-800 fs-6 mb-1">{{ $payment->description ?? 'Tanpa deskripsi' }}</div>
                                     <div class="text-muted fs-7">
-                                        <i class="ki-duotone ki-document fs-7 me-1"></i>
+                                        <i class="ki-solid ki-document fs-7 me-1"></i>
                                         Ref: {{ $payment->reference_number ?? '—' }}
                                     </div>
                                 </td>
@@ -167,7 +167,7 @@
                                         $typeIcon = $payment->type === 'incoming' ? 'ki-arrow-down' : 'ki-arrow-up';
                                     @endphp
                                     <span class="badge badge-{{ $typeColor }}">
-                                        <i class="ki-duotone {{ $typeIcon }} fs-7 me-1"></i>
+                                        <i class="ki-solid {{ $typeIcon }} fs-7 me-1"></i>
                                         {{ strtoupper($payment->type) }}
                                     </span>
                                 </td>
@@ -191,12 +191,12 @@
                                     <div class="d-flex justify-content-end">
                                         <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
                                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ki-duotone ki-dots-vertical fs-3"></i>
+                                            <i class="ki-solid ki-dots-vertical fs-3"></i>
                                             Aksi
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#paymentDetailModal{{ $payment->id }}">
-                                                <i class="ki-duotone ki-eye fs-4 me-2 text-primary"></i>
+                                                <i class="ki-solid ki-eye fs-4 me-2 text-primary"></i>
                                                 Lihat Detail
                                             </button>
                                         </div>
@@ -207,16 +207,16 @@
                             <tr>
                                 <td colspan="8" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-duotone ki-wallet fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-wallet fs-3x text-gray-400 mb-3"></i>
                                         <h3 class="fs-5 fw-bold text-gray-800 mb-1">Belum Ada Transaksi</h3>
                                         <p class="text-muted fs-7">Transaksi pembayaran akan muncul setelah proses penerimaan atau pengeluaran tercatat.</p>
                                         <div class="d-flex gap-2 mt-3">
                                             <a href="{{ route('web.payments.create.incoming') }}" class="btn btn-success">
-                                                <i class="ki-duotone ki-arrow-down fs-2"></i>
+                                                <i class="ki-solid ki-arrow-down fs-2"></i>
                                                 Catat Kas Masuk
                                             </a>
                                             <a href="{{ route('web.payments.create.outgoing') }}" class="btn btn-primary">
-                                                <i class="ki-duotone ki-arrow-up fs-2"></i>
+                                                <i class="ki-solid ki-arrow-up fs-2"></i>
                                                 Catat Kas Keluar
                                             </a>
                                         </div>

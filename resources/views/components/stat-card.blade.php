@@ -1,7 +1,7 @@
 @props([
     'title',
     'value',
-    'icon'       => 'ki-duotone ki-chart fs-3x text-primary',
+    'icon'       => 'ki-solid ki-chart fs-3x text-primary',
     'trend'      => null,
     'trendValue' => null,
     'color'      => 'primary',
@@ -14,13 +14,13 @@
                 <div class="text-inverse-{{ $color }} fw-semibold fs-7">{{ $title }}</div>
             </div>
             <div class="d-flex align-items-center ms-4">
-                <i class="{{ str_contains($icon,'ki-') ? $icon : 'ki-duotone ki-'.$icon.' fs-3x' }} opacity-75 text-white"></i>
+                <i class="{{ str_contains($icon,'ki-') ? $icon : 'ki-solid ki-'.$icon.' fs-3x' }} opacity-75 text-white"></i>
             </div>
         </div>
         @if($trend && $trendValue)
         <div class="mt-3">
             <span class="badge badge-white fs-8 fw-bold">
-                <i class="ki-duotone ki-{{ $trend === 'up' ? 'arrow-up text-success' : 'arrow-down text-danger' }} fs-7 me-1"></i>
+                <i class="ki-solid ki-{{ $trend === 'up' ? 'arrow-up text-success' : 'arrow-down text-danger' }} fs-7 me-1"></i>
                 {{ $trendValue }}
             </span>
         </div>

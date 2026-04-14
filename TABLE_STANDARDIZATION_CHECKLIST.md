@@ -33,7 +33,7 @@ Use this checklist when creating or updating table modules to ensure consistency
 
 ### 4. Tabs (If Applicable)
 - [ ] Uses nav-tabs nav-line-tabs nav-line-tabs-2x
-- [ ] Each tab has icon (ki-duotone)
+- [ ] Each tab has icon (ki-solid)
 - [ ] Each tab shows count
 - [ ] Active tab has 'active' class
 - [ ] Badge colors match tab purpose
@@ -57,7 +57,7 @@ Use this checklist when creating or updating table modules to ensure consistency
 - [ ] Actions are right-aligned with gap-2
 
 ### 7. Empty State
-- [ ] Has icon (ki-duotone fs-3x text-gray-400)
+- [ ] Has icon (ki-solid fs-3x text-gray-400)
 - [ ] Has title (text-gray-700 fs-5 fw-semibold)
 - [ ] Has description (text-gray-500 fs-6)
 - [ ] Centered with py-10
@@ -89,7 +89,7 @@ Use this checklist when creating or updating table modules to ensure consistency
 - [ ] Primary: `badge-primary` (submitted/active)
 
 ### Icons
-- [ ] All use Keenicons: `ki-duotone ki-{name}`
+- [ ] All use Keenicons: `ki-solid ki-{name}`
 - [ ] Button icons: fs-2
 - [ ] Inline icons: fs-4
 - [ ] Large icons: fs-3x

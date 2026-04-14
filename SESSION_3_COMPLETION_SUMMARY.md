@@ -34,7 +34,7 @@
 <button type="submit" class="btn btn-dark">Filter</button>
 @if(request('search'))
     <a href="..." class="btn btn-light">
-        <i class="ki-duotone ki-cross fs-2"></i>
+        <i class="ki-solid ki-cross fs-2"></i>
         Reset
     </a>
 @endif
@@ -254,12 +254,12 @@ All 3 modules now follow this pattern:
         <form class="d-flex flex-wrap gap-3">
             <input type="text" name="search" class="form-control form-control-solid">
             <button type="submit" class="btn btn-dark">
-                <i class="ki-duotone ki-magnifier fs-2"></i>
+                <i class="ki-solid ki-magnifier fs-2"></i>
                 Filter
             </button>
             @if(request('search'))
                 <a href="..." class="btn btn-light">
-                    <i class="ki-duotone ki-cross fs-2"></i>
+                    <i class="ki-solid ki-cross fs-2"></i>
                     Reset
                 </a>
             @endif

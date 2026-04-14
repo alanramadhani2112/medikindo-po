@@ -34,7 +34,7 @@
     <div class="test-card">
         <h3>Bootstrap Components Test</h3>
         <div class="alert alert-primary" role="alert">
-            <i class="ki-duotone ki-information-5 fs-2 me-3"></i>
+            <i class="ki-solid ki-information-5 fs-2 me-3"></i>
             This is a primary alert with Keenicons
         </div>
         <button class="btn btn-primary me-2">Primary Button</button>
@@ -45,10 +45,10 @@
     <div class="test-card">
         <h3>Keenicons Test</h3>
         <p>
-            <i class="ki-duotone ki-home fs-1 me-2"></i>
-            <i class="ki-duotone ki-user fs-1 me-2"></i>
-            <i class="ki-duotone ki-document fs-1 me-2"></i>
-            <i class="ki-duotone ki-check-circle fs-1 me-2"></i>
+            <i class="ki-solid ki-home fs-1 me-2"></i>
+            <i class="ki-solid ki-user fs-1 me-2"></i>
+            <i class="ki-solid ki-document fs-1 me-2"></i>
+            <i class="ki-solid ki-check-circle fs-1 me-2"></i>
         </p>
     </div>
     

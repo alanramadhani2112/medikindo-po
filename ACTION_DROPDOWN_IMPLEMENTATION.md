@@ -37,12 +37,12 @@
 ```blade
 <div class="d-flex justify-content-end gap-2">
     <a href="..." class="btn btn-sm btn-light-primary">
-        <i class="ki-duotone ki-pencil fs-4"></i>
+        <i class="ki-solid ki-pencil fs-4"></i>
         Edit
     </a>
     <form method="POST" action="...">
         <button type="submit" class="btn btn-sm btn-light-danger">
-            <i class="ki-duotone ki-trash fs-4"></i>
+            <i class="ki-solid ki-trash fs-4"></i>
             Hapus
         </button>
     </form>
@@ -54,18 +54,18 @@
 <div class="d-flex justify-content-end">
     <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
             data-bs-toggle="dropdown">
-        <i class="ki-duotone ki-dots-vertical fs-3"></i>
+        <i class="ki-solid ki-dots-vertical fs-3"></i>
         Aksi
     </button>
     <div class="dropdown-menu dropdown-menu-end">
         <a href="..." class="dropdown-item">
-            <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
+            <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
             Edit Produk
         </a>
         <div class="dropdown-divider"></div>
         <form method="POST" action="...">
             <button type="submit" class="dropdown-item text-danger">
-                <i class="ki-duotone ki-trash fs-4 me-2"></i>
+                <i class="ki-solid ki-trash fs-4 me-2"></i>
                 Hapus Produk
             </button>
         </form>
@@ -116,7 +116,7 @@
 ```
 
 **Specifications:**
-- Icon: `ki-duotone ki-dots-vertical` (fs-3)
+- Icon: `ki-solid ki-dots-vertical` (fs-3)
 - Text: "Aksi"
 - Class: `btn btn-sm btn-light btn-active-light-primary`
 - Min Width: 80px (desktop), 70px (tablet), 60px (mobile)
@@ -286,7 +286,7 @@ Dropdown action menu sekarang konsisten di:
             {{-- Dropdown Toggle --}}
             <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
                     data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="ki-duotone ki-dots-vertical fs-3"></i>
+                <i class="ki-solid ki-dots-vertical fs-3"></i>
                 Aksi
             </button>
             
@@ -294,7 +294,7 @@ Dropdown action menu sekarang konsisten di:
             <div class="dropdown-menu dropdown-menu-end">
                 {{-- Edit Action --}}
                 <a href="{{ route('...edit', $item) }}" class="dropdown-item">
-                    <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
+                    <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
                     Edit Item
                 </a>
                 
@@ -307,7 +307,7 @@ Dropdown action menu sekarang konsisten di:
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="dropdown-item text-danger">
-                        <i class="ki-duotone ki-trash fs-4 me-2"></i>
+                        <i class="ki-solid ki-trash fs-4 me-2"></i>
                         Hapus Item
                     </button>
                 </form>
@@ -405,7 +405,7 @@ Dropdown action menu sekarang konsisten di:
 **Solution**:
 - Verify Keenicons loaded
 - Check icon name spelling
-- Verify icon class: `ki-duotone ki-{icon-name}`
+- Verify icon class: `ki-solid ki-{icon-name}`
 
 ### Issue: Hover effect tidak muncul
 **Solution**:

@@ -20,7 +20,7 @@
                 <div class="app-container container-fluid d-flex align-items-stretch flex-stack" id="kt_app_header_container">
                     <div class="d-flex align-items-center d-block d-lg-none ms-n3">
                         <div class="btn btn-icon btn-active-color-primary w-35px h-35px me-2" id="kt_app_sidebar_mobile_toggle">
-                            <i class="ki-duotone ki-abstract-14 fs-2"></i>
+                            <i class="ki-solid ki-abstract-14 fs-2"></i>
                         </div>
                         <a href="{{ route('web.dashboard') }}">
                             <span class="fw-bold text-dark fs-5">Medikindo</span>
@@ -32,7 +32,7 @@
                         </div>
                         <div class="app-navbar-item ms-1 ms-md-3">
                             <a href="#" class="btn btn-icon btn-custom btn-color-gray-600 btn-active-light btn-active-color-primary w-35px h-35px w-md-40px h-md-40px">
-                                <i class="ki-duotone ki-notification fs-1"></i>
+                                <i class="ki-solid ki-notification fs-1"></i>
                             </a>
                         </div>
                         <div class="app-navbar-item ms-1 ms-md-3">
@@ -53,7 +53,7 @@
                     <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
                         <a href="{{ route('web.dashboard') }}" class="d-flex align-items-center gap-3">
                             <div class="d-flex align-items-center justify-content-center bg-primary rounded" style="width:36px;height:36px;">
-                                <i class="ki-duotone ki-hospital text-white fs-3"></i>
+                                <i class="ki-solid ki-hospital text-white fs-3"></i>
                             </div>
                             <div class="app-sidebar-logo-default d-flex flex-column lh-1">
                                 <span class="fw-bold text-dark fs-5 lh-1">Medikindo</span>

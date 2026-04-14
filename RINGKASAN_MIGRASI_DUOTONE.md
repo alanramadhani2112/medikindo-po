@@ -15,7 +15,7 @@ Mengganti **semua icon** dari **Keenicons Outline** menjadi **Keenicons Duotone*
 <i class="ki-outline ki-{icon-name}"></i>
 
 <!-- AFTER -->
-<i class="ki-duotone ki-{icon-name}"></i>
+<i class="ki-solid ki-{icon-name}"></i>
 ```
 
 ---
@@ -44,7 +44,7 @@ Mengganti **semua icon** dari **Keenicons Outline** menjadi **Keenicons Duotone*
 ## 📝 COMMIT INFO
 
 **Commit Hash**: `a2eccbb`  
-**Message**: "Migrate all icons from Outline to Duotone style (ki-outline -> ki-duotone)"  
+**Message**: "Migrate all icons from Outline to Duotone style (ki-outline -> ki-solid)"  
 **Files Changed**: 102 files  
 **Insertions**: +1,530 lines  
 **Deletions**: -627 lines  

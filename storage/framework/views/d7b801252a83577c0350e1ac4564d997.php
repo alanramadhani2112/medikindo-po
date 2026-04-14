@@ -5,13 +5,13 @@
             <?php if($paginator->onFirstPage()): ?>
                 <li class="page-item disabled" aria-disabled="true" aria-label="<?php echo app('translator')->get('pagination.previous'); ?>">
                     <span class="page-link">
-                        <i class="ki-duotone ki-black-left fs-3"></i>
+                        <i class="ki-solid ki-black-left fs-3"></i>
                     </span>
                 </li>
             <?php else: ?>
                 <li class="page-item">
                     <a class="page-link" href="<?php echo e($paginator->previousPageUrl()); ?>" rel="prev" aria-label="<?php echo app('translator')->get('pagination.previous'); ?>">
-                        <i class="ki-duotone ki-black-left fs-3"></i>
+                        <i class="ki-solid ki-black-left fs-3"></i>
                     </a>
                 </li>
             <?php endif; ?>
@@ -45,13 +45,13 @@
             <?php if($paginator->hasMorePages()): ?>
                 <li class="page-item">
                     <a class="page-link" href="<?php echo e($paginator->nextPageUrl()); ?>" rel="next" aria-label="<?php echo app('translator')->get('pagination.next'); ?>">
-                        <i class="ki-duotone ki-black-right fs-3"></i>
+                        <i class="ki-solid ki-black-right fs-3"></i>
                     </a>
                 </li>
             <?php else: ?>
                 <li class="page-item disabled" aria-disabled="true" aria-label="<?php echo app('translator')->get('pagination.next'); ?>">
                     <span class="page-link">
-                        <i class="ki-duotone ki-black-right fs-3"></i>
+                        <i class="ki-solid ki-black-right fs-3"></i>
                     </span>
                 </li>
             <?php endif; ?>

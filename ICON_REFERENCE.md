@@ -60,7 +60,7 @@ Pending/Wait          → ki-time
 ### Sidebar Menu
 ```blade
 <span class="menu-icon">
-    <i class="ki-duotone ki-purchase fs-2"></i>
+    <i class="ki-solid ki-purchase fs-2"></i>
 </span>
 <span class="menu-title">Purchase Orders</span>
 ```
@@ -68,7 +68,7 @@ Pending/Wait          → ki-time
 ### Action Button
 ```blade
 <button class="btn btn-sm btn-light-primary">
-    <i class="ki-duotone ki-note-2 fs-4"></i>
+    <i class="ki-solid ki-note-2 fs-4"></i>
     Edit
 </button>
 ```
@@ -77,7 +77,7 @@ Pending/Wait          → ki-time
 
 ## ✅ Icon Guidelines
 
-1. **Always use Keenicons**: `ki-duotone ki-{name}`
+1. **Always use Keenicons**: `ki-solid ki-{name}`
 2. **Sidebar icons**: `fs-2` (larger)
 3. **Button icons**: `fs-4` (smaller)
 4. **Be contextual**: Icon harus sesuai fungsi

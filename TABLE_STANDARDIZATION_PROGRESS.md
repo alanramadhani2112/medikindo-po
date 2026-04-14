@@ -153,7 +153,7 @@
 #### UI Elements
 - ✅ Buttons follow system (primary/success/danger/light)
 - ✅ Badges follow system (success/warning/danger/secondary)
-- ✅ Icons use Keenicons (`ki-duotone ki-*`)
+- ✅ Icons use Keenicons (`ki-solid ki-*`)
 - ✅ Consistent spacing (mb-7, mb-5, gap-3)
 
 #### Functionality

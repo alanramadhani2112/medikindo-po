@@ -20,7 +20,7 @@
 
 **Before**:
 ```html
-<i class="ki-duotone ki-element-11 fs-2"></i>
+<i class="ki-solid ki-element-11 fs-2"></i>
 ```
 
 **After**:
@@ -46,7 +46,7 @@
 
 **Before**:
 ```html
-<i class="ki-duotone ki-purchase fs-2"></i>
+<i class="ki-solid ki-purchase fs-2"></i>
 ```
 
 **After**:
@@ -206,7 +206,7 @@ Sistem sekarang menggunakan **mixed icon styles**:
 - `ki-home-2` - Dashboard
 - `ki-wallet` - Purchase Orders
 
-### ki-duotone (70+ icons)
+### ki-solid (70+ icons)
 - Semua icon lainnya di sistem
 
 **Note**: Mixing styles ini **DIPERBOLEHKAN** untuk memberikan emphasis pada icon tertentu. Solid style membuat Dashboard dan Purchase Order lebih menonjol di sidebar.

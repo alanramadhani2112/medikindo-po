@@ -24,7 +24,7 @@ View file `organizations/index.blade.php` menggunakan route `web.organizations.t
     @csrf
     @method('PATCH')
     <button type="submit" class="btn btn-sm btn-light">
-        <i class="ki-duotone ki-toggle-{{ $org->is_active ? 'off' : 'on' }} fs-4"></i>
+        <i class="ki-solid ki-toggle-{{ $org->is_active ? 'off' : 'on' }} fs-4"></i>
         {{ $org->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
     </button>
 </form>
@@ -44,7 +44,7 @@ View file `organizations/index.blade.php` menggunakan route `web.organizations.t
 <div class="d-flex justify-content-end gap-2">
     <a href="{{ route('web.organizations.edit', $org) }}" 
        class="btn btn-sm btn-light-primary">
-        <i class="ki-duotone ki-note-2 fs-4"></i>
+        <i class="ki-solid ki-note-2 fs-4"></i>
         Edit
     </a>
 </div>
@@ -97,7 +97,7 @@ public function toggleStatus(Organization $organization)
     @csrf
     @method('PATCH')
     <button type="submit" class="btn btn-sm btn-light">
-        <i class="ki-duotone ki-toggle-{{ $org->is_active ? 'off' : 'on' }} fs-4"></i>
+        <i class="ki-solid ki-toggle-{{ $org->is_active ? 'off' : 'on' }} fs-4"></i>
         {{ $org->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
     </button>
 </form>

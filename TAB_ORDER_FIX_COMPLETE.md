@@ -70,14 +70,14 @@ The invoice index page tabs should match this order.
     <li class="nav-item">
         <a class="nav-link {{ request('tab') === 'customer' || !request('tab') ? 'active' : '' }}" 
            href="{{ route('web.invoices.index', ['tab' => 'customer']) }}">
-            <i class="ki-duotone ki-arrow-up fs-2 text-success me-2"></i>
+            <i class="ki-solid ki-arrow-up fs-2 text-success me-2"></i>
             Tagihan ke RS/Klinik (AR)
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link {{ request('tab') === 'supplier' ? 'active' : '' }}" 
            href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}">
-            <i class="ki-duotone ki-arrow-down fs-2 text-danger me-2"></i>
+            <i class="ki-solid ki-arrow-down fs-2 text-danger me-2"></i>
             Hutang ke Supplier (AP)
         </a>
     </li>

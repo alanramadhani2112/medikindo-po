@@ -2,7 +2,7 @@
     
     <?php if(session('success')): ?>
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
+            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
             <div><?php echo e(session('success')); ?></div>
         </div>
     <?php endif; ?>
@@ -15,7 +15,7 @@
         </div>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage_products')): ?>
             <a href="<?php echo e(route('web.products.create')); ?>" class="btn btn-primary">
-                <i class="ki-outline ki-plus fs-2"></i>
+                <i class="ki-solid ki-plus fs-2"></i>
                 Tambah Produk
             </a>
         <?php endif; ?>
@@ -30,7 +30,7 @@
                 
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nama atau SKU...">
@@ -39,14 +39,14 @@
                 
                 
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-outline ki-magnifier fs-2"></i>
+                    <i class="ki-solid ki-magnifier fs-2"></i>
                     Cari
                 </button>
                 
                 
                 <?php if(request()->filled('search')): ?>
                     <a href="<?php echo e(route('web.products.index', ['type' => request('type')])); ?>" class="btn btn-light">
-                        <i class="ki-outline ki-cross fs-2"></i>
+                        <i class="ki-solid ki-cross fs-2"></i>
                         Reset
                     </a>
                 <?php endif; ?>
@@ -60,7 +60,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 <?php
                     $tabOptions = [
-                        '' => ['label' => 'Semua', 'icon' => 'ki-element-11'],
+                        '' => ['label' => 'Semua', 'icon' => 'ki-home-2'],
                         'non-narcotic' => ['label' => 'Non-Narkotika', 'icon' => 'ki-shield-tick'],
                         'narcotic' => ['label' => 'Narkotika', 'icon' => 'ki-shield-cross'],
                     ];
@@ -78,7 +78,7 @@
                     <li class="nav-item">
                         <a href="<?php echo e(route('web.products.index', array_merge(request()->except(['type', 'page']), ['type' => $val === '' ? null : $val]))); ?>" 
                            class="nav-link text-active-primary d-flex align-items-center <?php echo e($isActive ? 'active' : ''); ?>">
-                            <i class="ki-outline <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
+                            <i class="ki-solid <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
                             <span class="fs-6 fw-bold"><?php echo e($tabData['label']); ?></span>
                             <span class="badge <?php echo e($isActive ? 'badge-primary' : 'badge-light-secondary'); ?> ms-auto">
                                 <?php echo e($counts[$val]); ?>
@@ -130,12 +130,12 @@
                                 <td>
                                     <?php if($product->is_narcotic): ?>
                                         <span class="badge badge-danger fs-7 fw-bold">
-                                            <i class="ki-outline ki-shield-cross fs-6 me-1"></i>
+                                            <i class="ki-solid ki-shield-cross fs-6 me-1"></i>
                                             NARKOTIKA
                                         </span>
                                     <?php else: ?>
                                         <span class="badge badge-light-success fs-7 fw-semibold">
-                                            <i class="ki-outline ki-shield-tick fs-6 me-1"></i>
+                                            <i class="ki-solid ki-shield-tick fs-6 me-1"></i>
                                             NON-NARKOTIKA
                                         </span>
                                     <?php endif; ?>
@@ -178,12 +178,12 @@
                                         <div class="d-flex justify-content-end">
                                             <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
                                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ki-outline ki-dots-vertical fs-3"></i>
+                                                <i class="ki-solid ki-dots-vertical fs-3"></i>
                                                 Aksi
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a href="<?php echo e(route('web.products.edit', $product)); ?>" class="dropdown-item">
-                                                    <i class="ki-outline ki-notepad-edit fs-4 me-2 text-primary"></i>
+                                                    <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
                                                     Edit Produk
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -192,7 +192,7 @@
                                                     <?php echo csrf_field(); ?>
                                                     <?php echo method_field('DELETE'); ?>
                                                     <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="ki-outline ki-trash fs-4 me-2"></i>
+                                                        <i class="ki-solid ki-trash fs-4 me-2"></i>
                                                         Hapus Produk
                                                     </button>
                                                 </form>
@@ -205,12 +205,12 @@
                             <tr>
                                 <td colspan="8" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum ada produk terdaftar</span>
                                         <span class="text-gray-500 fs-6">Mulai dengan menambahkan produk baru ke katalog.</span>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage_products')): ?>
                                             <a href="<?php echo e(route('web.products.create')); ?>" class="btn btn-primary mt-5">
-                                                <i class="ki-outline ki-plus fs-2"></i>
+                                                <i class="ki-solid ki-plus fs-2"></i>
                                                 Tambah Produk
                                             </a>
                                         <?php endif; ?>
