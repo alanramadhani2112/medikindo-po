@@ -66,7 +66,7 @@
                             <div class="menu-item">
                                 <a class="menu-link active" href="{{ route('web.dashboard') }}">
                                     <span class="menu-icon">
-                                        <i class="ki-solid ki-home-2 fs-2"></i>
+                                        <i class="ki-solid ki-home fs-2"></i>
                                     </span>
                                     <span class="menu-title">Dashboard</span>
                                 </a>

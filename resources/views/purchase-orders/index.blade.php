@@ -70,7 +70,7 @@
         <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
             @php
                 $tabOptions = [
-                    'all' => ['label' => 'Semua', 'icon' => 'ki-home-2'],
+                    'all' => ['label' => 'Semua', 'icon' => 'ki-home'],
                     'draft' => ['label' => 'Draft', 'icon' => 'ki-document'],
                     'submitted' => ['label' => 'Diajukan', 'icon' => 'ki-send'],
                     'approved' => ['label' => 'Disetujui', 'icon' => 'ki-check-circle'],

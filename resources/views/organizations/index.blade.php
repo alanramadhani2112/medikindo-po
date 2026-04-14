@@ -69,7 +69,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 @php
                     $tabOptions = [
-                        'all' => ['label' => 'Semua', 'icon' => 'ki-home-2'],
+                        'all' => ['label' => 'Semua', 'icon' => 'ki-home'],
                         'hospital' => ['label' => 'Rumah Sakit', 'icon' => 'ki-hospital'],
                         'clinic' => ['label' => 'Klinik', 'icon' => 'ki-office-bag'],
                     ];

@@ -83,7 +83,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 @php
                     $tabOptions = [
-                        'all' => ['label' => 'Semua Transaksi', 'icon' => 'ki-home-2'],
+                        'all' => ['label' => 'Semua Transaksi', 'icon' => 'ki-home'],
                         'incoming' => ['label' => 'Kas Masuk', 'icon' => 'ki-arrow-down'],
                         'outgoing' => ['label' => 'Kas Keluar', 'icon' => 'ki-arrow-up'],
                         'pending' => ['label' => 'Pending', 'icon' => 'ki-time'],

@@ -62,7 +62,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 @php
                     $tabOptions = [
-                        '' => ['label' => 'Semua', 'icon' => 'ki-home-2'],
+                        '' => ['label' => 'Semua', 'icon' => 'ki-home'],
                         'active' => ['label' => 'Aktif', 'icon' => 'ki-check-circle'],
                         'inactive' => ['label' => 'Nonaktif', 'icon' => 'ki-cross-circle'],
                     ];

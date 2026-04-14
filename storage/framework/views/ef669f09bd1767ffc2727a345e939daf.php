@@ -4,7 +4,7 @@
     <div class="d-flex justify-content-between align-items-center mb-7">
         <div>
             <h1 class="fs-2 fw-bold text-gray-900 mb-2">
-                <i class="ki-outline ki-arrow-up fs-2 text-success me-2"></i>
+                <i class="ki-solid ki-arrow-up fs-2 text-success me-2"></i>
                 Tagihan ke RS/Klinik (AR)
             </h1>
             <p class="text-gray-600 fs-6 mb-0">Kelola tagihan yang diterbitkan ke RS/Klinik</p>
@@ -12,7 +12,7 @@
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create_invoices')): ?>
         <div>
             <a href="<?php echo e(route('web.invoices.customer.create')); ?>" class="btn btn-success">
-                <i class="ki-outline ki-plus fs-3"></i>
+                <i class="ki-solid ki-plus fs-3"></i>
                 Buat Tagihan ke RS/Klinik
             </a>
         </div>
@@ -71,7 +71,7 @@
                                 <td class="text-end pe-4">
                                     <a href="<?php echo e(route('web.invoices.customer.show', $invoice)); ?>" 
                                        class="btn btn-sm btn-light btn-active-light-primary">
-                                        <i class="ki-outline ki-eye fs-4"></i>
+                                        <i class="ki-solid ki-eye fs-4"></i>
                                         Lihat
                                     </a>
                                 </td>
@@ -80,12 +80,12 @@
                             <tr>
                                 <td colspan="7" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-document fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-document fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum Ada Tagihan ke RS/Klinik</span>
                                         <span class="text-gray-500 fs-6">Tagihan akan muncul setelah dibuat dari Goods Receipt.</span>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create_invoices')): ?>
                                         <a href="<?php echo e(route('web.invoices.customer.create')); ?>" class="btn btn-sm btn-success mt-4">
-                                            <i class="ki-outline ki-plus fs-4"></i>
+                                            <i class="ki-solid ki-plus fs-4"></i>
                                             Buat Tagihan Pertama
                                         </a>
                                         <?php endif; ?>

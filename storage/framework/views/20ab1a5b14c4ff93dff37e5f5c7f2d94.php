@@ -41,11 +41,11 @@
 <?php endif; ?>
             <a href="<?php echo e(route('web.goods-receipts.pdf', $goodsReceipt)); ?>" target="_blank" 
                class="btn btn-light-primary btn-sm">
-                <i class="ki-outline ki-file-down fs-3"></i>
+                <i class="ki-solid ki-file-down fs-3"></i>
                 PDF
             </a>
             <a href="<?php echo e(route('web.goods-receipts.index')); ?>" class="btn btn-light-secondary btn-sm">
-                <i class="ki-outline ki-arrow-left fs-3"></i>
+                <i class="ki-solid ki-arrow-left fs-3"></i>
                 Kembali
             </a>
          <?php $__env->endSlot(); ?>
@@ -92,7 +92,7 @@
                 <span class="text-muted fs-7 fw-semibold d-block mb-2">Diterima Oleh</span>
                 <span class="fs-6 fw-bold text-gray-800 d-block"><?php echo e($goodsReceipt->receivedBy?->name ?? '—'); ?></span>
                 <span class="text-muted fs-7">
-                    <i class="ki-outline ki-calendar fs-7 me-1"></i>
+                    <i class="ki-solid ki-calendar fs-7 me-1"></i>
                     <?php echo e($goodsReceipt->received_date->format('d M Y')); ?>
 
                 </span>
@@ -222,7 +222,7 @@
                             <td class="text-center">
                                 <?php if($item->condition === 'Good' || $item->condition === 'Baik Sempurna' || $item->condition === 'Baik'): ?>
                                     <span class="text-success fw-bold">
-                                        <i class="ki-outline ki-check-circle fs-3"></i>
+                                        <i class="ki-solid ki-check-circle fs-3"></i>
                                         Baik
                                     </span>
                                 <?php else: ?>
