@@ -19,7 +19,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.dashboard') ? 'active' : ''); ?>" href="<?php echo e(route('web.dashboard')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-home-2 fs-2"></i>
+                            <i class="ki-solid ki-home fs-2"></i>
                         </span>
                         <span class="menu-title">Dashboard</span>
                     </a>
@@ -37,7 +37,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.po.*') ? 'active' : ''); ?>" href="<?php echo e(route('web.po.index')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-wallet fs-2"></i>
+                            <i class="ki-solid ki-purchase fs-2"></i>
                         </span>
                         <span class="menu-title">Purchase Orders</span>
                     </a>
@@ -48,7 +48,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.approvals.*') ? 'active' : ''); ?>" href="<?php echo e(route('web.approvals.index')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-check-square fs-2"></i>
+                            <i class="ki-solid ki-basket-ok fs-2"></i>
                         </span>
                         <span class="menu-title">Approvals</span>
                         <?php if(isset($pendingApprovalCount) && $pendingApprovalCount > 0): ?>
@@ -62,7 +62,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.goods-receipts.*') ? 'active' : ''); ?>" href="<?php echo e(route('web.goods-receipts.index')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-package fs-2"></i>
+                            <i class="ki-solid ki-questionnaire-tablet fs-2"></i>
                         </span>
                         <span class="menu-title">Goods Receipt</span>
                     </a>
@@ -81,7 +81,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.invoices.customer.*') ? 'active' : ''); ?>" href="<?php echo e(route('web.invoices.customer.index')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-arrow-up fs-2 text-success"></i>
+                            <i class="ki-solid ki-bill fs-2 text-success"></i>
                         </span>
                         <span class="menu-title">Tagihan ke RS/Klinik</span>
                         <span class="menu-badge">
@@ -137,7 +137,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.financial-controls.*') ? 'active' : ''); ?>" href="<?php echo e(route('web.financial-controls.index')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-chart-simple fs-2"></i>
+                            <i class="ki-solid ki-chart-line fs-2"></i>
                         </span>
                         <span class="menu-title">Credit Control</span>
                     </a>
@@ -157,7 +157,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.organizations.*') ? 'active' : ''); ?>" href="<?php echo e(route('web.organizations.index')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-bank fs-2"></i>
+                            <i class="ki-solid ki-people fs-2"></i>
                         </span>
                         <span class="menu-title">Organizations</span>
                     </a>
@@ -168,7 +168,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.suppliers.*') ? 'active' : ''); ?>" href="<?php echo e(route('web.suppliers.index')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-delivery-3 fs-2"></i>
+                            <i class="ki-solid ki-cube-2 fs-2"></i>
                         </span>
                         <span class="menu-title">Suppliers</span>
                     </a>
@@ -190,7 +190,7 @@
                 <div class="menu-item">
                     <a class="menu-link <?php echo e(request()->routeIs('web.users.*') ? 'active' : ''); ?>" href="<?php echo e(route('web.users.index')); ?>">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-profile-user fs-2"></i>
+                            <i class="ki-solid ki-user fs-2"></i>
                         </span>
                         <span class="menu-title">Users</span>
                     </a>

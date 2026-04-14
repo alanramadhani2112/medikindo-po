@@ -153,7 +153,7 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="dropdown-item {{ $supplier->is_active ? 'text-warning' : 'text-success' }}">
-                                                    <i class="ki-solid ki-{{ $supplier->is_active ? 'shield-cross' : 'shield-tick' }} fs-4 me-2"></i>
+                                                    <i class="ki-solid ki-{{ $supplier->is_active ? 'cross-square' : 'check-circle' }} fs-4 me-2"></i>
                                                     {{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Supplier
                                                 </button>
                                             </form>

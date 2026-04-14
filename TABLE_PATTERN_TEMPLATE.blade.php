@@ -219,7 +219,7 @@
                                         {{-- Edit button --}}
                                         <a href="{{ route('module.edit', $item) }}" 
                                            class="btn btn-sm btn-light">
-                                            <i class="ki-solid ki-pencil fs-4"></i>
+                                            <i class="ki-solid ki-message-edit fs-4"></i>
                                         </a>
                                         
                                         {{-- Delete button --}}

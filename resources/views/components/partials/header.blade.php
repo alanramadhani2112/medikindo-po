@@ -53,9 +53,7 @@
                 <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px position-relative">
                     @php $notifCount = auth()->user()?->unreadNotifications()->count() ?? 0; @endphp
                     <a href="{{ route('web.notifications.index') }}" class="text-gray-500">
-                        <i class="ki-solid ki-notification-bing fs-2">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
+                        <i class="ki-solid ki-notification fs-2"></i>
                             <span class="path3"></span>
                         </i>
                         @if($notifCount > 0)

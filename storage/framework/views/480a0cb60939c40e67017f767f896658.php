@@ -8,7 +8,7 @@
             
             <div class="flex-grow-1" style="max-width: 400px;">
                 <div class="position-relative">
-                    <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                     <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
                            class="form-control form-control-solid ps-12" 
                            placeholder="Cari nomor PO, organisasi, atau supplier...">
@@ -38,14 +38,14 @@
             
             
             <button type="submit" class="btn btn-dark">
-                <i class="ki-duotone ki-magnifier fs-2"></i>
+                <i class="ki-solid ki-magnifier fs-2"></i>
                 Filter
             </button>
             
             
             <?php if(request()->filled('search') || request()->filled('organization') || request()->filled('date_from')): ?>
                 <a href="<?php echo e(route('web.po.index', ['tab' => $tab ?? 'all'])); ?>" class="btn btn-light">
-                    <i class="ki-duotone ki-cross fs-2"></i>
+                    <i class="ki-solid ki-cross fs-2"></i>
                     Reset
                 </a>
             <?php endif; ?>
@@ -54,7 +54,7 @@
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create_purchase_orders')): ?>
             <div class="ms-auto">
                 <a href="<?php echo e(route('web.po.create')); ?>" class="btn btn-primary">
-                    <i class="ki-duotone ki-plus fs-2"></i>
+                    <i class="ki-solid ki-plus fs-2"></i>
                     Buat PO Baru
                 </a>
             </div>
@@ -85,7 +85,7 @@
                 <li class="nav-item">
                     <a href="<?php echo e(route('web.po.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val]))); ?>" 
                        class="nav-link text-active-primary d-flex align-items-center <?php echo e($isActive ? 'active' : ''); ?>">
-                        <i class="ki-duotone <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
+                        <i class="ki-solid <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
                         <span class="fs-6 fw-bold"><?php echo e($tabData['label']); ?></span>
                         <span class="badge <?php echo e($isActive ? 'badge-primary' : 'badge-light-secondary'); ?> ms-auto">
                             <?php echo e($count); ?>
@@ -123,7 +123,7 @@
 
                                 </a>
                                 <div class="text-muted fs-7 mt-1">
-                                    <i class="ki-duotone ki-user fs-7 me-1"></i>
+                                    <i class="ki-solid ki-user fs-7 me-1"></i>
                                     <?php echo e($order->creator->name ?? '-'); ?>
 
                                 </div>
@@ -164,24 +164,24 @@
                                 <div class="d-flex justify-content-end">
                                     <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
                                             data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ki-duotone ki-dots-vertical fs-3"></i>
+                                        <i class="ki-solid ki-dots-vertical fs-3"></i>
                                         Aksi
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <a href="<?php echo e(route('web.po.show', $order)); ?>" class="dropdown-item">
-                                            <i class="ki-duotone ki-eye fs-4 me-2 text-primary"></i>
+                                            <i class="ki-solid ki-eye fs-4 me-2 text-primary"></i>
                                             Lihat Detail
                                         </a>
                                         <?php if($order->status === 'draft'): ?>
                                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update_purchase_orders')): ?>
                                             <a href="<?php echo e(route('web.po.edit', $order)); ?>" class="dropdown-item">
-                                                <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
+                                                <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
                                                 Edit PO
                                             </a>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                         <a href="<?php echo e(route('web.po.pdf', $order)); ?>" class="dropdown-item" target="_blank">
-                                            <i class="ki-duotone ki-file-down fs-4 me-2 text-info"></i>
+                                            <i class="ki-solid ki-file-down fs-4 me-2 text-info"></i>
                                             Download PDF
                                         </a>
                                         <?php if($order->status === 'draft'): ?>
@@ -192,7 +192,7 @@
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('DELETE'); ?>
                                                 <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="ki-duotone ki-trash fs-4 me-2"></i>
+                                                    <i class="ki-solid ki-trash fs-4 me-2"></i>
                                                     Hapus PO
                                                 </button>
                                             </form>
@@ -206,7 +206,7 @@
                         <tr>
                             <td colspan="7" class="text-center py-10">
                                 <div class="d-flex flex-column align-items-center">
-                                    <i class="ki-duotone ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                    <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                     <h3 class="fs-5 fw-bold text-gray-800 mb-1">Tidak Ada Data</h3>
                                     <p class="text-muted fs-7">Belum ada purchase order yang tersedia saat ini.</p>
                                 </div>

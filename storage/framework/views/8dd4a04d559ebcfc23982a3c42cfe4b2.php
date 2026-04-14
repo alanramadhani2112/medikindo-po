@@ -12,7 +12,7 @@
     
     <?php if(session('success')): ?>
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-duotone ki-check-circle fs-2 me-3"></i>
+            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
             <div><?php echo e(session('success')); ?></div>
         </div>
     <?php endif; ?>
@@ -24,14 +24,14 @@
                 <input type="hidden" name="tab" value="<?php echo e($tab ?? 'pending'); ?>">
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nomor PO atau supplier...">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-duotone ki-magnifier fs-2"></i>
+                    <i class="ki-solid ki-magnifier fs-2"></i>
                     Cari
                 </button>
             </form>
@@ -56,7 +56,7 @@
                     <li class="nav-item">
                         <a href="<?php echo e(route('web.approvals.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val]))); ?>" 
                            class="nav-link text-active-primary d-flex align-items-center <?php echo e($isActive ? 'active' : ''); ?>">
-                            <i class="ki-duotone <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
+                            <i class="ki-solid <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
                             <span class="fs-6 fw-bold"><?php echo e($tabData['label']); ?></span>
                             <span class="badge <?php echo e($isActive ? 'badge-primary' : 'badge-light-secondary'); ?> ms-auto">
                                 <?php echo e($count); ?>
@@ -75,7 +75,7 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    <i class="ki-duotone ki-time fs-2 me-2"></i>
+                    <i class="ki-solid ki-time fs-2 me-2"></i>
                     Antrian Persetujuan
                 </h3>
             </div>
@@ -101,7 +101,7 @@
 
                                         </a>
                                         <div class="text-muted fs-7 mt-1">
-                                            <i class="ki-duotone ki-time fs-7 me-1"></i>
+                                            <i class="ki-solid ki-time fs-7 me-1"></i>
                                             <?php echo e($po->created_at->diffForHumans()); ?>
 
                                         </div>
@@ -109,12 +109,12 @@
                                     <td>
                                         <div class="fw-bold text-gray-800 fs-6 mb-1"><?php echo e($po->organization?->name); ?></div>
                                         <div class="text-muted fs-7">
-                                            <i class="ki-duotone ki-arrow-right-left fs-7 me-1"></i>
+                                            <i class="ki-solid ki-arrow-right-left fs-7 me-1"></i>
                                             <?php echo e($po->supplier?->name); ?>
 
                                         </div>
                                         <div class="text-muted fs-8 mt-1">
-                                            <i class="ki-duotone ki-user fs-8 me-1"></i>
+                                            <i class="ki-solid ki-user fs-8 me-1"></i>
                                             <?php echo e($po->creator?->name); ?>
 
                                         </div>
@@ -167,7 +167,7 @@
                                                     <input type="hidden" name="notes" id="notes_approved_<?php echo e($po->id); ?>">
                                                     <button type="submit" class="btn btn-sm btn-success w-100" 
                                                             onclick="document.getElementById('notes_approved_<?php echo e($po->id); ?>').value = document.getElementById('notes_<?php echo e($po->id); ?>').value;">
-                                                        <i class="ki-duotone ki-check fs-4"></i>
+                                                        <i class="ki-solid ki-check fs-4"></i>
                                                         Setujui
                                                     </button>
                                                 </form>
@@ -179,7 +179,7 @@
                                                     <input type="hidden" name="notes" id="notes_rejected_<?php echo e($po->id); ?>">
                                                     <button type="submit" class="btn btn-sm btn-danger w-100"
                                                             onclick="document.getElementById('notes_rejected_<?php echo e($po->id); ?>').value = document.getElementById('notes_<?php echo e($po->id); ?>').value;">
-                                                        <i class="ki-duotone ki-cross fs-4"></i>
+                                                        <i class="ki-solid ki-cross fs-4"></i>
                                                         Tolak
                                                     </button>
                                                 </form>
@@ -191,7 +191,7 @@
                                 <tr>
                                     <td colspan="6" class="text-center py-10">
                                         <div class="d-flex flex-column align-items-center">
-                                            <i class="ki-duotone ki-check-circle fs-3x text-success mb-3"></i>
+                                            <i class="ki-solid ki-check-circle fs-3x text-success mb-3"></i>
                                             <h3 class="fs-5 fw-bold text-gray-800 mb-1">Antrian Kosong</h3>
                                             <p class="text-muted fs-7">Tidak ada pengajuan yang memerlukan persetujuan Anda saat ini.</p>
                                         </div>
@@ -208,7 +208,7 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    <i class="ki-duotone ki-document fs-2 me-2"></i>
+                    <i class="ki-solid ki-document fs-2 me-2"></i>
                     Riwayat Keputusan
                 </h3>
             </div>
@@ -233,7 +233,7 @@
 
                                         </a>
                                         <div class="text-muted fs-7 mt-1">
-                                            <i class="ki-duotone ki-time fs-7 me-1"></i>
+                                            <i class="ki-solid ki-time fs-7 me-1"></i>
                                             <?php echo e($po->updated_at->format('d/m/Y H:i')); ?>
 
                                         </div>
@@ -241,7 +241,7 @@
                                     <td>
                                         <div class="fw-bold text-gray-800 fs-6 mb-1"><?php echo e($po->organization?->name); ?></div>
                                         <div class="text-muted fs-7">
-                                            <i class="ki-duotone ki-arrow-right-left fs-7 me-1"></i>
+                                            <i class="ki-solid ki-arrow-right-left fs-7 me-1"></i>
                                             <?php echo e($po->supplier?->name); ?>
 
                                         </div>
@@ -287,7 +287,7 @@
                                 <tr>
                                     <td colspan="5" class="text-center py-10">
                                         <div class="d-flex flex-column align-items-center">
-                                            <i class="ki-duotone ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                            <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                             <span class="text-gray-500 fs-6">Belum ada riwayat keputusan.</span>
                                         </div>
                                     </td>

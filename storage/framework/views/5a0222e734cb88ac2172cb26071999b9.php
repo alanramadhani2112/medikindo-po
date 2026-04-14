@@ -36,7 +36,7 @@
                 
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari deskripsi atau referensi...">
@@ -60,14 +60,14 @@
                 
                 
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-outline ki-magnifier fs-2"></i>
+                    <i class="ki-solid ki-magnifier fs-2"></i>
                     Cari
                 </button>
                 
                 
                 <?php if(request()->filled('search') || request()->filled('type') || request()->filled('date_from')): ?>
                     <a href="<?php echo e(route('web.payments.index', ['tab' => $tab ?? 'all'])); ?>" class="btn btn-light">
-                        <i class="ki-outline ki-cross fs-2"></i>
+                        <i class="ki-solid ki-cross fs-2"></i>
                         Reset
                     </a>
                 <?php endif; ?>
@@ -81,7 +81,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 <?php
                     $tabOptions = [
-                        'all' => ['label' => 'Semua Transaksi', 'icon' => 'ki-element-11'],
+                        'all' => ['label' => 'Semua Transaksi', 'icon' => 'ki-home-2'],
                         'incoming' => ['label' => 'Kas Masuk', 'icon' => 'ki-arrow-down'],
                         'outgoing' => ['label' => 'Kas Keluar', 'icon' => 'ki-arrow-up'],
                         'pending' => ['label' => 'Pending', 'icon' => 'ki-time'],
@@ -104,7 +104,7 @@
                     <li class="nav-item">
                         <a href="<?php echo e(route('web.payments.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val]))); ?>" 
                            class="nav-link text-active-primary d-flex align-items-center <?php echo e($isActive ? 'active' : ''); ?>">
-                            <i class="ki-outline <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
+                            <i class="ki-solid <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
                                 <span class="fs-6 fw-bold"><?php echo e($tabData['label']); ?></span>
                             <span class="badge <?php echo e($isActive ? 'badge-primary' : 'badge-light-secondary'); ?> ms-auto">
                                 <?php echo e($count); ?>
@@ -121,7 +121,7 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">
-                <i class="ki-outline ki-wallet fs-2 me-2"></i>
+                <i class="ki-solid ki-wallet fs-2 me-2"></i>
                 Riwayat Transaksi
             </h3>
         </div>
@@ -153,7 +153,7 @@
                                 <td>
                                     <div class="fw-bold text-gray-800 fs-6 mb-1"><?php echo e($payment->description ?? 'Tanpa deskripsi'); ?></div>
                                     <div class="text-muted fs-7">
-                                        <i class="ki-outline ki-document fs-7 me-1"></i>
+                                        <i class="ki-solid ki-document fs-7 me-1"></i>
                                         Ref: <?php echo e($payment->reference_number ?? '—'); ?>
 
                                     </div>
@@ -167,7 +167,7 @@
                                         $typeIcon = $payment->type === 'incoming' ? 'ki-arrow-down' : 'ki-arrow-up';
                                     ?>
                                     <span class="badge badge-<?php echo e($typeColor); ?>">
-                                        <i class="ki-outline <?php echo e($typeIcon); ?> fs-7 me-1"></i>
+                                        <i class="ki-solid <?php echo e($typeIcon); ?> fs-7 me-1"></i>
                                         <?php echo e(strtoupper($payment->type)); ?>
 
                                     </span>
@@ -193,12 +193,12 @@
                                     <div class="d-flex justify-content-end">
                                         <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
                                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ki-outline ki-dots-vertical fs-3"></i>
+                                            <i class="ki-solid ki-dots-vertical fs-3"></i>
                                             Aksi
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#paymentDetailModal<?php echo e($payment->id); ?>">
-                                                <i class="ki-outline ki-eye fs-4 me-2 text-primary"></i>
+                                                <i class="ki-solid ki-eye fs-4 me-2 text-primary"></i>
                                                 Lihat Detail
                                             </button>
                                         </div>
@@ -209,16 +209,16 @@
                             <tr>
                                 <td colspan="8" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-wallet fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-wallet fs-3x text-gray-400 mb-3"></i>
                                         <h3 class="fs-5 fw-bold text-gray-800 mb-1">Belum Ada Transaksi</h3>
                                         <p class="text-muted fs-7">Transaksi pembayaran akan muncul setelah proses penerimaan atau pengeluaran tercatat.</p>
                                         <div class="d-flex gap-2 mt-3">
                                             <a href="<?php echo e(route('web.payments.create.incoming')); ?>" class="btn btn-success">
-                                                <i class="ki-outline ki-arrow-down fs-2"></i>
+                                                <i class="ki-solid ki-arrow-down fs-2"></i>
                                                 Catat Kas Masuk
                                             </a>
                                             <a href="<?php echo e(route('web.payments.create.outgoing')); ?>" class="btn btn-primary">
-                                                <i class="ki-outline ki-arrow-up fs-2"></i>
+                                                <i class="ki-solid ki-arrow-up fs-2"></i>
                                                 Catat Kas Keluar
                                             </a>
                                         </div>
