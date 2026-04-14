@@ -1,24 +1,24 @@
 <?php if (isset($component)) { $__componentOriginal23a33f287873b564aaf305a1526eada4 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal23a33f287873b564aaf305a1526eada4 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.layout','data' => ['title' => 'Buat Invoice Pemasok','pageTitle' => 'Buat Invoice Pemasok','breadcrumb' => 'Buat invoice berdasarkan penerimaan barang']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.layout','data' => ['title' => 'Input Invoice Pemasok','pageTitle' => 'Input Invoice Pemasok','breadcrumb' => 'Input invoice dari distributor']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('layout'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Buat Invoice Pemasok','pageTitle' => 'Buat Invoice Pemasok','breadcrumb' => 'Buat invoice berdasarkan penerimaan barang']); ?>
+<?php $component->withAttributes(['title' => 'Input Invoice Pemasok','pageTitle' => 'Input Invoice Pemasok','breadcrumb' => 'Input invoice dari distributor']); ?>
 
     <?php if (isset($component)) { $__componentOriginalf8d4ea307ab1e58d4e472a43c8548d8e = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf8d4ea307ab1e58d4e472a43c8548d8e = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.page-header','data' => ['title' => 'Buat Invoice Pemasok','description' => 'Buat invoice berdasarkan Penerimaan Barang (Goods Receipt) yang telah dikonfirmasi.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.page-header','data' => ['title' => 'Input Invoice Pemasok','description' => 'Input invoice yang diterima dari distributor berdasarkan Penerimaan Barang (Goods Receipt).']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('page-header'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Buat Invoice Pemasok','description' => 'Buat invoice berdasarkan Penerimaan Barang (Goods Receipt) yang telah dikonfirmasi.']); ?>
+<?php $component->withAttributes(['title' => 'Input Invoice Pemasok','description' => 'Input invoice yang diterima dari distributor berdasarkan Penerimaan Barang (Goods Receipt).']); ?>
      <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginalf8d4ea307ab1e58d4e472a43c8548d8e)): ?>
@@ -45,6 +45,14 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes(['title' => 'Pilih Penerimaan Barang','class' => 'mb-5']); ?>
+                <div class="alert alert-warning d-flex align-items-center mb-5">
+                    <i class="ki-outline ki-information-5 fs-2x text-warning me-4"></i>
+                    <div>
+                        <strong>Penting:</strong> Pilih Goods Receipt yang sesuai dengan invoice fisik yang diterima dari distributor. 
+                        Batch dan expiry date harus match dengan GR untuk validasi.
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-md-12">
                         <label class="form-label required fw-semibold fs-6 mb-2">Goods Receipt (Penerimaan Barang)</label>
@@ -118,20 +126,43 @@ unset($__errorArgs, $__bag); ?>
             <div x-show="selectedGrId" x-transition>
                 <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => ['title' => 'Detail Invoice','class' => 'mb-5']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => ['title' => 'Detail Invoice Distributor','class' => 'mb-5']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('card'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Detail Invoice','class' => 'mb-5']); ?>
+<?php $component->withAttributes(['title' => 'Detail Invoice Distributor','class' => 'mb-5']); ?>
+                    <div class="alert alert-info d-flex align-items-center mb-5">
+                        <i class="ki-outline ki-document fs-2x text-info me-4"></i>
+                        <div>
+                            <strong>Petunjuk:</strong> Input data sesuai dengan invoice fisik/PDF yang diterima dari distributor.
+                        </div>
+                    </div>
+
                     <div class="row g-5">
                         <div class="col-md-6">
-                            <label class="form-label required fw-semibold fs-6 mb-2">Nomor Invoice Supplier</label>
-                            <input type="text" name="supplier_invoice_number" class="form-control form-control-solid" 
-                                   placeholder="Masukkan nomor invoice dari supplier" required>
-                            <?php $__errorArgs = ['supplier_invoice_number'];
+                            <label class="form-label required fw-semibold fs-6 mb-2">Nomor Invoice Distributor</label>
+                            <input type="text" name="distributor_invoice_number" class="form-control form-control-solid" 
+                                   placeholder="Contoh: INV-DIST-2024-001" required>
+                            <div class="form-text">Nomor invoice dari dokumen distributor</div>
+                            <?php $__errorArgs = ['distributor_invoice_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="text-danger fs-7 mt-2"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required fw-semibold fs-6 mb-2">Tanggal Invoice Distributor</label>
+                            <input type="date" name="distributor_invoice_date" class="form-control form-control-solid" required>
+                            <div class="form-text">Tanggal terbit invoice dari distributor</div>
+                            <?php $__errorArgs = ['distributor_invoice_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -145,6 +176,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="col-md-6">
                             <label class="form-label required fw-semibold fs-6 mb-2">Tanggal Jatuh Tempo</label>
                             <input type="date" name="due_date" class="form-control form-control-solid" required>
+                            <div class="form-text">Tanggal jatuh tempo pembayaran</div>
                             <?php $__errorArgs = ['due_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -155,6 +187,12 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-6 mb-2">Nomor Invoice Internal (Opsional)</label>
+                            <input type="text" name="internal_invoice_number" class="form-control form-control-solid" 
+                                   placeholder="Nomor invoice internal Medikindo (opsional)">
+                            <div class="form-text">Akan di-generate otomatis jika kosong</div>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold fs-6 mb-2">Catatan (Opsional)</label>
@@ -176,19 +214,19 @@ unset($__errorArgs, $__bag); ?>
                 
                 <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => ['title' => 'Item yang Akan Diinvoice','class' => 'mb-5']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => ['title' => 'Item Invoice','class' => 'mb-5']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('card'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['title' => 'Item yang Akan Diinvoice','class' => 'mb-5']); ?>
-                    <div class="alert alert-info d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-information fs-2x text-info me-4"></i>
+<?php $component->withAttributes(['title' => 'Item Invoice','class' => 'mb-5']); ?>
+                    <div class="alert alert-warning d-flex align-items-center mb-5">
+                        <i class="ki-outline ki-shield-tick fs-2x text-warning me-4"></i>
                         <div>
-                            <strong>Informasi:</strong> Batch dan tanggal kadaluarsa diambil dari Penerimaan Barang dan tidak dapat diubah. 
-                            Anda dapat mengatur jumlah yang akan diinvoice (maksimal sesuai sisa yang belum diinvoice).
+                            <strong>Validasi:</strong> Batch dan expiry date diambil dari GR (tidak dapat diubah). 
+                            <strong>Harga distributor</strong> dapat berbeda dengan harga jual Medikindo ke RS/Klinik.
                         </div>
                     </div>
 
@@ -202,7 +240,8 @@ unset($__errorArgs, $__bag); ?>
                                     <th class="text-end">Diterima</th>
                                     <th class="text-end">Sudah Diinvoice</th>
                                     <th class="text-end">Sisa</th>
-                                    <th class="text-end">Harga Satuan</th>
+                                    <th class="text-end">Harga Distributor</th>
+                                    <th class="text-end">Diskon %</th>
                                     <th class="text-end">Qty Invoice</th>
                                 </tr>
                             </thead>
@@ -232,12 +271,29 @@ unset($__errorArgs, $__bag); ?>
                                             <span class="text-success fw-bold" x-text="item.remaining_quantity"></span>
                                         </td>
                                         <td class="text-end">
-                                            <div class="d-flex flex-column align-items-end">
-                                                <span class="text-gray-900 fw-semibold" x-text="formatCurrency(item.unit_price)"></span>
-                                                <span class="text-gray-500 fs-8" x-show="item.discount_percent > 0">
-                                                    Disc: <span x-text="item.discount_percent"></span>%
-                                                </span>
+                                            <input type="number" 
+                                                   class="form-control form-control-solid text-end" 
+                                                   :name="`items[${index}][unit_price]`" 
+                                                   required 
+                                                   step="0.01"
+                                                   min="0"
+                                                   x-model.number="item.distributor_price"
+                                                   placeholder="Harga"
+                                                   style="width: 150px;">
+                                            <div class="form-text text-end fs-8">
+                                                Harga dari invoice distributor
                                             </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <input type="number" 
+                                                   class="form-control form-control-solid text-end" 
+                                                   :name="`items[${index}][discount_percent]`" 
+                                                   step="0.01"
+                                                   min="0"
+                                                   max="100"
+                                                   x-model.number="item.discount_percent"
+                                                   placeholder="0"
+                                                   style="width: 100px;">
                                         </td>
                                         <td class="text-end">
                                             <input type="number" 
@@ -253,6 +309,14 @@ unset($__errorArgs, $__bag); ?>
                                 </template>
                             </tbody>
                         </table>
+                    </div>
+
+                    <div class="alert alert-light-primary d-flex align-items-center mt-5">
+                        <i class="ki-outline ki-information fs-2x text-primary me-4"></i>
+                        <div>
+                            <strong>Catatan Harga:</strong> Harga yang diinput di sini adalah <strong>harga beli dari distributor</strong>. 
+                            Harga jual Medikindo ke RS/Klinik sudah tercatat di PO dan akan digunakan saat membuat invoice ke RS/Klinik.
+                        </div>
                     </div>
                  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
@@ -273,7 +337,7 @@ unset($__errorArgs, $__bag); ?>
                     </a>
                     <button type="submit" class="btn btn-primary">
                         <i class="ki-outline ki-check fs-3"></i>
-                        Buat Invoice Pemasok
+                        Simpan Invoice Pemasok
                     </button>
                 </div>
             </div>
@@ -313,7 +377,9 @@ unset($__errorArgs, $__bag); ?>
                         .filter(item => item.remaining_quantity > 0)
                         .map(item => ({
                             ...item,
-                            invoice_quantity: item.remaining_quantity // Default to remaining quantity
+                            invoice_quantity: item.remaining_quantity, // Default to remaining quantity
+                            distributor_price: item.unit_price, // Default to PO price (can be changed)
+                            discount_percent: item.discount_percent || 0
                         }));
                     
                     if (this.items.length === 0) {

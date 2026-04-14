@@ -1,25 +1,59 @@
-<x-layout title="Buat Tagihan ke RS/Klinik" pageTitle="Buat Tagihan ke RS/Klinik" breadcrumb="Buat tagihan berdasarkan penerimaan barang">
+<?php if (isset($component)) { $__componentOriginal23a33f287873b564aaf305a1526eada4 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal23a33f287873b564aaf305a1526eada4 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.layout','data' => ['title' => 'Buat Tagihan ke RS/Klinik','pageTitle' => 'Buat Tagihan ke RS/Klinik','breadcrumb' => 'Buat tagihan berdasarkan penerimaan barang']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'Buat Tagihan ke RS/Klinik','pageTitle' => 'Buat Tagihan ke RS/Klinik','breadcrumb' => 'Buat tagihan berdasarkan penerimaan barang']); ?>
 
-    <x-page-header 
-        title="Buat Tagihan ke RS/Klinik" 
-        description="Buat tagihan (invoice) ke RS/Klinik berdasarkan Penerimaan Barang (Goods Receipt) yang telah dikonfirmasi.">
-    </x-page-header>
+    <?php if (isset($component)) { $__componentOriginalf8d4ea307ab1e58d4e472a43c8548d8e = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalf8d4ea307ab1e58d4e472a43c8548d8e = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.page-header','data' => ['title' => 'Buat Tagihan ke RS/Klinik','description' => 'Buat tagihan (invoice) ke RS/Klinik berdasarkan Penerimaan Barang (Goods Receipt) yang telah dikonfirmasi.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('page-header'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'Buat Tagihan ke RS/Klinik','description' => 'Buat tagihan (invoice) ke RS/Klinik berdasarkan Penerimaan Barang (Goods Receipt) yang telah dikonfirmasi.']); ?>
+     <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalf8d4ea307ab1e58d4e472a43c8548d8e)): ?>
+<?php $attributes = $__attributesOriginalf8d4ea307ab1e58d4e472a43c8548d8e; ?>
+<?php unset($__attributesOriginalf8d4ea307ab1e58d4e472a43c8548d8e); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalf8d4ea307ab1e58d4e472a43c8548d8e)): ?>
+<?php $component = $__componentOriginalf8d4ea307ab1e58d4e472a43c8548d8e; ?>
+<?php unset($__componentOriginalf8d4ea307ab1e58d4e472a43c8548d8e); ?>
+<?php endif; ?>
 
     <div x-data="invoiceForm()">
-        <form method="POST" action="{{ route('web.invoices.customer.store') }}" id="invoice-form">
-            @csrf
+        <form method="POST" action="<?php echo e(route('web.invoices.customer.store')); ?>" id="invoice-form">
+            <?php echo csrf_field(); ?>
 
-            {{-- GR Selection --}}
-            <x-card title="Pilih Penerimaan Barang" class="mb-5">
+            
+            <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => ['title' => 'Pilih Penerimaan Barang','class' => 'mb-5']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'Pilih Penerimaan Barang','class' => 'mb-5']); ?>
                 <div class="row">
                     <div class="col-md-12">
                         <label class="form-label required fw-semibold fs-6 mb-2">Goods Receipt (Penerimaan Barang)</label>
                         <select name="goods_receipt_id" class="form-select form-select-solid" required 
                                 x-model="selectedGrId" @change="loadGrItems()">
                             <option value="">— Pilih Penerimaan Barang yang sudah selesai —</option>
-                            @foreach($goodsReceipts as $gr)
-                                <option value="{{ $gr->id }}" 
-                                        data-gr="{{ json_encode([
+                            <?php $__currentLoopData = $goodsReceipts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $gr): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($gr->id); ?>" 
+                                        data-gr="<?php echo e(json_encode([
                                             'id' => $gr->id,
                                             'gr_number' => $gr->gr_number,
                                             'po_number' => $gr->purchaseOrder->po_number,
@@ -39,18 +73,25 @@
                                                 'discount_percent' => $item->purchaseOrderItem->discount_percent,
                                                 'tax_percent' => $item->purchaseOrderItem->tax_percent,
                                             ])
-                                        ]) }}">
-                                    {{ $gr->gr_number }} - {{ $gr->purchaseOrder->organization->name }} ({{ $gr->items->count() }} items)
+                                        ])); ?>">
+                                    <?php echo e($gr->gr_number); ?> - <?php echo e($gr->purchaseOrder->organization->name); ?> (<?php echo e($gr->items->count()); ?> items)
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
-                        @error('goods_receipt_id')
-                            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
-                        @enderror
+                        <?php $__errorArgs = ['goods_receipt_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="text-danger fs-7 mt-2"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
                 </div>
 
-                {{-- GR Info --}}
+                
                 <div x-show="selectedGrId" x-transition class="mt-5">
                     <div class="alert alert-primary d-flex align-items-center">
                         <i class="ki-outline ki-information-5 fs-2x text-primary me-4"></i>
@@ -62,11 +103,29 @@
                         </div>
                     </div>
                 </div>
-            </x-card>
+             <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $attributes = $__attributesOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__attributesOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $component = $__componentOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__componentOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
 
-            {{-- Invoice Details --}}
+            
             <div x-show="selectedGrId" x-transition>
-                <x-card title="Detail Tagihan" class="mb-5">
+                <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => ['title' => 'Detail Tagihan','class' => 'mb-5']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'Detail Tagihan','class' => 'mb-5']); ?>
                     <div class="alert alert-success d-flex align-items-center mb-5">
                         <i class="ki-outline ki-shield-tick fs-2x text-success me-4"></i>
                         <div>
@@ -80,9 +139,16 @@
                             <label class="form-label required fw-semibold fs-6 mb-2">Tanggal Jatuh Tempo</label>
                             <input type="date" name="due_date" class="form-control form-control-solid" required>
                             <div class="form-text">Tanggal jatuh tempo pembayaran dari RS/Klinik</div>
-                            @error('due_date')
-                                <div class="text-danger fs-7 mt-2">{{ $message }}</div>
-                            @enderror
+                            <?php $__errorArgs = ['due_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="text-danger fs-7 mt-2"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold fs-6 mb-2">Nomor Invoice (Opsional)</label>
@@ -96,10 +162,28 @@
                                       placeholder="Catatan tambahan untuk tagihan ini..."></textarea>
                         </div>
                     </div>
-                </x-card>
+                 <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $attributes = $__attributesOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__attributesOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $component = $__componentOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__componentOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
 
-                {{-- Items --}}
-                <x-card title="Item Tagihan" class="mb-5">
+                
+                <?php if (isset($component)) { $__componentOriginal53747ceb358d30c0105769f8471417f6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal53747ceb358d30c0105769f8471417f6 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.card','data' => ['title' => 'Item Tagihan','class' => 'mb-5']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('card'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'Item Tagihan','class' => 'mb-5']); ?>
                     <div class="alert alert-info d-flex align-items-center mb-5">
                         <i class="ki-outline ki-information fs-2x text-info me-4"></i>
                         <div>
@@ -170,11 +254,20 @@
                             </tbody>
                         </table>
                     </div>
-                </x-card>
+                 <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $attributes = $__attributesOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__attributesOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal53747ceb358d30c0105769f8471417f6)): ?>
+<?php $component = $__componentOriginal53747ceb358d30c0105769f8471417f6; ?>
+<?php unset($__componentOriginal53747ceb358d30c0105769f8471417f6); ?>
+<?php endif; ?>
 
-                {{-- Submit --}}
+                
                 <div class="d-flex justify-content-end gap-3">
-                    <a href="{{ route('web.invoices.index', ['tab' => 'customer']) }}" class="btn btn-light-secondary">
+                    <a href="<?php echo e(route('web.invoices.index', ['tab' => 'customer'])); ?>" class="btn btn-light-secondary">
                         <i class="ki-outline ki-cross fs-3"></i>
                         Batal
                     </a>
@@ -187,7 +280,7 @@
         </form>
     </div>
 
-    @push('scripts')
+    <?php $__env->startPush('scripts'); ?>
     <script>
     function invoiceForm() {
         return {
@@ -252,6 +345,16 @@
         }
     }
     </script>
-    @endpush
+    <?php $__env->stopPush(); ?>
 
-</x-layout>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal23a33f287873b564aaf305a1526eada4)): ?>
+<?php $attributes = $__attributesOriginal23a33f287873b564aaf305a1526eada4; ?>
+<?php unset($__attributesOriginal23a33f287873b564aaf305a1526eada4); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal23a33f287873b564aaf305a1526eada4)): ?>
+<?php $component = $__componentOriginal23a33f287873b564aaf305a1526eada4; ?>
+<?php unset($__componentOriginal23a33f287873b564aaf305a1526eada4); ?>
+<?php endif; ?>
+<?php /**PATH C:\laragon\www\medikindo-po\resources\views/invoices/create_customer.blade.php ENDPATH**/ ?>

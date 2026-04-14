@@ -1,174 +1,95 @@
 @extends('layouts.app')
 
 @section('content')
-        {{-- KPI Cards --}}
-    <div class="row mb-7">
-        <div class="col-md-4">
-            <div class="card bg-warning">
-                <div class="card-body">
-                    <span class="text-white fs-7 fw-bold">Menunggu Pembayaran</span>
-                    <div class="text-white fs-2x fw-bold mt-2">Rp {{ number_format($invoices->where('status', '!=', 'paid')->sum('total_amount'), 0, ',', '.') }}</div>
-                </div>
-            </div>
+<div class="container-fluid">
+    {{-- Page Header --}}
+    <div class="d-flex justify-content-between align-items-center mb-7">
+        <div>
+            <h1 class="fs-2 fw-bold text-gray-900 mb-2">
+                <i class="ki-outline ki-arrow-up fs-2 text-success me-2"></i>
+                Tagihan ke RS/Klinik (AR)
+            </h1>
+            <p class="text-gray-600 fs-6 mb-0">Kelola tagihan yang diterbitkan ke RS/Klinik</p>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-primary">
-                <div class="card-body">
-                    <span class="text-white fs-7 fw-bold">Sudah Dibayar</span>
-                    <div class="text-white fs-2x fw-bold mt-2">Rp {{ number_format($invoices->where('status', 'paid')->sum('total_amount'), 0, ',', '.') }}</div>
-                </div>
-            </div>
+        @can('create_invoices')
+        <div>
+            <a href="{{ route('web.invoices.customer.create') }}" class="btn btn-success">
+                <i class="ki-outline ki-plus fs-3"></i>
+                Buat Tagihan ke RS/Klinik
+            </a>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-danger">
-                <div class="card-body">
-                    <span class="text-white fs-7 fw-bold">Jatuh Tempo</span>
-                    <div class="text-white fs-2x fw-bold mt-2">Rp {{ number_format($invoices->where('status', 'overdue')->sum('total_amount'), 0, ',', '.') }}</div>
-                </div>
-            </div>
-        </div>
+        @endcan
     </div>
 
-    {{-- Filter Bar --}}
-    <div class="card mb-5">
-        <div class="card-body">
-            <form action="{{ route('web.invoices.index') }}" method="GET" class="d-flex flex-wrap gap-3">
-                <input type="hidden" name="tab" value="customer">
-                @if(request('status'))
-                    <input type="hidden" name="status" value="{{ request('status') }}">
-                @endif
-                <div class="flex-grow-1" style="max-width: 400px;">
-                    <input type="text" name="search" value="{{ request('search') }}" 
-                           placeholder="Cari nomor invoice atau klinik..." 
-                           class="form-control form-control-solid">
-                </div>
-                <button type="submit" class="btn btn-dark">
-                    <i class="ki-outline ki-magnifier fs-2"></i>
-                    Filter
-                </button>
-                @if(request('search'))
-                    <a href="{{ route('web.invoices.index', array_merge(request()->except(['search', 'page']), ['tab' => 'customer'])) }}" 
-                       class="btn btn-light">
-                        <i class="ki-outline ki-cross fs-2"></i>
-                        Reset
-                    </a>
-                @endif
-            </form>
-        </div>
-    </div>
-
-    {{-- Main Card with Tabs --}}
+    {{-- Invoice Table --}}
     <div class="card">
-        {{-- TABS --}}
-        <div class="card-header border-0 pt-6 pb-2">
-            <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
-                @php
-                    $tabStatus = [
-                        '' => ['label' => 'Semua Faktur', 'icon' => 'ki-document', 'color' => 'primary'],
-                        'unpaid' => ['label' => 'Belum Lunas', 'icon' => 'ki-time', 'color' => 'warning'],
-                        'paid' => ['label' => 'Lunas', 'icon' => 'ki-check-circle', 'color' => 'success'],
-                        'overdue' => ['label' => 'Jatuh Tempo', 'icon' => 'ki-information-5', 'color' => 'danger'],
-                    ];
-                @endphp
-                @foreach($tabStatus as $val => $tabData)
-                    @php 
-                        $isActive = (string)request('status', '') === (string)$val;
-                        $count = $invoices->where('status', $val === '' ? null : $val)->count();
-                    @endphp
-                    <li class="nav-item">
-                        <a href="{{ route('web.invoices.index', array_merge(request()->except(['status', 'page']), ['tab' => 'customer', 'status' => $val === '' ? null : $val])) }}" 
-                           class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-2 text-{{ $tabData['color'] }}"></i>
-                            <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
-                            <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-' . $tabData['color'] }} ms-auto">
-                                {{ $count }}
-                            </span>
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-
         <div class="card-body">
-            {{-- Table --}}
             <div class="table-responsive">
-                <table class="table table-row-bordered table-row-gray-300 align-middle gs-7 gy-4">
+                <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
                     <thead>
                         <tr class="fw-bold text-muted bg-light">
-                            <th class="ps-4 rounded-start">Nomor Faktur</th>
-                            <th>Klinik / Organisasi</th>
-                            <th>Jatuh Tempo</th>
-                            <th class="text-end">Total Tagihan</th>
-                            <th>Status</th>
+                            <th class="ps-4 rounded-start">Nomor Invoice</th>
+                            <th>RS/Klinik</th>
+                            <th>PO Number</th>
+                            <th>GR Number</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-center">Status</th>
                             <th class="text-end pe-4 rounded-end">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($invoices as $invoice)
+                        @forelse($customerInvoices as $invoice)
                             <tr>
                                 <td class="ps-4">
-                                    <div class="d-flex flex-column">
-                                        <a href="{{ route('web.invoices.customer.show', $invoice) }}" 
-                                           class="text-gray-900 text-hover-primary fw-bold fs-6">
-                                            {{ $invoice->invoice_number }}
-                                        </a>
-                                        <span class="text-gray-500 fs-7 mt-1">Ref: {{ $invoice->purchaseOrder?->po_number ?? '—' }}</span>
-                                    </div>
+                                    <a href="{{ route('web.invoices.customer.show', $invoice) }}" 
+                                       class="fw-bold text-gray-900 text-hover-primary">
+                                        {{ $invoice->invoice_number }}
+                                    </a>
+                                    <div class="text-muted fs-7 mt-1">{{ $invoice->created_at->format('d M Y') }}</div>
                                 </td>
                                 <td>
-                                    <span class="text-gray-800 fw-semibold">{{ $invoice->organization?->name ?? '—' }}</span>
+                                    <span class="fw-semibold text-gray-700">{{ $invoice->organization?->name ?? '—' }}</span>
                                 </td>
                                 <td>
-                                    <div class="d-flex flex-column">
-                                        <span class="text-gray-800 fw-semibold {{ $invoice->isOverdue() ? 'text-danger' : '' }}">
-                                            {{ $invoice->due_date->format('d M Y') }}
-                                        </span>
-                                        @if(!$invoice->isPaid())
-                                            <span class="text-gray-500 fs-7 mt-1">{{ $invoice->due_date->diffForHumans() }}</span>
-                                        @endif
-                                    </div>
+                                    <span class="text-gray-600">{{ $invoice->purchaseOrder?->po_number ?? '—' }}</span>
+                                </td>
+                                <td>
+                                    <span class="text-primary">{{ $invoice->goodsReceipt?->gr_number ?? '—' }}</span>
                                 </td>
                                 <td class="text-end">
-                                    <div class="d-flex flex-column">
-                                        <span class="text-gray-900 fw-bold fs-6">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
-                                        <span class="text-primary fs-7 fw-semibold mt-1">Terbayar: Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}</span>
-                                    </div>
+                                    <span class="fw-bold text-gray-900">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     @php
                                         $statusColor = match($invoice->status) {
                                             'paid' => 'success',
-                                            'unpaid' => 'warning',
                                             'overdue' => 'danger',
-                                            'draft' => 'secondary',
-                                            default => 'primary'
+                                            default => 'warning'
                                         };
                                     @endphp
                                     <span class="badge badge-{{ $statusColor }}">{{ strtoupper($invoice->status) }}</span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <div class="d-flex justify-content-end">
-                                        <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ki-outline ki-dots-vertical fs-3"></i>
-                                            Aksi
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="{{ route('web.invoices.customer.show', $invoice) }}" class="dropdown-item">
-                                                <i class="ki-outline ki-eye fs-4 me-2 text-primary"></i>
-                                                Lihat Detail
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <a href="{{ route('web.invoices.customer.show', $invoice) }}" 
+                                       class="btn btn-sm btn-light btn-active-light-primary">
+                                        <i class="ki-outline ki-eye fs-4"></i>
+                                        Lihat
+                                    </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-10">
+                                <td colspan="7" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
-                                        <span class="text-gray-700 fs-5 fw-semibold mb-2">Tidak ada faktur penagihan</span>
-                                        <span class="text-gray-500 fs-6">Data faktur akan muncul setelah proses penagihan aktif.</span>
+                                        <i class="ki-outline ki-document fs-3x text-gray-400 mb-3"></i>
+                                        <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum Ada Tagihan ke RS/Klinik</span>
+                                        <span class="text-gray-500 fs-6">Tagihan akan muncul setelah dibuat dari Goods Receipt.</span>
+                                        @can('create_invoices')
+                                        <a href="{{ route('web.invoices.customer.create') }}" class="btn btn-sm btn-success mt-4">
+                                            <i class="ki-outline ki-plus fs-4"></i>
+                                            Buat Tagihan Pertama
+                                        </a>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
@@ -177,17 +98,12 @@
                 </table>
             </div>
 
-            {{-- Pagination --}}
-            @if($invoices->hasPages())
-                <div class="d-flex flex-stack flex-wrap pt-7">
-                    <div class="fs-6 fw-semibold text-gray-700">
-                        Menampilkan {{ $invoices->firstItem() }} - {{ $invoices->lastItem() }} dari {{ $invoices->total() }} faktur
-                    </div>
-                    <div>
-                        {{ $invoices->links() }}
-                    </div>
+            @if($customerInvoices->hasPages())
+                <div class="d-flex justify-content-center mt-7">
+                    {{ $customerInvoices->links() }}
                 </div>
             @endif
         </div>
     </div>
+</div>
 @endsection

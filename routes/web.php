@@ -79,7 +79,8 @@ Route::middleware('auth')->group(function () {
 
     // ── Invoices (AP & AR) ─────────────────────────────────────
     Route::prefix('invoices')->name('web.invoices.')->middleware('can:view_invoices')->group(function () {
-        Route::get('/',                                    [\App\Http\Controllers\Web\InvoiceWebController::class, 'index'])->name('index');
+        // Supplier Invoice (AP) - Index
+        Route::get('/supplier',                            [\App\Http\Controllers\Web\InvoiceWebController::class, 'indexSupplier'])->name('supplier.index');
         
         // Supplier Invoice (AP) - Create from Goods Receipt
         Route::get('/supplier/create',                     [\App\Http\Controllers\Web\InvoiceWebController::class, 'createSupplier'])
@@ -91,6 +92,9 @@ Route::middleware('auth')->group(function () {
         
         Route::get('/supplier/{invoice}',                  [\App\Http\Controllers\Web\InvoiceWebController::class, 'showSupplier'])->name('supplier.show');
         Route::get('/supplier/{invoice}/pdf',              [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportSupplierPdf'])->name('supplier.pdf');
+        
+        // Customer Invoice (AR) - Index
+        Route::get('/customer',                            [\App\Http\Controllers\Web\InvoiceWebController::class, 'indexCustomer'])->name('customer.index');
         
         // Customer Invoice (AR) - Create from Goods Receipt
         Route::get('/customer/create',                     [\App\Http\Controllers\Web\InvoiceWebController::class, 'createCustomer'])

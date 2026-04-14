@@ -13,64 +13,9 @@
     <link href="<?php echo e(asset('assets/metronic8/css/style.bundle.css')); ?>" rel="stylesheet" type="text/css" />
     <link href="<?php echo e(asset('css/custom-layout.css')); ?>" rel="stylesheet" type="text/css" />
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
-    <style>
-        /* TAB NAVIGATION - Presisi & Rapih */
-        .nav-tabs {
-            border-bottom: 1px solid #eff2f5 !important;
-        }
-        
-        .nav-tabs .nav-item {
-            margin-bottom: -1px;
-        }
-        
-        .nav-tabs .nav-link {
-            border: none !important;
-            border-bottom: 3px solid transparent !important;
-            padding: 1rem 1.75rem !important;
-            color: #7e8299 !important;
-            font-weight: 600 !important;
-            font-size: 1rem !important;
-            transition: all 0.2s ease !important;
-            background: transparent !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 0.75rem !important;
-        }
-        
-        .nav-tabs .nav-link:hover {
-            color: #009ef7 !important;
-            border-bottom-color: #e1f0ff !important;
-        }
-        
-        .nav-tabs .nav-link.active {
-            color: #009ef7 !important;
-            border-bottom-color: #009ef7 !important;
-            background: transparent !important;
-        }
-        
-        .nav-tabs .nav-link i {
-            font-size: 1.5rem !important;
-            flex-shrink: 0 !important;
-        }
-        
-        .nav-tabs .nav-link .badge {
-            font-size: 0.8rem !important;
-            padding: 0.35rem 0.65rem !important;
-            font-weight: 600 !important;
-            border-radius: 0.475rem !important;
-            flex-shrink: 0 !important;
-        }
-        
-        /* Tab text wrapper */
-        .nav-tabs .nav-link > span {
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 0.75rem !important;
-        }
-    </style>
     <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
-<body id="kt_app_body" data-kt-app-layout="light-sidebar" data-kt-app-header-fixed="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" data-kt-app-sidebar-hoverable="true" data-kt-app-sidebar-push-header="true" data-kt-app-sidebar-push-toolbar="true" data-kt-app-sidebar-push-footer="true" data-kt-app-toolbar-enabled="true" class="app-default">
+<body id="kt_app_body" data-kt-app-header-fixed="true" data-kt-app-header-fixed-mobile="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" data-kt-app-sidebar-push-header="true" data-kt-app-sidebar-push-toolbar="true" data-kt-app-sidebar-push-footer="true" data-kt-app-toolbar-enabled="true" class="app-default">
     <script>
         var defaultThemeMode = "light"; 
         var themeMode; 

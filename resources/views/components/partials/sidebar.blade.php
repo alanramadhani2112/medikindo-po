@@ -1,12 +1,9 @@
 <!--begin::Sidebar-->
 <div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
     <!--begin::Logo-->
-    <div class="app-sidebar-logo" id="kt_app_sidebar_logo">
-        <a href="{{ route('web.dashboard') }}" class="d-flex align-items-center text-decoration-none">
-            <div class="symbol symbol-40px bg-primary rounded">
-                <i class="ki-outline ki-hospital text-white fs-2"></i>
-            </div>
-            <span class="text-gray-900 fw-bold fs-5 ms-3">Medikindo</span>
+    <div class="app-sidebar-logo flex-shrink-0 d-none d-md-flex align-items-center px-8" id="kt_app_sidebar_logo">
+        <a href="{{ route('web.dashboard') }}">
+            <img alt="Logo" src="{{ asset('assets/metronic8/media/logos/default-dark.svg') }}" class="h-25px app-sidebar-logo-default" />
         </a>
     </div>
     <!--end::Logo-->
@@ -14,9 +11,9 @@
     <!--begin::sidebar menu-->
     <div class="app-sidebar-menu overflow-hidden flex-column-fluid">
         <!--begin::Menu wrapper-->
-        <div id="kt_app_sidebar_menu_wrapper" class="app-sidebar-wrapper hover-scroll-overlay-y" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_sidebar_logo" data-kt-scroll-wrappers="#kt_app_sidebar_menu" data-kt-scroll-offset="5px">
+        <div id="kt_app_sidebar_menu_wrapper" class="app-sidebar-wrapper hover-scroll-overlay-y my-5" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_sidebar_logo, #kt_app_sidebar_footer" data-kt-scroll-wrappers="#kt_app_sidebar_menu" data-kt-scroll-offset="5px">
             <!--begin::Menu-->
-            <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold" id="kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false">
+            <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold px-3" id="kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false">
 
                 {{-- Dashboard --}}
                 <div class="menu-item">
@@ -82,7 +79,7 @@
                 </div>
 
                 <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs('web.invoices.*') && request('tab') === 'customer' ? 'active' : '' }}" href="{{ route('web.invoices.index', ['tab' => 'customer']) }}">
+                    <a class="menu-link {{ request()->routeIs('web.invoices.customer.*') ? 'active' : '' }}" href="{{ route('web.invoices.customer.index') }}">
                         <span class="menu-icon">
                             <i class="ki-outline ki-arrow-up fs-2 text-success"></i>
                         </span>
@@ -94,7 +91,7 @@
                 </div>
                 
                 <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs('web.invoices.*') && (request('tab') === 'supplier' || !request('tab')) ? 'active' : '' }}" href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}">
+                    <a class="menu-link {{ request()->routeIs('web.invoices.supplier.*') ? 'active' : '' }}" href="{{ route('web.invoices.supplier.index') }}">
                         <span class="menu-icon">
                             <i class="ki-outline ki-arrow-down fs-2 text-danger"></i>
                         </span>

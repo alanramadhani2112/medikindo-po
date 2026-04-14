@@ -27,8 +27,8 @@ class StoreInvoiceFromGRRequest extends FormRequest
                 'required',
                 'exists:goods_receipts,id',
             ],
-            'supplier_invoice_number' => 'required|string|max:255',
-            'due_date' => 'required|date|after:today',
+            'custom_invoice_number' => 'nullable|string|max:255|unique:customer_invoices,invoice_number',
+            'due_date' => 'required|date|after_or_equal:today',
             'notes' => 'nullable|string|max:1000',
             
             'items' => 'required|array|min:1',
@@ -154,9 +154,9 @@ class StoreInvoiceFromGRRequest extends FormRequest
         return [
             'goods_receipt_id.required' => 'Goods Receipt harus dipilih.',
             'goods_receipt_id.exists' => 'Goods Receipt tidak ditemukan.',
-            'supplier_invoice_number.required' => 'Nomor invoice supplier harus diisi.',
+            'custom_invoice_number.unique' => 'Nomor invoice sudah digunakan.',
             'due_date.required' => 'Tanggal jatuh tempo harus diisi.',
-            'due_date.after' => 'Tanggal jatuh tempo harus setelah hari ini.',
+            'due_date.after_or_equal' => 'Tanggal jatuh tempo harus hari ini atau setelahnya.',
             'items.required' => 'Minimal 1 item harus diisi.',
             'items.*.goods_receipt_item_id.required' => 'Item Goods Receipt harus dipilih.',
             'items.*.goods_receipt_item_id.exists' => 'Item Goods Receipt tidak ditemukan.',

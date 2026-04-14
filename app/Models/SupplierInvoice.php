@@ -35,15 +35,16 @@ class SupplierInvoice extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'due_date'             => 'date',
-        'total_amount'         => 'decimal:2',
-        'paid_amount'          => 'decimal:2',
-        'subtotal_amount'      => 'decimal:2',
-        'discount_amount'      => 'decimal:2',
-        'tax_amount'           => 'decimal:2',
-        'issued_at'            => 'datetime',
-        'payment_submitted_at' => 'datetime',
-        'verified_at'          => 'datetime',
+        'due_date'                    => 'date',
+        'distributor_invoice_date'    => 'date',
+        'total_amount'                => 'decimal:2',
+        'paid_amount'                 => 'decimal:2',
+        'subtotal_amount'             => 'decimal:2',
+        'discount_amount'             => 'decimal:2',
+        'tax_amount'                  => 'decimal:2',
+        'issued_at'                   => 'datetime',
+        'payment_submitted_at'        => 'datetime',
+        'verified_at'                 => 'datetime',
     ];
 
     // -----------------------------------------------------------------------

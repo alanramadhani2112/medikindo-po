@@ -73,25 +73,28 @@ class InvoiceFromGRService
 
             // Create invoice
             $invoice = SupplierInvoice::create([
-                'invoice_number'       => $this->generateInvoiceNumber(),
-                'organization_id'      => $gr->organization_id,
-                'supplier_id'          => $po->supplier_id,
-                'purchase_order_id'    => $po->id,
-                'goods_receipt_id'     => $gr->id,
-                'status'               => SupplierInvoice::STATUS_ISSUED,
-                'total_amount'         => $calculation['invoice_totals']['total_amount'],
-                'subtotal_amount'      => $calculation['invoice_totals']['subtotal_amount'],
-                'discount_amount'      => $calculation['invoice_totals']['discount_amount'],
-                'tax_amount'           => $calculation['invoice_totals']['tax_amount'],
-                'paid_amount'          => 0,
-                'discrepancy_detected' => $discrepancies['has_discrepancy'],
-                'expected_total'       => $discrepancies['expected_total'] ?? null,
-                'variance_amount'      => $discrepancies['variance_amount'] ?? null,
-                'variance_percentage'  => $discrepancies['variance_percentage'] ?? null,
-                'due_date'             => $metadata['due_date'] ?? now()->addDays(30),
-                'issued_by'            => $actor->id,
-                'issued_at'            => now(),
-                'version'              => 1,
+                'invoice_number'            => $metadata['internal_invoice_number'] ?? $this->generateInvoiceNumber(),
+                'distributor_invoice_number' => $metadata['distributor_invoice_number'] ?? null,
+                'distributor_invoice_date'  => $metadata['distributor_invoice_date'] ?? null,
+                'organization_id'           => $gr->organization_id,
+                'supplier_id'               => $po->supplier_id,
+                'purchase_order_id'         => $po->id,
+                'goods_receipt_id'          => $gr->id,
+                'status'                    => SupplierInvoice::STATUS_ISSUED,
+                'total_amount'              => $calculation['invoice_totals']['total_amount'],
+                'subtotal_amount'           => $calculation['invoice_totals']['subtotal_amount'],
+                'discount_amount'           => $calculation['invoice_totals']['discount_amount'],
+                'tax_amount'                => $calculation['invoice_totals']['tax_amount'],
+                'paid_amount'               => 0,
+                'discrepancy_detected'      => $discrepancies['has_discrepancy'],
+                'expected_total'            => $discrepancies['expected_total'] ?? null,
+                'variance_amount'           => $discrepancies['variance_amount'] ?? null,
+                'variance_percentage'       => $discrepancies['variance_percentage'] ?? null,
+                'due_date'                  => $metadata['due_date'] ?? now()->addDays(30),
+                'notes'                     => $metadata['notes'] ?? null,
+                'issued_by'                 => $actor->id,
+                'issued_at'                 => now(),
+                'version'                   => 1,
             ]);
 
             // Create line items with GR references
@@ -319,7 +322,7 @@ class InvoiceFromGRService
 
             // Create customer invoice
             $invoice = CustomerInvoice::create([
-                'invoice_number'       => $this->generateCustomerInvoiceNumber(),
+                'invoice_number'       => $metadata['custom_invoice_number'] ?? $this->generateCustomerInvoiceNumber(),
                 'organization_id'      => $po->organization_id,
                 'purchase_order_id'    => $po->id,
                 'goods_receipt_id'     => $gr->id,
@@ -384,6 +387,16 @@ class InvoiceFromGRService
 
             return $invoice->load(['lineItems', 'goodsReceipt', 'purchaseOrder', 'organization']);
         });
+    }
+
+    /**
+     * Generate unique supplier invoice number (internal Medikindo)
+     * 
+     * @return string
+     */
+    private function generateInvoiceNumber(): string
+    {
+        return 'INV-SUP-' . strtoupper(substr(uniqid(), -5));
     }
 
     /**

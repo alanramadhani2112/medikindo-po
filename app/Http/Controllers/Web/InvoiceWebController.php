@@ -23,6 +23,63 @@ class InvoiceWebController extends Controller
         private readonly InvoiceFromGRService $invoiceFromGRService
     ) {}
 
+    public function indexSupplier(Request $request)
+    {
+        $user = $request->user();
+
+        // Load Supplier Invoices
+        $supplierQuery = SupplierInvoice::with(['supplier', 'purchaseOrder', 'goodsReceipt'])
+            ->filter($request, [
+                'search_column' => function($q, $s) {
+                    $q->where('invoice_number', 'like', "%{$s}%")
+                      ->orWhere('distributor_invoice_number', 'like', "%{$s}%")
+                      ->orWhereHas('supplier', fn($s2) => $s2->where('name', 'like', "%{$s}%"));
+                },
+                'status' => 'status',
+            ]);
+
+        if (! $user->hasRole('Super Admin')) {
+            $supplierQuery->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
+        }
+
+        $supplierInvoices = $supplierQuery->latest()->paginate(15);
+
+        $breadcrumbs = [
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
+            ['label' => 'Hutang ke Supplier']
+        ];
+
+        return view('invoices.index_supplier', compact('supplierInvoices', 'breadcrumbs'));
+    }
+
+    public function indexCustomer(Request $request)
+    {
+        $user = $request->user();
+
+        // Load Customer Invoices
+        $customerQuery = CustomerInvoice::with(['organization', 'purchaseOrder', 'goodsReceipt'])
+            ->filter($request, [
+                'search_column' => function($q, $s) {
+                    $q->where('invoice_number', 'like', "%{$s}%")
+                      ->orWhereHas('organization', fn($c) => $c->where('name', 'like', "%{$s}%"));
+                },
+                'status' => 'status',
+            ]);
+
+        if (! $user->hasRole('Super Admin')) {
+            $customerQuery->where('organization_id', $user->organization_id);
+        }
+
+        $customerInvoices = $customerQuery->latest()->paginate(15);
+
+        $breadcrumbs = [
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
+            ['label' => 'Tagihan ke RS/Klinik']
+        ];
+
+        return view('invoices.index_customer', compact('customerInvoices', 'breadcrumbs'));
+    }
+
     public function index(Request $request)
     {
         $tab    = $request->get('tab', 'supplier');
@@ -61,7 +118,7 @@ class InvoiceWebController extends Controller
         $customerInvoices = $customerQuery->latest()->paginate(15, ['*'], 'customer_page')->withQueryString();
 
         $breadcrumbs = [
-            ['label' => 'Finance', 'url' => 'javascript:void(0)'],
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
             ['label' => 'Manajemen Invoice']
         ];
 
@@ -79,8 +136,8 @@ class InvoiceWebController extends Controller
         ]);
         
         $breadcrumbs = [
-            ['label' => 'Finance', 'url' => 'javascript:void(0)'],
-            ['label' => 'Hutang Pemasok', 'url' => route('web.invoices.index', ['tab' => 'supplier'])],
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
+            ['label' => 'Hutang ke Supplier', 'url' => route('web.invoices.supplier.index')],
             ['label' => $invoice->invoice_number]
         ];
         
@@ -98,8 +155,8 @@ class InvoiceWebController extends Controller
         ]);
         
         $breadcrumbs = [
-            ['label' => 'Finance', 'url' => 'javascript:void(0)'],
-            ['label' => 'Piutang & Tagihan Klien', 'url' => route('web.invoices.index', ['tab' => 'customer'])],
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
+            ['label' => 'Tagihan ke RS/Klinik', 'url' => route('web.invoices.customer.index')],
             ['label' => $invoice->invoice_number]
         ];
         
@@ -151,9 +208,9 @@ class InvoiceWebController extends Controller
         });
 
         $breadcrumbs = [
-            ['label' => 'Finance', 'url' => 'javascript:void(0)'],
-            ['label' => 'Hutang Pemasok', 'url' => route('web.invoices.index', ['tab' => 'supplier'])],
-            ['label' => 'Buat Invoice Pemasok']
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
+            ['label' => 'Hutang ke Supplier', 'url' => route('web.invoices.supplier.index')],
+            ['label' => 'Input Invoice Pemasok']
         ];
 
         return view('invoices.create_supplier', compact('goodsReceipts', 'breadcrumbs'));
@@ -164,7 +221,7 @@ class InvoiceWebController extends Controller
     // POST /invoices/supplier
     // -----------------------------------------------------------------------
 
-    public function storeSupplier(StoreInvoiceFromGRRequest $request)
+    public function storeSupplier(StoreSupplierInvoiceRequest $request)
     {
         try {
             $validated = $request->validated();
@@ -172,11 +229,13 @@ class InvoiceWebController extends Controller
             // Get GoodsReceipt object
             $gr = GoodsReceipt::findOrFail($validated['goods_receipt_id']);
             
-            // Prepare metadata
+            // Prepare metadata with distributor invoice info
             $metadata = [
-                'supplier_invoice_number' => $validated['supplier_invoice_number'] ?? null,
-                'due_date' => $validated['due_date'] ?? now()->addDays(30),
-                'notes' => $validated['notes'] ?? null,
+                'distributor_invoice_number' => $validated['distributor_invoice_number'],
+                'distributor_invoice_date'   => $validated['distributor_invoice_date'],
+                'internal_invoice_number'    => $validated['internal_invoice_number'] ?? null,
+                'due_date'                   => $validated['due_date'],
+                'notes'                      => $validated['notes'] ?? null,
             ];
             
             $invoice = $this->invoiceFromGRService->createSupplierInvoiceFromGR(
@@ -188,7 +247,7 @@ class InvoiceWebController extends Controller
 
             return redirect()
                 ->route('web.invoices.supplier.show', $invoice)
-                ->with('success', "Invoice Pemasok {$invoice->invoice_number} berhasil dibuat.");
+                ->with('success', "Invoice Pemasok {$invoice->invoice_number} berhasil disimpan.");
         } catch (\DomainException $e) {
             return back()
                 ->withInput()
@@ -196,7 +255,7 @@ class InvoiceWebController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->with('error', 'Terjadi kesalahan saat membuat invoice: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan saat menyimpan invoice: ' . $e->getMessage());
         }
     }
 
@@ -231,8 +290,8 @@ class InvoiceWebController extends Controller
         });
 
         $breadcrumbs = [
-            ['label' => 'Finance', 'url' => 'javascript:void(0)'],
-            ['label' => 'Tagihan ke RS/Klinik', 'url' => route('web.invoices.index', ['tab' => 'customer'])],
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
+            ['label' => 'Tagihan ke RS/Klinik', 'url' => route('web.invoices.customer.index')],
             ['label' => 'Buat Tagihan ke RS/Klinik']
         ];
 
@@ -254,6 +313,7 @@ class InvoiceWebController extends Controller
             
             // Prepare metadata
             $metadata = [
+                'custom_invoice_number' => $validated['custom_invoice_number'] ?? null,
                 'due_date' => $validated['due_date'] ?? now()->addDays(30),
                 'notes' => $validated['notes'] ?? null,
             ];
@@ -267,7 +327,7 @@ class InvoiceWebController extends Controller
 
             return redirect()
                 ->route('web.invoices.customer.show', $invoice)
-                ->with('success', "Tagihan ke RS/Klinik {$invoice->invoice_number} berhasil dibuat.");
+                ->with('success', "Tagihan ke RS/Klinik {$invoice->invoice_number} berhasil diterbitkan.");
         } catch (\DomainException $e) {
             return back()
                 ->withInput()
