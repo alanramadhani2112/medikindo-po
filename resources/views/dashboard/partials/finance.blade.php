@@ -7,7 +7,7 @@
         <h1 class="fs-2hx fw-bold text-gray-900 mb-2">Dashboard Finance</h1>
         <p class="text-gray-600 fs-6 mb-0">Selamat datang, {{ auth()->user()->name }}</p>
     </div>
-    <a href="{{ route('web.invoices.index') }}" class="btn btn-primary">
+    <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-primary">
         <i class="ki-outline ki-bill fs-2"></i>
         Kelola Invoice
     </a>
@@ -65,7 +65,7 @@
                     <span class="text-muted mt-1 fw-semibold fs-7">Tagihan yang belum dibayar (diurutkan berdasarkan jatuh tempo)</span>
                 </h3>
                 <div class="card-toolbar">
-                    <a href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}" class="btn btn-sm btn-light-primary">
+                    <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-sm btn-light-primary">
                         Lihat Semua
                         <i class="ki-outline ki-right fs-5 ms-1"></i>
                     </a>
@@ -140,7 +140,7 @@
             <div class="card-body pt-3">
                 <div class="d-flex flex-column gap-3">
                     @can('create_invoice')
-                    <a href="{{ route('web.invoices.index') }}" class="btn btn-light-primary justify-content-start">
+                    <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light-primary justify-content-start">
                         <i class="ki-outline ki-bill fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Generate Invoice</div>
@@ -157,7 +157,7 @@
                         </div>
                     </a>
                     @endcan
-                    <a href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}" class="btn btn-light-danger justify-content-start">
+                    <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-danger justify-content-start">
                         <i class="ki-outline ki-wallet fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Bayar Distributor</div>

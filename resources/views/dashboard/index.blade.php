@@ -201,7 +201,7 @@ Conversion Metadata:
                             Manajemen PO
                         </a>
                         @can('view_invoice')
-                        <a href="{{ route('web.invoices.index') }}" class="btn btn-light-primary justify-content-start">
+                        <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light-primary justify-content-start">
                             <i class="ki-outline ki-dollar fs-3 me-2"></i>
                             Faktur & Keuangan
                         </a>

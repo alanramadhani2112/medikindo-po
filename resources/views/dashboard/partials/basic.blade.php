@@ -24,7 +24,7 @@
                         Purchase Orders
                     </a>
                     @can('view_invoices')
-                    <a href="{{ route('web.invoices.index') }}" class="btn btn-light-primary">
+                    <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light-primary">
                         <i class="ki-outline ki-bill fs-2"></i>
                         Invoices
                     </a>

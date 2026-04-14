@@ -132,7 +132,7 @@
                     </a>
                     @endcan
                     @can('view_invoices')
-                    <a href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}" class="btn btn-light-warning justify-content-start">
+                    <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-warning justify-content-start">
                         <i class="ki-outline ki-bill fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Lihat Invoice</div>
@@ -191,7 +191,7 @@
                     <span class="text-muted mt-1 fw-semibold fs-7">Tagihan yang belum dibayar</span>
                 </h3>
                 <div class="card-toolbar">
-                    <a href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}" class="btn btn-sm btn-light-primary">
+                    <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-sm btn-light-primary">
                         Lihat Semua
                         <i class="ki-outline ki-right fs-5 ms-1"></i>
                     </a>

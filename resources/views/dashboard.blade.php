@@ -192,7 +192,7 @@
                     </a>
                     @endcan
                     @can('view_invoices')
-                    <a href="{{ route('web.invoices.index') }}" class="d-flex align-items-center py-3 border-bottom">
+                    <a href="{{ route('web.invoices.customer.index') }}" class="d-flex align-items-center py-3 border-bottom">
                         <span class="bullet bullet-vertical h-40px bg-warning me-4"></span>
                         <div class="flex-grow-1">
                             <span class="text-gray-800 fw-bold fs-6 d-block">Kelola Invoices</span>
