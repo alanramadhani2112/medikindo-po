@@ -28,7 +28,7 @@
                     </a>
                 </div>
 
-                {{-- PROCUREMENT --}}
+                {{-- PROCUREMENT SECTION --}}
                 @canany(['view_purchase_orders', 'view_approvals', 'view_goods_receipt'])
                 <div class="menu-item pt-5">
                     <div class="menu-content">
@@ -73,33 +73,46 @@
                 @endcan
                 @endcanany
 
-                {{-- FINANCE --}}
-                @canany(['view_invoices', 'view_payments', 'view_credit_control'])
+                {{-- INVOICING SECTION --}}
+                @can('view_invoices')
                 <div class="menu-item pt-5">
                     <div class="menu-content">
-                        <span class="menu-heading fw-bold text-uppercase fs-7">Finance</span>
+                        <span class="menu-heading fw-bold text-uppercase fs-7">Invoicing</span>
                     </div>
                 </div>
 
-                @can('view_invoices')
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs('web.invoices.*') && request('tab') === 'supplier' ? 'active' : '' }}" href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}">
-                        <span class="menu-icon">
-                            <i class="ki-outline ki-arrow-down fs-2 text-danger"></i>
-                        </span>
-                        <span class="menu-title">Hutang Pemasok</span>
-                    </a>
-                </div>
-                
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.invoices.*') && request('tab') === 'customer' ? 'active' : '' }}" href="{{ route('web.invoices.index', ['tab' => 'customer']) }}">
                         <span class="menu-icon">
                             <i class="ki-outline ki-arrow-up fs-2 text-success"></i>
                         </span>
                         <span class="menu-title">Tagihan ke RS/Klinik</span>
+                        <span class="menu-badge">
+                            <span class="badge badge-light-success badge-circle fw-bold fs-8">AR</span>
+                        </span>
+                    </a>
+                </div>
+                
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs('web.invoices.*') && (request('tab') === 'supplier' || !request('tab')) ? 'active' : '' }}" href="{{ route('web.invoices.index', ['tab' => 'supplier']) }}">
+                        <span class="menu-icon">
+                            <i class="ki-outline ki-arrow-down fs-2 text-danger"></i>
+                        </span>
+                        <span class="menu-title">Hutang ke Supplier</span>
+                        <span class="menu-badge">
+                            <span class="badge badge-light-danger badge-circle fw-bold fs-8">AP</span>
+                        </span>
                     </a>
                 </div>
                 @endcan
+
+                {{-- PAYMENT SECTION --}}
+                @canany(['view_payments', 'view_credit_control'])
+                <div class="menu-item pt-5">
+                    <div class="menu-content">
+                        <span class="menu-heading fw-bold text-uppercase fs-7">Payment</span>
+                    </div>
+                </div>
 
                 @can('view_payments')
                 <div class="menu-item">
@@ -124,7 +137,7 @@
                 @endcan
                 @endcanany
 
-                {{-- MASTER DATA --}}
+                {{-- MASTER DATA SECTION --}}
                 @canany(['manage_organizations', 'manage_suppliers', 'manage_products', 'manage_users'])
                 <div class="menu-item pt-5">
                     <div class="menu-content">
