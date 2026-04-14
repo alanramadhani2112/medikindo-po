@@ -50,6 +50,13 @@ class ApprovalService
         string $decision, // 'approved' | 'rejected'
         ?string $notes = null,
     ): Approval {
+        // CRITICAL: Prevent self-approval
+        if ($po->created_by === $approver->id) {
+            throw ValidationException::withMessages([
+                'approval' => 'Anda tidak dapat menyetujui Purchase Order yang Anda buat sendiri.',
+            ]);
+        }
+
         $approval = $po->approvals()
             ->where('level', $level)
             ->where('status', Approval::STATUS_PENDING)
