@@ -185,7 +185,7 @@
                             <tr>
                                 <td colspan="6" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-solid ki-office-bag fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <h3 class="fs-5 fw-bold text-gray-800 mb-1">Belum Ada Data Organisasi</h3>
                                         <p class="text-muted fs-7">Tambahkan organisasi untuk mulai mengelola data lintas fasilitas.</p>
                                         @can('manage_organizations')

@@ -212,7 +212,7 @@
                             <tr>
                                 <td colspan="5" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-solid ki-package fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <h6 class="text-gray-800 fw-semibold fs-6 mb-1">Daftar Item Kosong</h6>
                                         <p class="text-gray-600 fs-7 mb-0">Pilih supplier utama, kemudian tekan "Tambah Produk".</p>
                                     </div>

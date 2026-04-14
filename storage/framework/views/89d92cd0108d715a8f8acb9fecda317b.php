@@ -44,18 +44,15 @@
                     <div class="d-flex flex-column flex-column-fluid">
                         <div id="kt_app_content" class="app-content flex-column-fluid">
                             <div id="kt_app_content_container" class="app-container container-fluid">
+                                
                                 <?php if(session('success')): ?>
-                                    <div class="alert alert-success d-flex align-items-center mb-5">
-                                        <i class="ki-solid ki-check-circle fs-2 text-success me-3"></i>
-                                        <span><?php echo e(session('success')); ?></span>
-                                    </div>
+                                    <div data-success-message="<?php echo e(session('success')); ?>" style="display:none;"></div>
                                 <?php endif; ?>
                                 <?php if(session('error')): ?>
-                                    <div class="alert alert-danger d-flex align-items-center mb-5">
-                                        <i class="ki-solid ki-cross-circle fs-2 text-danger me-3"></i>
-                                        <span><?php echo e(session('error')); ?></span>
-                                    </div>
+                                    <div data-error-message="<?php echo e(session('error')); ?>" style="display:none;"></div>
                                 <?php endif; ?>
+                                
+                                
                                 <?php if($errors->any()): ?>
                                     <div class="alert alert-danger d-flex align-items-start mb-5">
                                         <i class="ki-solid ki-information-5 fs-2 text-danger me-3 mt-1"></i>
@@ -89,6 +86,7 @@
     </div>
     <script src="<?php echo e(asset('assets/metronic8/plugins/global/plugins.bundle.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/metronic8/js/scripts.bundle.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/sweetalert-confirmations.js')); ?>"></script>
     <script>
         // Initialize Metronic components when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {

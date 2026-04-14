@@ -124,7 +124,7 @@
                                                 <ul class="dropdown-menu">
                                                     <li>
                                                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $limit->id }}">
-                                                            <i class="ki-solid ki-message-edit fs-3 me-2 text-primary"></i>
+                                                            <i class="ki-solid ki-notepad-edit fs-3 me-2 text-primary"></i>
                                                             Edit Plafon
                                                         </a>
                                                     </li>
@@ -234,7 +234,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">
-                        <i class="ki-solid ki-message-edit fs-2 me-2 text-primary"></i>
+                        <i class="ki-solid ki-notepad-edit fs-2 me-2 text-primary"></i>
                         Edit Plafon Kredit
                     </h3>
                     <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">

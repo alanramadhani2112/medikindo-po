@@ -14,7 +14,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-solid ki-note-2 fs-2 me-2"></i>
+                        <i class="ki-solid ki-notepad-edit fs-2 me-2"></i>
                         Ubah Data Supplier
                     </h3>
                 </div>

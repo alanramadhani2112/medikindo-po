@@ -14,7 +14,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-solid ki-shop fs-2 me-2"></i>
+                        <i class="ki-solid ki-plus fs-2 me-2"></i>
                         Registrasi Supplier Baru
                     </h3>
                 </div>
