@@ -158,14 +158,14 @@ class InvoiceWebController extends Controller
 
     public function exportSupplierPdf(SupplierInvoice $invoice)
     {
-        $invoice->load(['supplier', 'purchaseOrder', 'goodsReceipt']);
+        $invoice->load(['supplier', 'purchaseOrder', 'goodsReceipt', 'lineItems.product']);
         $pdf = Pdf::loadView('pdf.invoice', ['invoice' => $invoice, 'type' => 'supplier'])->setPaper('a4', 'portrait');
         return $pdf->stream('AP_INV_' . $invoice->invoice_number . '.pdf');
     }
 
     public function exportCustomerPdf(CustomerInvoice $invoice)
     {
-        $invoice->load(['organization', 'purchaseOrder', 'goodsReceipt']);
+        $invoice->load(['organization', 'purchaseOrder', 'goodsReceipt', 'lineItems.product']);
         $pdf = Pdf::loadView('pdf.invoice', ['invoice' => $invoice, 'type' => 'customer'])->setPaper('a4', 'portrait');
         return $pdf->stream('AR_INV_' . $invoice->invoice_number . '.pdf');
     }
