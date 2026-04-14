@@ -4,7 +4,7 @@
     {{-- Success Alert --}}
     @if(session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
+            <i class="ki-duotone ki-check-circle fs-2 me-3"></i>
             <div>{{ session('success') }}</div>
         </div>
     @endif
@@ -17,7 +17,7 @@
         </div>
         @can('manage_organizations')
             <a href="{{ route('web.organizations.create') }}" class="btn btn-primary">
-                <i class="ki-outline ki-plus fs-2"></i>
+                <i class="ki-duotone ki-plus fs-2"></i>
                 Tambah Organisasi
             </a>
         @endcan
@@ -32,7 +32,7 @@
                 {{-- LEFT: Search --}}
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="{{ request('search') }}" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nama atau kode...">
@@ -48,14 +48,14 @@
                 
                 {{-- Search Button --}}
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-outline ki-magnifier fs-2"></i>
+                    <i class="ki-duotone ki-magnifier fs-2"></i>
                     Cari
                 </button>
                 
                 {{-- Reset Button --}}
                 @if(request()->filled('search') || request()->filled('status'))
                     <a href="{{ route('web.organizations.index', ['tab' => $tab ?? 'all']) }}" class="btn btn-light">
-                        <i class="ki-outline ki-cross fs-2"></i>
+                        <i class="ki-duotone ki-cross fs-2"></i>
                         Reset
                     </a>
                 @endif
@@ -88,7 +88,7 @@
                     <li class="nav-item">
                         <a href="{{ route('web.organizations.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
                            class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-2"></i>
+                            <i class="ki-duotone {{ $tabData['icon'] }} fs-4 me-2"></i>
                                 <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
                             <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                                 {{ $count }}
@@ -104,7 +104,7 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">
-                <i class="ki-outline ki-office-bag fs-2 me-2"></i>
+                <i class="ki-duotone ki-office-bag fs-2 me-2"></i>
                 Daftar Organisasi
             </h3>
         </div>
@@ -158,12 +158,12 @@
                                     <div class="d-flex justify-content-end">
                                         <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
                                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ki-outline ki-dots-vertical fs-3"></i>
+                                            <i class="ki-duotone ki-dots-vertical fs-3"></i>
                                             Aksi
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <a href="{{ route('web.organizations.edit', $org) }}" class="dropdown-item">
-                                                <i class="ki-outline ki-notepad-edit fs-4 me-2 text-primary"></i>
+                                                <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
                                                 Edit Organisasi
                                             </a>
                                             <div class="dropdown-divider"></div>
@@ -172,7 +172,7 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="dropdown-item {{ $org->is_active ? 'text-warning' : 'text-success' }}">
-                                                    <i class="ki-outline ki-{{ $org->is_active ? 'shield-cross' : 'shield-tick' }} fs-4 me-2"></i>
+                                                    <i class="ki-duotone ki-{{ $org->is_active ? 'shield-cross' : 'shield-tick' }} fs-4 me-2"></i>
                                                     {{ $org->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Organisasi
                                                 </button>
                                             </form>
@@ -184,12 +184,12 @@
                             <tr>
                                 <td colspan="6" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-office-bag fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-duotone ki-office-bag fs-3x text-gray-400 mb-3"></i>
                                         <h3 class="fs-5 fw-bold text-gray-800 mb-1">Belum Ada Data Organisasi</h3>
                                         <p class="text-muted fs-7">Tambahkan organisasi untuk mulai mengelola data lintas fasilitas.</p>
                                         @can('manage_organizations')
                                             <a href="{{ route('web.organizations.create') }}" class="btn btn-primary mt-3">
-                                                <i class="ki-outline ki-plus fs-2"></i>
+                                                <i class="ki-duotone ki-plus fs-2"></i>
                                                 Registrasi Organisasi
                                             </a>
                                         @endcan

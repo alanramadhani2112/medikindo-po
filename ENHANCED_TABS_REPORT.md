@@ -49,7 +49,7 @@ Semua dynamic tabs telah berhasil diperbaiki dengan desain yang lebih bagus, rap
 <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
     <li class="nav-item">
         <a href="..." class="nav-link text-active-primary d-flex align-items-center">
-            <i class="ki-outline ki-document fs-4 me-2 text-primary"></i>
+            <i class="ki-duotone ki-document fs-4 me-2 text-primary"></i>
             <span class="d-flex flex-column align-items-start">
                 <span class="fs-6 fw-bold">Semua Faktur</span>
                 <span class="fs-7 fw-semibold text-muted">5 faktur</span>
@@ -128,7 +128,7 @@ Semua dynamic tabs telah berhasil diperbaiki dengan desain yang lebih bagus, rap
 ### CSS Classes Used:
 - **Container:** `nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch`
 - **Item:** `nav-item` with `nav-link d-flex align-items-center`
-- **Icon:** `ki-outline ki-{icon} fs-4 me-2 text-{color}`
+- **Icon:** `ki-duotone ki-{icon} fs-4 me-2 text-{color}`
 - **Content:** `d-flex flex-column align-items-start`
 - **Badge:** `badge badge-{color} ms-auto`
 

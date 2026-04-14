@@ -1,8 +1,9 @@
 # Daftar Icon yang Digunakan di Sistem Medikindo PO
 
 **Tanggal**: 14 April 2026  
-**Format Icon**: `ki-outline ki-{name}`  
-**Total Icon Unik**: 72 icon
+**Format Icon**: `ki-duotone ki-{name}` (Keenicons Duotone)  
+**Total Icon Unik**: 72 icon  
+**Update Terakhir**: 14 April 2026 - Migrasi dari Outline ke Duotone
 
 ---
 
@@ -12,133 +13,133 @@
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| abstract-14 | `ki-outline ki-abstract-14` | Sidebar mobile toggle, menu toggle |
-| abstract-26 | `ki-outline ki-abstract-26` | UI elements |
-| element-11 | `ki-outline ki-element-11` | Dashboard menu icon |
-| home | `ki-outline ki-home` | Home/Dashboard |
-| home-2 | `ki-outline ki-home-2` | Alternative home icon |
-| dots-horizontal | `ki-outline ki-dots-horizontal` | Action menu (horizontal) |
-| dots-vertical | `ki-outline ki-dots-vertical` | Action menu (vertical) |
-| setting-2 | `ki-outline ki-setting-2` | Settings |
-| exit-right | `ki-outline ki-exit-right` | Logout button |
+| abstract-14 | `ki-duotone ki-abstract-14` | Sidebar mobile toggle, menu toggle |
+| abstract-26 | `ki-duotone ki-abstract-26` | UI elements |
+| element-11 | `ki-duotone ki-element-11` | Dashboard menu icon |
+| home | `ki-duotone ki-home` | Home/Dashboard |
+| home-2 | `ki-duotone ki-home-2` | Alternative home icon |
+| dots-horizontal | `ki-duotone ki-dots-horizontal` | Action menu (horizontal) |
+| dots-vertical | `ki-duotone ki-dots-vertical` | Action menu (vertical) |
+| setting-2 | `ki-duotone ki-setting-2` | Settings |
+| exit-right | `ki-duotone ki-exit-right` | Logout button |
 
 ### ➡️ Arrows & Directions (7 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| arrow-up | `ki-outline ki-arrow-up` | Tagihan ke RS/Klinik (AR) |
-| arrow-down | `ki-outline ki-arrow-down` | Hutang ke Supplier (AP) |
-| arrow-left | `ki-outline ki-arrow-left` | Back navigation |
-| arrow-right | `ki-outline ki-arrow-right` | Forward navigation |
-| arrow-right-left | `ki-outline ki-arrow-right-left` | Transfer/Exchange |
-| black-left | `ki-outline ki-black-left` | Pagination previous |
-| black-right | `ki-outline ki-black-right` | Pagination next |
-| right | `ki-outline ki-right` | Next/Continue |
+| arrow-up | `ki-duotone ki-arrow-up` | Tagihan ke RS/Klinik (AR) |
+| arrow-down | `ki-duotone ki-arrow-down` | Hutang ke Supplier (AP) |
+| arrow-left | `ki-duotone ki-arrow-left` | Back navigation |
+| arrow-right | `ki-duotone ki-arrow-right` | Forward navigation |
+| arrow-right-left | `ki-duotone ki-arrow-right-left` | Transfer/Exchange |
+| black-left | `ki-duotone ki-black-left` | Pagination previous |
+| black-right | `ki-duotone ki-black-right` | Pagination next |
+| right | `ki-duotone ki-right` | Next/Continue |
 
 ### ✅ Actions & Status (11 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| check | `ki-outline ki-check` | Confirm/Save button |
-| check-circle | `ki-outline ki-check-circle` | Success message, approval |
-| check-square | `ki-outline ki-check-square` | Approvals menu |
-| cross | `ki-outline ki-cross` | Cancel/Close button |
-| cross-circle | `ki-outline ki-cross-circle` | Error message, reject |
-| plus | `ki-outline ki-plus` | Add/Create button |
-| pencil | `ki-outline ki-pencil` | Edit button |
-| trash | `ki-outline ki-trash` | Delete button |
-| eye | `ki-outline ki-eye` | View/Detail button |
-| lock | `ki-outline ki-lock` | Security/Lock status |
-| verify | `ki-outline ki-verify` | Verification |
+| check | `ki-duotone ki-check` | Confirm/Save button |
+| check-circle | `ki-duotone ki-check-circle` | Success message, approval |
+| check-square | `ki-duotone ki-check-square` | Approvals menu |
+| cross | `ki-duotone ki-cross` | Cancel/Close button |
+| cross-circle | `ki-duotone ki-cross-circle` | Error message, reject |
+| plus | `ki-duotone ki-plus` | Add/Create button |
+| pencil | `ki-duotone ki-pencil` | Edit button |
+| trash | `ki-duotone ki-trash` | Delete button |
+| eye | `ki-duotone ki-eye` | View/Detail button |
+| lock | `ki-duotone ki-lock` | Security/Lock status |
+| verify | `ki-duotone ki-verify` | Verification |
 
 ### 🏢 Business & Organizations (8 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| office-bag | `ki-outline ki-office-bag` | Organizations menu |
-| bank | `ki-outline ki-bank` | Organizations/Financial |
-| hospital | `ki-outline ki-hospital` | Healthcare organizations |
-| shop | `ki-outline ki-shop` | Retail/Store |
-| delivery | `ki-outline ki-delivery` | Delivery |
-| delivery-3 | `ki-outline ki-delivery-3` | Suppliers menu |
-| basket | `ki-outline ki-basket` | Shopping/Orders |
-| purchase | `ki-outline ki-purchase` | Purchase Orders menu |
+| office-bag | `ki-duotone ki-office-bag` | Organizations menu |
+| bank | `ki-duotone ki-bank` | Organizations/Financial |
+| hospital | `ki-duotone ki-hospital` | Healthcare organizations |
+| shop | `ki-duotone ki-shop` | Retail/Store |
+| delivery | `ki-duotone ki-delivery` | Delivery |
+| delivery-3 | `ki-duotone ki-delivery-3` | Suppliers menu |
+| basket | `ki-duotone ki-basket` | Shopping/Orders |
+| purchase | `ki-duotone ki-purchase` | Purchase Orders menu |
 
 ### 📄 Documents & Files (9 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| document | `ki-outline ki-document` | Documents |
-| file | `ki-outline ki-file` | Files |
-| file-deleted | `ki-outline ki-file-deleted` | Empty state |
-| file-down | `ki-outline ki-file-down` | Download file |
-| note | `ki-outline ki-note` | Notes |
-| note-2 | `ki-outline ki-note-2` | Alternative notes |
-| notepad-edit | `ki-outline ki-notepad-edit` | Edit document |
-| bill | `ki-outline ki-bill` | Invoices/Bills |
-| printer | `ki-outline ki-printer` | Print |
+| document | `ki-duotone ki-document` | Documents |
+| file | `ki-duotone ki-file` | Files |
+| file-deleted | `ki-duotone ki-file-deleted` | Empty state |
+| file-down | `ki-duotone ki-file-down` | Download file |
+| note | `ki-duotone ki-note` | Notes |
+| note-2 | `ki-duotone ki-note-2` | Alternative notes |
+| notepad-edit | `ki-duotone ki-notepad-edit` | Edit document |
+| bill | `ki-duotone ki-bill` | Invoices/Bills |
+| printer | `ki-duotone ki-printer` | Print |
 
 ### 👤 Users & People (4 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| user | `ki-outline ki-user` | User profile |
-| user-tick | `ki-outline ki-user-tick` | Verified user |
-| profile-user | `ki-outline ki-profile-user` | Users menu |
-| notification | `ki-outline ki-notification` | Notifications |
-| notification-bing | `ki-outline ki-notification-bing` | Notification bell |
+| user | `ki-duotone ki-user` | User profile |
+| user-tick | `ki-duotone ki-user-tick` | Verified user |
+| profile-user | `ki-duotone ki-profile-user` | Users menu |
+| notification | `ki-duotone ki-notification` | Notifications |
+| notification-bing | `ki-duotone ki-notification-bing` | Notification bell |
 
 ### 💰 Finance & Payment (5 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| wallet | `ki-outline ki-wallet` | Payments menu |
-| dollar | `ki-outline ki-dollar` | Money/Currency |
-| calculator | `ki-outline ki-calculator` | Calculations |
-| chart | `ki-outline ki-chart` | Charts/Analytics |
-| chart-line-up | `ki-outline ki-chart-line-up` | Growth chart |
-| chart-simple | `ki-outline ki-chart-simple` | Credit Control menu |
+| wallet | `ki-duotone ki-wallet` | Payments menu |
+| dollar | `ki-duotone ki-dollar` | Money/Currency |
+| calculator | `ki-duotone ki-calculator` | Calculations |
+| chart | `ki-duotone ki-chart` | Charts/Analytics |
+| chart-line-up | `ki-duotone ki-chart-line-up` | Growth chart |
+| chart-simple | `ki-duotone ki-chart-simple` | Credit Control menu |
 
 ### 📦 Inventory & Products (3 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| package | `ki-outline ki-package` | Goods Receipt menu |
-| capsule | `ki-outline ki-capsule` | Products menu (medical) |
-| geolocation | `ki-outline ki-geolocation` | Location/Address |
+| package | `ki-duotone ki-package` | Goods Receipt menu |
+| capsule | `ki-duotone ki-capsule` | Products menu (medical) |
+| geolocation | `ki-duotone ki-geolocation` | Location/Address |
 
 ### 🛡️ Security & Protection (3 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| shield-tick | `ki-outline ki-shield-tick` | Active/Protected |
-| shield-cross | `ki-outline ki-shield-cross` | Inactive/Unprotected |
-| lock | `ki-outline ki-lock` | Locked/Secured |
+| shield-tick | `ki-duotone ki-shield-tick` | Active/Protected |
+| shield-cross | `ki-duotone ki-shield-cross` | Inactive/Unprotected |
+| lock | `ki-duotone ki-lock` | Locked/Secured |
 
 ### 📞 Communication (3 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| phone | `ki-outline ki-phone` | Phone number |
-| sms | `ki-outline ki-sms` | Messages |
-| send | `ki-outline ki-send` | Send/Submit |
+| phone | `ki-duotone ki-phone` | Phone number |
+| sms | `ki-duotone ki-sms` | Messages |
+| send | `ki-duotone ki-send` | Send/Submit |
 
 ### 🔍 Search & Info (4 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| magnifier | `ki-outline ki-magnifier` | Search button |
-| information | `ki-outline ki-information` | Info icon |
-| information-5 | `ki-outline ki-information-5` | Info box |
-| cloud-download | `ki-outline ki-cloud-download` | Download |
+| magnifier | `ki-duotone ki-magnifier` | Search button |
+| information | `ki-duotone ki-information` | Info icon |
+| information-5 | `ki-duotone ki-information-5` | Info box |
+| cloud-download | `ki-duotone ki-cloud-download` | Download |
 
 ### ⏰ Time & Date (3 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| time | `ki-outline ki-time` | Time |
-| timer | `ki-outline ki-timer` | Timer/Duration |
-| calendar | `ki-outline ki-calendar` | Date picker |
+| time | `ki-duotone ki-time` | Time |
+| timer | `ki-duotone ki-timer` | Timer/Duration |
+| calendar | `ki-duotone ki-calendar` | Date picker |
 
 ---
 
@@ -179,7 +180,7 @@
 
 ### Format Standar
 ```html
-<i class="ki-outline ki-{icon-name} fs-{size}"></i>
+<i class="ki-duotone ki-{icon-name} fs-{size}"></i>
 ```
 
 ### Ukuran yang Digunakan
@@ -280,7 +281,7 @@ Jika Anda ingin mengganti icon, berikut rekomendasi berdasarkan konsistensi:
 ## 📝 Catatan
 
 1. **Semua icon menggunakan format Keenicons** dari Metronic 8
-2. **Format konsisten**: `ki-outline ki-{name}`
+2. **Format konsisten**: `ki-duotone ki-{name}`
 3. **Total 72 icon unik** digunakan di seluruh sistem
 4. **Icon paling banyak**: Action buttons (check, cross, plus, pencil, trash)
 5. **Icon paling sedikit**: Time & Date (hanya 3 icon)

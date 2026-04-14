@@ -19,7 +19,7 @@
                 {{-- GR Compliance Badge --}}
                 @if($invoice->goods_receipt_id)
                     <span class="badge badge-light-success">
-                        <i class="ki-outline ki-check-circle fs-5 me-1"></i>
+                        <i class="ki-duotone ki-check-circle fs-5 me-1"></i>
                         Berdasarkan Penerimaan Barang
                     </span>
                 @endif
@@ -31,11 +31,11 @@
         <div class="d-flex gap-3">
             <button onclick="window.open('{{ route('web.invoices.customer.pdf', $invoice) }}', '_blank')" 
                     class="btn btn-light-primary">
-                <i class="ki-outline ki-printer fs-2"></i>
+                <i class="ki-duotone ki-printer fs-2"></i>
                 Cetak PDF
             </button>
             <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light">
-                <i class="ki-outline ki-arrow-left fs-2"></i>
+                <i class="ki-duotone ki-arrow-left fs-2"></i>
                 Kembali
             </a>
         </div>
@@ -92,7 +92,7 @@
             <div class="card mb-5">
                 <div class="card-header bg-light-primary">
                     <h3 class="card-title text-primary">
-                        <i class="ki-outline ki-hospital fs-2 me-2"></i>
+                        <i class="ki-duotone ki-hospital fs-2 me-2"></i>
                         Tagihan Kepada (Bill To)
                     </h3>
                 </div>
@@ -120,7 +120,7 @@
             <div class="card mb-5">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-outline ki-document fs-2 me-2"></i>
+                        <i class="ki-duotone ki-document fs-2 me-2"></i>
                         Referensi Dokumen
                     </h3>
                 </div>
@@ -148,7 +148,7 @@
                                                 {{ $invoice->goodsReceipt?->gr_number ?? '—' }}
                                             </a>
                                             <span class="badge badge-light-success ms-2">
-                                                <i class="ki-outline ki-check fs-7"></i>
+                                                <i class="ki-duotone ki-check fs-7"></i>
                                                 Verified
                                             </span>
                                         @else
@@ -176,7 +176,7 @@
             <div class="card mb-5">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-outline ki-package fs-2 me-2"></i>
+                        <i class="ki-duotone ki-package fs-2 me-2"></i>
                         Detail Item Invoice
                     </h3>
                 </div>
@@ -208,13 +208,13 @@
                                         </td>
                                         <td>
                                             <span class="badge badge-light-primary">
-                                                <i class="ki-outline ki-lock fs-7 me-1"></i>
+                                                <i class="ki-duotone ki-lock fs-7 me-1"></i>
                                                 {{ $item->batch_no ?? '—' }}
                                             </span>
                                         </td>
                                         <td>
                                             <span class="badge badge-light-warning">
-                                                <i class="ki-outline ki-calendar fs-7 me-1"></i>
+                                                <i class="ki-duotone ki-calendar fs-7 me-1"></i>
                                                 {{ $item->expiry_date ? $item->expiry_date->format('d M Y') : '—' }}
                                             </span>
                                         </td>
@@ -243,7 +243,7 @@
                                     <tr>
                                         <td colspan="9" class="text-center py-10">
                                             <div class="d-flex flex-column align-items-center">
-                                                <i class="ki-outline ki-information-5 fs-3x text-gray-400 mb-3"></i>
+                                                <i class="ki-duotone ki-information-5 fs-3x text-gray-400 mb-3"></i>
                                                 <span class="text-gray-700 fs-5 fw-semibold">Tidak ada item</span>
                                             </div>
                                         </td>
@@ -259,7 +259,7 @@
             <div class="card mb-5">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-outline ki-calculator fs-2 me-2"></i>
+                        <i class="ki-duotone ki-calculator fs-2 me-2"></i>
                         Ringkasan Perhitungan
                     </h3>
                 </div>
@@ -301,14 +301,14 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-outline ki-wallet fs-2 me-2"></i>
+                        <i class="ki-duotone ki-wallet fs-2 me-2"></i>
                         Riwayat Pembayaran
                     </h3>
                     @if($invoice->status !== 'paid')
                         <div class="card-toolbar">
                             <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}" 
                                class="btn btn-sm btn-primary">
-                                <i class="ki-outline ki-plus fs-4"></i>
+                                <i class="ki-duotone ki-plus fs-4"></i>
                                 Input Pembayaran
                             </a>
                         </div>
@@ -345,7 +345,7 @@
                                     <tr>
                                         <td colspan="4" class="text-center py-10">
                                             <div class="d-flex flex-column align-items-center">
-                                                <i class="ki-outline ki-wallet fs-3x text-gray-400 mb-3"></i>
+                                                <i class="ki-duotone ki-wallet fs-3x text-gray-400 mb-3"></i>
                                                 <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum Ada Pembayaran</span>
                                                 <span class="text-gray-500 fs-6">Pembayaran untuk invoice ini belum diterima.</span>
                                             </div>
@@ -367,13 +367,13 @@
                 <div class="card border-primary">
                     <div class="card-header bg-light-primary">
                         <h3 class="card-title text-primary">
-                            <i class="ki-outline ki-bank fs-2 me-2"></i>
+                            <i class="ki-duotone ki-bank fs-2 me-2"></i>
                             Instruksi Pembayaran
                         </h3>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-primary d-flex align-items-start mb-5">
-                            <i class="ki-outline ki-information-5 fs-2x text-primary me-3"></i>
+                            <i class="ki-duotone ki-information-5 fs-2x text-primary me-3"></i>
                             <div class="fs-7">
                                 Mohon transfer sebesar <strong>Rp {{ number_format($invoice->total_amount - $invoice->paid_amount, 0, ',', '.') }}</strong> 
                                 ke rekening di bawah ini.
@@ -398,7 +398,7 @@
                         <div class="separator my-5"></div>
                         
                         <div class="alert alert-warning d-flex align-items-start">
-                            <i class="ki-outline ki-information fs-2x text-warning me-3"></i>
+                            <i class="ki-duotone ki-information fs-2x text-warning me-3"></i>
                             <div class="fs-7">
                                 <strong>Penting:</strong> Harap mencantumkan nomor invoice 
                                 <strong>{{ $invoice->invoice_number }}</strong> pada berita transfer.
@@ -412,7 +412,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="ki-outline ki-note fs-2 me-2"></i>
+                            <i class="ki-duotone ki-note fs-2 me-2"></i>
                             Catatan
                         </h3>
                     </div>
@@ -426,7 +426,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="ki-outline ki-shield-tick fs-2 me-2"></i>
+                            <i class="ki-duotone ki-shield-tick fs-2 me-2"></i>
                             Informasi Audit
                         </h3>
                     </div>

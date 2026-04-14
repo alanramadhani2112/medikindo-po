@@ -57,11 +57,11 @@ Delete → ki-trash
 #### ✅ Before
 ```html
 <a href="..." class="btn btn-sm btn-light-primary">
-    <i class="ki-outline ki-notepad-edit fs-4"></i>
+    <i class="ki-duotone ki-notepad-edit fs-4"></i>
     Ubah
 </a>
 <button type="submit" class="btn btn-sm btn-light-danger">
-    <i class="ki-outline ki-trash fs-4"></i>
+    <i class="ki-duotone ki-trash fs-4"></i>
     Hapus
 </button>
 ```
@@ -69,7 +69,7 @@ Delete → ki-trash
 #### ✅ After
 ```html
 <a href="{{ route('web.users.edit', $user) }}" class="btn btn-sm btn-light-primary">
-    <i class="ki-outline ki-pencil fs-4"></i>
+    <i class="ki-duotone ki-pencil fs-4"></i>
     Edit
 </a>
 <form method="POST" action="{{ route('web.users.destroy', $user) }}" 
@@ -77,7 +77,7 @@ Delete → ki-trash
     @csrf
     @method('DELETE')
     <button type="submit" class="btn btn-sm btn-light-warning">
-        <i class="ki-outline ki-{{ $user->is_active ? 'cross' : 'check' }} fs-4"></i>
+        <i class="ki-duotone ki-{{ $user->is_active ? 'cross' : 'check' }} fs-4"></i>
         {{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
     </button>
 </form>
@@ -103,7 +103,7 @@ Delete → ki-trash
 #### ✅ Before
 ```html
 <a href="{{ route('web.suppliers.edit', $supplier) }}" class="btn btn-sm btn-light-primary">
-    <i class="ki-outline ki-note-2 fs-4"></i>
+    <i class="ki-duotone ki-note-2 fs-4"></i>
     Edit
 </a>
 ```
@@ -112,7 +112,7 @@ Delete → ki-trash
 ```html
 <div class="d-flex justify-content-end gap-2">
     <a href="{{ route('web.suppliers.edit', $supplier) }}" class="btn btn-sm btn-light-primary">
-        <i class="ki-outline ki-pencil fs-4"></i>
+        <i class="ki-duotone ki-pencil fs-4"></i>
         Edit
     </a>
     <form method="POST" action="{{ route('web.suppliers.toggle_status', $supplier) }}" 
@@ -120,7 +120,7 @@ Delete → ki-trash
         @csrf
         @method('PATCH')
         <button type="submit" class="btn btn-sm btn-light-warning">
-            <i class="ki-outline ki-{{ $supplier->is_active ? 'cross' : 'check' }} fs-4"></i>
+            <i class="ki-duotone ki-{{ $supplier->is_active ? 'cross' : 'check' }} fs-4"></i>
             {{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
         </button>
     </form>
@@ -144,7 +144,7 @@ Delete → ki-trash
 #### ✅ Before
 ```html
 <a href="{{ route('web.products.edit', $product) }}" class="btn btn-sm btn-light-primary">
-    <i class="ki-outline ki-note-2 fs-4"></i>
+    <i class="ki-duotone ki-note-2 fs-4"></i>
     Detail
 </a>
 ```
@@ -154,7 +154,7 @@ Delete → ki-trash
 @can('manage_product')
     <div class="d-flex justify-content-end gap-2">
         <a href="{{ route('web.products.edit', $product) }}" class="btn btn-sm btn-light-primary">
-            <i class="ki-outline ki-pencil fs-4"></i>
+            <i class="ki-duotone ki-pencil fs-4"></i>
             Edit
         </a>
         <form method="POST" action="{{ route('web.products.destroy', $product) }}" 
@@ -162,7 +162,7 @@ Delete → ki-trash
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-sm btn-light-danger">
-                <i class="ki-outline ki-trash fs-4"></i>
+                <i class="ki-duotone ki-trash fs-4"></i>
                 Hapus
             </button>
         </form>
@@ -190,7 +190,7 @@ Delete → ki-trash
 ```html
 <div class="d-flex justify-content-end gap-2">
     <a href="{{ route('web.organizations.edit', $org) }}" class="btn btn-sm btn-light-primary">
-        <i class="ki-outline ki-note-2 fs-4"></i>
+        <i class="ki-duotone ki-note-2 fs-4"></i>
         Edit
     </a>
 </div>
@@ -200,7 +200,7 @@ Delete → ki-trash
 ```html
 <div class="d-flex justify-content-end gap-2">
     <a href="{{ route('web.organizations.edit', $org) }}" class="btn btn-sm btn-light-primary">
-        <i class="ki-outline ki-pencil fs-4"></i>
+        <i class="ki-duotone ki-pencil fs-4"></i>
         Edit
     </a>
     <form method="POST" action="{{ route('web.organizations.toggle_status', $org) }}" 
@@ -208,7 +208,7 @@ Delete → ki-trash
         @csrf
         @method('PATCH')
         <button type="submit" class="btn btn-sm btn-light-warning">
-            <i class="ki-outline ki-{{ $org->is_active ? 'cross' : 'check' }} fs-4"></i>
+            <i class="ki-duotone ki-{{ $org->is_active ? 'cross' : 'check' }} fs-4"></i>
             {{ $org->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
         </button>
     </form>
@@ -265,7 +265,7 @@ All modules follow the same order:
 - All buttons: `btn-sm` (small size)
 
 ### ✅ Icon Usage
-- All icons: `ki-outline` prefix
+- All icons: `ki-duotone` prefix
 - Icon size: `fs-4`
 - Consistent icon names across modules
 
@@ -383,7 +383,7 @@ When adding a new module, follow this checklist:
    ```html
    <div class="d-flex justify-content-end gap-2">
        <a href="..." class="btn btn-sm btn-light-primary">
-           <i class="ki-outline ki-pencil fs-4"></i>
+           <i class="ki-duotone ki-pencil fs-4"></i>
            Edit
        </a>
        <!-- TOGGLE or DELETE button here -->

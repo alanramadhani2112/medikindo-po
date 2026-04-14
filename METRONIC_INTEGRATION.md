@@ -172,7 +172,7 @@ Layout utama yang menggunakan Metronic 8 dengan struktur:
 ```html
 <div class="symbol symbol-50px">
     <span class="symbol-label bg-light-primary">
-        <i class="ki-outline ki-user fs-2x text-primary"></i>
+        <i class="ki-duotone ki-user fs-2x text-primary"></i>
     </span>
 </div>
 ```
@@ -183,10 +183,10 @@ Metronic 8 menggunakan Keenicons dengan 3 style:
 
 ### Outline (Default - Recommended)
 ```html
-<i class="ki-outline ki-home fs-2"></i>
-<i class="ki-outline ki-user fs-2"></i>
-<i class="ki-outline ki-document fs-2"></i>
-<i class="ki-outline ki-chart-line fs-2"></i>
+<i class="ki-duotone ki-home fs-2"></i>
+<i class="ki-duotone ki-user fs-2"></i>
+<i class="ki-duotone ki-document fs-2"></i>
+<i class="ki-duotone ki-chart-line fs-2"></i>
 ```
 
 ### Duotone (Two-tone)
@@ -205,11 +205,11 @@ Metronic 8 menggunakan Keenicons dengan 3 style:
 
 ### Icon Sizes
 ```html
-<i class="ki-outline ki-home fs-1"></i>  <!-- Largest -->
-<i class="ki-outline ki-home fs-2"></i>  <!-- Large -->
-<i class="ki-outline ki-home fs-3"></i>  <!-- Medium -->
-<i class="ki-outline ki-home fs-4"></i>  <!-- Small -->
-<i class="ki-outline ki-home fs-5"></i>  <!-- Smallest -->
+<i class="ki-duotone ki-home fs-1"></i>  <!-- Largest -->
+<i class="ki-duotone ki-home fs-2"></i>  <!-- Large -->
+<i class="ki-duotone ki-home fs-3"></i>  <!-- Medium -->
+<i class="ki-duotone ki-home fs-4"></i>  <!-- Small -->
+<i class="ki-duotone ki-home fs-5"></i>  <!-- Smallest -->
 ```
 
 ## Typography Classes
@@ -339,7 +339,7 @@ php artisan config:clear
 
 2. **Pastikan menggunakan class yang benar:**
    ```html
-   <i class="ki-outline ki-home fs-2"></i>
+   <i class="ki-duotone ki-home fs-2"></i>
    ```
 
 ## Komponen Metronic yang Sudah Digunakan

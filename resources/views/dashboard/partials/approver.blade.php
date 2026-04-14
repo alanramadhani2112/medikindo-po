@@ -8,7 +8,7 @@
         <p class="text-gray-600 fs-6 mb-0">Selamat datang, {{ auth()->user()->name }}</p>
     </div>
     <a href="{{ route('web.approvals.index') }}" class="btn btn-primary">
-        <i class="ki-outline ki-document fs-2"></i>
+        <i class="ki-duotone ki-document fs-2"></i>
         Lihat Semua Approval
     </a>
 </div>
@@ -25,7 +25,7 @@
                         <span class="text-white fw-bold fs-2x">{{ $card['value'] }}</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-20 rounded" style="width:60px;height:60px;">
-                        <i class="ki-outline {{ $card['icon'] }} fs-2x text-white"></i>
+                        <i class="ki-duotone {{ $card['icon'] }} fs-2x text-white"></i>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
     <div class="col-12">
         @foreach($alerts as $alert)
         <div class="alert alert-{{ $alert['type'] }} d-flex align-items-center p-5 mb-5">
-            <i class="ki-outline {{ $alert['icon'] }} fs-2hx text-{{ $alert['type'] }} me-4"></i>
+            <i class="ki-duotone {{ $alert['icon'] }} fs-2hx text-{{ $alert['type'] }} me-4"></i>
             <div class="d-flex flex-column flex-grow-1">
                 <h4 class="mb-1 text-{{ $alert['type'] }} fw-bold">{{ $alert['title'] }}</h4>
                 <span class="fs-6">{{ $alert['message'] }}</span>
@@ -67,7 +67,7 @@
                 <div class="card-toolbar">
                     <a href="{{ route('web.approvals.index') }}" class="btn btn-sm btn-light-primary">
                         Lihat Semua
-                        <i class="ki-outline ki-right fs-5 ms-1"></i>
+                        <i class="ki-duotone ki-right fs-5 ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -109,7 +109,7 @@
                                 <td>
                                     @if($hasNarcotics)
                                     <span class="badge badge-light-danger fs-7 fw-semibold">
-                                        <i class="ki-outline ki-shield-cross fs-6 me-1"></i>
+                                        <i class="ki-duotone ki-shield-cross fs-6 me-1"></i>
                                         HIGH RISK
                                     </span>
                                     @else
@@ -124,7 +124,7 @@
                             <tr>
                                 <td colspan="5" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-check-circle fs-3x text-success mb-3"></i>
+                                        <i class="ki-duotone ki-check-circle fs-3x text-success mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold">Tidak ada PO yang menunggu persetujuan</span>
                                     </div>
                                 </td>
@@ -148,21 +148,21 @@
             <div class="card-body pt-3">
                 <div class="d-flex flex-column gap-3">
                     <a href="{{ route('web.approvals.index') }}" class="btn btn-light-primary justify-content-start">
-                        <i class="ki-outline ki-check-circle fs-3 me-3"></i>
+                        <i class="ki-duotone ki-check-circle fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Approve PO</div>
                             <div class="text-muted fs-7">Setujui purchase order</div>
                         </div>
                     </a>
                     <a href="{{ route('web.approvals.index') }}" class="btn btn-light-danger justify-content-start">
-                        <i class="ki-outline ki-cross-circle fs-3 me-3"></i>
+                        <i class="ki-duotone ki-cross-circle fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Reject PO</div>
                             <div class="text-muted fs-7">Tolak purchase order</div>
                         </div>
                     </a>
                     <a href="{{ route('web.po.index') }}" class="btn btn-light-info justify-content-start">
-                        <i class="ki-outline ki-document fs-3 me-3"></i>
+                        <i class="ki-duotone ki-document fs-3 me-3"></i>
                         <div class="text-start">
                             <div class="fw-bold fs-6">Lihat Semua PO</div>
                             <div class="text-muted fs-7">Riwayat purchase order</div>

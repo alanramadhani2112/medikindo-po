@@ -37,13 +37,13 @@ User meminta penambahan button action untuk edit data plafon kredit di halaman C
 ```blade
 <div class="dropdown">
     <button class="btn btn-sm btn-light btn-active-light-primary" type="button" data-bs-toggle="dropdown">
-        <i class="ki-outline ki-dots-horizontal fs-3"></i>
+        <i class="ki-duotone ki-dots-horizontal fs-3"></i>
         Aksi
     </button>
     <ul class="dropdown-menu">
         <li>
             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $limit->id }}">
-                <i class="ki-outline ki-pencil fs-3 me-2 text-primary"></i>
+                <i class="ki-duotone ki-pencil fs-3 me-2 text-primary"></i>
                 Edit Plafon
             </a>
         </li>
@@ -54,13 +54,13 @@ User meminta penambahan button action untuk edit data plafon kredit di halaman C
                 <input type="hidden" name="max_limit" value="{{ $limit->max_limit }}">
                 @if($limit->is_active)
                     <button type="submit" name="is_active" value="0" class="dropdown-item text-warning">
-                        <i class="ki-outline ki-cross-circle fs-3 me-2"></i>
+                        <i class="ki-duotone ki-cross-circle fs-3 me-2"></i>
                         Nonaktifkan
                     </button>
                 @else
                     <input type="hidden" name="is_active" value="1">
                     <button type="submit" class="dropdown-item text-success">
-                        <i class="ki-outline ki-check-circle fs-3 me-2"></i>
+                        <i class="ki-duotone ki-check-circle fs-3 me-2"></i>
                         Aktifkan
                     </button>
                 @endif
@@ -92,11 +92,11 @@ User meminta penambahan button action untuk edit data plafon kredit di halaman C
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">
-                    <i class="ki-outline ki-pencil fs-2 me-2 text-primary"></i>
+                    <i class="ki-duotone ki-pencil fs-2 me-2 text-primary"></i>
                     Edit Plafon Kredit
                 </h3>
                 <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal">
-                    <i class="ki-outline ki-cross fs-1"></i>
+                    <i class="ki-duotone ki-cross fs-1"></i>
                 </button>
             </div>
             <form method="POST" action="{{ route('web.financial-controls.update', $limit) }}">
@@ -185,7 +185,7 @@ Controller `FinancialControlWebController::update()` sudah mendukung update plaf
 - Dropdown menggunakan Bootstrap 5 dropdown component
 - Form menggunakan method PATCH untuk update
 - CSRF token dan method spoofing sudah diterapkan
-- Icon menggunakan Keenicons format `ki-outline`
+- Icon menggunakan Keenicons format `ki-duotone`
 - Styling konsisten dengan Metronic Demo 42
 
 ## Keamanan

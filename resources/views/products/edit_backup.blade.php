@@ -14,7 +14,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-outline ki-package fs-2 me-2"></i>
+                        <i class="ki-duotone ki-package fs-2 me-2"></i>
                         Tambah Produk Baru
                     </h3>
                 </div>
@@ -22,7 +22,7 @@
                     {{-- Error Alert --}}
                     @if($errors->any())
                         <div class="alert alert-danger d-flex align-items-start mb-5">
-                            <i class="ki-outline ki-information-5 fs-2 me-3"></i>
+                            <i class="ki-duotone ki-information-5 fs-2 me-3"></i>
                             <div>
                                 <ul class="mb-0">
                                     @foreach($errors->all() as $error)
@@ -109,7 +109,7 @@
                             <div class="col-12">
                                 <div class="separator separator-dashed my-7"></div>
                                 <h3 class="fs-5 fw-bold text-gray-900 mb-5">
-                                    <i class="ki-outline ki-chart-line-up fs-3 text-success me-2"></i>
+                                    <i class="ki-duotone ki-chart-line-up fs-3 text-success me-2"></i>
                                     Perhitungan Harga & Profit
                                 </h3>
                             </div>
@@ -258,11 +258,11 @@
                         {{-- Action Buttons --}}
                         <div class="d-flex justify-content-end gap-3 mt-7 pt-7 border-top">
                             <a href="{{ url('/products') }}" class="btn btn-light">
-                                <i class="ki-outline ki-cross fs-2"></i>
+                                <i class="ki-duotone ki-cross fs-2"></i>
                                 Batal
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="ki-outline ki-check fs-2"></i>
+                                <i class="ki-duotone ki-check fs-2"></i>
                                 Simpan Produk
                             </button>
                         </div>

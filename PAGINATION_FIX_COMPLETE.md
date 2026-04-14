@@ -116,8 +116,8 @@
 ```
 
 ### Icon Specifications
-- **Previous**: `ki-outline ki-black-left` (fs-3)
-- **Next**: `ki-outline ki-black-right` (fs-3)
+- **Previous**: `ki-duotone ki-black-left` (fs-3)
+- **Next**: `ki-duotone ki-black-right` (fs-3)
 - **Size**: 1rem (16px)
 - **Color**: #7e8299 (default), #009ef7 (hover/active)
 
@@ -328,7 +328,7 @@ Pagination sekarang konsisten di semua halaman:
 **Solution**: 
 - Pastikan Keenicons loaded di layout
 - Check console untuk error
-- Verify icon name: `ki-outline ki-black-left`
+- Verify icon name: `ki-duotone ki-black-left`
 
 ### Issue: Pagination tidak align kanan
 **Solution**:

@@ -16,7 +16,7 @@
                 
                 <?php if($invoice->goods_receipt_id): ?>
                     <span class="badge badge-light-success">
-                        <i class="ki-outline ki-verify fs-7 me-1"></i>
+                        <i class="ki-duotone ki-verify fs-7 me-1"></i>
                         Berdasarkan Penerimaan Barang
                     </span>
                 <?php endif; ?>
@@ -26,11 +26,11 @@
         <div class="d-flex gap-3">
             <button onclick="window.open('<?php echo e(route('web.invoices.customer.pdf', $invoice)); ?>', '_blank')"
                     class="btn btn-light-primary">
-                <i class="ki-outline ki-printer fs-2"></i>
+                <i class="ki-duotone ki-printer fs-2"></i>
                 Cetak PDF
             </button>
             <a href="<?php echo e(route('web.invoices.customer.index')); ?>" class="btn btn-light">
-                <i class="ki-outline ki-arrow-left fs-2"></i>
+                <i class="ki-duotone ki-arrow-left fs-2"></i>
                 Kembali
             </a>
         </div>
@@ -86,7 +86,7 @@
             <div class="card border-primary h-100">
                 <div class="card-header bg-light-primary">
                     <h3 class="card-title text-primary fw-bold">
-                        <i class="ki-outline ki-hospital fs-2 me-2"></i>
+                        <i class="ki-duotone ki-hospital fs-2 me-2"></i>
                         TAGIHAN KEPADA
                     </h3>
                 </div>
@@ -94,21 +94,21 @@
                     <div class="fs-4 fw-bold text-gray-900 mb-2"><?php echo e($invoice->organization?->name ?? '—'); ?></div>
                     <?php if($invoice->organization?->address): ?>
                         <div class="text-gray-600 fs-6 mb-1">
-                            <i class="ki-outline ki-geolocation fs-6 me-1"></i>
+                            <i class="ki-duotone ki-geolocation fs-6 me-1"></i>
                             <?php echo e($invoice->organization->address); ?>
 
                         </div>
                     <?php endif; ?>
                     <?php if($invoice->organization?->phone): ?>
                         <div class="text-gray-600 fs-6 mb-1">
-                            <i class="ki-outline ki-phone fs-6 me-1"></i>
+                            <i class="ki-duotone ki-phone fs-6 me-1"></i>
                             <?php echo e($invoice->organization->phone); ?>
 
                         </div>
                     <?php endif; ?>
                     <?php if($invoice->organization?->email): ?>
                         <div class="text-gray-600 fs-6">
-                            <i class="ki-outline ki-sms fs-6 me-1"></i>
+                            <i class="ki-duotone ki-sms fs-6 me-1"></i>
                             <?php echo e($invoice->organization->email); ?>
 
                         </div>
@@ -122,7 +122,7 @@
             <div class="card h-100">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-outline ki-document fs-2 me-2"></i>
+                        <i class="ki-duotone ki-document fs-2 me-2"></i>
                         Dokumen Referensi
                     </h3>
                 </div>
@@ -136,7 +136,7 @@
                                     <span class="text-gray-600 fs-7">Nomor Penerimaan Barang (GR)</span>
                                     <span class="text-gray-900 fw-bold"><?php echo e($invoice->goodsReceipt?->gr_number ?? '—'); ?></span>
                                 </div>
-                                <i class="ki-outline ki-arrow-right fs-4 text-success"></i>
+                                <i class="ki-duotone ki-arrow-right fs-4 text-success"></i>
                             </a>
                         <?php endif; ?>
                         
@@ -146,7 +146,7 @@
                                 <span class="text-gray-600 fs-7">Nomor PO Internal</span>
                                 <span class="text-gray-900 fw-bold"><?php echo e($invoice->purchaseOrder?->po_number ?? '—'); ?></span>
                             </div>
-                            <i class="ki-outline ki-arrow-right fs-4 text-primary"></i>
+                            <i class="ki-duotone ki-arrow-right fs-4 text-primary"></i>
                         </a>
                         
                         <?php if($invoice->purchaseOrder?->external_po_number): ?>
@@ -155,7 +155,7 @@
                                     <span class="text-gray-600 fs-7">Nomor PO RS/Klinik</span>
                                     <span class="text-gray-900 fw-bold"><?php echo e($invoice->purchaseOrder->external_po_number); ?></span>
                                 </div>
-                                <i class="ki-outline ki-information fs-4 text-info"></i>
+                                <i class="ki-duotone ki-information fs-4 text-info"></i>
                             </div>
                         <?php endif; ?>
                         
@@ -164,7 +164,7 @@
                                 <span class="text-gray-600 fs-7">Tanggal Invoice</span>
                                 <span class="text-gray-900 fw-bold"><?php echo e($invoice->created_at->format('d M Y')); ?></span>
                             </div>
-                            <i class="ki-outline ki-calendar fs-4 text-gray-500"></i>
+                            <i class="ki-duotone ki-calendar fs-4 text-gray-500"></i>
                         </div>
                     </div>
                 </div>
@@ -176,12 +176,12 @@
     <div class="card mb-7">
         <div class="card-header">
             <h3 class="card-title">
-                <i class="ki-outline ki-package fs-2 me-2"></i>
+                <i class="ki-duotone ki-package fs-2 me-2"></i>
                 Rincian Barang Tertagih
             </h3>
             <div class="card-toolbar">
                 <span class="badge badge-light-success fs-7">
-                    <i class="ki-outline ki-verify fs-7 me-1"></i>
+                    <i class="ki-duotone ki-verify fs-7 me-1"></i>
                     Data dari Penerimaan Barang (GR)
                 </span>
             </div>
@@ -245,7 +245,7 @@
                             <tr>
                                 <td colspan="9" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-package fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-duotone ki-package fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Tidak Ada Item</span>
                                         <span class="text-gray-500 fs-6">Tidak ada rincian barang untuk invoice ini.</span>
                                     </div>
@@ -264,14 +264,14 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-outline ki-wallet fs-2 me-2"></i>
+                        <i class="ki-duotone ki-wallet fs-2 me-2"></i>
                         Riwayat Alokasi Pembayaran
                     </h3>
                     <?php if($invoice->status !== 'paid'): ?>
                         <div class="card-toolbar">
                             <a href="<?php echo e(route('web.payments.create.incoming', ['invoice_id' => $invoice->id])); ?>"
                                class="btn btn-sm btn-primary">
-                                <i class="ki-outline ki-plus fs-4"></i>
+                                <i class="ki-duotone ki-plus fs-4"></i>
                                 Input Pembayaran
                             </a>
                         </div>
@@ -308,7 +308,7 @@
                                     <tr>
                                         <td colspan="4" class="text-center py-10">
                                             <div class="d-flex flex-column align-items-center">
-                                                <i class="ki-outline ki-wallet fs-3x text-gray-400 mb-3"></i>
+                                                <i class="ki-duotone ki-wallet fs-3x text-gray-400 mb-3"></i>
                                                 <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum Ada Pembayaran</span>
                                                 <span class="text-gray-500 fs-6">Pembayaran untuk invoice ini belum diterima.</span>
                                             </div>
@@ -327,7 +327,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-outline ki-calculator fs-2 me-2"></i>
+                        <i class="ki-duotone ki-calculator fs-2 me-2"></i>
                         Ringkasan Harga
                     </h3>
                 </div>

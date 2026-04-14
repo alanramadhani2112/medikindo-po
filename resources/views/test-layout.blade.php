@@ -9,7 +9,7 @@
         <div class="card-body">
             <p>This is a test page to verify the layout is working correctly.</p>
             <div class="alert alert-info">
-                <i class="ki-outline ki-information-5 fs-2 me-3"></i>
+                <i class="ki-duotone ki-information-5 fs-2 me-3"></i>
                 If you can see this properly styled, the layout is working.
             </div>
             <div class="row">

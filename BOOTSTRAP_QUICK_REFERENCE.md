@@ -158,7 +158,7 @@
 
 <!-- With Icons -->
 <button class="btn btn-primary">
-    <i class="ki-outline ki-plus fs-3"></i>
+    <i class="ki-duotone ki-plus fs-3"></i>
     Add New
 </button>
 ```
@@ -189,22 +189,22 @@
 
 ```html
 <div class="alert alert-primary d-flex align-items-center">
-    <i class="ki-outline ki-information-5 fs-2 me-3"></i>
+    <i class="ki-duotone ki-information-5 fs-2 me-3"></i>
     <span>Primary alert message</span>
 </div>
 
 <div class="alert alert-success d-flex align-items-center">
-    <i class="ki-outline ki-check-circle fs-2 me-3"></i>
+    <i class="ki-duotone ki-check-circle fs-2 me-3"></i>
     <span>Success alert message</span>
 </div>
 
 <div class="alert alert-danger d-flex align-items-center">
-    <i class="ki-outline ki-cross-circle fs-2 me-3"></i>
+    <i class="ki-duotone ki-cross-circle fs-2 me-3"></i>
     <span>Danger alert message</span>
 </div>
 
 <div class="alert alert-warning d-flex align-items-center">
-    <i class="ki-outline ki-information fs-2 me-3"></i>
+    <i class="ki-duotone ki-information fs-2 me-3"></i>
     <span>Warning alert message</span>
 </div>
 ```
@@ -246,7 +246,7 @@
 <!-- With Icon -->
 <div class="symbol symbol-50px">
     <span class="symbol-label bg-light-primary">
-        <i class="ki-outline ki-user fs-2x text-primary"></i>
+        <i class="ki-duotone ki-user fs-2x text-primary"></i>
     </span>
 </div>
 
@@ -458,7 +458,7 @@ xxl: ≥ 1400px (Extra extra large - Wide desktop)
         </div>
         <div class="symbol symbol-50px">
             <span class="symbol-label bg-light-primary">
-                <i class="ki-outline ki-chart-line fs-2x text-primary"></i>
+                <i class="ki-duotone ki-chart-line fs-2x text-primary"></i>
             </span>
         </div>
     </div>

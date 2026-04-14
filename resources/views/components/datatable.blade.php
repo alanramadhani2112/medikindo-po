@@ -27,7 +27,7 @@
                     <li class="nav-item mt-2">
                         <a href="{{ request()->fullUrlWithQuery([$tabParam => $val === '' ? null : $val, 'page' => null]) }}"
                            class="nav-link text-active-primary ms-0 me-6 py-1 {{ $isActive ? 'active' : '' }}">
-                            @if(isset($tabData['icon']))<i class="{{ str_replace('ki-', 'ki-outline ki-', $tabData['icon']) }} fs-4 me-1"></i>@endif
+                            @if(isset($tabData['icon']))<i class="{{ str_replace('ki-', 'ki-duotone ki-', $tabData['icon']) }} fs-4 me-1"></i>@endif
                             {{ $tabData['label'] }}
                             @if(isset($tabData['count']) && $tabData['count'] > 0)
                                 <span class="badge badge-circle badge-light-primary ms-2 fs-8">{{ $tabData['count'] }}</span>
@@ -59,7 +59,7 @@
                     @endif
 
                     <div class="d-flex align-items-center position-relative">
-                        <i class="ki-outline ki-magnifier fs-3 position-absolute ms-4"></i>
+                        <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4"></i>
                         <input type="text" name="search" value="{{ request('search') }}"
                                class="form-control form-control-solid ps-12 w-250px"
                                placeholder="{{ $searchPlaceholder }}" />
@@ -75,7 +75,7 @@
                     @if($isFiltered)
                         <a href="{{ request()->url() . (request()->has($tabParam) ? '?'.$tabParam.'='.request($tabParam) : '') }}"
                            class="btn btn-light-danger btn-sm">
-                            <i class="ki-outline ki-cross fs-4 me-1"></i>Reset
+                            <i class="ki-duotone ki-cross fs-4 me-1"></i>Reset
                         </a>
                     @endif
 

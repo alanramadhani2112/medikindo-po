@@ -39,14 +39,14 @@
 @if($href)
     <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes]) }}>
         @if($icon)
-            <i class="ki-outline ki-{{ $icon }} fs-3"></i>
+            <i class="ki-duotone ki-{{ $icon }} fs-3"></i>
         @endif
         {{ $slot }}
     </a>
 @else
     <button type="{{ $type }}" {{ $attributes->merge(['class' => $classes]) }}>
         @if($icon)
-            <i class="ki-outline ki-{{ $icon }} fs-3"></i>
+            <i class="ki-duotone ki-{{ $icon }} fs-3"></i>
         @endif
         {{ $slot }}
     </button>

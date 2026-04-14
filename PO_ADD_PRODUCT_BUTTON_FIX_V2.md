@@ -89,7 +89,7 @@ addItem() {
         @click="addItem()" 
         :disabled="!supplierId"
         :class="{ 'opacity-50': !supplierId }">
-    <i class="ki-outline ki-plus fs-3"></i>
+    <i class="ki-duotone ki-plus fs-3"></i>
     <span class="fw-bold">Tambah Produk</span>
 </button>
 <div x-show="!supplierId" class="text-muted fs-8 mt-1">

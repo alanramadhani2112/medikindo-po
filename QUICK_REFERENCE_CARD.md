@@ -72,7 +72,7 @@
 - `badge-primary` - Active
 
 ### Icons
-- Format: `ki-outline ki-{name}`
+- Format: `ki-duotone ki-{name}`
 - Button: `fs-2`
 - Inline: `fs-4`
 

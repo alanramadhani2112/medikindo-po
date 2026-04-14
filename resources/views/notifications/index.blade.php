@@ -4,7 +4,7 @@
         {{-- Success Alert --}}
     @if(session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
+            <i class="ki-duotone ki-check-circle fs-2 me-3"></i>
             <div>{{ session('success') }}</div>
         </div>
     @endif
@@ -36,7 +36,7 @@
                                 {{-- Icon --}}
                                 <div class="symbol symbol-50px">
                                     <div class="symbol-label bg-light-{{ $badgeColor }} text-{{ $badgeColor }}">
-                                        <i class="ki-outline {{ $icon }} fs-2"></i>
+                                        <i class="ki-duotone {{ $icon }} fs-2"></i>
                                     </div>
                                 </div>
                                 
@@ -52,7 +52,7 @@
                                     <div class="d-flex align-items-center gap-3">
                                         @if(isset($data['action_url']))
                                             <a href="{{ $data['action_url'] }}" class="btn btn-sm btn-light-primary">
-                                                <i class="ki-outline ki-eye fs-4"></i>
+                                                <i class="ki-duotone ki-eye fs-4"></i>
                                                 Buka Dokumen
                                             </a>
                                         @endif
@@ -60,7 +60,7 @@
                                         @if($isUnread)
                                             <a href="{{ route('web.notifications.read', $notification->id) }}" 
                                                class="btn btn-sm btn-light">
-                                                <i class="ki-outline ki-check fs-4"></i>
+                                                <i class="ki-duotone ki-check fs-4"></i>
                                                 Tandai Dibaca
                                             </a>
                                         @endif
@@ -78,7 +78,7 @@
                     <div class="card">
                         <div class="card-body text-center py-15">
                             <div class="d-flex flex-column align-items-center">
-                                <i class="ki-outline ki-notification-bing fs-3x text-gray-400 mb-5"></i>
+                                <i class="ki-duotone ki-notification-bing fs-3x text-gray-400 mb-5"></i>
                                 <h3 class="text-gray-700 fs-3 fw-bold mb-2">Belum ada notifikasi</h3>
                                 <p class="text-gray-500 fs-6">Seluruh pesan dan update aktivitas sistem akan muncul di sini.</p>
                             </div>

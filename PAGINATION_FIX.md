@@ -44,7 +44,7 @@ Membuat custom pagination view yang sesuai dengan Metronic Bootstrap design syst
         <!-- Previous Button -->
         <li class="page-item">
             <a class="page-link" href="#">
-                <i class="ki-outline ki-left fs-5"></i>
+                <i class="ki-duotone ki-left fs-5"></i>
             </a>
         </li>
         
@@ -59,7 +59,7 @@ Membuat custom pagination view yang sesuai dengan Metronic Bootstrap design syst
         <!-- Next Button -->
         <li class="page-item">
             <a class="page-link" href="#">
-                <i class="ki-outline ki-right fs-5"></i>
+                <i class="ki-duotone ki-right fs-5"></i>
             </a>
         </li>
     </ul>
@@ -92,8 +92,8 @@ public function boot(): void
 - Proper spacing and sizing
 
 ### ✅ Keenicons Integration
-- Previous: `ki-outline ki-left`
-- Next: `ki-outline ki-right`
+- Previous: `ki-duotone ki-left`
+- Next: `ki-duotone ki-right`
 - Consistent icon size: `fs-5`
 
 ### ✅ States
@@ -112,7 +112,7 @@ public function boot(): void
 ```html
 <li class="page-item disabled" aria-disabled="true">
     <span class="page-link">
-        <i class="ki-outline ki-left fs-5"></i>
+        <i class="ki-duotone ki-left fs-5"></i>
     </span>
 </li>
 ```
@@ -353,7 +353,7 @@ php artisan cache:clear
 ### Icons Not Showing
 **Check:**
 1. Keenicons loaded in layout
-2. Icon classes correct: `ki-outline ki-left`
+2. Icon classes correct: `ki-duotone ki-left`
 3. Font size class: `fs-5`
 
 ---

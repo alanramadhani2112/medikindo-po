@@ -154,7 +154,7 @@
 **Before**:
 ```blade
 <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-warning">
-    <i class="ki-outline ki-bill fs-3 me-3"></i>
+    <i class="ki-duotone ki-bill fs-3 me-3"></i>
     <div class="text-start">
         <div class="fw-bold fs-6">Lihat Invoice</div>
         <div class="text-muted fs-7">Pantau tagihan supplier</div>

@@ -105,7 +105,7 @@ Sistem **Medikindo Procurement System** telah berhasil diaudit dan diperbaiki se
 - **Buttons:** `btn-primary`, `btn-light-primary`, `btn-success`, `btn-danger`
 - **Badges:** `badge-success`, `badge-warning`, `badge-danger`, `badge-secondary`
 - **Forms:** `form-control-solid`, `form-select-solid`, `form-check-custom`
-- **Icons:** `ki-outline ki-{icon-name}` format
+- **Icons:** `ki-duotone ki-{icon-name}` format
 - **Typography:** `fs-2` (titles), `fs-6` (body), `fs-7` (labels)
 - **Spacing:** `mb-7` (sections), `mb-5` (cards), `gap-3` (buttons)
 

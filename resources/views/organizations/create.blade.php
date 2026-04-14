@@ -66,11 +66,11 @@
 
                     <div class="d-flex justify-content-end gap-3">
                         <a href="{{ route('web.organizations.index') }}" class="btn btn-light-secondary">
-                            <i class="ki-outline ki-cross fs-3"></i>
+                            <i class="ki-duotone ki-cross fs-3"></i>
                             Batal
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="ki-outline ki-check fs-3"></i>
+                            <i class="ki-duotone ki-check fs-3"></i>
                             Simpan Data Organisasi
                         </button>
                     </div>

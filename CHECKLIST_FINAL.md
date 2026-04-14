@@ -79,7 +79,7 @@ http://localhost:8000
 - [ ] Header tampil dengan benar
 - [ ] Sidebar tampil dengan benar
 - [ ] Sidebar toggle berfungsi
-- [ ] Icons muncul (ki-outline, ki-duotone, ki-solid)
+- [ ] Icons muncul (ki-duotone, ki-duotone, ki-solid)
 - [ ] Cards styled dengan baik
 - [ ] Tables styled dengan baik
 - [ ] Buttons styled dengan baik

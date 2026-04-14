@@ -57,7 +57,7 @@
 **Tujuan**: Mengecek dan mendokumentasikan semua icon yang digunakan  
 **Hasil**:
 - Total 72 icon unik teridentifikasi
-- Semua icon menggunakan format Keenicons (ki-outline)
+- Semua icon menggunakan format Keenicons (ki-duotone)
 - Compliance level: 100%
 - Tidak ada violation ditemukan
 
@@ -216,7 +216,7 @@
 - ✅ Batch & expiry: Always from GR (immutable)
 
 ### Technical Standards (Maintained):
-- ✅ Icon format: `ki-outline ki-{name}`
+- ✅ Icon format: `ki-duotone ki-{name}`
 - ✅ Icon sizes: fs-2, fs-3, fs-4, fs-2x, fs-3x
 - ✅ Icon colors: text-primary, text-success, text-danger, etc.
 - ✅ Layout: Default Metronic Demo 42

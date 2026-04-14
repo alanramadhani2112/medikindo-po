@@ -12,7 +12,7 @@
             {{-- GR Selection --}}
             <x-card title="Pilih Penerimaan Barang" class="mb-5">
                 <div class="alert alert-warning d-flex align-items-center mb-5">
-                    <i class="ki-outline ki-information-5 fs-2x text-warning me-4"></i>
+                    <i class="ki-duotone ki-information-5 fs-2x text-warning me-4"></i>
                     <div>
                         <strong>Penting:</strong> Pilih Goods Receipt yang sesuai dengan invoice fisik yang diterima dari distributor. 
                         Batch dan expiry date harus match dengan GR untuk validasi.
@@ -61,7 +61,7 @@
                 {{-- GR Info --}}
                 <div x-show="selectedGrId" x-transition class="mt-5">
                     <div class="alert alert-primary d-flex align-items-center">
-                        <i class="ki-outline ki-information-5 fs-2x text-primary me-4"></i>
+                        <i class="ki-duotone ki-information-5 fs-2x text-primary me-4"></i>
                         <div class="d-flex flex-column">
                             <h5 class="mb-1">Informasi Penerimaan Barang</h5>
                             <span><strong>GR Number:</strong> <span x-text="grInfo.gr_number"></span></span>
@@ -76,7 +76,7 @@
             <div x-show="selectedGrId" x-transition>
                 <x-card title="Detail Invoice Distributor" class="mb-5">
                     <div class="alert alert-info d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-document fs-2x text-info me-4"></i>
+                        <i class="ki-duotone ki-document fs-2x text-info me-4"></i>
                         <div>
                             <strong>Petunjuk:</strong> Input data sesuai dengan invoice fisik/PDF yang diterima dari distributor.
                         </div>
@@ -125,7 +125,7 @@
                 {{-- Items --}}
                 <x-card title="Item Invoice" class="mb-5">
                     <div class="alert alert-warning d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-shield-tick fs-2x text-warning me-4"></i>
+                        <i class="ki-duotone ki-shield-tick fs-2x text-warning me-4"></i>
                         <div>
                             <strong>Validasi:</strong> Batch dan expiry date diambil dari GR (tidak dapat diubah). 
                             <strong>Harga distributor</strong> dapat berbeda dengan harga jual Medikindo ke RS/Klinik.
@@ -214,7 +214,7 @@
                     </div>
 
                     <div class="alert alert-light-primary d-flex align-items-center mt-5">
-                        <i class="ki-outline ki-information fs-2x text-primary me-4"></i>
+                        <i class="ki-duotone ki-information fs-2x text-primary me-4"></i>
                         <div>
                             <strong>Catatan Harga:</strong> Harga yang diinput di sini adalah <strong>harga beli dari distributor</strong>. 
                             Harga jual Medikindo ke RS/Klinik sudah tercatat di PO dan akan digunakan saat membuat invoice ke RS/Klinik.
@@ -225,11 +225,11 @@
                 {{-- Submit --}}
                 <div class="d-flex justify-content-end gap-3">
                     <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-secondary">
-                        <i class="ki-outline ki-cross fs-3"></i>
+                        <i class="ki-duotone ki-cross fs-3"></i>
                         Batal
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="ki-outline ki-check fs-3"></i>
+                        <i class="ki-duotone ki-check fs-3"></i>
                         Simpan Invoice Pemasok
                     </button>
                 </div>

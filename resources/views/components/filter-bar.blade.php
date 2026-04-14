@@ -15,12 +15,12 @@
             
             <div class="col-md-5 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="ki-outline ki-magnifier fs-3"></i>
+                    <i class="ki-duotone ki-magnifier fs-3"></i>
                     Cari
                 </button>
                 @if(request()->hasAny(['search', 'status', 'filter']))
                     <a href="{{ $action }}" class="btn btn-light">
-                        <i class="ki-outline ki-cross fs-3"></i>
+                        <i class="ki-duotone ki-cross fs-3"></i>
                         Reset
                     </a>
                 @endif

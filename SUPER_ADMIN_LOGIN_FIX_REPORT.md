@@ -69,7 +69,7 @@ Memeriksa login form untuk memastikan error handling yang benar.
 ```blade
 @if (session('error'))
 <div class="alert alert-danger d-flex align-items-center p-4 mb-8">
-    <i class="ki-outline ki-information-5 fs-2hx text-danger me-4"></i>
+    <i class="ki-duotone ki-information-5 fs-2hx text-danger me-4"></i>
     <div class="d-flex flex-column">
         <h4 class="mb-1 text-danger">Akses Ditolak</h4>
         <span class="fs-7">{{ session('error') }}</span>
@@ -79,7 +79,7 @@ Memeriksa login form untuk memastikan error handling yang benar.
 
 @if ($errors->any())
 <div class="alert alert-danger d-flex align-items-center p-4 mb-8">
-    <i class="ki-outline ki-information-5 fs-2hx text-danger me-4"></i>
+    <i class="ki-duotone ki-information-5 fs-2hx text-danger me-4"></i>
     <div class="d-flex flex-column">
         <h4 class="mb-1 text-danger">Validasi Error</h4>
         <ul class="mb-0 fs-7">

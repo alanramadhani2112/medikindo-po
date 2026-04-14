@@ -53,7 +53,7 @@
                 {{-- GR Info --}}
                 <div x-show="selectedGrId" x-transition class="mt-5">
                     <div class="alert alert-primary d-flex align-items-center">
-                        <i class="ki-outline ki-information-5 fs-2x text-primary me-4"></i>
+                        <i class="ki-duotone ki-information-5 fs-2x text-primary me-4"></i>
                         <div class="d-flex flex-column">
                             <h5 class="mb-1">Informasi Penerimaan Barang</h5>
                             <span><strong>GR Number:</strong> <span x-text="grInfo.gr_number"></span></span>
@@ -68,7 +68,7 @@
             <div x-show="selectedGrId" x-transition>
                 <x-card title="Detail Tagihan" class="mb-5">
                     <div class="alert alert-success d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-shield-tick fs-2x text-success me-4"></i>
+                        <i class="ki-duotone ki-shield-tick fs-2x text-success me-4"></i>
                         <div>
                             <strong>Informasi:</strong> Tagihan ini akan diterbitkan kepada RS/Klinik berdasarkan barang yang telah diterima. 
                             Harga dan detail produk sesuai dengan Purchase Order yang telah disetujui.
@@ -101,7 +101,7 @@
                 {{-- Items --}}
                 <x-card title="Item Tagihan" class="mb-5">
                     <div class="alert alert-info d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-information fs-2x text-info me-4"></i>
+                        <i class="ki-duotone ki-information fs-2x text-info me-4"></i>
                         <div>
                             <strong>Informasi:</strong> Batch dan tanggal kadaluarsa diambil dari Penerimaan Barang (tidak dapat diubah). 
                             Harga sesuai dengan Purchase Order yang telah disetujui RS/Klinik.
@@ -175,11 +175,11 @@
                 {{-- Submit --}}
                 <div class="d-flex justify-content-end gap-3">
                     <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light-secondary">
-                        <i class="ki-outline ki-cross fs-3"></i>
+                        <i class="ki-duotone ki-cross fs-3"></i>
                         Batal
                     </a>
                     <button type="submit" class="btn btn-success">
-                        <i class="ki-outline ki-check fs-3"></i>
+                        <i class="ki-duotone ki-check fs-3"></i>
                         Terbitkan Tagihan ke RS/Klinik
                     </button>
                 </div>

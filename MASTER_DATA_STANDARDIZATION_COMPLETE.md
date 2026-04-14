@@ -134,19 +134,19 @@ Standardize all master data index pages (Users, Organizations, Suppliers, Produc
             
             <div class="flex-grow-1" style="max-width: 400px;">
                 <div class="position-relative">
-                    <i class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                     <input type="text" name="search" class="form-control form-control-solid ps-12" placeholder="...">
                 </div>
             </div>
             
             <button type="submit" class="btn btn-light-primary">
-                <i class="ki-outline ki-magnifier fs-2"></i>
+                <i class="ki-duotone ki-magnifier fs-2"></i>
                 Cari
             </button>
             
             @if(request()->filled('search'))
                 <a href="..." class="btn btn-light">
-                    <i class="ki-outline ki-cross fs-2"></i>
+                    <i class="ki-duotone ki-cross fs-2"></i>
                     Reset
                 </a>
             @endif
@@ -163,7 +163,7 @@ Standardize all master data index pages (Users, Organizations, Suppliers, Produc
             @foreach($tabOptions as $val => $tabData)
                 <li class="nav-item">
                     <a href="..." class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                        <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-2"></i>
+                        <i class="ki-duotone {{ $tabData['icon'] }} fs-4 me-2"></i>
                         <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
                         <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                             {{ $counts[$val] }}
@@ -233,7 +233,7 @@ Standardize all master data index pages (Users, Organizations, Suppliers, Produc
 
 - View cache cleared: `php artisan view:clear`
 - All pages follow Metronic 8 Demo 42 design patterns
-- All icons use Keenicons format: `ki-outline ki-{icon-name}`
+- All icons use Keenicons format: `ki-duotone ki-{icon-name}`
 - Table spacing standardized: `gy-4`
 - Permission naming consistent (plural form)
 

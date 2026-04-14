@@ -5,7 +5,7 @@
         <!--begin::Sidebar toggle-->
         <div class="d-flex align-items-center d-block d-lg-none ms-n3" title="Show sidebar menu">
             <div class="btn btn-icon btn-active-color-primary w-35px h-35px me-2" id="kt_app_sidebar_mobile_toggle">
-                <i class="ki-outline ki-abstract-14 fs-2"></i>
+                <i class="ki-duotone ki-abstract-14 fs-2"></i>
             </div>
         </div>
         <!--end::Sidebar toggle-->
@@ -107,7 +107,7 @@
                         <form method="POST" action="{{ route('logout') }}" class="w-100">
                             @csrf
                             <button type="submit" class="btn btn-light-danger btn-sm w-100 d-flex align-items-center justify-content-center">
-                                <i class="ki-outline ki-exit-right fs-3 me-2"></i>
+                                <i class="ki-duotone ki-exit-right fs-3 me-2"></i>
                                 <span class="fw-bold">Keluar</span>
                             </button>
                         </form>

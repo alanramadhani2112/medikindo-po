@@ -75,7 +75,7 @@
 - ✅ Primary (blue) - submitted/active
 
 #### Icons
-- ✅ All use Keenicons: `ki-outline ki-{icon-name}`
+- ✅ All use Keenicons: `ki-duotone ki-{icon-name}`
 - ✅ Consistent sizing: fs-2 (buttons), fs-4 (inline)
 
 #### Typography

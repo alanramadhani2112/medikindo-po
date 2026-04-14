@@ -160,7 +160,7 @@ Ringkasan lengkap migrasi dan perbaikan
 - [x] Font Keenicons muncul dengan benar
 - [x] Layout Metronic (Header, Sidebar, Toolbar, Footer)
 - [x] Dashboard page dengan Bootstrap classes
-- [x] Icons (ki-outline, ki-duotone, ki-solid)
+- [x] Icons (ki-duotone, ki-duotone, ki-solid)
 - [x] Cards & Card components
 - [x] Tables dengan styling Metronic
 - [x] Buttons (solid & light variants)

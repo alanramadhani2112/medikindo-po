@@ -110,7 +110,7 @@
 ### Consistency
 - ✅ All icons from Keenicons
 - ✅ All icons size fs-2
-- ✅ All icons style ki-outline
+- ✅ All icons style ki-duotone
 - ✅ Consistent spacing
 - ✅ Consistent colors
 
@@ -126,7 +126,7 @@
 ### 2. Konsisten
 - Semua dari Keenicons
 - Ukuran sama (fs-2)
-- Style sama (ki-outline)
+- Style sama (ki-duotone)
 
 ### 3. Modern
 - Icon modern dan clean
