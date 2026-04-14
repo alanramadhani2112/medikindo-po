@@ -53,7 +53,8 @@
                                     <th class="text-end min-w-120px">Plafon Kredit</th>
                                     <th class="text-end min-w-120px">AR Berjalan</th>
                                     <th class="min-w-150px">Utilisasi</th>
-                                    <th class="text-center pe-4 rounded-end min-w-100px">Status</th>
+                                    <th class="text-center min-w-100px">Status</th>
+                                    <th class="text-center pe-4 rounded-end min-w-100px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -101,29 +102,58 @@
                                                 <span class="badge badge-light-danger fs-8 mt-1">⚠ Mendekati Batas!</span>
                                             @endif
                                         </td>
+                                        <td class="text-center">
+                                            @if($limit->is_active)
+                                                <span class="badge badge-light-success">
+                                                    <span class="bullet bullet-dot bg-success me-1"></span>
+                                                    Aktif
+                                                </span>
+                                            @else
+                                                <span class="badge badge-light-secondary">
+                                                    <span class="bullet bullet-dot bg-secondary me-1"></span>
+                                                    Nonaktif
+                                                </span>
+                                            @endif
+                                        </td>
                                         <td class="text-center pe-4">
-                                            <form method="POST" action="{{ route('web.financial-controls.update', $limit) }}">
-                                                @csrf @method('PATCH')
-                                                <input type="hidden" name="max_limit" value="{{ $limit->max_limit }}">
-                                                @if($limit->is_active)
-                                                    <button type="submit" name="is_active" value="0" 
-                                                            class="btn btn-sm btn-light-success">
-                                                        <span class="bullet bullet-dot bg-success me-1"></span>
-                                                        Aktif
-                                                    </button>
-                                                @else
-                                                    <input type="hidden" name="is_active" value="1">
-                                                    <button type="submit" class="btn btn-sm btn-light-secondary">
-                                                        <span class="bullet bullet-dot bg-secondary me-1"></span>
-                                                        Nonaktif
-                                                    </button>
-                                                @endif
-                                            </form>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light btn-active-light-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ki-outline ki-dots-horizontal fs-3"></i>
+                                                    Aksi
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $limit->id }}">
+                                                            <i class="ki-outline ki-pencil fs-3 me-2 text-primary"></i>
+                                                            Edit Plafon
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <form method="POST" action="{{ route('web.financial-controls.update', $limit) }}" class="d-inline">
+                                                            @csrf @method('PATCH')
+                                                            <input type="hidden" name="max_limit" value="{{ $limit->max_limit }}">
+                                                            @if($limit->is_active)
+                                                                <button type="submit" name="is_active" value="0" class="dropdown-item text-warning">
+                                                                    <i class="ki-outline ki-cross-circle fs-3 me-2"></i>
+                                                                    Nonaktifkan
+                                                                </button>
+                                                            @else
+                                                                <input type="hidden" name="is_active" value="1">
+                                                                <button type="submit" class="dropdown-item text-success">
+                                                                    <i class="ki-outline ki-check-circle fs-3 me-2"></i>
+                                                                    Aktifkan
+                                                                </button>
+                                                            @endif
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-10">
+                                        <td colspan="6" class="text-center py-10">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="ki-outline ki-shield-tick fs-3x text-gray-400 mb-3"></i>
                                                 <h3 class="fs-5 fw-bold text-gray-800 mb-1">Belum Ada Kebijakan Kredit</h3>
@@ -196,4 +226,75 @@
             </div>
         </div>
     </div>
+
+    {{-- EDIT MODALS --}}
+    @foreach($limits as $limit)
+    <div class="modal fade" id="editModal{{ $limit->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <i class="ki-outline ki-pencil fs-2 me-2 text-primary"></i>
+                        Edit Plafon Kredit
+                    </h3>
+                    <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="ki-outline ki-cross fs-1"></i>
+                    </button>
+                </div>
+                <form method="POST" action="{{ route('web.financial-controls.update', $limit) }}">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-body">
+                        <div class="mb-5">
+                            <label class="form-label fw-semibold fs-6 mb-2">Organisasi</label>
+                            <input type="text" class="form-control form-control-solid" value="{{ $limit->organization?->name }}" disabled>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label required fw-semibold fs-6 mb-2">Plafon Kredit Maksimum (Rp)</label>
+                            <input type="number" name="max_limit" required min="1" 
+                                   value="{{ $limit->max_limit }}"
+                                   class="form-control form-control-solid"
+                                   placeholder="Contoh: 50000000">
+                            <div class="form-text">
+                                Plafon saat ini: <strong>Rp {{ number_format($limit->max_limit, 0, ',', '.') }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="mb-5 p-4 bg-light-info rounded border border-info">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="ki-outline ki-information-5 fs-2x text-info"></i>
+                                <div>
+                                    <div class="fw-bold text-gray-900 mb-1">Informasi Utilisasi</div>
+                                    <div class="text-gray-700 fs-7">
+                                        AR Berjalan: <strong>Rp {{ number_format($limit->total_active_ar, 0, ',', '.') }}</strong><br>
+                                        Utilisasi: <strong>{{ number_format(($limit->max_limit > 0 ? ($limit->total_active_ar / $limit->max_limit) * 100 : 0), 1) }}%</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" name="is_active" value="1" {{ $limit->is_active ? 'checked' : '' }}
+                                   id="is_active_edit_{{ $limit->id }}" class="form-check-input">
+                            <label for="is_active_edit_{{ $limit->id }}" class="form-check-label fw-semibold text-gray-800">
+                                Aktifkan pemblokiran otomatis
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                            <i class="ki-outline ki-cross fs-3"></i>
+                            Batal
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ki-outline ki-check fs-3"></i>
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endforeach
 @endsection
