@@ -2,7 +2,7 @@
         
     <?php if(session('success')): ?>
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-duotone ki-check-circle fs-2 me-3"></i>
+            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
             <div><?php echo e(session('success')); ?></div>
         </div>
     <?php endif; ?>
@@ -34,7 +34,7 @@
                                 
                                 <div class="symbol symbol-50px">
                                     <div class="symbol-label bg-light-<?php echo e($badgeColor); ?> text-<?php echo e($badgeColor); ?>">
-                                        <i class="ki-duotone <?php echo e($icon); ?> fs-2"></i>
+                                        <i class="ki-solid <?php echo e($icon); ?> fs-2"></i>
                                     </div>
                                 </div>
                                 
@@ -50,7 +50,7 @@
                                     <div class="d-flex align-items-center gap-3">
                                         <?php if(isset($data['action_url'])): ?>
                                             <a href="<?php echo e($data['action_url']); ?>" class="btn btn-sm btn-light-primary">
-                                                <i class="ki-duotone ki-eye fs-4"></i>
+                                                <i class="ki-solid ki-eye fs-4"></i>
                                                 Buka Dokumen
                                             </a>
                                         <?php endif; ?>
@@ -58,7 +58,7 @@
                                         <?php if($isUnread): ?>
                                             <a href="<?php echo e(route('web.notifications.read', $notification->id)); ?>" 
                                                class="btn btn-sm btn-light">
-                                                <i class="ki-duotone ki-check fs-4"></i>
+                                                <i class="ki-solid ki-check fs-4"></i>
                                                 Tandai Dibaca
                                             </a>
                                         <?php endif; ?>
@@ -76,7 +76,7 @@
                     <div class="card">
                         <div class="card-body text-center py-15">
                             <div class="d-flex flex-column align-items-center">
-                                <i class="ki-duotone ki-notification-bing fs-3x text-gray-400 mb-5"></i>
+                                <i class="ki-solid ki-notification-bing fs-3x text-gray-400 mb-5"></i>
                                 <h3 class="text-gray-700 fs-3 fw-bold mb-2">Belum ada notifikasi</h3>
                                 <p class="text-gray-500 fs-6">Seluruh pesan dan update aktivitas sistem akan muncul di sini.</p>
                             </div>

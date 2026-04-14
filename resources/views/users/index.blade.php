@@ -176,11 +176,13 @@
                                                 </a>
                                                 @if($user->id !== auth()->id())
                                                     <div class="dropdown-divider"></div>
-                                                    <form method="POST" action="{{ route('web.users.destroy', $user) }}" 
-                                                          onsubmit="return confirm('{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }} pengguna ini?')" class="d-inline">
+                                                    <form method="POST" action="{{ route('web.users.destroy', $user) }}" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="dropdown-item {{ $user->is_active ? 'text-warning' : 'text-success' }}">
+                                                        <button type="submit" 
+                                                                class="dropdown-item {{ $user->is_active ? 'text-warning' : 'text-success' }} toggle-status-confirm"
+                                                                data-name="{{ $user->name }}"
+                                                                data-status="{{ $user->is_active ? 'active' : 'inactive' }}">
                                                             <i class="ki-solid ki-{{ $user->is_active ? 'cross-square' : 'check-circle' }} fs-4 me-2"></i>
                                                             {{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Pengguna
                                                         </button>
