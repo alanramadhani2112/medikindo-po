@@ -21,7 +21,7 @@
                 <i class="ki-outline ki-file-down fs-2"></i>
                 PDF
             </button>
-            <a href="<?php echo e(route('web.invoices.index', ['tab' => 'supplier'])); ?>" class="btn btn-light">
+            <a href="<?php echo e(route('web.invoices.supplier.index')); ?>" class="btn btn-light">
                 <i class="ki-outline ki-arrow-left fs-2"></i>
                 Kembali
             </a>

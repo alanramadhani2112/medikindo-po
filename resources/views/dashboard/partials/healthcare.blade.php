@@ -131,15 +131,6 @@
                         </div>
                     </a>
                     @endcan
-                    @can('view_invoices')
-                    <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-warning justify-content-start">
-                        <i class="ki-outline ki-bill fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Lihat Invoice</div>
-                            <div class="text-muted fs-7">Pantau tagihan supplier</div>
-                        </div>
-                    </a>
-                    @endcan
                     @can('create_payment')
                     <a href="{{ route('web.payments.index') }}" class="btn btn-light-success justify-content-start">
                         <i class="ki-outline ki-wallet fs-3 me-3"></i>
@@ -179,66 +170,3 @@
         @endif
     </div>
 </div>
-
-{{-- Outstanding Invoices Table --}}
-@if(count($outstandingInvoices) > 0)
-<div class="row g-5 g-xl-8">
-    <div class="col-12">
-        <div class="card card-flush">
-            <div class="card-header border-0 pt-6">
-                <h3 class="card-title align-items-start flex-column">
-                    <span class="card-label fw-bold text-gray-900 fs-3">Invoice Outstanding</span>
-                    <span class="text-muted mt-1 fw-semibold fs-7">Tagihan yang belum dibayar</span>
-                </h3>
-                <div class="card-toolbar">
-                    <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-sm btn-light-primary">
-                        Lihat Semua
-                        <i class="ki-outline ki-right fs-5 ms-1"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="card-body pt-3">
-                <div class="table-responsive">
-                    <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
-                        <thead>
-                            <tr class="fw-bold text-muted bg-light">
-                                <th class="ps-4 min-w-150px rounded-start">Nomor Invoice</th>
-                                <th class="min-w-120px">Jumlah</th>
-                                <th class="min-w-100px">Jatuh Tempo</th>
-                                <th class="text-end pe-4 min-w-100px rounded-end">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($outstandingInvoices as $invoice)
-                            @php
-                                $isOverdue = $invoice->due_date < now();
-                            @endphp
-                            <tr>
-                                <td class="ps-4">
-                                    <span class="text-gray-900 fw-bold fs-6">{{ $invoice->invoice_number }}</span>
-                                    <span class="text-muted fw-semibold d-block fs-7">{{ $invoice->supplier->name ?? '-' }}</span>
-                                </td>
-                                <td>
-                                    <span class="text-gray-900 fw-bold fs-6">Rp {{ number_format($invoice->total_amount - $invoice->paid_amount, 0, ',', '.') }}</span>
-                                </td>
-                                <td>
-                                    <span class="text-gray-700 fw-semibold fs-6">{{ $invoice->due_date->format('d M Y') }}</span>
-                                    @if($isOverdue)
-                                    <span class="badge badge-light-danger fs-8 fw-semibold d-block mt-1">Overdue</span>
-                                    @endif
-                                </td>
-                                <td class="text-end pe-4">
-                                    <span class="badge badge-light-{{ $invoice->status === 'paid' ? 'success' : 'warning' }} fs-7 fw-semibold">
-                                        {{ strtoupper($invoice->status) }}
-                                    </span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endif

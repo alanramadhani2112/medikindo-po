@@ -59,27 +59,11 @@ class DashboardService
         $poInDelivery = PurchaseOrder::where('organization_id', $orgId)
             ->whereIn('status', ['shipped', 'delivered'])
             ->count();
-            
-        $outstandingInvoices = SupplierInvoice::whereHas('purchaseOrder', fn($q) => $q->where('organization_id', $orgId))
-            ->whereIn('status', ['issued', 'payment_submitted'])
-            ->count();
-            
-        $outstandingAmount = SupplierInvoice::whereHas('purchaseOrder', fn($q) => $q->where('organization_id', $orgId))
-            ->whereIn('status', ['issued', 'payment_submitted'])
-            ->sum(DB::raw('total_amount - paid_amount'));
 
         // Recent POs
         $recentPOs = PurchaseOrder::where('organization_id', $orgId)
             ->with(['supplier', 'organization'])
             ->latest()
-            ->limit(10)
-            ->get();
-
-        // Outstanding Invoices
-        $outstandingInvoicesList = SupplierInvoice::whereHas('purchaseOrder', fn($q) => $q->where('organization_id', $orgId))
-            ->with(['supplier', 'purchaseOrder'])
-            ->whereIn('status', ['issued', 'payment_submitted'])
-            ->orderBy('due_date', 'asc')
             ->limit(10)
             ->get();
 
@@ -100,31 +84,14 @@ class DashboardService
             ];
         }
 
-        $overdueInvoices = SupplierInvoice::whereHas('purchaseOrder', fn($q) => $q->where('organization_id', $orgId))
-            ->where('due_date', '<', now())
-            ->whereIn('status', ['issued', 'payment_submitted'])
-            ->count();
-        if ($overdueInvoices > 0) {
-            $alerts[] = [
-                'type' => 'warning',
-                'icon' => 'ki-information',
-                'title' => 'Invoice Jatuh Tempo',
-                'message' => "{$overdueInvoices} invoice melewati tanggal jatuh tempo",
-                'action' => route('web.invoices.index', ['tab' => 'supplier'])
-            ];
-        }
-
         return [
             'role' => 'healthcare',
             'cards' => [
                 ['label' => 'Total PO Aktif', 'value' => $poActive, 'icon' => 'ki-document', 'color' => 'primary'],
                 ['label' => 'PO Menunggu Persetujuan', 'value' => $poWaitingApproval, 'icon' => 'ki-timer', 'color' => 'warning'],
                 ['label' => 'PO Dalam Pengiriman', 'value' => $poInDelivery, 'icon' => 'ki-delivery', 'color' => 'info'],
-                ['label' => 'Invoice Outstanding', 'value' => $outstandingInvoices, 'icon' => 'ki-bill', 'color' => 'danger'],
-                ['label' => 'Total Outstanding', 'value' => 'Rp ' . number_format($outstandingAmount, 0, ',', '.'), 'icon' => 'ki-wallet', 'color' => 'success'],
             ],
             'recentPOs' => $recentPOs,
-            'outstandingInvoices' => $outstandingInvoicesList,
             'alerts' => $alerts,
         ];
     }

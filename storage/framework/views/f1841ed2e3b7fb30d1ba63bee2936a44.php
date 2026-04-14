@@ -331,7 +331,7 @@ unset($__errorArgs, $__bag); ?>
 
                 
                 <div class="d-flex justify-content-end gap-3">
-                    <a href="<?php echo e(route('web.invoices.index', ['tab' => 'supplier'])); ?>" class="btn btn-light-secondary">
+                    <a href="<?php echo e(route('web.invoices.supplier.index')); ?>" class="btn btn-light-secondary">
                         <i class="ki-outline ki-cross fs-3"></i>
                         Batal
                     </a>

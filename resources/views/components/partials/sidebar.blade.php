@@ -89,6 +89,17 @@
                         </span>
                     </a>
                 </div>
+                @endcan
+                
+                @canany(['manage_invoices', 'process_payments', 'view_credit_control'])
+                @if(!isset($invoicingSectionShown))
+                <div class="menu-item pt-5">
+                    <div class="menu-content">
+                        <span class="menu-heading fw-bold text-uppercase fs-7">Invoicing</span>
+                    </div>
+                </div>
+                @php $invoicingSectionShown = true; @endphp
+                @endif
                 
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.invoices.supplier.*') ? 'active' : '' }}" href="{{ route('web.invoices.supplier.index') }}">
@@ -101,7 +112,7 @@
                         </span>
                     </a>
                 </div>
-                @endcan
+                @endcanany
 
                 {{-- PAYMENT SECTION --}}
                 @canany(['view_payments', 'view_credit_control'])

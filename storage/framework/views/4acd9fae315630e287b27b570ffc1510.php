@@ -29,7 +29,7 @@
                 <i class="ki-outline ki-printer fs-2"></i>
                 Cetak PDF
             </button>
-            <a href="<?php echo e(route('web.invoices.index')); ?>" class="btn btn-light">
+            <a href="<?php echo e(route('web.invoices.customer.index')); ?>" class="btn btn-light">
                 <i class="ki-outline ki-arrow-left fs-2"></i>
                 Kembali
             </a>
