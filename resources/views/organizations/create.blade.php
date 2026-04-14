@@ -69,7 +69,7 @@
                             <i class="ki-solid ki-cross fs-3"></i>
                             Batal
                         </a>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary create-confirm" data-type="organisasi">
                             <i class="ki-solid ki-check fs-3"></i>
                             Simpan Data Organisasi
                         </button>

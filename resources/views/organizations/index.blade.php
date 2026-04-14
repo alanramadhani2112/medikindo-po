@@ -167,11 +167,12 @@
                                                 Edit Organisasi
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <form method="POST" action="{{ route('web.organizations.toggle_status', $org) }}" 
-                                                  onsubmit="return confirm('{{ $org->is_active ? 'Nonaktifkan' : 'Aktifkan' }} organisasi ini?')" class="d-inline">
+                                            <form method="POST" action="{{ route('web.organizations.toggle_status', $org) }}" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" class="dropdown-item {{ $org->is_active ? 'text-warning' : 'text-success' }}">
+                                                <button type="submit" class="dropdown-item {{ $org->is_active ? 'text-warning' : 'text-success' }} toggle-status-confirm" 
+                                                        data-name="{{ $org->name }}" 
+                                                        data-status="{{ $org->is_active ? 'active' : 'inactive' }}">
                                                     <i class="ki-solid ki-{{ $org->is_active ? 'cross-square' : 'check-circle' }} fs-4 me-2"></i>
                                                     {{ $org->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Organisasi
                                                 </button>

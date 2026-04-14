@@ -47,7 +47,7 @@
                         <x-button variant="secondary" outline href="{{ route('web.payments.index') }}">
                             Batal
                         </x-button>
-                        <x-button type="submit" variant="success">
+                        <x-button type="submit" variant="success" class="create-confirm" data-type="Kas Masuk">
                             Rekam Kas Masuk
                         </x-button>
                     </div>

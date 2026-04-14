@@ -304,7 +304,7 @@ Conversion Metadata:
             <x-button variant="secondary" outline size="lg" href="{{ route('web.po.show', $purchaseOrder) }}">
                 Batalkan Perubahan
             </x-button>
-            <x-button type="submit" variant="primary" size="lg">
+            <x-button type="submit" variant="primary" size="lg" class="update-confirm" data-name="PO #{{ $purchaseOrder->po_number }}">
                 Simpan Perubahan
             </x-button>
         </div>

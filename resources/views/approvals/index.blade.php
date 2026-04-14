@@ -149,19 +149,24 @@
                                                     @if($pendingApproval) <input type="hidden" name="level" value="{{ $pendingApproval->level }}"> @endif
                                                     <input type="hidden" name="decision" value="approved">
                                                     <input type="hidden" name="notes" id="notes_approved_{{ $po->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-success w-100" 
+                                                    <button type="submit" class="btn btn-sm btn-success w-100 submit-confirm" 
+                                                            data-title="Konfirmasi Persetujuan"
+                                                            data-message="Apakah Anda yakin ingin <strong>menyetujui</strong> pengajuan PO ini?"
+                                                            data-confirm-text="<i class='ki-solid ki-check fs-3 me-2'></i>Ya, Setujui!"
                                                             onclick="document.getElementById('notes_approved_{{ $po->id }}').value = document.getElementById('notes_{{ $po->id }}').value;">
                                                         <i class="ki-solid ki-check fs-4"></i>
                                                         Setujui
                                                     </button>
                                                 </form>
-                                                <form method="POST" action="{{ route('web.approvals.process', $po) }}" class="flex-fill" 
-                                                      onsubmit="return confirm('Yakin menolak pengajuan ini?');">
+                                                <form method="POST" action="{{ route('web.approvals.process', $po) }}" class="flex-fill">
                                                     @csrf
                                                     @if($pendingApproval) <input type="hidden" name="level" value="{{ $pendingApproval->level }}"> @endif
                                                     <input type="hidden" name="decision" value="rejected">
                                                     <input type="hidden" name="notes" id="notes_rejected_{{ $po->id }}">
-                                                    <button type="submit" class="btn btn-sm btn-danger w-100"
+                                                    <button type="submit" class="btn btn-sm btn-danger w-100 submit-confirm"
+                                                            data-title="Konfirmasi Penolakan"
+                                                            data-message="Apakah Anda yakin ingin <strong>menolak</strong> pengajuan PO ini?"
+                                                            data-confirm-text="<i class='ki-solid ki-cross fs-3 me-2'></i>Ya, Tolak!"
                                                             onclick="document.getElementById('notes_rejected_{{ $po->id }}').value = document.getElementById('notes_{{ $po->id }}').value;">
                                                         <i class="ki-solid ki-cross fs-4"></i>
                                                         Tolak

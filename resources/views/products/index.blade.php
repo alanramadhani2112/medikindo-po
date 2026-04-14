@@ -184,11 +184,10 @@
                                                     Edit Produk
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <form method="POST" action="{{ route('web.products.destroy', $product) }}" 
-                                                      onsubmit="return confirm('Hapus produk ini? Data akan dihapus secara permanen.')" class="d-inline">
+                                                <form method="POST" action="{{ route('web.products.destroy', $product) }}" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger">
+                                                    <button type="submit" class="dropdown-item text-danger delete-confirm" data-name="{{ $product->name }}">
                                                         <i class="ki-solid ki-trash fs-4 me-2"></i>
                                                         Hapus Produk
                                                     </button>

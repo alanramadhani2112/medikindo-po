@@ -119,7 +119,7 @@
                                 <i class="ki-solid ki-cross fs-2"></i>
                                 Batal
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary create-confirm" data-type="supplier">
                                 <i class="ki-solid ki-check fs-2"></i>
                                 Simpan Registrasi Supplier
                             </button>

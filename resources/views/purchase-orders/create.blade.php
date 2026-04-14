@@ -282,7 +282,7 @@
             <x-button variant="secondary" outline size="lg" href="{{ route('web.po.index') }}">
                 Batalkan Perubahan
             </x-button>
-            <x-button type="submit" variant="primary" size="lg">
+            <x-button type="submit" variant="primary" size="lg" class="create-confirm" data-type="Purchase Order">
                 Simpan sebagai Draf Pengajuan
             </x-button>
         </div>

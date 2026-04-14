@@ -287,7 +287,7 @@
                             <i class="ki-solid ki-cross fs-3"></i>
                             Batal
                         </button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary update-confirm" data-name="Plafon Kredit {{ $limit->organization?->name }}">
                             <i class="ki-solid ki-check fs-3"></i>
                             Simpan Perubahan
                         </button>

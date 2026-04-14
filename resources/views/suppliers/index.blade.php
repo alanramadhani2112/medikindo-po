@@ -148,11 +148,12 @@
                                                 Edit Supplier
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <form method="POST" action="{{ route('web.suppliers.toggle_status', $supplier) }}" 
-                                                  onsubmit="return confirm('{{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }} supplier ini?')" class="d-inline">
+                                            <form method="POST" action="{{ route('web.suppliers.toggle_status', $supplier) }}" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" class="dropdown-item {{ $supplier->is_active ? 'text-warning' : 'text-success' }}">
+                                                <button type="submit" class="dropdown-item {{ $supplier->is_active ? 'text-warning' : 'text-success' }} toggle-status-confirm" 
+                                                        data-name="{{ $supplier->name }}" 
+                                                        data-status="{{ $supplier->is_active ? 'active' : 'inactive' }}">
                                                     <i class="ki-solid ki-{{ $supplier->is_active ? 'cross-square' : 'check-circle' }} fs-4 me-2"></i>
                                                     {{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Supplier
                                                 </button>

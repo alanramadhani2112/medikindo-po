@@ -178,7 +178,7 @@
                         <i class="ki-solid ki-cross fs-3"></i>
                         Batal
                     </a>
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success create-confirm" data-type="Tagihan ke RS/Klinik">
                         <i class="ki-solid ki-check fs-3"></i>
                         Terbitkan Tagihan ke RS/Klinik
                     </button>
