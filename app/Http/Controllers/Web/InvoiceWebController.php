@@ -251,6 +251,85 @@ class InvoiceWebController extends Controller
     }
 
     // -----------------------------------------------------------------------
+    // Create Customer Invoice Form (Admin Pusat / Finance)
+    // GET /invoices/customer/create
+    // -----------------------------------------------------------------------
+
+    public function createCustomer(Request $request)
+    {
+        if (! $request->user()->can('create_invoices')) {
+            abort(403, 'Akses Ditolak. Anda tidak memiliki izin untuk membuat invoice.');
+        }
+
+        $user = $request->user();
+
+        // Load GRs with status 'completed' AND has remaining quantity
+        $query = GoodsReceipt::with(['purchaseOrder.organization', 'items.purchaseOrderItem.product'])
+            ->where('status', 'completed')
+            ->whereHas('purchaseOrder', function($q) {
+                $q->whereNotNull('organization_id');
+            });
+
+        // Filter by organization for non-Super Admin
+        if (! $user->hasRole('Super Admin')) {
+            $query->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
+        }
+
+        // Only show GRs that have remaining quantity to invoice
+        $goodsReceipts = $query->get()->filter(function($gr) {
+            return $gr->hasRemainingQuantity();
+        });
+
+        $breadcrumbs = [
+            ['label' => 'Finance', 'url' => 'javascript:void(0)'],
+            ['label' => 'Tagihan ke RS/Klinik', 'url' => route('web.invoices.index', ['tab' => 'customer'])],
+            ['label' => 'Buat Tagihan ke RS/Klinik']
+        ];
+
+        return view('invoices.create_customer', compact('goodsReceipts', 'breadcrumbs'));
+    }
+
+    // -----------------------------------------------------------------------
+    // Store Customer Invoice from Goods Receipt
+    // POST /invoices/customer
+    // -----------------------------------------------------------------------
+
+    public function storeCustomer(StoreInvoiceFromGRRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+            
+            // Get GoodsReceipt object
+            $gr = GoodsReceipt::findOrFail($validated['goods_receipt_id']);
+            
+            // Prepare metadata
+            $metadata = [
+                'due_date' => $validated['due_date'] ?? now()->addDays(30),
+                'notes' => $validated['notes'] ?? null,
+            ];
+            
+            $invoice = $this->invoiceFromGRService->createCustomerInvoiceFromGR(
+                $gr,
+                $request->user(),
+                $validated['items'],
+                $metadata
+            );
+
+            return redirect()
+                ->route('web.invoices.customer.show', $invoice)
+                ->with('success', "Tagihan ke RS/Klinik {$invoice->invoice_number} berhasil dibuat.");
+        } catch (\DomainException $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat membuat tagihan: ' . $e->getMessage());
+        }
+    }
+
+    // -----------------------------------------------------------------------
     // Confirm Payment (Clinic Admin)
     // POST /invoices/customer/{invoice}/confirm-payment
     // -----------------------------------------------------------------------

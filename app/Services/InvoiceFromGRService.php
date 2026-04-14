@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\GoodsReceipt;
 use App\Models\GoodsReceiptItem;
 use App\Models\SupplierInvoice;
+use App\Models\CustomerInvoice;
 use App\Models\User;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -272,13 +273,127 @@ class InvoiceFromGRService
     }
 
     /**
-     * Generate unique invoice number
+     * Create Customer Invoice from Goods Receipt
+     * 
+     * @param GoodsReceipt $gr
+     * @param User $actor
+     * @param array $items Format: [['goods_receipt_item_id' => int, 'quantity' => int, 'unit_price' => float, 'discount_percentage' => float]]
+     * @param array $metadata Additional invoice data (notes, due_date, etc)
+     * @return CustomerInvoice
+     * @throws DomainException
+     */
+    public function createCustomerInvoiceFromGR(
+        GoodsReceipt $gr,
+        User $actor,
+        array $items,
+        array $metadata = []
+    ): CustomerInvoice {
+        // Gate: GR must be completed
+        if (!$gr->isCompleted()) {
+            throw new DomainException(
+                "Cannot create invoice from GR with status [{$gr->status}]. GR must be 'completed'."
+            );
+        }
+
+        // Gate: GR must belong to an organization (RS/Klinik)
+        $po = $gr->purchaseOrder;
+        if (!$po || !$po->organization_id) {
+            throw new DomainException("Goods Receipt must have a valid Purchase Order with organization.");
+        }
+
+        // Validate quantities
+        $this->validateQuantities($gr, $items);
+
+        // Validate batch & expiry consistency
+        $this->validateBatchExpiry($gr, $items);
+
+        return DB::transaction(function () use ($gr, $po, $actor, $items, $metadata) {
+            // Prepare line items with GR data
+            $lineItemsData = $this->prepareLineItems($gr, $items);
+
+            // Calculate invoice totals using existing pricing engine
+            $calculation = $this->calculationService->calculateCompleteInvoice($lineItemsData);
+
+            // Detect discrepancies (GR vs Invoice, PO vs Invoice)
+            $discrepancies = $this->detectDiscrepancies($gr, $po, $lineItemsData, $calculation);
+
+            // Create customer invoice
+            $invoice = CustomerInvoice::create([
+                'invoice_number'       => $this->generateCustomerInvoiceNumber(),
+                'organization_id'      => $po->organization_id,
+                'purchase_order_id'    => $po->id,
+                'goods_receipt_id'     => $gr->id,
+                'status'               => CustomerInvoice::STATUS_ISSUED,
+                'total_amount'         => $calculation['invoice_totals']['total_amount'],
+                'subtotal_amount'      => $calculation['invoice_totals']['subtotal_amount'],
+                'discount_amount'      => $calculation['invoice_totals']['discount_amount'],
+                'tax_amount'           => $calculation['invoice_totals']['tax_amount'],
+                'paid_amount'          => 0,
+                'discrepancy_detected' => $discrepancies['has_discrepancy'],
+                'expected_total'       => $discrepancies['expected_total'] ?? null,
+                'variance_amount'      => $discrepancies['variance_amount'] ?? null,
+                'variance_percentage'  => $discrepancies['variance_percentage'] ?? null,
+                'due_date'             => $metadata['due_date'] ?? now()->addDays(30),
+                'issued_by'            => $actor->id,
+                'issued_at'            => now(),
+                'notes'                => $metadata['notes'] ?? null,
+                'version'              => 1,
+            ]);
+
+            // Create line items with GR references
+            foreach ($calculation['line_items'] as $index => $lineCalc) {
+                $itemData = $lineItemsData[$index];
+                $grItem = GoodsReceiptItem::find($itemData['goods_receipt_item_id']);
+
+                $invoice->lineItems()->create([
+                    'goods_receipt_item_id' => $grItem->id,
+                    'product_id'            => $grItem->purchaseOrderItem->product_id,
+                    'product_name'          => $itemData['product_name'],
+                    'product_sku'           => $itemData['product_sku'],
+                    'batch_no'              => $grItem->batch_no, // READ-ONLY from GR
+                    'expiry_date'           => $grItem->expiry_date, // READ-ONLY from GR
+                    'quantity'              => $itemData['quantity'],
+                    'unit'                  => $grItem->purchaseOrderItem->product->unit ?? 'pcs',
+                    'unit_price'            => $itemData['unit_price'],
+                    'discount_percentage'   => $itemData['discount_percentage'] ?? 0,
+                    'discount_amount'       => $lineCalc['discount_amount'],
+                    'tax_rate'              => $itemData['tax_rate'] ?? 0,
+                    'tax_amount'            => $lineCalc['tax_amount'],
+                    'line_total'            => $lineCalc['line_total'],
+                ]);
+            }
+
+            // Audit log
+            $this->auditService->log(
+                action:     'customer_invoice.created_from_gr',
+                entityType: CustomerInvoice::class,
+                entityId:   $invoice->id,
+                metadata:   [
+                    'invoice_number'      => $invoice->invoice_number,
+                    'goods_receipt_id'    => $gr->id,
+                    'gr_number'           => $gr->gr_number,
+                    'purchase_order_id'   => $po->id,
+                    'po_number'           => $po->po_number,
+                    'organization_id'     => $po->organization_id,
+                    'total_amount'        => $invoice->total_amount,
+                    'discrepancy_detected' => $discrepancies['has_discrepancy'],
+                    'item_count'          => count($items),
+                ],
+                userId: $actor->id,
+            );
+
+            return $invoice->load(['lineItems', 'goodsReceipt', 'purchaseOrder', 'organization']);
+        });
+    }
+
+    /**
+     * Generate unique customer invoice number
      * 
      * @return string
      */
-    private function generateInvoiceNumber(): string
+    private function generateCustomerInvoiceNumber(): string
     {
-        return 'INV-SUP-' . strtoupper(substr(uniqid(), -5));
+        return 'INV-CUST-' . strtoupper(substr(uniqid(), -5));
     }
 
     /**
