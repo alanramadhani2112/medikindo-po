@@ -28,54 +28,8 @@ class InvoiceWebController extends Controller
         $tab    = $request->get('tab', 'supplier');
         $user   = $request->user();
 
-        if ($tab === 'customer') {
-            $query = CustomerInvoice::with(['organization', 'purchaseOrder'])
-                ->filter($request, [
-                    'search_column' => function($q, $s) {
-                        $q->where('invoice_number', 'like', "%{$s}%")
-                          ->orWhereHas('organization', fn($c) => $c->where('name', 'like', "%{$s}%"));
-                    },
-                    'status' => 'status',
-                ]);
-
-            if (! $user->hasRole('Super Admin')) {
-                $query->where('organization_id', $user->organization_id);
-            }
-
-            // Standardize filtering for unpaid/paid/overdue using the filter mappings or simple where
-            if ($request->status === 'unpaid') {
-                $query->whereRaw('paid_amount < total_amount');
-            } elseif ($request->status === 'paid') {
-                $query->whereRaw('paid_amount >= total_amount');
-            } elseif ($request->status === 'overdue') {
-                $query->whereRaw('paid_amount < total_amount')->where('due_date', '<', now());
-            }
-
-            $invoices = $query->latest()->paginate(15)->withQueryString();
-
-            // Counts
-            $baseCountQuery = CustomerInvoice::query();
-            if (! $user->hasRole('Super Admin')) {
-                $baseCountQuery->where('organization_id', $user->organization_id);
-            }
-
-            $counts = [
-                'all'     => (clone $baseCountQuery)->count(),
-                'unpaid'  => (clone $baseCountQuery)->whereRaw('paid_amount < total_amount')->count(),
-                'paid'    => (clone $baseCountQuery)->whereRaw('paid_amount >= total_amount')->count(),
-                'overdue' => (clone $baseCountQuery)->whereRaw('paid_amount < total_amount')->where('due_date', '<', now())->count(),
-            ];
-
-            $breadcrumbs = [
-                ['label' => 'Finance', 'url' => 'javascript:void(0)'],
-                ['label' => 'Piutang & Tagihan Klien']
-            ];
-
-            return view('invoices.index_customer', compact('invoices', 'counts', 'breadcrumbs'));
-        }
-
-        // Supplier Invoices (AP)
-        $query = SupplierInvoice::with(['supplier', 'purchaseOrder'])
+        // Load Supplier Invoices
+        $supplierQuery = SupplierInvoice::with(['supplier', 'purchaseOrder'])
             ->filter($request, [
                 'search_column' => function($q, $s) {
                     $q->where('invoice_number', 'like', "%{$s}%")
@@ -85,37 +39,33 @@ class InvoiceWebController extends Controller
             ]);
 
         if (! $user->hasRole('Super Admin')) {
-            $query->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
+            $supplierQuery->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
         }
 
-        if ($request->status === 'unpaid') {
-            $query->whereRaw('paid_amount < total_amount');
-        } elseif ($request->status === 'paid') {
-            $query->whereRaw('paid_amount >= total_amount');
-        } elseif ($request->status === 'overdue') {
-            $query->whereRaw('paid_amount < total_amount')->where('due_date', '<', now());
-        }
+        $supplierInvoices = $supplierQuery->latest()->paginate(15, ['*'], 'supplier_page')->withQueryString();
 
-        $invoices = $query->latest()->paginate(15)->withQueryString();
+        // Load Customer Invoices
+        $customerQuery = CustomerInvoice::with(['organization', 'purchaseOrder'])
+            ->filter($request, [
+                'search_column' => function($q, $s) {
+                    $q->where('invoice_number', 'like', "%{$s}%")
+                      ->orWhereHas('organization', fn($c) => $c->where('name', 'like', "%{$s}%"));
+                },
+                'status' => 'status',
+            ]);
 
-        $baseCountQuery = SupplierInvoice::query();
         if (! $user->hasRole('Super Admin')) {
-            $baseCountQuery->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
+            $customerQuery->where('organization_id', $user->organization_id);
         }
 
-        $counts = [
-            'all'     => (clone $baseCountQuery)->count(),
-            'unpaid'  => (clone $baseCountQuery)->whereRaw('paid_amount < total_amount')->count(),
-            'paid'    => (clone $baseCountQuery)->whereRaw('paid_amount >= total_amount')->count(),
-            'overdue' => (clone $baseCountQuery)->whereRaw('paid_amount < total_amount')->where('due_date', '<', now())->count(),
-        ];
+        $customerInvoices = $customerQuery->latest()->paginate(15, ['*'], 'customer_page')->withQueryString();
 
         $breadcrumbs = [
             ['label' => 'Finance', 'url' => 'javascript:void(0)'],
-            ['label' => 'Hutang Pemasok']
+            ['label' => 'Manajemen Invoice']
         ];
 
-        return view('invoices.index_supplier', compact('invoices', 'counts', 'breadcrumbs'));
+        return view('invoices.index', compact('supplierInvoices', 'customerInvoices', 'breadcrumbs'));
     }
 
     public function showSupplier(SupplierInvoice $invoice)
