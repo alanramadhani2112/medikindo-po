@@ -108,7 +108,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 @php
                     $tabs = [
-                        '' => ['label' => 'All Items', 'icon' => 'ki-element-11', 'color' => 'primary'],
+                        '' => ['label' => 'All Items', 'icon' => 'ki-home-2', 'color' => 'primary'],
                         'active' => ['label' => 'Active', 'icon' => 'ki-check-circle', 'color' => 'success'],
                         'pending' => ['label' => 'Pending', 'icon' => 'ki-time', 'color' => 'warning'],
                         'inactive' => ['label' => 'Inactive', 'icon' => 'ki-cross-circle', 'color' => 'danger'],

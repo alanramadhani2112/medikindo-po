@@ -2,7 +2,7 @@
     
     <?php if(session('success')): ?>
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
+            <i class="ki-duotone ki-check-circle fs-2 me-3"></i>
             <div><?php echo e(session('success')); ?></div>
         </div>
     <?php endif; ?>
@@ -15,7 +15,7 @@
         </div>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage_users')): ?>
             <a href="<?php echo e(route('web.users.create')); ?>" class="btn btn-primary">
-                <i class="ki-outline ki-plus fs-2"></i>
+                <i class="ki-duotone ki-plus fs-2"></i>
                 Tambah Pengguna
             </a>
         <?php endif; ?>
@@ -30,7 +30,7 @@
                 
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nama atau email...">
@@ -54,14 +54,14 @@
                 
                 
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-outline ki-magnifier fs-2"></i>
+                    <i class="ki-duotone ki-magnifier fs-2"></i>
                     Cari
                 </button>
                 
                 
                 <?php if(request()->filled('search') || request()->filled('role')): ?>
                     <a href="<?php echo e(route('web.users.index', ['status' => request('status')])); ?>" class="btn btn-light">
-                        <i class="ki-outline ki-cross fs-2"></i>
+                        <i class="ki-duotone ki-cross fs-2"></i>
                         Reset
                     </a>
                 <?php endif; ?>
@@ -75,7 +75,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 <?php
                     $tabOptions = [
-                        '' => ['label' => 'Semua', 'icon' => 'ki-element-11'],
+                        '' => ['label' => 'Semua', 'icon' => 'ki-home-2'],
                         'active' => ['label' => 'Aktif', 'icon' => 'ki-check-circle'],
                         'inactive' => ['label' => 'Nonaktif', 'icon' => 'ki-cross-circle'],
                     ];
@@ -93,7 +93,7 @@
                     <li class="nav-item">
                         <a href="<?php echo e(route('web.users.index', array_merge(request()->except(['status', 'page']), ['status' => $val === '' ? null : $val]))); ?>" 
                            class="nav-link text-active-primary d-flex align-items-center <?php echo e($isActive ? 'active' : ''); ?>">
-                            <i class="ki-outline <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
+                            <i class="ki-duotone <?php echo e($tabData['icon']); ?> fs-4 me-2"></i>
                             <span class="fs-6 fw-bold"><?php echo e($tabData['label']); ?></span>
                             <span class="badge <?php echo e($isActive ? 'badge-primary' : 'badge-light-secondary'); ?> ms-auto">
                                 <?php echo e($counts[$val]); ?>
@@ -167,12 +167,12 @@
                                         <div class="d-flex justify-content-end">
                                             <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
                                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ki-outline ki-dots-vertical fs-3"></i>
+                                                <i class="ki-duotone ki-dots-vertical fs-3"></i>
                                                 Aksi
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a href="<?php echo e(route('web.users.edit', $user)); ?>" class="dropdown-item">
-                                                    <i class="ki-outline ki-notepad-edit fs-4 me-2 text-primary"></i>
+                                                    <i class="ki-duotone ki-notepad-edit fs-4 me-2 text-primary"></i>
                                                     Edit Pengguna
                                                 </a>
                                                 <?php if($user->id !== auth()->id()): ?>
@@ -182,7 +182,7 @@
                                                         <?php echo csrf_field(); ?>
                                                         <?php echo method_field('DELETE'); ?>
                                                         <button type="submit" class="dropdown-item <?php echo e($user->is_active ? 'text-warning' : 'text-success'); ?>">
-                                                            <i class="ki-outline ki-<?php echo e($user->is_active ? 'shield-cross' : 'shield-tick'); ?> fs-4 me-2"></i>
+                                                            <i class="ki-duotone ki-<?php echo e($user->is_active ? 'shield-cross' : 'shield-tick'); ?> fs-4 me-2"></i>
                                                             <?php echo e($user->is_active ? 'Nonaktifkan' : 'Aktifkan'); ?> Pengguna
                                                         </button>
                                                     </form>
@@ -196,12 +196,12 @@
                             <tr>
                                 <td colspan="6" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-duotone ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum ada data pengguna</span>
                                         <span class="text-gray-500 fs-6">Tambahkan pengguna baru untuk mulai mengelola akses sistem.</span>
                                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage_users')): ?>
                                             <a href="<?php echo e(route('web.users.create')); ?>" class="btn btn-primary mt-5">
-                                                <i class="ki-outline ki-plus fs-2"></i>
+                                                <i class="ki-duotone ki-plus fs-2"></i>
                                                 Tambah Pengguna
                                             </a>
                                         <?php endif; ?>

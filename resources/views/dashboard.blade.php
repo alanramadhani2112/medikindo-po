@@ -13,7 +13,7 @@
                             <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['all'] ?? 0) }}</span>
                         </div>
                         <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
-                            <i class="ki-duotone ki-purchase fs-2x text-white"></i>
+                            <i class="ki-solid ki-wallet fs-2x text-white"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-center">

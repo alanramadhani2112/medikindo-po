@@ -53,7 +53,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 @php
                     $tabOptions = [
-                        'all' => ['label' => 'Semua', 'icon' => 'ki-element-11'],
+                        'all' => ['label' => 'Semua', 'icon' => 'ki-home-2'],
                         'partial' => ['label' => 'Partial', 'icon' => 'ki-information-5'],
                         'completed' => ['label' => 'Selesai', 'icon' => 'ki-check-circle'],
                     ];
