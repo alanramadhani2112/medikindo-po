@@ -106,11 +106,12 @@
                 }
                 
                 // Assign derived fields safely
-                const sellingPrice = Number(product.selling_price) || Number(product.price) || 0;
-                console.log('Product selling_price:', product.selling_price);
-                console.log('Using price:', sellingPrice);
+                // Use cost_price for PO (buying from distributor)
+                const costPrice = Number(product.cost_price) || Number(product.price) || 0;
+                console.log('Product cost_price:', product.cost_price);
+                console.log('Using cost price:', costPrice);
                 
-                item.unit_price = sellingPrice;
+                item.unit_price = costPrice;
                 item.product_name = product.name;
                 this.calcSubtotal(index);
                 
@@ -188,7 +189,7 @@
                         @click="addItem()" 
                         :disabled="!supplierId"
                         :class="{ 'opacity-50': !supplierId }">
-                    <i class="ki-solid ki-plus fs-3"></i>
+                    <i class="ki-outline ki-plus fs-3"></i>
                     <span class="fw-bold">Tambah Produk</span>
                 </button>
                 <div x-show="!supplierId" class="text-muted fs-8 mt-1">
@@ -212,7 +213,7 @@
                             <tr>
                                 <td colspan="5" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <h6 class="text-gray-800 fw-semibold fs-6 mb-1">Daftar Item Kosong</h6>
                                         <p class="text-gray-600 fs-7 mb-0">Pilih supplier utama, kemudian tekan "Tambah Produk".</p>
                                     </div>
@@ -229,7 +230,7 @@
                                         <option value="">— Pilih Produk —</option>
                                         <template x-for="p in products" :key="p.id">
                                             <option x-bind:value="p.id" 
-                                                    x-bind:data-price="p.selling_price || p.price || 0" 
+                                                    x-bind:data-price="p.cost_price || p.price || 0" 
                                                     x-text="p.name + ' (' + p.sku + ')'"></option>
                                         </template>
                                     </select>
@@ -257,7 +258,7 @@
                                 <td class="px-5 py-4 text-center align-middle">
                                     <button type="button" @click="removeItem(index)"
                                             class="btn btn-sm btn-icon btn-light-danger">
-                                        <i class="ki-solid ki-trash fs-3"></i>
+                                        <i class="ki-outline ki-trash fs-3"></i>
                                     </button>
                                 </td>
                             </tr>

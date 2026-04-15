@@ -30,12 +30,20 @@ class StoreProductRequest extends FormRequest
             
             // Profit calculation fields
             'cost_price'          => ['required', 'numeric', 'min:0'],
-            'selling_price'       => ['required', 'numeric', 'min:0'],
+            'selling_price'       => ['required', 'numeric', 'min:0', 'gt:cost_price'],
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'discount_amount'     => ['nullable', 'numeric', 'min:0'],
+            'discount_amount'     => ['nullable', 'numeric', 'min:0', 'lte:selling_price'],
             
             'is_narcotic'         => ['boolean'],
             'description'         => ['nullable', 'string'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'selling_price.gt' => 'Harga jual harus lebih besar dari harga beli untuk mendapatkan profit.',
+            'discount_amount.lte' => 'Diskon tidak boleh lebih besar dari harga jual.',
         ];
     }
 }

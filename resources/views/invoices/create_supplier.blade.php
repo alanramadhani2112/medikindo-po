@@ -12,7 +12,7 @@
             {{-- GR Selection --}}
             <x-card title="Pilih Penerimaan Barang" class="mb-5">
                 <div class="alert alert-warning d-flex align-items-center mb-5">
-                    <i class="ki-solid ki-information-5 fs-2x text-warning me-4"></i>
+                    <i class="ki-outline ki-information-5 fs-2x text-warning me-4"></i>
                     <div>
                         <strong>Penting:</strong> Pilih Goods Receipt yang sesuai dengan invoice fisik yang diterima dari distributor. 
                         Batch dan expiry date harus match dengan GR untuk validasi.
@@ -61,7 +61,7 @@
                 {{-- GR Info --}}
                 <div x-show="selectedGrId" x-transition class="mt-5">
                     <div class="alert alert-primary d-flex align-items-center">
-                        <i class="ki-solid ki-information-5 fs-2x text-primary me-4"></i>
+                        <i class="ki-outline ki-information-5 fs-2x text-primary me-4"></i>
                         <div class="d-flex flex-column">
                             <h5 class="mb-1">Informasi Penerimaan Barang</h5>
                             <span><strong>GR Number:</strong> <span x-text="grInfo.gr_number"></span></span>
@@ -76,7 +76,7 @@
             <div x-show="selectedGrId" x-transition>
                 <x-card title="Detail Invoice Distributor" class="mb-5">
                     <div class="alert alert-info d-flex align-items-center mb-5">
-                        <i class="ki-solid ki-document fs-2x text-info me-4"></i>
+                        <i class="ki-outline ki-document fs-2x text-info me-4"></i>
                         <div>
                             <strong>Petunjuk:</strong> Input data sesuai dengan invoice fisik/PDF yang diterima dari distributor.
                         </div>
@@ -125,10 +125,10 @@
                 {{-- Items --}}
                 <x-card title="Item Invoice" class="mb-5">
                     <div class="alert alert-warning d-flex align-items-center mb-5">
-                        <i class="ki-solid ki-shield-tick fs-2x text-warning me-4"></i>
+                        <i class="ki-outline ki-shield-tick fs-2x text-warning me-4"></i>
                         <div>
                             <strong>Validasi:</strong> Batch dan expiry date diambil dari GR (tidak dapat diubah). 
-                            <strong>Harga distributor</strong> dapat berbeda dengan harga jual Medikindo ke RS/Klinik.
+                            <strong>Harga distributor</strong> otomatis dari PO dan tidak dapat diubah (sudah di-setting di master produk).
                         </div>
                     </div>
 
@@ -174,16 +174,16 @@
                                         </td>
                                         <td class="text-end">
                                             <input type="number" 
-                                                   class="form-control form-control-solid text-end" 
+                                                   class="form-control form-control-solid bg-light text-end" 
                                                    :name="`items[${index}][unit_price]`" 
                                                    required 
                                                    step="0.01"
                                                    min="0"
                                                    x-model.number="item.distributor_price"
-                                                   placeholder="Harga"
+                                                   readonly
                                                    style="width: 150px;">
-                                            <div class="form-text text-end fs-8">
-                                                Harga dari invoice distributor
+                                            <div class="form-text text-end fs-8 text-muted">
+                                                Harga dari PO (tidak dapat diubah)
                                             </div>
                                         </td>
                                         <td class="text-end">
@@ -214,10 +214,11 @@
                     </div>
 
                     <div class="alert alert-light-primary d-flex align-items-center mt-5">
-                        <i class="ki-solid ki-information fs-2x text-primary me-4"></i>
+                        <i class="ki-outline ki-information fs-2x text-primary me-4"></i>
                         <div>
-                            <strong>Catatan Harga:</strong> Harga yang diinput di sini adalah <strong>harga beli dari distributor</strong>. 
-                            Harga jual Medikindo ke RS/Klinik sudah tercatat di PO dan akan digunakan saat membuat invoice ke RS/Klinik.
+                            <strong>Catatan Harga:</strong> Harga yang ditampilkan adalah <strong>harga beli dari distributor</strong> yang sudah di-setting di master produk dan tercatat di PO. 
+                            Harga ini tidak dapat diubah untuk menjaga konsistensi data. 
+                            Harga jual Medikindo ke RS/Klinik akan digunakan saat membuat invoice ke RS/Klinik.
                         </div>
                     </div>
                 </x-card>
@@ -225,11 +226,11 @@
                 {{-- Submit --}}
                 <div class="d-flex justify-content-end gap-3">
                     <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-secondary">
-                        <i class="ki-solid ki-cross fs-3"></i>
+                        <i class="ki-outline ki-cross fs-3"></i>
                         Batal
                     </a>
                     <button type="submit" class="btn btn-primary create-confirm" data-type="Invoice Pemasok">
-                        <i class="ki-solid ki-check fs-3"></i>
+                        <i class="ki-outline ki-plus fs-3"></i>
                         Simpan Invoice Pemasok
                     </button>
                 </div>
@@ -271,7 +272,7 @@
                         .map(item => ({
                             ...item,
                             invoice_quantity: item.remaining_quantity, // Default to remaining quantity
-                            distributor_price: item.unit_price, // Default to PO price (can be changed)
+                            distributor_price: item.unit_price, // From PO (readonly)
                             discount_percent: item.discount_percent || 0
                         }));
                     

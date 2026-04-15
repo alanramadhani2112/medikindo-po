@@ -62,8 +62,8 @@ class InvoiceFromGRService
         $this->validateBatchExpiry($gr, $items);
 
         return DB::transaction(function () use ($gr, $po, $actor, $items, $metadata) {
-            // Prepare line items with GR data
-            $lineItemsData = $this->prepareLineItems($gr, $items);
+            // Prepare line items with GR data (SUPPLIER invoice - use cost_price from PO)
+            $lineItemsData = $this->prepareLineItems($gr, $items, 'supplier');
 
             // Calculate invoice totals using existing pricing engine
             $calculation = $this->calculationService->calculateCompleteInvoice($lineItemsData);
@@ -205,9 +205,10 @@ class InvoiceFromGRService
      * 
      * @param GoodsReceipt $gr
      * @param array $items
+     * @param string $invoiceType 'supplier' or 'customer'
      * @return array
      */
-    private function prepareLineItems(GoodsReceipt $gr, array $items): array
+    private function prepareLineItems(GoodsReceipt $gr, array $items, string $invoiceType = 'supplier'): array
     {
         $lineItems = [];
 
@@ -216,14 +217,21 @@ class InvoiceFromGRService
             $poItem = $grItem->purchaseOrderItem;
             $product = $poItem->product;
 
+            // Determine which price to use based on invoice type
+            $unitPrice = $invoiceType === 'customer' 
+                ? ($product->selling_price ?? $product->price)  // Customer: use selling_price
+                : $poItem->unit_price;                          // Supplier: use cost_price from PO
+
             $lineItems[] = [
                 'goods_receipt_item_id' => $grItem->id,
                 'product_id'            => $product->id,
                 'product_name'          => $product->name,
                 'product_sku'           => $product->sku,
                 'quantity'              => $item['quantity'],
-                // CRITICAL: Price, discount, and tax MUST come from PO item (not user input)
-                'unit_price'            => $poItem->unit_price,
+                // CRITICAL: Price depends on invoice type
+                // Supplier Invoice: use PO unit_price (cost_price)
+                // Customer Invoice: use product selling_price
+                'unit_price'            => $unitPrice,
                 'discount_percentage'   => $poItem->discount_percent ?? 0,
                 'tax_rate'              => $poItem->tax_percent ?? 0,
             ];
@@ -311,8 +319,8 @@ class InvoiceFromGRService
         $this->validateBatchExpiry($gr, $items);
 
         return DB::transaction(function () use ($gr, $po, $actor, $items, $metadata) {
-            // Prepare line items with GR data
-            $lineItemsData = $this->prepareLineItems($gr, $items);
+            // Prepare line items with GR data (CUSTOMER invoice - use selling_price from Product)
+            $lineItemsData = $this->prepareLineItems($gr, $items, 'customer');
 
             // Calculate invoice totals using existing pricing engine
             $calculation = $this->calculationService->calculateCompleteInvoice($lineItemsData);

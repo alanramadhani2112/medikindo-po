@@ -64,26 +64,43 @@ class InvoiceService
             $defaultDiscountPercentage = $organization->default_discount_percentage ?? '0.00';
 
             // Prepare line items data from goods receipt
-            $lineItemsData = [];
+            // SUPPLIER INVOICE: Use cost_price (from PO)
+            // CUSTOMER INVOICE: Use selling_price (from Product)
+            $supplierLineItemsData = [];
+            $customerLineItemsData = [];
+            
             foreach ($gr->items as $grItem) {
                 $poItem = $grItem->purchaseOrderItem;
+                $product = $poItem->product;
                 
-                $lineItemsData[] = [
+                // Supplier Invoice (AP) - Use cost_price from PO
+                $supplierLineItemsData[] = [
                     'product_id' => $poItem->product_id,
-                    'product_name' => $poItem->product->name ?? 'Unknown Product',
+                    'product_name' => $product->name ?? 'Unknown Product',
                     'quantity' => (string) $grItem->quantity_received,
-                    'unit_price' => (string) $poItem->unit_price,
+                    'unit_price' => (string) $poItem->unit_price, // Cost price from PO
+                    'discount_percentage' => $defaultDiscountPercentage,
+                    'tax_rate' => $defaultTaxRate,
+                ];
+                
+                // Customer Invoice (AR) - Use selling_price from Product
+                $customerLineItemsData[] = [
+                    'product_id' => $poItem->product_id,
+                    'product_name' => $product->name ?? 'Unknown Product',
+                    'quantity' => (string) $grItem->quantity_received,
+                    'unit_price' => (string) ($product->selling_price ?? $product->price), // Selling price from Product
                     'discount_percentage' => $defaultDiscountPercentage,
                     'tax_rate' => $defaultTaxRate,
                 ];
             }
 
-            // Calculate complete invoice with line items
-            $invoiceCalculation = $this->calculationService->calculateCompleteInvoice($lineItemsData);
+            // Calculate invoices separately (different prices)
+            $supplierInvoiceCalculation = $this->calculationService->calculateCompleteInvoice($supplierLineItemsData);
+            $customerInvoiceCalculation = $this->calculationService->calculateCompleteInvoice($customerLineItemsData);
 
-            // Run discrepancy detection
+            // Run discrepancy detection for supplier invoice
             $discrepancyResult = $this->discrepancyDetector->detect(
-                $invoiceCalculation['invoice_totals']['total_amount'],
+                $supplierInvoiceCalculation['invoice_totals']['total_amount'],
                 $po
             );
 
@@ -100,10 +117,10 @@ class InvoiceService
                     'supplier_id'       => $po->supplier_id,
                     'purchase_order_id' => $po->id,
                     'goods_receipt_id'  => $gr->id,
-                    'total_amount'      => $invoiceCalculation['invoice_totals']['total_amount'],
-                    'subtotal_amount'   => $invoiceCalculation['invoice_totals']['subtotal_amount'],
-                    'discount_amount'   => $invoiceCalculation['invoice_totals']['discount_amount'],
-                    'tax_amount'        => $invoiceCalculation['invoice_totals']['tax_amount'],
+                    'total_amount'      => $supplierInvoiceCalculation['invoice_totals']['total_amount'],
+                    'subtotal_amount'   => $supplierInvoiceCalculation['invoice_totals']['subtotal_amount'],
+                    'discount_amount'   => $supplierInvoiceCalculation['invoice_totals']['discount_amount'],
+                    'tax_amount'        => $supplierInvoiceCalculation['invoice_totals']['tax_amount'],
                     'paid_amount'       => '0.00',
                     'status'            => $initialStatus,
                     'issued_by'         => $actor->id,
@@ -118,7 +135,7 @@ class InvoiceService
                 ]);
 
                 // Create supplier invoice line items
-                foreach ($invoiceCalculation['line_items'] as $lineItem) {
+                foreach ($supplierInvoiceCalculation['line_items'] as $lineItem) {
                     SupplierInvoiceLineItem::create([
                         'supplier_invoice_id' => $supplierInvoice->id,
                         'product_id'          => $lineItem['product_id'],
@@ -141,10 +158,10 @@ class InvoiceService
                     'organization_id'   => $po->organization_id,
                     'purchase_order_id' => $po->id,
                     'goods_receipt_id'  => $gr->id,
-                    'total_amount'      => $invoiceCalculation['invoice_totals']['total_amount'],
-                    'subtotal_amount'   => $invoiceCalculation['invoice_totals']['subtotal_amount'],
-                    'discount_amount'   => $invoiceCalculation['invoice_totals']['discount_amount'],
-                    'tax_amount'        => $invoiceCalculation['invoice_totals']['tax_amount'],
+                    'total_amount'      => $customerInvoiceCalculation['invoice_totals']['total_amount'],
+                    'subtotal_amount'   => $customerInvoiceCalculation['invoice_totals']['subtotal_amount'],
+                    'discount_amount'   => $customerInvoiceCalculation['invoice_totals']['discount_amount'],
+                    'tax_amount'        => $customerInvoiceCalculation['invoice_totals']['tax_amount'],
                     'paid_amount'       => '0.00',
                     'status'            => $initialStatus,
                     'issued_by'         => $actor->id,
@@ -159,7 +176,7 @@ class InvoiceService
                 ]);
 
                 // Create customer invoice line items
-                foreach ($invoiceCalculation['line_items'] as $lineItem) {
+                foreach ($customerInvoiceCalculation['line_items'] as $lineItem) {
                     CustomerInvoiceLineItem::create([
                         'customer_invoice_id' => $customerInvoice->id,
                         'product_id'          => $lineItem['product_id'],
@@ -184,11 +201,10 @@ class InvoiceService
                         'po_number'              => $po->po_number,
                         'before_status'          => null,
                         'after_status'           => $initialStatus,
-                        'total_amount'           => $invoiceCalculation['invoice_totals']['total_amount'],
-                        'subtotal_amount'        => $invoiceCalculation['invoice_totals']['subtotal_amount'],
-                        'discount_amount'        => $invoiceCalculation['invoice_totals']['discount_amount'],
-                        'tax_amount'             => $invoiceCalculation['invoice_totals']['tax_amount'],
-                        'line_items_count'       => count($invoiceCalculation['line_items']),
+                        'supplier_total_amount'  => $supplierInvoiceCalculation['invoice_totals']['total_amount'],
+                        'customer_total_amount'  => $customerInvoiceCalculation['invoice_totals']['total_amount'],
+                        'profit_amount'          => bcmath($customerInvoiceCalculation['invoice_totals']['total_amount'] - $supplierInvoiceCalculation['invoice_totals']['total_amount'], 2),
+                        'line_items_count'       => count($customerInvoiceCalculation['line_items']),
                         'supplier_invoice_id'    => $supplierInvoice->id,
                         'discrepancy_detected'   => $discrepancyResult['discrepancy_detected'],
                         'variance_amount'        => $discrepancyResult['variance_amount'],
