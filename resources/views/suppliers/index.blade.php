@@ -4,7 +4,7 @@
     {{-- Success Alert --}}
     @if(session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
+            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
             <div>{{ session('success') }}</div>
         </div>
     @endif
@@ -17,7 +17,7 @@
         </div>
         @can('manage_suppliers')
             <a href="{{ route('web.suppliers.create') }}" class="btn btn-primary">
-                <i class="ki-solid ki-plus fs-2"></i>
+                <i class="ki-outline ki-picture fs-2"></i>
                 Tambah Supplier
             </a>
         @endcan
@@ -32,7 +32,8 @@
                 {{-- LEFT: Search --}}
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-outline ki-chart
+ fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="{{ request('search') }}" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nama, kode, atau email...">
@@ -41,14 +42,15 @@
                 
                 {{-- Search Button --}}
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-solid ki-magnifier fs-2"></i>
-                    Cari
+                    <i class="ki-outline ki-chart
+ fs-2"></i>
+                    Filter
                 </button>
                 
                 {{-- Reset Button --}}
                 @if(request()->filled('search'))
                     <a href="{{ route('web.suppliers.index', ['status' => request('status')]) }}" class="btn btn-light">
-                        <i class="ki-solid ki-cross fs-2"></i>
+                        <i class="ki-outline ki-arrow-zigzag fs-2"></i>
                         Reset
                     </a>
                 @endif
@@ -80,8 +82,8 @@
                     <li class="nav-item">
                         <a href="{{ route('web.suppliers.index', array_merge(request()->except(['status', 'page']), ['status' => $val === '' ? null : $val])) }}" 
                            class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
-                            <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
+                            <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
+                            <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
                             <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                                 {{ $counts[$val] }}
                             </span>
@@ -136,28 +138,32 @@
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
-                                    <div class="d-flex justify-content-end">
-                                        <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ki-solid ki-dots-vertical fs-3"></i>
+                                    <div class="action-menu-wrapper">
+                                        <button type="button" class="btn btn-sm btn-light btn-active-light-primary" data-action-menu>
+                                            <i class="ki-outline ki-dots-vertical fs-3"></i>
                                             Aksi
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="{{ route('web.suppliers.edit', $supplier) }}" class="dropdown-item">
-                                                <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
-                                                Edit Supplier
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <form method="POST" action="{{ route('web.suppliers.toggle_status', $supplier) }}" class="d-inline">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="dropdown-item {{ $supplier->is_active ? 'text-warning' : 'text-success' }} toggle-status-confirm" 
-                                                        data-name="{{ $supplier->name }}" 
-                                                        data-status="{{ $supplier->is_active ? 'active' : 'inactive' }}">
-                                                    <i class="ki-solid ki-{{ $supplier->is_active ? 'cross-square' : 'check-circle' }} fs-4 me-2"></i>
-                                                    {{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Supplier
-                                                </button>
-                                            </form>
+                                        <div class="action-dropdown-menu" style="display: none;">
+                                            <div class="menu-item px-3">
+                                                <a href="{{ route('web.suppliers.edit', $supplier) }}" class="menu-link px-3">
+                                                    <i class="ki-outline ki-parcel fs-4 me-2 text-warning"></i>
+                                                    Edit Supplier
+                                                </a>
+                                            </div>
+                                            <div class="separator my-2"></div>
+                                            <div class="menu-item px-3">
+                                                <form method="POST" action="{{ route('web.suppliers.toggle_status', $supplier) }}" class="d-inline w-100">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="menu-link px-3 w-100 text-start {{ $supplier->is_active ? 'text-warning' : 'text-success' }} toggle-status-confirm" 
+                                                            data-name="{{ $supplier->name }}" 
+                                                            data-status="{{ $supplier->is_active ? 'active' : 'inactive' }}"
+                                                            style="background: none; border: none;">
+                                                        <i class="ki-outline ki-{{ $supplier->is_active ? 'cross-square' : 'check-circle' }} fs-4 me-2"></i>
+                                                        {{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Supplier
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -166,12 +172,12 @@
                             <tr>
                                 <td colspan="5" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum ada data supplier</span>
                                         <span class="text-gray-500 fs-6">Data supplier akan muncul setelah proses registrasi.</span>
                                         @can('manage_supplier')
                                             <a href="{{ route('web.suppliers.create') }}" class="btn btn-primary mt-5">
-                                                <i class="ki-solid ki-plus fs-2"></i>
+                                                <i class="ki-outline ki-picture fs-2"></i>
                                                 Tambah Supplier
                                             </a>
                                         @endcan

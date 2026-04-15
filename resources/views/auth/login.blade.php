@@ -6,6 +6,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.png') }}" type="image/png" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
         <link href="/assets/metronic8/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
         <link href="/assets/metronic8/css/style.bundle.css" rel="stylesheet" type="text/css" />
@@ -51,7 +52,7 @@
 
                                 @if (session('error'))
                                 <div class="alert alert-danger d-flex align-items-center p-4 mb-8">
-                                    <i class="ki-solid ki-information-5 fs-2hx text-danger me-4"></i>
+                                    <i class="ki-outline ki-information-5 fs-2hx text-danger me-4"></i>
                                     <div class="d-flex flex-column">
                                         <h4 class="mb-1 text-danger">Akses Ditolak</h4>
                                         <span class="fs-7">{{ session('error') }}</span>
@@ -61,7 +62,7 @@
 
                                 @if ($errors->any())
                                 <div class="alert alert-danger d-flex align-items-center p-4 mb-8">
-                                    <i class="ki-solid ki-information-5 fs-2hx text-danger me-4"></i>
+                                    <i class="ki-outline ki-information-5 fs-2hx text-danger me-4"></i>
                                     <div class="d-flex flex-column">
                                         <h4 class="mb-1 text-danger">Validasi Error</h4>
                                         <ul class="mb-0 fs-7">

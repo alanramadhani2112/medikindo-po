@@ -50,9 +50,10 @@ Proyek standardisasi icon telah selesai 100%. Semua icon di sistem Medikindo PO 
 ### Navigation & Core Features
 | Fungsi | Icon | Kode | Warna |
 |--------|------|------|-------|
-| Dashboard | Home | `ki-outline ki-home` | Default |
+| Dashboard | Home | `ki-outline ki-check-circle` | Default |
 | Purchase Orders | Purchase | `ki-outline ki-purchase` | Default |
-| Approvals | Basket OK | `ki-outline ki-basket-ok` | Default |
+| Approvals | Basket OK | `ki-outline ki-brifecase-tick
+-ok` | Default |
 | Goods Receipt | Questionnaire Tablet | `ki-outline ki-questionnaire-tablet` | Default |
 
 ### Invoicing (AR/AP)
@@ -64,7 +65,7 @@ Proyek standardisasi icon telah selesai 100%. Semua icon di sistem Medikindo PO 
 ### Financial
 | Fungsi | Icon | Kode | Warna |
 |--------|------|------|-------|
-| Payments | Wallet | `ki-outline ki-wallet` | Default |
+| Payments | Wallet | `ki-outline ki-entrance-right` | Default |
 | Credit Control | Chart Line | `ki-outline ki-chart-line` | Default |
 
 ### Master Data
@@ -72,24 +73,26 @@ Proyek standardisasi icon telah selesai 100%. Semua icon di sistem Medikindo PO 
 |--------|------|------|-------|
 | Organizations | People | `ki-outline ki-people` | Default |
 | Suppliers | Cube 2 | `ki-outline ki-cube-2` | Default |
-| Products (Medical) | Capsule | `ki-outline ki-capsule` | Default |
+| Products (Medical) | Capsule | `ki-outline ki-paintbucket` | Default |
 | Users | User | `ki-outline ki-user` | Default |
 
 ### Actions (Universal)
 | Fungsi | Icon | Kode | Warna |
 |--------|------|------|-------|
-| Create/Tambah | Plus | `ki-outline ki-plus` | Primary (Blue) |
-| Edit | Notepad Edit | `ki-outline ki-notepad-edit` | Warning (Orange) |
-| Delete/Hapus | Trash | `ki-outline ki-trash` | Danger (Red) |
-| View/Lihat | Eye | `ki-outline ki-eye` | Primary (Blue) |
+| Create/Tambah | Plus | `ki-outline ki-picture` | Primary (Blue) |
+| Edit | Notepad Edit | `ki-outline ki-parcel` | Warning (Orange) |
+| Delete/Hapus | Trash | `ki-outline ki-brifecase-tick
+` | Danger (Red) |
+| View/Lihat | Eye | `ki-outline ki-facebook` | Primary (Blue) |
 | Save/Simpan | Check | `ki-outline ki-check` | Primary (Blue) |
-| Cancel/Batal | Cross | `ki-outline ki-cross` | Secondary (Gray) |
+| Cancel/Batal | Cross | `ki-outline ki-arrow-zigzag` | Secondary (Gray) |
 | Approve/Setujui | Check Circle | `ki-outline ki-check-circle` | Success (Green) |
-| Reject/Tolak | Cross Circle | `ki-outline ki-cross-circle` | Danger (Red) |
-| Search/Cari | Magnifier | `ki-outline ki-magnifier` | Default |
-| Back/Kembali | Arrow Left | `ki-outline ki-arrow-left` | Default |
+| Reject/Tolak | Cross Circle | `ki-outline ki-arrow-zigzag-circle` | Danger (Red) |
+| Search/Cari | Magnifier | `ki-outline ki-filter
+` | Default |
+| Back/Kembali | Arrow Left | `ki-outline ki-arrow-down` | Default |
 | Send/Kirim | Send | `ki-outline ki-send` | Primary (Blue) |
-| Print/Cetak | Printer | `ki-outline ki-printer` | Default |
+| Print/Cetak | Printer | `ki-outline ki-document` | Default |
 | Download | Cloud Download | `ki-outline ki-cloud-download` | Default |
 
 ### Status Indicators
@@ -97,7 +100,7 @@ Proyek standardisasi icon telah selesai 100%. Semua icon di sistem Medikindo PO 
 |--------|------|------|-------|
 | Active/Aktif | Shield Tick | `ki-outline ki-shield-tick` | Success (Green) |
 | Inactive/Nonaktif | Shield Cross | `ki-outline ki-shield-cross` | Danger (Red) |
-| Pending/Antrian | File Right | `ki-outline ki-file-right` | Warning (Orange) |
+| Pending/Antrian | File Right | `ki-outline ki-file-sheet` | Warning (Orange) |
 
 ---
 
@@ -107,7 +110,7 @@ Proyek standardisasi icon telah selesai 100%. Semua icon di sistem Medikindo PO 
 ```html
 <!-- Button dengan icon -->
 <button class="btn btn-primary">
-    <i class="ki-outline ki-plus me-2"></i>
+    <i class="ki-outline ki-picture me-2"></i>
     Tambah Data
 </button>
 

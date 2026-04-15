@@ -148,12 +148,13 @@
 ### Icon System (Keenicons) - ✅ PASSED
 
 **Icons Verified:**
-- ✅ `ki-outline ki-plus` - Add button
+- ✅ `ki-outline ki-picture` - Add button
 - ✅ `ki-outline ki-document` - Document icon
 - ✅ `ki-outline ki-check-circle` - Success icon
 - ✅ `ki-outline ki-dollar` - Finance icon
 - ✅ `ki-outline ki-information` - Info icon
-- ✅ `ki-outline ki-basket` - Basket icon
+- ✅ `ki-outline ki-brifecase-tick
+` - Basket icon
 - ✅ `ki-outline ki-package` - Package icon
 - ✅ `ki-outline ki-user` - User icon
 - ✅ `ki-outline ki-information-5` - Empty state icon

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\TaxConfiguration;
 use InvalidArgumentException;
 
 /**
@@ -20,6 +21,100 @@ class InvoiceCalculationService
         private readonly TaxCalculatorService $taxCalculator,
         private readonly AuditService $auditService
     ) {}
+
+    // -----------------------------------------------------------------------
+    // New methods for AR Invoice System (Sprint 2)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Calculate tax using floor rounding (per-line, as required by tax regulations).
+     *
+     * Formula: floor(dpp * rate / 100)
+     * Uses BCMath for precision, then applies PHP floor().
+     *
+     * @param string $dpp  Dasar Pengenaan Pajak (taxable base amount)
+     * @param string $rate Tax rate percentage (e.g. "11.00")
+     * @return string Tax amount as string with 2 decimal places
+     */
+    public function calculateTaxFloor(string $dpp, string $rate): string
+    {
+        // Use high-scale BCMath to avoid float truncation before floor
+        $product = bcmul($dpp, $rate, 10);
+        $divided = bcdiv($product, '100', 10);
+        $floored = (string) floor((float) $divided);
+        return number_format((float) $floored, 2, '.', '');
+    }
+
+    /**
+     * Calculate grand total from line items and surcharge.
+     *
+     * Returns:
+     *   subtotal     = sum of (unit_price * quantity) per line
+     *   tax_total    = sum of tax_amount per line (floor-rounded)
+     *   ematerai_fee = 10000 if (subtotal - discount + tax + surcharge) >= threshold, else 0
+     *   grand_total  = subtotal - discount + tax_total + surcharge + ematerai_fee
+     *
+     * Each line item array must contain:
+     *   - 'line_total'      (string) — already-calculated line total (subtotal - discount + tax)
+     *   - 'tax_amount'      (string) — tax amount for this line
+     *   - 'discount_amount' (string) — discount amount for this line
+     *   - 'line_subtotal'   (string) — quantity * unit_price
+     *
+     * @param array  $lineItems Array of calculated line item arrays
+     * @param string $surcharge Surcharge amount (string)
+     * @return array ['subtotal', 'discount', 'tax_total', 'ematerai_fee', 'grand_total']
+     */
+    public function calculateGrandTotal(array $lineItems, string $surcharge): array
+    {
+        $subtotal = '0.00';
+        $discount = '0.00';
+        $taxTotal = '0.00';
+
+        foreach ($lineItems as $item) {
+            $subtotal = $this->calculator->add($subtotal, (string) ($item['line_subtotal'] ?? '0'));
+            $discount = $this->calculator->add($discount, (string) ($item['discount_amount'] ?? '0'));
+            $taxTotal = $this->calculator->add($taxTotal, (string) ($item['tax_amount'] ?? '0'));
+        }
+
+        // nett = subtotal - discount + tax + surcharge (pre-ematerai total)
+        $nett = $this->calculator->subtract($subtotal, $discount);
+        $nett = $this->calculator->add($nett, $taxTotal);
+        $nett = $this->calculator->add($nett, $surcharge);
+
+        // e-Meterai logic
+        $threshold = $this->getEMeteraiThreshold();
+        $emateraiFee = $this->calculator->compare($nett, $threshold) >= 0 ? '10000.00' : '0.00';
+
+        $grandTotal = $this->calculator->add($nett, $emateraiFee);
+
+        return [
+            'subtotal'     => $subtotal,
+            'discount'     => $discount,
+            'tax_total'    => $taxTotal,
+            'ematerai_fee' => $emateraiFee,
+            'grand_total'  => $grandTotal,
+        ];
+    }
+
+    /**
+     * Get the active PPN rate from TaxConfiguration.
+     *
+     * @return string PPN rate as string (e.g. "11.00")
+     */
+    public function getActivePPNRate(): string
+    {
+        return TaxConfiguration::getActivePPNRate();
+    }
+
+    /**
+     * Get the e-Meterai threshold from TaxConfiguration.
+     *
+     * @return string Threshold in Rupiah as string (e.g. "5000000.00")
+     */
+    public function getEMeteraiThreshold(): string
+    {
+        return TaxConfiguration::getEMeteraiThreshold();
+    }
 
     /**
      * Calculate a single line item with discount and tax

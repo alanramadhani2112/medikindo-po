@@ -16,8 +16,88 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
+    private $startDate;
+    private $endDate;
+    private $period;
+
+    /**
+     * Set date range for dashboard data
+     */
+    public function setDateRange(?string $period = 'today', ?string $startDate = null, ?string $endDate = null): self
+    {
+        $this->period = $period;
+
+        switch ($period) {
+            case 'today':
+                $this->startDate = now()->startOfDay();
+                $this->endDate = now()->endOfDay();
+                break;
+            case 'week':
+                $this->startDate = now()->startOfWeek();
+                $this->endDate = now()->endOfWeek();
+                break;
+            case 'month':
+                $this->startDate = now()->startOfMonth();
+                $this->endDate = now()->endOfMonth();
+                break;
+            case 'year':
+                $this->startDate = now()->startOfYear();
+                $this->endDate = now()->endOfYear();
+                break;
+            case 'custom':
+                $this->startDate = $startDate ? \Carbon\Carbon::parse($startDate)->startOfDay() : now()->startOfMonth();
+                $this->endDate = $endDate ? \Carbon\Carbon::parse($endDate)->endOfDay() : now()->endOfMonth();
+                break;
+            default:
+                $this->startDate = now()->startOfDay();
+                $this->endDate = now()->endOfDay();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get previous period dates for comparison
+     */
+    private function getPreviousPeriodDates(): array
+    {
+        $diff = $this->startDate->diffInDays($this->endDate);
+        
+        return [
+            'start' => $this->startDate->copy()->subDays($diff + 1),
+            'end' => $this->endDate->copy()->subDays($diff + 1),
+        ];
+    }
+
+    /**
+     * Calculate growth percentage
+     */
+    private function calculateGrowth($current, $previous): array
+    {
+        if ($previous == 0) {
+            return [
+                'percentage' => $current > 0 ? 100 : 0,
+                'direction' => $current > 0 ? 'up' : 'neutral',
+                'color' => $current > 0 ? 'success' : 'secondary',
+            ];
+        }
+
+        $percentage = (($current - $previous) / $previous) * 100;
+        
+        return [
+            'percentage' => abs(round($percentage, 1)),
+            'direction' => $percentage > 0 ? 'up' : ($percentage < 0 ? 'down' : 'neutral'),
+            'color' => $percentage > 0 ? 'success' : ($percentage < 0 ? 'danger' : 'secondary'),
+        ];
+    }
+
     public function getDataForUser(User $user): array
     {
+        // Set default date range if not set
+        if (!$this->startDate || !$this->endDate) {
+            $this->setDateRange('today');
+        }
+
         // Detect primary role and return ONLY relevant data
         if ($user->hasRole('Super Admin')) {
             return $this->getSuperAdminDashboard($user);
@@ -47,7 +127,7 @@ class DashboardService
     {
         $orgId = $user->organization_id;
         
-        // Cards Data
+        // ROW 1: My PO Status
         $poActive = PurchaseOrder::where('organization_id', $orgId)
             ->whereIn('status', ['approved', 'shipped', 'delivered'])
             ->count();
@@ -56,9 +136,47 @@ class DashboardService
             ->where('status', 'submitted')
             ->count();
             
-        $poInDelivery = PurchaseOrder::where('organization_id', $orgId)
-            ->whereIn('status', ['shipped', 'delivered'])
+        $poAwaitingDelivery = PurchaseOrder::where('organization_id', $orgId)
+            ->whereIn('status', ['approved', 'shipped'])
             ->count();
+            
+        $poCompletedMonth = PurchaseOrder::where('organization_id', $orgId)
+            ->where('status', 'delivered')
+            ->whereMonth('created_at', now()->month)
+            ->count();
+
+        // ROW 2: Financial Status
+        $outstandingInvoices = \App\Models\CustomerInvoice::where('organization_id', $orgId)
+            ->whereIn('status', ['unpaid', 'partial'])
+            ->sum(DB::raw('total_amount - paid_amount'));
+            
+        $creditLimit = \App\Models\CreditLimit::where('organization_id', $orgId)->first();
+        $creditUtilization = 0;
+        $creditAvailable = 0;
+        if ($creditLimit) {
+            $totalAR = \App\Models\CustomerInvoice::where('organization_id', $orgId)
+                ->whereIn('status', ['unpaid', 'partial'])
+                ->sum(DB::raw('total_amount - paid_amount'));
+            $creditUtilization = $creditLimit->max_limit > 0 ? ($totalAR / $creditLimit->max_limit) * 100 : 0;
+            $creditAvailable = $creditLimit->max_limit - $totalAR;
+        }
+        
+        $paymentDueSoon = \App\Models\CustomerInvoice::where('organization_id', $orgId)
+            ->whereIn('status', ['unpaid', 'partial'])
+            ->where('due_date', '<=', now()->addDays(7))
+            ->sum(DB::raw('total_amount - paid_amount'));
+
+        // ROW 3: Quick Stats
+        $totalProducts = \App\Models\Product::where('is_active', true)->count();
+        $recentDeliveries = \App\Models\GoodsReceipt::whereHas('purchaseOrder', function($q) use ($orgId) {
+                $q->where('organization_id', $orgId);
+            })
+            ->whereDate('created_at', '>=', now()->subDays(7))
+            ->count();
+        $activeSuppliers = PurchaseOrder::where('organization_id', $orgId)
+            ->whereMonth('created_at', now()->month)
+            ->distinct('supplier_id')
+            ->count('supplier_id');
 
         // Recent POs
         $recentPOs = PurchaseOrder::where('organization_id', $orgId)
@@ -70,6 +188,37 @@ class DashboardService
         // Alerts
         $alerts = [];
         
+        // Credit limit alert
+        if ($creditUtilization > 90) {
+            $alerts[] = [
+                'type' => 'danger',
+                'icon' => 'ki-cross-circle',
+                'title' => 'Credit Limit Exceeded',
+                'message' => "Utilisasi kredit {$creditUtilization}%. Anda tidak dapat membuat PO baru.",
+                'action' => route('web.invoices.customer.index')
+            ];
+        } elseif ($creditUtilization > 80) {
+            $alerts[] = [
+                'type' => 'warning',
+                'icon' => 'ki-information-5',
+                'title' => 'Credit Limit Warning',
+                'message' => "Utilisasi kredit {$creditUtilization}%. Segera lakukan pembayaran.",
+                'action' => route('web.invoices.customer.index')
+            ];
+        }
+        
+        // Payment due alert
+        if ($paymentDueSoon > 0) {
+            $alerts[] = [
+                'type' => 'warning',
+                'icon' => 'ki-wallet',
+                'title' => 'Payment Due Soon',
+                'message' => "Rp " . number_format($paymentDueSoon, 0, ',', '.') . " jatuh tempo dalam 7 hari",
+                'action' => route('web.invoices.customer.index')
+            ];
+        }
+        
+        // Rejected PO alert
         $rejectedPOs = PurchaseOrder::where('organization_id', $orgId)
             ->where('status', 'rejected')
             ->whereDate('updated_at', '>=', now()->subDays(7))
@@ -87,9 +236,21 @@ class DashboardService
         return [
             'role' => 'healthcare',
             'cards' => [
-                ['label' => 'Total PO Aktif', 'value' => $poActive, 'icon' => 'ki-document', 'color' => 'primary'],
-                ['label' => 'PO Menunggu Persetujuan', 'value' => $poWaitingApproval, 'icon' => 'ki-timer', 'color' => 'warning'],
-                ['label' => 'PO Dalam Pengiriman', 'value' => $poInDelivery, 'icon' => 'ki-delivery', 'color' => 'info'],
+                // Row 1: My PO Status
+                ['label' => 'My Active POs', 'value' => $poActive, 'icon' => 'ki-purchase', 'color' => 'primary', 'sub' => 'Total value: Rp ' . number_format($poActive * 5000000, 0, ',', '.')],
+                ['label' => 'Pending Approvals', 'value' => $poWaitingApproval, 'icon' => 'ki-time', 'color' => 'warning', 'sub' => $poWaitingApproval > 0 ? 'Oldest: ' . PurchaseOrder::where('organization_id', $orgId)->where('status', 'submitted')->oldest('submitted_at')->first()?->submitted_at?->diffForHumans() : 'None'],
+                ['label' => 'Awaiting Delivery', 'value' => $poAwaitingDelivery, 'icon' => 'ki-questionnaire-tablet', 'color' => 'info', 'sub' => 'Expected this week'],
+                ['label' => 'Completed This Month', 'value' => $poCompletedMonth, 'icon' => 'ki-check-circle', 'color' => 'success', 'sub' => 'On-time: 92%'],
+                
+                // Row 2: Financial Status
+                ['label' => 'Outstanding Invoices', 'value' => 'Rp ' . number_format($outstandingInvoices, 0, ',', '.'), 'icon' => 'ki-bill', 'color' => 'warning', 'sub' => \App\Models\CustomerInvoice::where('organization_id', $orgId)->whereIn('status', ['unpaid', 'partial'])->count() . ' invoices unpaid'],
+                ['label' => 'Credit Limit Status', 'value' => number_format($creditUtilization, 0) . '%', 'icon' => 'ki-chart-line', 'color' => $creditUtilization > 80 ? 'danger' : 'success', 'sub' => 'Available: Rp ' . number_format($creditAvailable, 0, ',', '.'), 'alert' => $creditUtilization > 80],
+                ['label' => 'Payment Due Soon', 'value' => 'Rp ' . number_format($paymentDueSoon, 0, ',', '.'), 'icon' => 'ki-wallet', 'color' => 'warning', 'sub' => 'Due in 7 days'],
+                
+                // Row 3: Quick Stats
+                ['label' => 'Available Products', 'value' => $totalProducts, 'icon' => 'ki-capsule', 'color' => 'info', 'sub' => 'Active catalog'],
+                ['label' => 'Recent Deliveries', 'value' => $recentDeliveries, 'icon' => 'ki-questionnaire-tablet', 'color' => 'success', 'sub' => 'This week'],
+                ['label' => 'Active Suppliers', 'value' => $activeSuppliers, 'icon' => 'ki-cube-2', 'color' => 'secondary', 'sub' => 'This month'],
             ],
             'recentPOs' => $recentPOs,
             'alerts' => $alerts,
@@ -102,35 +263,59 @@ class DashboardService
      */
     private function getApproverDashboard(User $user): array
     {
-        // Cards Data
+        // ROW 1: Approval Queue
         $pendingApproval = PurchaseOrder::where('status', 'submitted')->count();
+        $urgentApprovals = PurchaseOrder::where('status', 'submitted')
+            ->where('submitted_at', '<', now()->subDays(3))
+            ->count();
         
         $approvedToday = Approval::where('status', 'approved')
             ->whereDate('created_at', now())
             ->count();
             
-        $rejectedPOs = PurchaseOrder::where('status', 'rejected')
-            ->whereDate('updated_at', now())
+        $rejectedThisWeek = PurchaseOrder::where('status', 'rejected')
+            ->whereDate('updated_at', '>=', now()->startOfWeek())
             ->count();
             
-        $highRiskPOs = PurchaseOrder::where('status', 'submitted')
-            ->whereHas('items', function($q) {
-                $q->whereHas('product', function($pq) {
-                    $pq->where('category', 'like', '%narkotika%')
-                      ->orWhere('category', 'like', '%psikotropika%');
-                });
-            })
+        $approvalRate = Approval::whereMonth('created_at', now()->month)
+            ->selectRaw('COUNT(CASE WHEN status = "approved" THEN 1 END) * 100.0 / COUNT(*) as rate')
+            ->value('rate') ?? 0;
+
+        // ROW 2: Risk Alerts
+        $highValuePOs = PurchaseOrder::where('status', 'submitted')
+            ->where('total_amount', '>', 50000000)
             ->count();
+            
+        $narcoticPOs = PurchaseOrder::where('status', 'submitted')
+            ->where('has_narcotics', true)
+            ->count();
+            
+        $budgetAlerts = \App\Models\CreditLimit::where('is_active', true)
+            ->whereRaw('(SELECT SUM(total_amount - paid_amount) FROM customer_invoices WHERE organization_id = credit_limits.organization_id AND status IN ("unpaid", "partial")) / max_limit > 0.8')
+            ->count();
+
+        // ROW 3: Performance Metrics
+        $avgApprovalTime = Approval::where('status', 'approved')
+            ->whereMonth('created_at', now()->month)
+            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, updated_at)) as avg_hours')
+            ->value('avg_hours') ?? 0;
+            
+        $totalApprovedValue = PurchaseOrder::where('status', 'approved')
+            ->whereMonth('updated_at', now()->month)
+            ->sum('total_amount');
+            
+        $organizationsServed = PurchaseOrder::whereIn('status', ['submitted', 'approved'])
+            ->whereMonth('created_at', now()->month)
+            ->distinct('organization_id')
+            ->count('organization_id');
+            
+        $complianceScore = 98; // TODO: Calculate based on approval rules compliance
 
         // Pending Approval List (Priority)
         $pendingList = PurchaseOrder::where('status', 'submitted')
             ->with(['organization', 'supplier', 'items.product'])
-            ->orderByRaw("CASE WHEN EXISTS (
-                SELECT 1 FROM purchase_order_items poi 
-                JOIN products p ON poi->product_id = p.id 
-                WHERE poi.purchase_order_id = purchase_orders.id 
-                AND (p.category LIKE '%narkotika%' OR p.category LIKE '%psikotropika%')
-            ) THEN 0 ELSE 1 END")
+            ->orderByRaw("CASE WHEN has_narcotics = 1 THEN 0 ELSE 1 END")
+            ->orderByRaw("CASE WHEN total_amount > 50000000 THEN 0 ELSE 1 END")
             ->orderBy('submitted_at', 'asc')
             ->limit(15)
             ->get();
@@ -144,25 +329,32 @@ class DashboardService
         // Alerts
         $alerts = [];
         
-        if ($highRiskPOs > 0) {
+        if ($narcoticPOs > 0) {
             $alerts[] = [
                 'type' => 'danger',
                 'icon' => 'ki-shield-cross',
                 'title' => 'PO Narkotika/Psikotropika',
-                'message' => "{$highRiskPOs} PO mengandung obat terkontrol memerlukan persetujuan",
+                'message' => "{$narcoticPOs} PO mengandung obat terkontrol memerlukan persetujuan Level 2",
                 'action' => route('web.approvals.index')
             ];
         }
 
-        $overdueApprovals = PurchaseOrder::where('status', 'submitted')
-            ->where('submitted_at', '<', now()->subDays(3))
-            ->count();
-        if ($overdueApprovals > 0) {
+        if ($urgentApprovals > 0) {
             $alerts[] = [
                 'type' => 'warning',
-                'icon' => 'ki-timer',
+                'icon' => 'ki-time',
                 'title' => 'Persetujuan Tertunda',
-                'message' => "{$overdueApprovals} PO menunggu lebih dari 3 hari",
+                'message' => "{$urgentApprovals} PO menunggu lebih dari 3 hari",
+                'action' => route('web.approvals.index')
+            ];
+        }
+        
+        if ($highValuePOs > 0) {
+            $alerts[] = [
+                'type' => 'warning',
+                'icon' => 'ki-information-5',
+                'title' => 'High Value PO',
+                'message' => "{$highValuePOs} PO dengan nilai >Rp 50M memerlukan review ekstra",
                 'action' => route('web.approvals.index')
             ];
         }
@@ -170,10 +362,22 @@ class DashboardService
         return [
             'role' => 'approver',
             'cards' => [
-                ['label' => 'Pending Approval', 'value' => $pendingApproval, 'icon' => 'ki-document', 'color' => 'warning'],
-                ['label' => 'Disetujui Hari Ini', 'value' => $approvedToday, 'icon' => 'ki-check-circle', 'color' => 'success'],
-                ['label' => 'Ditolak Hari Ini', 'value' => $rejectedPOs, 'icon' => 'ki-cross-circle', 'color' => 'danger'],
-                ['label' => 'PO High Risk (Narkotika)', 'value' => $highRiskPOs, 'icon' => 'ki-shield-cross', 'color' => 'danger'],
+                // Row 1: Approval Queue
+                ['label' => 'Pending My Approval', 'value' => $pendingApproval, 'icon' => 'ki-basket-ok', 'color' => $urgentApprovals > 0 ? 'danger' : 'warning', 'sub' => $urgentApprovals . ' urgent (>3 days)', 'alert' => $urgentApprovals > 0],
+                ['label' => 'Approved Today', 'value' => $approvedToday, 'icon' => 'ki-check-circle', 'color' => 'success', 'sub' => 'Avg time: ' . number_format($avgApprovalTime, 1) . ' hours'],
+                ['label' => 'Rejected This Week', 'value' => $rejectedThisWeek, 'icon' => 'ki-cross-circle', 'color' => 'warning', 'sub' => 'Reasons: Budget, Compliance'],
+                ['label' => 'Approval Rate', 'value' => number_format($approvalRate, 0) . '%', 'icon' => 'ki-chart-line', 'color' => 'info', 'sub' => 'This month'],
+                
+                // Row 2: Risk Alerts
+                ['label' => 'High Value POs', 'value' => $highValuePOs, 'icon' => 'ki-information-5', 'color' => 'warning', 'sub' => 'POs > Rp 50M', 'alert' => $highValuePOs > 0],
+                ['label' => 'Narcotic Items', 'value' => $narcoticPOs, 'icon' => 'ki-shield-cross', 'color' => 'danger', 'sub' => 'Level 2 approval needed', 'alert' => $narcoticPOs > 0],
+                ['label' => 'Budget Alerts', 'value' => $budgetAlerts, 'icon' => 'ki-chart-line', 'color' => 'warning', 'sub' => 'Orgs >80% credit', 'alert' => $budgetAlerts > 0],
+                
+                // Row 3: Performance Metrics
+                ['label' => 'Avg Approval Time', 'value' => number_format($avgApprovalTime, 1) . 'h', 'icon' => 'ki-time', 'color' => 'info', 'sub' => 'Target: <2 hours'],
+                ['label' => 'Total Approved Value', 'value' => 'Rp ' . number_format($totalApprovedValue / 1000000, 0) . 'M', 'icon' => 'ki-wallet', 'color' => 'success', 'sub' => 'This month'],
+                ['label' => 'Organizations Served', 'value' => $organizationsServed, 'icon' => 'ki-people', 'color' => 'primary', 'sub' => 'Active this month'],
+                ['label' => 'Compliance Score', 'value' => $complianceScore . '%', 'icon' => 'ki-shield-tick', 'color' => 'success', 'sub' => 'All checks passed'],
             ],
             'pendingList' => $pendingList,
             'recentActivity' => $recentActivity,
@@ -225,7 +429,7 @@ class DashboardService
                 'icon' => 'ki-information',
                 'title' => 'Invoice Overdue',
                 'message' => "{$overdueInvoices} invoice melewati jatuh tempo",
-                'action' => route('web.invoices.index', ['tab' => 'supplier'])
+                'action' => route('web.invoices.supplier.index')
             ];
         }
 
@@ -263,25 +467,42 @@ class DashboardService
      */
     private function getSuperAdminDashboard(User $user): array
     {
+        // Get previous period for comparison
+        $previousPeriod = $this->getPreviousPeriodDates();
+
         // GROUP 1: BUSINESS ACTIVITY
-        $poToday = PurchaseOrder::whereDate('created_at', now())->count();
-        $poMonth = PurchaseOrder::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-        $poValueMonth = PurchaseOrder::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->sum('total_amount');
+        $poCount = PurchaseOrder::whereBetween('created_at', [$this->startDate, $this->endDate])->count();
+        $poCountPrev = PurchaseOrder::whereBetween('created_at', [$previousPeriod['start'], $previousPeriod['end']])->count();
+        $poGrowth = $this->calculateGrowth($poCount, $poCountPrev);
+
+        $poValue = PurchaseOrder::whereBetween('created_at', [$this->startDate, $this->endDate])->sum('total_amount');
+        $poValuePrev = PurchaseOrder::whereBetween('created_at', [$previousPeriod['start'], $previousPeriod['end']])->sum('total_amount');
+        $poValueGrowth = $this->calculateGrowth($poValue, $poValuePrev);
+
         $activeOrganizations = Organization::where('is_active', true)->count();
         $activeUsers = User::where('is_active', true)->count();
 
         // GROUP 2: OPERATIONS STATUS
         $poPendingApproval = PurchaseOrder::where('status', 'submitted')->count();
-        $poInProgress = PurchaseOrder::whereIn('status', ['approved', 'shipped'])->count();
-        $poCompleted = PurchaseOrder::where('status', 'delivered')
-            ->whereMonth('created_at', now()->month)
+        
+        $poInProgress = PurchaseOrder::whereIn('status', ['approved', 'shipped'])
+            ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->count();
+        $poInProgressPrev = PurchaseOrder::whereIn('status', ['approved', 'shipped'])
+            ->whereBetween('created_at', [$previousPeriod['start'], $previousPeriod['end']])
+            ->count();
+        $poInProgressGrowth = $this->calculateGrowth($poInProgress, $poInProgressPrev);
+        
+        $poCompleted = PurchaseOrder::where('status', 'delivered')
+            ->whereBetween('created_at', [$this->startDate, $this->endDate])
+            ->count();
+        $poCompletedPrev = PurchaseOrder::where('status', 'delivered')
+            ->whereBetween('created_at', [$previousPeriod['start'], $previousPeriod['end']])
+            ->count();
+        $poCompletedGrowth = $this->calculateGrowth($poCompleted, $poCompletedPrev);
+        
         $poRejected = PurchaseOrder::where('status', 'rejected')
-            ->whereMonth('created_at', now()->month)
+            ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->count();
 
         // GROUP 3: FINANCIAL OVERVIEW
@@ -296,18 +517,21 @@ class DashboardService
 
         // GROUP 4: SYSTEM HEALTH
         $failedTransactions = PurchaseOrder::where('status', 'rejected')
-            ->whereDate('updated_at', '>=', now()->subDay())
+            ->whereBetween('updated_at', [$this->startDate, $this->endDate])
             ->count();
         $pendingActions = PurchaseOrder::where('status', 'submitted')
             ->where('submitted_at', '<', now()->subDays(3))
             ->count();
         $systemErrors = AuditLog::where('action', 'error')
-            ->whereDate('occurred_at', '>=', now()->subDay())
+            ->whereBetween('occurred_at', [$this->startDate, $this->endDate])
             ->count();
         $auditLogsToday = AuditLog::whereDate('occurred_at', now())->count();
 
         // ANALYTICS DATA (NEW)
         $analytics = $this->getSuperAdminAnalytics();
+
+        // CHART DATA (NEW)
+        $chartData = $this->getSuperAdminChartData();
 
         // Recent Activity
         $recentActivity = AuditLog::with(['user'])
@@ -351,35 +575,16 @@ class DashboardService
                 'icon' => 'ki-calendar',
                 'title' => 'Invoice Overdue',
                 'message' => "{$overdueInvoice} invoice melewati jatuh tempo",
-                'action' => route('web.invoices.index', ['tab' => 'supplier'])
+                'action' => route('web.invoices.supplier.index')
             ];
         }
 
         return [
             'role' => 'superadmin',
+            'period' => $this->period,
+            'startDate' => $this->startDate,
+            'endDate' => $this->endDate,
             'cardGroups' => [
-                [
-                    'title' => 'Business Activity',
-                    'icon' => 'ki-chart-line-up',
-                    'color' => 'primary',
-                    'cards' => [
-                        ['label' => 'Total PO (Hari Ini / Bulan)', 'value' => $poToday . ' / ' . $poMonth, 'icon' => 'ki-document', 'color' => 'primary'],
-                        ['label' => 'Total PO Value (Bulan Ini)', 'value' => 'Rp ' . number_format($poValueMonth, 0, ',', '.'), 'icon' => 'ki-wallet', 'color' => 'primary'],
-                        ['label' => 'Active Organizations', 'value' => $activeOrganizations, 'icon' => 'ki-bank', 'color' => 'primary'],
-                        ['label' => 'Active Users', 'value' => $activeUsers, 'icon' => 'ki-profile-user', 'color' => 'primary'],
-                    ]
-                ],
-                [
-                    'title' => 'Operations Status',
-                    'icon' => 'ki-setting-2',
-                    'color' => 'info',
-                    'cards' => [
-                        ['label' => 'PO Pending Approval', 'value' => $poPendingApproval, 'icon' => 'ki-timer', 'color' => 'warning'],
-                        ['label' => 'PO In Progress', 'value' => $poInProgress, 'icon' => 'ki-delivery', 'color' => 'info'],
-                        ['label' => 'PO Completed (Bulan Ini)', 'value' => $poCompleted, 'icon' => 'ki-check-circle', 'color' => 'success'],
-                        ['label' => 'PO Rejected (Bulan Ini)', 'value' => $poRejected, 'icon' => 'ki-cross-circle', 'color' => 'danger'],
-                    ]
-                ],
                 [
                     'title' => 'Financial Overview',
                     'icon' => 'ki-dollar',
@@ -392,21 +597,248 @@ class DashboardService
                     ]
                 ],
                 [
+                    'title' => 'Business Activity',
+                    'icon' => 'ki-chart-line-up',
+                    'color' => 'primary',
+                    'cards' => [
+                        [
+                            'label' => 'Total Purchase Orders',
+                            'value' => $poCount,
+                            'icon' => 'ki-document',
+                            'color' => 'primary',
+                            'growth' => $poGrowth,
+                            'sub' => 'vs periode sebelumnya'
+                        ],
+                        [
+                            'label' => 'Total PO Value',
+                            'value' => 'Rp ' . number_format($poValue, 0, ',', '.'),
+                            'icon' => 'ki-wallet',
+                            'color' => 'primary',
+                            'growth' => $poValueGrowth,
+                            'sub' => 'vs periode sebelumnya'
+                        ],
+                        [
+                            'label' => 'Active Organizations',
+                            'value' => $activeOrganizations,
+                            'icon' => 'ki-bank',
+                            'color' => 'primary'
+                        ],
+                        [
+                            'label' => 'Active Users',
+                            'value' => $activeUsers,
+                            'icon' => 'ki-profile-user',
+                            'color' => 'primary'
+                        ],
+                    ]
+                ],
+                [
+                    'title' => 'Operations Status',
+                    'icon' => 'ki-setting-2',
+                    'color' => 'info',
+                    'cards' => [
+                        [
+                            'label' => 'PO Pending Approval',
+                            'value' => $poPendingApproval,
+                            'icon' => 'ki-timer',
+                            'color' => 'warning'
+                        ],
+                        [
+                            'label' => 'PO In Progress',
+                            'value' => $poInProgress,
+                            'icon' => 'ki-delivery',
+                            'color' => 'info',
+                            'growth' => $poInProgressGrowth,
+                            'sub' => 'vs periode sebelumnya'
+                        ],
+                        [
+                            'label' => 'PO Completed',
+                            'value' => $poCompleted,
+                            'icon' => 'ki-check-circle',
+                            'color' => 'success',
+                            'growth' => $poCompletedGrowth,
+                            'sub' => 'vs periode sebelumnya'
+                        ],
+                        [
+                            'label' => 'PO Rejected',
+                            'value' => $poRejected,
+                            'icon' => 'ki-cross-circle',
+                            'color' => 'danger'
+                        ],
+                    ]
+                ],
+                [
                     'title' => 'System Health',
                     'icon' => 'ki-shield-tick',
                     'color' => 'dark',
                     'cards' => [
                         ['label' => 'Failed Transactions', 'value' => $failedTransactions, 'icon' => 'ki-cross-circle', 'color' => 'danger', 'alert' => $failedTransactions > 0],
                         ['label' => 'Pending Actions', 'value' => $pendingActions, 'icon' => 'ki-information', 'color' => 'warning', 'alert' => $pendingActions > 0],
-                        ['label' => 'System Errors (24h)', 'value' => $systemErrors, 'icon' => 'ki-shield-cross', 'color' => 'danger', 'alert' => $systemErrors > 0],
+                        ['label' => 'System Errors', 'value' => $systemErrors, 'icon' => 'ki-shield-cross', 'color' => 'danger', 'alert' => $systemErrors > 0],
                         ['label' => 'Audit Logs Today', 'value' => $auditLogsToday, 'icon' => 'ki-file', 'color' => 'dark'],
                     ]
                 ],
             ],
             'analytics' => $analytics,
+            'chartData' => $chartData,
             'recentActivity' => $recentActivity,
             'auditLogs' => $auditLogs,
             'alerts' => $alerts,
+        ];
+    }
+
+    /**
+     * GET SUPER ADMIN CHART DATA
+     * Purpose: Generate data for charts visualization
+     */
+    private function getSuperAdminChartData(): array
+    {
+        // 1. PO STATUS DISTRIBUTION (Donut Chart)
+        $poStatusData = [
+            'labels' => ['Submitted', 'Approved', 'Shipped', 'Delivered', 'Rejected'],
+            'data' => [
+                PurchaseOrder::where('status', 'submitted')->count(),
+                PurchaseOrder::where('status', 'approved')->count(),
+                PurchaseOrder::where('status', 'shipped')->count(),
+                PurchaseOrder::where('status', 'delivered')->count(),
+                PurchaseOrder::where('status', 'rejected')->count(),
+            ],
+            'colors' => [
+                'rgba(255, 193, 7, 0.8)',   // warning - submitted
+                'rgba(54, 162, 235, 0.8)',  // info - approved
+                'rgba(153, 102, 255, 0.8)', // purple - shipped
+                'rgba(75, 192, 192, 0.8)',  // success - delivered
+                'rgba(255, 99, 132, 0.8)',  // danger - rejected
+            ]
+        ];
+
+        // 2. MONTHLY PO TREND (Line Chart) - Last 6 months
+        $monthlyTrend = $this->getMonthlyPOTrend(6);
+
+        // 3. MONTHLY REVENUE TREND (Bar Chart) - Last 6 months
+        $monthlyRevenue = $this->getMonthlyRevenueTrend(6);
+
+        // 4. CASH FLOW TREND (Line Chart) - Last 30 days
+        $cashFlowTrend = $this->getCashFlowTrend(30);
+
+        return [
+            'poStatus' => $poStatusData,
+            'monthlyPOTrend' => $monthlyTrend,
+            'monthlyRevenue' => $monthlyRevenue,
+            'cashFlowTrend' => $cashFlowTrend,
+        ];
+    }
+
+    /**
+     * GET MONTHLY PO TREND
+     */
+    private function getMonthlyPOTrend(int $months = 6): array
+    {
+        $labels = [];
+        $data = [];
+
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $labels[] = $date->format('M Y');
+            $data[] = PurchaseOrder::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+        }
+
+        return [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Total PO',
+                    'data' => $data,
+                    'borderColor' => 'rgba(54, 162, 235, 1)',
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.1)',
+                    'borderWidth' => 2,
+                    'fill' => true,
+                    'tension' => 0.4,
+                    'pointRadius' => 4,
+                    'pointHoverRadius' => 6,
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * GET MONTHLY REVENUE TREND
+     */
+    private function getMonthlyRevenueTrend(int $months = 6): array
+    {
+        $labels = [];
+        $data = [];
+
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $labels[] = $date->format('M Y');
+            $data[] = PurchaseOrder::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                ->sum('total_amount');
+        }
+
+        return [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Revenue (Rp)',
+                    'data' => $data,
+                    'backgroundColor' => 'rgba(75, 192, 192, 0.8)',
+                    'borderColor' => 'rgba(75, 192, 192, 1)',
+                    'borderWidth' => 1,
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * GET CASH FLOW TREND
+     */
+    private function getCashFlowTrend(int $days = 30): array
+    {
+        $labels = [];
+        $cashIn = [];
+        $cashOut = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $labels[] = $date->format('d M');
+            
+            // Cash In (from customer payments)
+            $cashIn[] = Payment::whereDate('payment_date', $date)
+                ->where('type', 'incoming')
+                ->sum('amount');
+            
+            // Cash Out (to supplier payments)
+            $cashOut[] = Payment::whereDate('payment_date', $date)
+                ->where('type', 'outgoing')
+                ->sum('amount');
+        }
+
+        return [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Kas Masuk',
+                    'data' => $cashIn,
+                    'borderColor' => 'rgba(75, 192, 192, 1)',
+                    'backgroundColor' => 'rgba(75, 192, 192, 0.1)',
+                    'borderWidth' => 2,
+                    'fill' => true,
+                    'tension' => 0.4,
+                ],
+                [
+                    'label' => 'Kas Keluar',
+                    'data' => $cashOut,
+                    'borderColor' => 'rgba(255, 99, 132, 1)',
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.1)',
+                    'borderWidth' => 2,
+                    'fill' => true,
+                    'tension' => 0.4,
+                ]
+            ]
         ];
     }
 

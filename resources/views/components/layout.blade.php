@@ -12,10 +12,11 @@
     <meta name="description" content="Medikindo Procurement & Financial System" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="shortcut icon" href="{{ asset('assets/metronic8/media/logos/favicon.ico') }}" />
+    <link rel="shortcut icon" href="{{ asset('favicon.png') }}" type="image/png" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
     <link href="{{ asset('assets/metronic8/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/metronic8/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/medikindo-theme.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('css/custom-layout.css') }}" rel="stylesheet" type="text/css" />
     
     {{-- Alpine.js Standard Build (supports all features) --}}
@@ -111,19 +112,19 @@
                             <div id="kt_app_content_container" class="app-container container-fluid">
                                 @if(session('success'))
                                     <div class="alert alert-success d-flex align-items-center mb-5">
-                                        <i class="ki-solid ki-check-circle fs-2 text-success me-3"></i>
+                                        <i class="ki-outline ki-check-circle fs-2 text-success me-3"></i>
                                         <span>{{ session('success') }}</span>
                                     </div>
                                 @endif
                                 @if(session('error'))
                                     <div class="alert alert-danger d-flex align-items-center mb-5">
-                                        <i class="ki-solid ki-cross-circle fs-2 text-danger me-3"></i>
+                                        <i class="ki-outline ki-arrow-zigzag-circle fs-2 text-danger me-3"></i>
                                         <span>{{ session('error') }}</span>
                                     </div>
                                 @endif
                                 @if($errors->any())
                                     <div class="alert alert-danger d-flex align-items-start mb-5">
-                                        <i class="ki-solid ki-information-5 fs-2 text-danger me-3 mt-1"></i>
+                                        <i class="ki-outline ki-information-5 fs-2 text-danger me-3 mt-1"></i>
                                         <div>
                                             <div class="fw-bold mb-1">Terdapat kesalahan validasi:</div>
                                             <ul class="mb-0 ps-4">

@@ -4,7 +4,7 @@
     {{-- Success Alert --}}
     @if(session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
+            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
             <div>{{ session('success') }}</div>
         </div>
     @endif
@@ -17,7 +17,7 @@
         </div>
         @can('manage_products')
             <a href="{{ route('web.products.create') }}" class="btn btn-primary">
-                <i class="ki-solid ki-plus fs-2"></i>
+                <i class="ki-outline ki-picture fs-2"></i>
                 Tambah Produk
             </a>
         @endcan
@@ -32,7 +32,8 @@
                 {{-- LEFT: Search --}}
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-outline ki-chart
+ fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="{{ request('search') }}" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nama atau SKU...">
@@ -41,14 +42,15 @@
                 
                 {{-- Search Button --}}
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-solid ki-magnifier fs-2"></i>
-                    Cari
+                    <i class="ki-outline ki-chart
+ fs-2"></i>
+                    Filter
                 </button>
                 
                 {{-- Reset Button --}}
                 @if(request()->filled('search'))
                     <a href="{{ route('web.products.index', ['type' => request('type')]) }}" class="btn btn-light">
-                        <i class="ki-solid ki-cross fs-2"></i>
+                        <i class="ki-outline ki-arrow-zigzag fs-2"></i>
                         Reset
                     </a>
                 @endif
@@ -65,12 +67,16 @@
                         '' => ['label' => 'Semua', 'icon' => 'ki-home'],
                         'non-narcotic' => ['label' => 'Non-Narkotika', 'icon' => 'ki-shield-tick'],
                         'narcotic' => ['label' => 'Narkotika', 'icon' => 'ki-shield-cross'],
+                        'expiring' => ['label' => 'Akan Kadaluarsa', 'icon' => 'ki-timer'],
+                        'expired' => ['label' => 'Kadaluarsa', 'icon' => 'ki-cross-circle'],
                     ];
                     $currentTab = request('type', '');
                     $counts = [
                         '' => \App\Models\Product::count(),
                         'non-narcotic' => \App\Models\Product::where('is_narcotic', false)->count(),
                         'narcotic' => \App\Models\Product::where('is_narcotic', true)->count(),
+                        'expiring' => \App\Models\Product::expiringSoon(60)->count(),
+                        'expired' => \App\Models\Product::expired()->count(),
                     ];
                 @endphp
                 @foreach($tabOptions as $val => $tabData)
@@ -80,8 +86,8 @@
                     <li class="nav-item">
                         <a href="{{ route('web.products.index', array_merge(request()->except(['type', 'page']), ['type' => $val === '' ? null : $val])) }}" 
                            class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
-                            <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
+                            <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
+                            <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
                             <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                                 {{ $counts[$val] }}
                             </span>
@@ -99,6 +105,7 @@
                             <th class="ps-4 min-w-250px rounded-start">Produk</th>
                             <th class="min-w-125px d-none d-md-table-cell">Kategori</th>
                             <th class="min-w-120px">Klasifikasi</th>
+                            <th class="min-w-150px d-none d-lg-table-cell">Tanggal Kadaluarsa</th>
                             <th class="min-w-120px d-none d-xl-table-cell">Harga Beli</th>
                             <th class="min-w-120px d-none d-xl-table-cell">Harga Jual</th>
                             <th class="min-w-120px d-none d-lg-table-cell">Laba Bersih</th>
@@ -130,14 +137,45 @@
                                 <td>
                                     @if($product->is_narcotic)
                                         <span class="badge badge-danger fs-7 fw-bold">
-                                            <i class="ki-solid ki-shield-cross fs-6 me-1"></i>
+                                            <i class="ki-outline ki-shield-cross fs-6 me-1"></i>
                                             NARKOTIKA
                                         </span>
                                     @else
                                         <span class="badge badge-light-success fs-7 fw-semibold">
-                                            <i class="ki-solid ki-shield-tick fs-6 me-1"></i>
+                                            <i class="ki-outline ki-shield-tick fs-6 me-1"></i>
                                             NON-NARKOTIKA
                                         </span>
+                                    @endif
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    @if($product->expiry_date)
+                                        <div class="d-flex flex-column">
+                                            <span class="text-gray-800 fw-semibold">
+                                                {{ $product->expiry_date->format('d M Y') }}
+                                            </span>
+                                            @if($product->batch_no)
+                                                <span class="text-gray-500 fs-8">Batch: {{ $product->batch_no }}</span>
+                                            @endif
+                                            @if($product->expiry_status !== 'none')
+                                                <span class="badge badge-{{ $product->expiry_status_color }} fs-8 mt-1">
+                                                    @if($product->expiry_status === 'expired')
+                                                        <i class="ki-outline ki-arrow-zigzag-circle fs-7 me-1"></i>
+                                                        KADALUARSA
+                                                    @elseif($product->expiry_status === 'critical')
+                                                        <i class="ki-outline ki-information fs-7 me-1"></i>
+                                                        {{ abs($product->days_until_expiry) }} hari lagi
+                                                    @elseif($product->expiry_status === 'warning')
+                                                        <i class="ki-outline ki-calendar-search fs-7 me-1"></i>
+                                                        {{ abs($product->days_until_expiry) }} hari lagi
+                                                    @else
+                                                        <i class="ki-outline ki-check-circle fs-7 me-1"></i>
+                                                        {{ abs($product->days_until_expiry) }} hari lagi
+                                                    @endif
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400 fs-7">-</span>
                                     @endif
                                 </td>
                                 <td class="d-none d-xl-table-cell">
@@ -172,26 +210,31 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     @can('manage_products')
-                                        <div class="d-flex justify-content-end">
-                                            <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ki-solid ki-dots-vertical fs-3"></i>
+                                        <div class="action-menu-wrapper">
+                                            <button type="button" class="btn btn-sm btn-light btn-active-light-primary" data-action-menu>
+                                                <i class="ki-outline ki-dots-vertical fs-3"></i>
                                                 Aksi
                                             </button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a href="{{ route('web.products.edit', $product) }}" class="dropdown-item">
-                                                    <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
-                                                    Edit Produk
-                                                </a>
-                                                <div class="dropdown-divider"></div>
-                                                <form method="POST" action="{{ route('web.products.destroy', $product) }}" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger delete-confirm" data-name="{{ $product->name }}">
-                                                        <i class="ki-solid ki-trash fs-4 me-2"></i>
-                                                        Hapus Produk
-                                                    </button>
-                                                </form>
+                                            <div class="action-dropdown-menu" style="display: none;">
+                                                <div class="menu-item px-3">
+                                                    <a href="{{ route('web.products.edit', $product) }}" class="menu-link px-3">
+                                                        <i class="ki-outline ki-parcel fs-4 me-2 text-warning"></i>
+                                                        Edit Produk
+                                                    </a>
+                                                </div>
+                                                <div class="separator my-2"></div>
+                                                <div class="menu-item px-3">
+                                                    <form method="POST" action="{{ route('web.products.destroy', $product) }}" class="d-inline w-100">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="menu-link px-3 w-100 text-start text-danger delete-confirm" 
+                                                                data-name="{{ $product->name }}"
+                                                                style="background: none; border: none;">
+                                                            <i class="ki-outline ki-trash fs-4 me-2"></i>
+                                                            Hapus Produk
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     @endcan
@@ -199,14 +242,14 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-10">
+                                <td colspan="9" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum ada produk terdaftar</span>
                                         <span class="text-gray-500 fs-6">Mulai dengan menambahkan produk baru ke katalog.</span>
                                         @can('manage_products')
                                             <a href="{{ route('web.products.create') }}" class="btn btn-primary mt-5">
-                                                <i class="ki-solid ki-plus fs-2"></i>
+                                                <i class="ki-outline ki-picture fs-2"></i>
                                                 Tambah Produk
                                             </a>
                                         @endcan

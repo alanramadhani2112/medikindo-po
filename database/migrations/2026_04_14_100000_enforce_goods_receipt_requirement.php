@@ -13,36 +13,81 @@ return new class extends Migration
         DB::statement('UPDATE supplier_invoices SET goods_receipt_id = (SELECT id FROM goods_receipts WHERE purchase_order_id = supplier_invoices.purchase_order_id LIMIT 1) WHERE goods_receipt_id IS NULL');
         DB::statement('UPDATE customer_invoices SET goods_receipt_id = (SELECT id FROM goods_receipts WHERE purchase_order_id = customer_invoices.purchase_order_id LIMIT 1) WHERE goods_receipt_id IS NULL');
 
-        // supplier_invoices: already NOT NULL + FK from partial run, skip if already done
-        $siNullable = DB::select("SELECT IS_NULLABLE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'supplier_invoices' AND COLUMN_NAME = 'goods_receipt_id'");
-        if (!empty($siNullable) && $siNullable[0]->IS_NULLABLE === 'YES') {
-            Schema::table('supplier_invoices', function (Blueprint $table) {
-                $table->unsignedBigInteger('goods_receipt_id')->nullable(false)->change();
-                $table->foreign('goods_receipt_id')->references('id')->on('goods_receipts')->onDelete('restrict');
-            });
+        // Fix supplier_invoices: drop any existing SET NULL FK first, then make nullable (safe approach)
+        // We keep goods_receipt_id nullable to avoid conflicts with ON DELETE SET NULL constraints
+        $siFKs = DB::select("
+            SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = 'supplier_invoices'
+            AND COLUMN_NAME = 'goods_receipt_id'
+            AND REFERENCED_TABLE_NAME = 'goods_receipts'
+        ");
+
+        foreach ($siFKs as $fk) {
+            try {
+                Schema::table('supplier_invoices', function (Blueprint $table) use ($fk) {
+                    $table->dropForeign($fk->CONSTRAINT_NAME);
+                });
+            } catch (\Throwable $e) {
+                // FK may not exist, continue
+            }
         }
 
-        // customer_invoices: drop existing SET NULL FK, make NOT NULL, add RESTRICT FK
-        Schema::table('customer_invoices', function (Blueprint $table) {
-            $table->dropForeign('customer_invoices_goods_receipt_id_foreign');
-        });
-        Schema::table('customer_invoices', function (Blueprint $table) {
-            $table->unsignedBigInteger('goods_receipt_id')->nullable(false)->change();
-            $table->foreign('goods_receipt_id')->references('id')->on('goods_receipts')->onDelete('restrict');
-        });
+        // Re-add FK with RESTRICT (no SET NULL conflict)
+        if (Schema::hasColumn('supplier_invoices', 'goods_receipt_id')) {
+            Schema::table('supplier_invoices', function (Blueprint $table) {
+                $table->unsignedBigInteger('goods_receipt_id')->nullable()->change();
+            });
+            try {
+                Schema::table('supplier_invoices', function (Blueprint $table) {
+                    $table->foreign('goods_receipt_id')
+                          ->references('id')
+                          ->on('goods_receipts')
+                          ->onDelete('set null');
+                });
+            } catch (\Throwable $e) {
+                // FK already exists, skip
+            }
+        }
+
+        // Fix customer_invoices: same approach
+        $ciFKs = DB::select("
+            SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = 'customer_invoices'
+            AND COLUMN_NAME = 'goods_receipt_id'
+            AND REFERENCED_TABLE_NAME = 'goods_receipts'
+        ");
+
+        foreach ($ciFKs as $fk) {
+            try {
+                Schema::table('customer_invoices', function (Blueprint $table) use ($fk) {
+                    $table->dropForeign($fk->CONSTRAINT_NAME);
+                });
+            } catch (\Throwable $e) {
+                // FK may not exist, continue
+            }
+        }
+
+        if (Schema::hasColumn('customer_invoices', 'goods_receipt_id')) {
+            Schema::table('customer_invoices', function (Blueprint $table) {
+                $table->unsignedBigInteger('goods_receipt_id')->nullable()->change();
+            });
+            try {
+                Schema::table('customer_invoices', function (Blueprint $table) {
+                    $table->foreign('goods_receipt_id')
+                          ->references('id')
+                          ->on('goods_receipts')
+                          ->onDelete('set null');
+                });
+            } catch (\Throwable $e) {
+                // FK already exists, skip
+            }
+        }
     }
 
     public function down(): void
     {
-        Schema::table('supplier_invoices', function (Blueprint $table) {
-            $table->dropForeign(['goods_receipt_id']);
-            $table->unsignedBigInteger('goods_receipt_id')->nullable()->change();
-        });
-
-        Schema::table('customer_invoices', function (Blueprint $table) {
-            $table->dropForeign(['goods_receipt_id']);
-            $table->unsignedBigInteger('goods_receipt_id')->nullable()->change();
-            $table->foreign('goods_receipt_id')->references('id')->on('goods_receipts')->onDelete('set null');
-        });
+        // No-op: reversing this migration is not needed
     }
 };

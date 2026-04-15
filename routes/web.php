@@ -1,10 +1,14 @@
 <?php
 
+use App\Http\Controllers\Web\APVerificationController;
 use App\Http\Controllers\Web\ApprovalWebController;
+use App\Http\Controllers\Web\ARAgingController;
 use App\Http\Controllers\Web\AuthWebController;
+use App\Http\Controllers\Web\CustomerInvoiceWebController;
 use App\Http\Controllers\Web\OrganizationWebController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DeliveryWebController;
+use App\Http\Controllers\Web\PriceListWebController;
 use App\Http\Controllers\Web\ProductWebController;
 use App\Http\Controllers\Web\PurchaseOrderWebController;
 use App\Http\Controllers\Web\SupplierWebController;
@@ -33,6 +37,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('web.dashboard');
     Route::get('/dashboard/audit', [DashboardController::class, 'audit'])->name('web.dashboard.audit')->middleware('can:view_audit');
     Route::get('/dashboard/finance', [DashboardController::class, 'finance'])->name('web.dashboard.finance')->middleware('can:view_invoices');
+
+    // ── Analytics ──────────────────────────────────────────────
+    Route::get('/analytics/products', [\App\Http\Controllers\Web\ProductAnalyticsController::class, 'index'])->name('web.analytics.products')->middleware('can:view_reports');
 
     // ── Purchase Orders ────────────────────────────────────────
     Route::prefix('purchase-orders')->name('web.po.')->group(function () {
@@ -124,6 +131,35 @@ Route::middleware('auth')->group(function () {
             ->middleware('can:create_invoices');
     });
 
+    // ── AR Invoice System — New Routes (Sprint 3) ─────────────
+    Route::middleware('can:view_invoices')->group(function () {
+        // Customer Invoice (AR) — new dedicated controller
+        Route::get('/invoices/customer', [CustomerInvoiceWebController::class, 'index'])
+            ->name('web.invoices.customer.index');
+        Route::get('/invoices/customer/{invoice}', [CustomerInvoiceWebController::class, 'show'])
+            ->name('web.invoices.customer.show');
+        Route::post('/invoices/customer/{invoice}/issue', [CustomerInvoiceWebController::class, 'issue'])
+            ->name('web.invoices.customer.issue');
+        Route::post('/invoices/customer/{invoice}/void', [CustomerInvoiceWebController::class, 'void'])
+            ->name('web.invoices.customer.void');
+        Route::get('/invoices/customer/{invoice}/pdf', [CustomerInvoiceWebController::class, 'print'])
+            ->name('web.invoices.customer.pdf');
+
+        // AP Verification — trigger Mirror generation
+        Route::post('/invoices/supplier/{invoice}/verify', [APVerificationController::class, 'verify'])
+            ->name('web.invoices.supplier.verify');
+    });
+
+    // Price List Management
+    Route::resource('/price-lists', PriceListWebController::class)
+        ->names('web.price-lists')
+        ->middleware('can:manage_products');
+
+    // AR Aging Dashboard
+    Route::get('/ar-aging', [ARAgingController::class, 'index'])
+        ->name('web.ar-aging.index')
+        ->middleware('can:view_invoices');
+
     // ── Payments ───────────────────────────────────────────────
     Route::prefix('payments')->name('web.payments.')->middleware('can:view_payments')->group(function () {
         Route::get('/',          [\App\Http\Controllers\Web\PaymentWebController::class, 'index'])->name('index');
@@ -185,9 +221,21 @@ Route::middleware('auth')->group(function () {
     // ── Notifications ──────────────────────────────────────────
     Route::prefix('notifications')->name('web.notifications.')->group(function () {
         Route::get('/',               [\App\Http\Controllers\Web\NotificationWebController::class, 'index'])->name('index');
+        Route::get('/recent',         [\App\Http\Controllers\Web\NotificationWebController::class, 'getRecent'])->name('recent');
         Route::get('/unread-count',   [\App\Http\Controllers\Web\NotificationWebController::class, 'unreadCount'])->name('unread_count');
         Route::post('/mark-all-read', [\App\Http\Controllers\Web\NotificationWebController::class, 'markAllAsRead'])->name('mark_all_read');
-        Route::get('/{id}/read',      [\App\Http\Controllers\Web\NotificationWebController::class, 'markAsRead'])->name('read');
+        Route::get('/{id}/read',      [\App\Http\Controllers\Web\NotificationWebController::class, 'markAsRead'])->name('markAsRead');
+    });
+
+    // ── Inventory ──────────────────────────────────────────────
+    Route::prefix('inventory')->name('web.inventory.')->middleware('can:view_inventory')->group(function () {
+        Route::get('/',                              [\App\Http\Controllers\Web\InventoryWebController::class, 'index'])->name('index');
+        Route::get('/movements',                     [\App\Http\Controllers\Web\InventoryWebController::class, 'movements'])->name('movements');
+        Route::get('/low-stock',                     [\App\Http\Controllers\Web\InventoryWebController::class, 'lowStock'])->name('low_stock');
+        Route::get('/expiring',                      [\App\Http\Controllers\Web\InventoryWebController::class, 'expiring'])->name('expiring');
+        Route::get('/product/{product}',             [\App\Http\Controllers\Web\InventoryWebController::class, 'show'])->name('show');
+        Route::get('/adjust/{inventoryItem}',        [\App\Http\Controllers\Web\InventoryWebController::class, 'adjustForm'])->name('adjust.form');
+        Route::post('/adjust/{inventoryItem}',       [\App\Http\Controllers\Web\InventoryWebController::class, 'adjust'])->name('adjust');
     });
 
     // ── Examples/Tests ────────────────────────────────────────

@@ -7,12 +7,18 @@
     <meta name="description" content="Medikindo Procurement & Financial System" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <link rel="shortcut icon" href="<?php echo e(asset('assets/metronic8/media/logos/favicon.ico')); ?>" />
+    <link rel="shortcut icon" href="<?php echo e(asset('favicon.png')); ?>" type="image/png" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
     <link href="<?php echo e(asset('assets/metronic8/plugins/global/plugins.bundle.css')); ?>" rel="stylesheet" type="text/css" />
     <link href="<?php echo e(asset('assets/metronic8/css/style.bundle.css')); ?>" rel="stylesheet" type="text/css" />
+    <link href="<?php echo e(asset('css/medikindo-theme.css')); ?>" rel="stylesheet" type="text/css" />
     <link href="<?php echo e(asset('css/custom-layout.css')); ?>" rel="stylesheet" type="text/css" />
+    <link href="<?php echo e(asset('css/notifications.css')); ?>" rel="stylesheet" type="text/css" />
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    
     <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body id="kt_app_body" data-kt-app-header-fixed="true" data-kt-app-header-fixed-mobile="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" data-kt-app-sidebar-push-header="true" data-kt-app-sidebar-push-toolbar="true" data-kt-app-sidebar-push-footer="true" data-kt-app-toolbar-enabled="true" class="app-default">
@@ -55,7 +61,7 @@
                                 
                                 <?php if($errors->any()): ?>
                                     <div class="alert alert-danger d-flex align-items-start mb-5">
-                                        <i class="ki-solid ki-information-5 fs-2 text-danger me-3 mt-1"></i>
+                                        <i class="ki-outline ki-information-5 fs-2 text-danger me-3 mt-1"></i>
                                         <div>
                                             <div class="fw-bold mb-1">Terdapat kesalahan validasi:</div>
                                             <ul class="mb-0 ps-4">
@@ -86,7 +92,10 @@
     </div>
     <script src="<?php echo e(asset('assets/metronic8/plugins/global/plugins.bundle.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/metronic8/js/scripts.bundle.js')); ?>"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="<?php echo e(asset('js/sweetalert-confirmations.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/notifications.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/action-menu.js')); ?>"></script>
     <script>
         // Initialize Metronic components when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
@@ -109,6 +118,12 @@
             if (typeof KTScroll !== 'undefined') {
                 KTScroll.createInstances();
             }
+            
+            // Initialize Bootstrap dropdowns manually
+            var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
         });
     </script>
     <?php echo $__env->yieldPushContent('scripts'); ?>

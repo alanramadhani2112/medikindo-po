@@ -4,6 +4,6 @@ $icons = ['success'=>'check-circle','danger'=>'cross-circle','warning'=>'informa
 $icon = $icons[$variant] ?? 'information';
 @endphp
 <div {{ $attributes->merge(['class' => "alert alert-$variant d-flex align-items-center"]) }}>
-    <i class="ki-solid ki-{{ $icon }} fs-2 text-{{ $variant }} me-3"></i>
+    <i class="ki-outline ki-{{ $icon }} fs-2 text-{{ $variant }} me-3"></i>
     <div>{{ $slot }}</div>
 </div>

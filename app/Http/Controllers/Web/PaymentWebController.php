@@ -18,6 +18,7 @@ class PaymentWebController extends Controller
     public function index(Request $request)
     {
         $user   = $request->user();
+        $tab    = $request->get('tab', 'all');
         $type   = $request->get('type');
         $search = $request->get('search');
 
@@ -30,13 +31,25 @@ class PaymentWebController extends Controller
                 });
             });
 
-        // Filtering
+        // Tab Filtering
+        if ($tab === 'incoming') {
+            $query->where('type', 'incoming');
+        } elseif ($tab === 'outgoing') {
+            $query->where('type', 'outgoing');
+        } elseif ($tab === 'pending') {
+            $query->where('status', 'pending');
+        } elseif ($tab === 'confirmed') {
+            $query->whereIn('status', ['confirmed', 'completed']);
+        }
+
+        // Type Filtering (from filter bar)
         if ($type === 'incoming') {
             $query->where('type', 'incoming');
         } elseif ($type === 'outgoing') {
             $query->where('type', 'outgoing');
         }
 
+        // Search Filtering
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('payment_number', 'like', "%{$search}%")
@@ -58,15 +71,17 @@ class PaymentWebController extends Controller
                 });
             });
 
-        $totalIn  = (clone $scopedBase)->where('type', 'incoming')->sum('amount');
-        $totalOut = (clone $scopedBase)->where('type', 'outgoing')->sum('amount');
+        $totalIn  = (clone $scopedBase)->where('type', 'incoming')->whereIn('status', ['confirmed', 'completed'])->sum('amount');
+        $totalOut = (clone $scopedBase)->where('type', 'outgoing')->whereIn('status', ['confirmed', 'completed'])->sum('amount');
         $balance  = $totalIn - $totalOut;
 
         // Counts for badges
         $counts = [
-            'all'      => (clone $scopedBase)->count(),
-            'incoming' => (clone $scopedBase)->where('type', 'incoming')->count(),
-            'outgoing' => (clone $scopedBase)->where('type', 'outgoing')->count(),
+            'all'       => (clone $scopedBase)->count(),
+            'incoming'  => (clone $scopedBase)->where('type', 'incoming')->count(),
+            'outgoing'  => (clone $scopedBase)->where('type', 'outgoing')->count(),
+            'pending'   => (clone $scopedBase)->where('status', 'pending')->count(),
+            'confirmed' => (clone $scopedBase)->whereIn('status', ['confirmed', 'completed'])->count(),
         ];
 
         $breadcrumbs = [
@@ -74,7 +89,7 @@ class PaymentWebController extends Controller
             ['label' => 'Buku Kas & Pembayaran']
         ];
 
-        return view('payments.index', compact('payments', 'totalIn', 'totalOut', 'balance', 'counts', 'breadcrumbs'));
+        return view('payments.index', compact('payments', 'totalIn', 'totalOut', 'balance', 'counts', 'breadcrumbs', 'tab'));
     }
 
     public function createIncoming(Request $request)

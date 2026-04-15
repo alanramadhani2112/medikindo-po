@@ -3,7 +3,7 @@
     {{-- Success Alert --}}
     @if(session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
+            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
             <div>{{ session('success') }}</div>
         </div>
     @endif
@@ -15,15 +15,17 @@
                 <input type="hidden" name="tab" value="{{ $tab ?? 'pending' }}">
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-outline ki-chart
+ fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="{{ request('search') }}" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nomor PO atau supplier...">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-solid ki-magnifier fs-2"></i>
-                    Cari
+                    <i class="ki-outline ki-chart
+ fs-2"></i>
+                    Filter
                 </button>
             </form>
         </div>
@@ -35,7 +37,7 @@
             <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
                 @php
                     $tabOptions = [
-                        'pending' => ['label' => 'Antrian Persetujuan', 'icon' => 'ki-time'],
+                        'pending' => ['label' => 'Antrian Persetujuan', 'icon' => 'ki-file-right'],
                         'history' => ['label' => 'Riwayat Keputusan', 'icon' => 'ki-document'],
                     ];
                 @endphp
@@ -47,8 +49,8 @@
                     <li class="nav-item">
                         <a href="{{ route('web.approvals.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
                            class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
-                            <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
+                            <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
+                            <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
                             <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                                 {{ $count }}
                             </span>
@@ -65,7 +67,6 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    <i class="ki-solid ki-time fs-2 me-2"></i>
                     Antrian Persetujuan
                 </h3>
             </div>
@@ -90,18 +91,18 @@
                                             {{ $po->po_number }}
                                         </a>
                                         <div class="text-muted fs-7 mt-1">
-                                            <i class="ki-solid ki-time fs-7 me-1"></i>
+                                            <i class="ki-outline ki-time fs-7 me-1"></i>
                                             {{ $po->created_at->diffForHumans() }}
                                         </div>
                                     </td>
                                     <td>
                                         <div class="fw-bold text-gray-800 fs-6 mb-1">{{ $po->organization?->name }}</div>
                                         <div class="text-muted fs-7">
-                                            <i class="ki-solid ki-arrow-right-left fs-7 me-1"></i>
+                                            <i class="ki-outline ki-arrow-right-left fs-7 me-1"></i>
                                             {{ $po->supplier?->name }}
                                         </div>
                                         <div class="text-muted fs-8 mt-1">
-                                            <i class="ki-solid ki-user fs-8 me-1"></i>
+                                            <i class="ki-outline ki-user fs-8 me-1"></i>
                                             {{ $po->creator?->name }}
                                         </div>
                                     </td>
@@ -152,9 +153,9 @@
                                                     <button type="submit" class="btn btn-sm btn-success w-100 submit-confirm" 
                                                             data-title="Konfirmasi Persetujuan"
                                                             data-message="Apakah Anda yakin ingin <strong>menyetujui</strong> pengajuan PO ini?"
-                                                            data-confirm-text="<i class='ki-solid ki-check fs-3 me-2'></i>Ya, Setujui!"
+                                                            data-confirm-text="<i class='ki-outline ki-check-circle fs-3 me-2'></i>Ya, Setujui!"
                                                             onclick="document.getElementById('notes_approved_{{ $po->id }}').value = document.getElementById('notes_{{ $po->id }}').value;">
-                                                        <i class="ki-solid ki-check fs-4"></i>
+                                                        <i class="ki-outline ki-check-circle fs-4"></i>
                                                         Setujui
                                                     </button>
                                                 </form>
@@ -166,9 +167,9 @@
                                                     <button type="submit" class="btn btn-sm btn-danger w-100 submit-confirm"
                                                             data-title="Konfirmasi Penolakan"
                                                             data-message="Apakah Anda yakin ingin <strong>menolak</strong> pengajuan PO ini?"
-                                                            data-confirm-text="<i class='ki-solid ki-cross fs-3 me-2'></i>Ya, Tolak!"
+                                                            data-confirm-text="<i class='ki-outline ki-arrow-zigzag-circle fs-3 me-2'></i>Ya, Tolak!"
                                                             onclick="document.getElementById('notes_rejected_{{ $po->id }}').value = document.getElementById('notes_{{ $po->id }}').value;">
-                                                        <i class="ki-solid ki-cross fs-4"></i>
+                                                        <i class="ki-outline ki-arrow-zigzag-circle fs-4"></i>
                                                         Tolak
                                                     </button>
                                                 </form>
@@ -180,7 +181,7 @@
                                 <tr>
                                     <td colspan="6" class="text-center py-10">
                                         <div class="d-flex flex-column align-items-center">
-                                            <i class="ki-solid ki-check-circle fs-3x text-success mb-3"></i>
+                                            <i class="ki-outline ki-check-circle fs-3x text-success mb-3"></i>
                                             <h3 class="fs-5 fw-bold text-gray-800 mb-1">Antrian Kosong</h3>
                                             <p class="text-muted fs-7">Tidak ada pengajuan yang memerlukan persetujuan Anda saat ini.</p>
                                         </div>
@@ -197,7 +198,6 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    <i class="ki-solid ki-document fs-2 me-2"></i>
                     Riwayat Keputusan
                 </h3>
             </div>
@@ -221,14 +221,14 @@
                                             {{ $po->po_number }}
                                         </a>
                                         <div class="text-muted fs-7 mt-1">
-                                            <i class="ki-solid ki-time fs-7 me-1"></i>
+                                            <i class="ki-outline ki-time fs-7 me-1"></i>
                                             {{ $po->updated_at->format('d/m/Y H:i') }}
                                         </div>
                                     </td>
                                     <td>
                                         <div class="fw-bold text-gray-800 fs-6 mb-1">{{ $po->organization?->name }}</div>
                                         <div class="text-muted fs-7">
-                                            <i class="ki-solid ki-arrow-right-left fs-7 me-1"></i>
+                                            <i class="ki-outline ki-arrow-right-left fs-7 me-1"></i>
                                             {{ $po->supplier?->name }}
                                         </div>
                                     </td>
@@ -272,7 +272,7 @@
                                 <tr>
                                     <td colspan="5" class="text-center py-10">
                                         <div class="d-flex flex-column align-items-center">
-                                            <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                            <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                             <span class="text-gray-500 fs-6">Belum ada riwayat keputusan.</span>
                                         </div>
                                     </td>

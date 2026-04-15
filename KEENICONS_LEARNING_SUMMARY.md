@@ -112,7 +112,7 @@ src/vendors/keenicons/
     </i>
     
     <!-- Outline Icon -->
-    <i class="ki-outline ki-home"></i>
+    <i class="ki-outline ki-check-circle"></i>
     
     <!-- Solid Icon -->
     <i class="ki-solid ki-home"></i>
@@ -137,7 +137,8 @@ Keenicons inherit warna dari parent atau class:
 <i class="ki-solid ki-check-circle text-success"></i>
 
 <!-- Danger Color -->
-<i class="ki-outline ki-trash text-danger"></i>
+<i class="ki-outline ki-brifecase-tick
+ text-danger"></i>
 
 <!-- Custom Color -->
 <i class="ki-solid ki-wallet" style="color: #3f51b5;"></i>
@@ -176,7 +177,8 @@ Menggunakan Tailwind/Bootstrap size classes:
 ```html
 <div class="input-group">
     <span class="input-group-text">
-        <i class="ki-outline ki-magnifier"></i>
+        <i class="ki-outline ki-filter
+"></i>
     </span>
     <input type="text" class="form-control" placeholder="Search...">
 </div>
@@ -278,7 +280,7 @@ Keenicons diorganisir dalam 29 kategori:
 <!-- ❌ BAD: Mixed styles randomly -->
 <nav class="sidebar">
     <i class="ki-solid ki-home"></i>
-    <i class="ki-outline ki-wallet"></i>
+    <i class="ki-outline ki-entrance-right"></i>
     <i class="ki-solid ki-package"></i>
 </nav>
 ```

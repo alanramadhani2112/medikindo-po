@@ -36,6 +36,10 @@ class StoreProductRequest extends FormRequest
             
             'is_narcotic'         => ['boolean'],
             'description'         => ['nullable', 'string'],
+            
+            // Expiry tracking fields
+            'expiry_date'         => ['nullable', 'date', 'after:today'],
+            'batch_no'            => ['nullable', 'string', 'max:100'],
         ];
     }
 
@@ -44,6 +48,7 @@ class StoreProductRequest extends FormRequest
         return [
             'selling_price.gt' => 'Harga jual harus lebih besar dari harga beli untuk mendapatkan profit.',
             'discount_amount.lte' => 'Diskon tidak boleh lebih besar dari harga jual.',
+            'expiry_date.after' => 'Tanggal kadaluarsa harus setelah hari ini.',
         ];
     }
 }

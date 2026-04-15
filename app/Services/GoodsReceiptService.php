@@ -12,6 +12,7 @@ class GoodsReceiptService
 {
     public function __construct(
         private readonly AuditService $auditService,
+        private readonly InventoryService $inventoryService,
     ) {}
 
     // -----------------------------------------------------------------------
@@ -90,12 +91,29 @@ class GoodsReceiptService
 
             // --- Create GR items ---
             foreach ($grItems as $grItem) {
-                $gr->items()->create([
+                $grItemRecord = $gr->items()->create([
                     'purchase_order_item_id' => $grItem['po_item']->id,
                     'quantity_received'      => $grItem['data']['quantity_received'],
                     'condition'              => $grItem['data']['condition'] ?? 'Good',
                     'notes'                  => $grItem['data']['notes'] ?? null,
+                    'batch_no'               => $grItem['data']['batch_no'] ?? null,
+                    'expiry_date'            => $grItem['data']['expiry_date'] ?? null,
                 ]);
+
+                // --- Add to Inventory (Stock IN) ---
+                if ($grStatus === GoodsReceipt::STATUS_COMPLETED) {
+                    $this->inventoryService->addStock(
+                        organizationId: $po->organization_id,
+                        productId: $grItem['po_item']->product_id,
+                        batchNo: $grItem['data']['batch_no'] ?? 'NO-BATCH',
+                        expiryDate: $grItem['data']['expiry_date'] ?? null,
+                        quantity: $grItem['data']['quantity_received'],
+                        unitCost: $grItem['po_item']->unit_price,
+                        referenceType: 'App\Models\GoodsReceiptItem',
+                        referenceId: $grItemRecord->id,
+                        createdBy: $actor->id,
+                    );
+                }
             }
 
             // --- Advance PO to Completed only when all goods are received ---

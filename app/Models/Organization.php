@@ -22,6 +22,11 @@ class Organization extends Model
         'is_active',
         'default_tax_rate',
         'default_discount_percentage',
+        // AR Invoice fiscal data
+        'npwp',
+        'nik',
+        'customer_code',
+        'bank_accounts',
     ];
 
     protected function casts(): array
@@ -30,6 +35,7 @@ class Organization extends Model
             'is_active'                   => 'boolean',
             'default_tax_rate'            => 'decimal:2',
             'default_discount_percentage' => 'decimal:2',
+            'bank_accounts'               => 'array',
         ];
     }
 

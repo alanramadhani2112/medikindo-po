@@ -322,14 +322,17 @@ This document provides comprehensive class mapping patterns for converting Tailw
 
 | Icon Type | Class Pattern | Usage |
 |-----------|---------------|-------|
-| Plus/Add | `ki-outline ki-plus` | Add new item |
+| Plus/Add | `ki-outline ki-picture` | Add new item |
 | Edit | `ki-outline ki-pencil` | Edit action |
-| Delete | `ki-outline ki-trash` | Delete action |
-| View | `ki-outline ki-eye` | View details |
-| Search | `ki-outline ki-magnifier` | Search function |
-| Filter | `ki-outline ki-filter` | Filter function |
+| Delete | `ki-outline ki-brifecase-tick
+` | Delete action |
+| View | `ki-outline ki-facebook` | View details |
+| Search | `ki-outline ki-filter
+` | Search function |
+| Filter | `ki-outline ki-filter
+` | Filter function |
 | Success | `ki-outline ki-check-circle` | Success state |
-| Error | `ki-outline ki-cross-circle` | Error state |
+| Error | `ki-outline ki-arrow-zigzag-circle` | Error state |
 | Warning | `ki-outline ki-information` | Warning state |
 | Empty State | `ki-outline ki-file-deleted` | No data state |
 
@@ -389,7 +392,8 @@ This document provides comprehensive class mapping patterns for converting Tailw
     </div>
     <div class="col-md-8 d-flex gap-2">
         <button type="submit" class="btn btn-primary">
-            <i class="ki-outline ki-filter fs-3"></i>
+            <i class="ki-outline ki-filter
+ fs-3"></i>
             Filter
         </button>
     </div>

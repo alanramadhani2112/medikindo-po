@@ -114,7 +114,7 @@
         <p class="text-gray-600 fs-6 mb-0">Description</p>
     </div>
     <a href="#" class="btn btn-primary">
-        <i class="ki-outline ki-plus fs-2"></i>
+        <i class="ki-outline ki-picture fs-2"></i>
         Add New
     </a>
 </div>
@@ -129,7 +129,8 @@
             <!-- Search -->
             <div class="flex-grow-1" style="max-width: 400px;">
                 <div class="position-relative">
-                    <i class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <i class="ki-outline ki-filter
+ fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                     <input type="text" name="search" class="form-control form-control-solid ps-12" placeholder="Search...">
                 </div>
             </div>
@@ -141,7 +142,8 @@
             
             <!-- Buttons -->
             <button type="submit" class="btn btn-light-primary">
-                <i class="ki-outline ki-magnifier fs-2"></i>
+                <i class="ki-outline ki-filter
+ fs-2"></i>
                 Search
             </button>
         </form>

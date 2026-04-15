@@ -19847,8 +19847,9 @@ tempusDominus.DefaultOptions.display.icons = {
 	previous: "ki-outline ki-left fs-3",
 	next: "ki-outline ki-right fs-3",
 	today: "ki-outline ki-calendar-tick fs-3",
-	clear: "ki-outline ki-trash fs-3",
-	close: "ki-outline ki-cross fs-2",
+	clear: "ki-outline ki-brifecase-tick
+ fs-3",
+	close: "ki-outline ki-arrow-zigzag fs-2",
 };
 /*!
   * Tempus Dominus v6.2.10 (https://getdatepicker.com/)

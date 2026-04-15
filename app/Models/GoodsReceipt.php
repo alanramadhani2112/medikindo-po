@@ -27,6 +27,7 @@ class GoodsReceipt extends Model
     protected $casts = [
         'received_date' => 'date',
         'confirmed_at'  => 'datetime',
+        'delivered_at'  => 'datetime',
     ];
 
     // -----------------------------------------------------------------------

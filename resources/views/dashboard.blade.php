@@ -13,7 +13,7 @@
                             <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['all'] ?? 0) }}</span>
                         </div>
                         <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
-                            <i class="ki-solid ki-wallet fs-2x text-white"></i>
+                            <i class="ki-outline ki-entrance-right fs-2x text-white"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-center">
@@ -31,7 +31,7 @@
                             <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['pending'] ?? 0) }}</span>
                         </div>
                         <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
-                            <i class="ki-solid ki-timer fs-2x text-white"></i>
+                            <i class="ki-outline ki-calendar-search fs-2x text-white"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-center">
@@ -49,7 +49,7 @@
                             <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['received'] ?? 0) }}</span>
                         </div>
                         <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
-                            <i class="ki-solid ki-package fs-2x text-white"></i>
+                            <i class="ki-outline ki-package fs-2x text-white"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-center">
@@ -67,7 +67,7 @@
                             <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['organizations'] ?? 0) }}</span>
                         </div>
                         <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
-                            <i class="ki-solid ki-bank fs-2x text-white"></i>
+                            <i class="ki-outline ki-bank fs-2x text-white"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-center">
@@ -91,7 +91,7 @@
                     </h3>
                     <div class="card-toolbar">
                         <a href="{{ route('web.po.index') }}" class="btn btn-sm btn-light btn-active-light-primary">
-                            Lihat Semua <i class="ki-solid ki-right fs-5 ms-1"></i>
+                            Lihat Semua <i class="ki-outline ki-right fs-5 ms-1"></i>
                         </a>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
                                     </td>
                                     <td class="text-end">
                                         <a href="{{ route('web.po.show', $order) }}" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm">
-                                            <i class="ki-solid ki-eye fs-4"></i>
+                                            <i class="ki-outline ki-facebook fs-4"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -170,7 +170,7 @@
                     <!--begin::Status-->
                     <div class="d-flex align-items-center bg-light-success rounded p-5 mb-5">
                         <span class="svg-icon svg-icon-success me-5">
-                            <i class="ki-solid ki-shield-tick fs-2x text-success"></i>
+                            <i class="ki-outline ki-shield-tick fs-2x text-success"></i>
                         </span>
                         <div class="flex-grow-1">
                             <a href="#" class="fw-bold text-gray-800 text-hover-primary fs-6">Status Server</a>
@@ -188,7 +188,7 @@
                             <span class="text-gray-800 fw-bold fs-6 d-block">Buat Purchase Order</span>
                             <span class="text-muted fw-semibold fs-7">Ajukan PO baru</span>
                         </div>
-                        <i class="ki-solid ki-right fs-4 text-muted"></i>
+                        <i class="ki-outline ki-right fs-4 text-muted"></i>
                     </a>
                     @endcan
                     @can('view_invoices')
@@ -198,7 +198,7 @@
                             <span class="text-gray-800 fw-bold fs-6 d-block">Kelola Invoices</span>
                             <span class="text-muted fw-semibold fs-7">Pantau tagihan masuk/keluar</span>
                         </div>
-                        <i class="ki-solid ki-right fs-4 text-muted"></i>
+                        <i class="ki-outline ki-right fs-4 text-muted"></i>
                     </a>
                     @endcan
                     @can('view_goods_receipt')
@@ -208,7 +208,7 @@
                             <span class="text-gray-800 fw-bold fs-6 d-block">Goods Receipt</span>
                             <span class="text-muted fw-semibold fs-7">Konfirmasi penerimaan barang</span>
                         </div>
-                        <i class="ki-solid ki-right fs-4 text-muted"></i>
+                        <i class="ki-outline ki-right fs-4 text-muted"></i>
                     </a>
                     @endcan
                     <!--end::Quick Links-->

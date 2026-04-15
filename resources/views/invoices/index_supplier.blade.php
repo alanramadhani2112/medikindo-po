@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-7">
         <div>
             <h1 class="fs-2 fw-bold text-gray-900 mb-2">
-                <i class="ki-solid ki-arrow-down fs-2 text-danger me-2"></i>
+                <i class="ki-outline ki-arrow-down fs-2 text-danger me-2"></i>
                 Hutang ke Supplier (AP)
             </h1>
             <p class="text-gray-600 fs-6 mb-0">Kelola invoice dari distributor/supplier</p>
@@ -14,7 +14,7 @@
         @can('create_invoices')
         <div>
             <a href="{{ route('web.invoices.supplier.create') }}" class="btn btn-primary">
-                <i class="ki-solid ki-plus fs-3"></i>
+                <i class="ki-outline ki-picture fs-3"></i>
                 Input Invoice Pemasok
             </a>
         </div>
@@ -79,7 +79,7 @@
                                 <td class="text-end pe-4">
                                     <a href="{{ route('web.invoices.supplier.show', $invoice) }}" 
                                        class="btn btn-sm btn-light btn-active-light-primary">
-                                        <i class="ki-solid ki-eye fs-4"></i>
+                                        <i class="ki-outline ki-facebook fs-4"></i>
                                         Lihat
                                     </a>
                                 </td>
@@ -88,12 +88,12 @@
                             <tr>
                                 <td colspan="7" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-solid ki-document fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-outline ki-document fs-3x text-gray-400 mb-3"></i>
                                         <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum Ada Invoice Pemasok</span>
                                         <span class="text-gray-500 fs-6">Invoice akan muncul setelah diinput dari distributor.</span>
                                         @can('create_invoices')
                                         <a href="{{ route('web.invoices.supplier.create') }}" class="btn btn-sm btn-primary mt-4">
-                                            <i class="ki-solid ki-plus fs-4"></i>
+                                            <i class="ki-outline ki-picture fs-4"></i>
                                             Input Invoice Pertama
                                         </a>
                                         @endcan

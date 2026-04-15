@@ -34,7 +34,7 @@ Conversion Metadata:
                     <form method="POST" action="{{ route('web.po.submit', $po) }}">
                         @csrf
                         <button type="submit" class="btn btn-primary">
-                            <i class="ki-solid ki-send fs-3"></i>
+                            <i class="ki-outline ki-send fs-3 me-2"></i>
                             Submit
                         </button>
                     </form>
@@ -46,7 +46,7 @@ Conversion Metadata:
                     <form method="POST" action="{{ route('web.po.mark_shipped', $po) }}">
                         @csrf
                         <button type="submit" class="btn btn-primary">
-                            <i class="ki-solid ki-delivery fs-3"></i>
+                            <i class="ki-outline ki-cube-2 fs-3 me-2"></i>
                             Kirim
                         </button>
                     </form>
@@ -54,11 +54,11 @@ Conversion Metadata:
             @endif
 
             <button type="button" class="btn btn-light" onclick="window.open('{{ route('web.po.pdf', $po) }}', '_blank')">
-                <i class="ki-solid ki-cloud-download fs-3"></i>
+                <i class="ki-outline ki-document fs-3 me-2"></i>
                 PDF
             </button>
             <a href="{{ route('web.po.index') }}" class="btn btn-secondary">
-                <i class="ki-solid ki-arrow-left fs-3"></i>
+                <i class="ki-outline ki-arrow-down fs-3 me-2"></i>
                 Kembali
             </a>
         </div>
@@ -180,7 +180,7 @@ Conversion Metadata:
                     @empty
                         <div class="text-center py-10">
                             <div class="d-flex flex-column align-items-center">
-                                <i class="ki-solid ki-information-5 fs-3x text-gray-400 mb-3"></i>
+                                <i class="ki-outline ki-information-5 fs-3x text-gray-400 mb-3"></i>
                                 <span class="text-gray-600 fs-5">Belum ada riwayat approval.</span>
                             </div>
                         </div>

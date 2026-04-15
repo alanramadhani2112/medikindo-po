@@ -178,7 +178,8 @@ Converted all Tailwind classes to Bootstrap 5 equivalents:
 - `space-y-8` → removed (using `mb-7` on cards)
 - `overflow-x-auto` → `table-responsive`
 - Custom button classes → `btn btn-sm btn-icon btn-light-danger`
-- SVG icons → Keenicons (`ki-outline ki-trash`)
+- SVG icons → Keenicons (`ki-outline ki-brifecase-tick
+`)
 
 ## Test Results Summary
 

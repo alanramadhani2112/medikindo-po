@@ -15,6 +15,7 @@ class CustomerInvoiceLineItem extends Model
     protected $casts = [
         'quantity'            => 'decimal:3',
         'unit_price'          => 'decimal:2',
+        'cost_price'          => 'decimal:2',
         'discount_percentage' => 'decimal:2',
         'discount_amount'     => 'decimal:2',
         'tax_rate'            => 'decimal:2',
@@ -23,8 +24,12 @@ class CustomerInvoiceLineItem extends Model
         'expiry_date'         => 'date',
     ];
 
+    // -----------------------------------------------------------------------
+    // Relationships
+    // -----------------------------------------------------------------------
+
     /**
-     * Get the customer invoice that owns this line item
+     * Get the customer invoice that owns this line item.
      */
     public function customerInvoice(): BelongsTo
     {
@@ -32,7 +37,7 @@ class CustomerInvoiceLineItem extends Model
     }
 
     /**
-     * Get the product associated with this line item
+     * Get the product associated with this line item.
      */
     public function product(): BelongsTo
     {
@@ -40,7 +45,7 @@ class CustomerInvoiceLineItem extends Model
     }
 
     /**
-     * Get the goods receipt item that this invoice line item is based on
+     * Get the goods receipt item that this invoice line item is based on.
      */
     public function goodsReceiptItem(): BelongsTo
     {
@@ -48,9 +53,20 @@ class CustomerInvoiceLineItem extends Model
     }
 
     /**
-     * Calculate line subtotal (quantity * unit_price)
-     * 
-     * @return string
+     * Mirror Link: the SupplierInvoiceLineItem this AR line item mirrors.
+     * Critical for BPOM audit trail — links AR to AP at line-item level.
+     */
+    public function supplierItem(): BelongsTo
+    {
+        return $this->belongsTo(SupplierInvoiceLineItem::class, 'supplier_invoice_item_id');
+    }
+
+    // -----------------------------------------------------------------------
+    // Calculated Attributes
+    // -----------------------------------------------------------------------
+
+    /**
+     * Calculate line subtotal (quantity * unit_price).
      */
     public function getLineSubtotalAttribute(): string
     {
@@ -62,9 +78,7 @@ class CustomerInvoiceLineItem extends Model
     }
 
     /**
-     * Calculate taxable amount (subtotal - discount)
-     * 
-     * @return string
+     * Calculate taxable amount (subtotal - discount).
      */
     public function getTaxableAmountAttribute(): string
     {

@@ -34,7 +34,7 @@ This document analyzes the already-converted `resources/views/purchase-orders/in
     </div>
     @can('create_po')
     <a href="{{ route('web.po.create') }}" class="btn btn-primary">
-        <i class="ki-outline ki-plus fs-2"></i>
+        <i class="ki-outline ki-picture fs-2"></i>
         Buat PO Baru
     </a>
     @endcan
@@ -56,7 +56,7 @@ This document analyzes the already-converted `resources/views/purchase-orders/in
 
 3. **Action Button:**
    - Primary button: `btn btn-primary`
-   - Icon: `ki-outline ki-plus fs-2`
+   - Icon: `ki-outline ki-picture fs-2`
    - Wrapped in `@can` directive for permission check
 
 **Conversion Rule:**
@@ -90,12 +90,13 @@ This document analyzes the already-converted `resources/views/purchase-orders/in
             </div>
             <div class="col-md-5 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="ki-outline ki-magnifier fs-3"></i>
+                    <i class="ki-outline ki-filter
+ fs-3"></i>
                     Cari
                 </button>
                 @if(request()->filled('search') || request()->filled('status'))
                     <a href="{{ route('web.po.index') }}" class="btn btn-light">
-                        <i class="ki-outline ki-cross fs-3"></i>
+                        <i class="ki-outline ki-arrow-zigzag fs-3"></i>
                         Reset
                     </a>
                 @endif
@@ -420,7 +421,7 @@ When converting a view, ensure:
     </div>
     @can('[permission]')
     <a href="{{ route('[route]') }}" class="btn btn-primary">
-        <i class="ki-outline ki-plus fs-2"></i>
+        <i class="ki-outline ki-picture fs-2"></i>
         [Action Text]
     </a>
     @endcan
@@ -438,12 +439,13 @@ When converting a view, ensure:
             </div>
             <div class="col-md-8 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="ki-outline ki-magnifier fs-3"></i>
+                    <i class="ki-outline ki-filter
+ fs-3"></i>
                     Cari
                 </button>
                 @if(request()->filled('search'))
                     <a href="{{ route('[route]') }}" class="btn btn-light">
-                        <i class="ki-outline ki-cross fs-3"></i>
+                        <i class="ki-outline ki-arrow-zigzag fs-3"></i>
                         Reset
                     </a>
                 @endif

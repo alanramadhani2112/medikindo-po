@@ -16,19 +16,30 @@ class CustomerInvoice extends Model
     use HasFactory, SoftDeletes, BelongsToOrganization, Filterable, HasOptimisticLocking;
 
     // -----------------------------------------------------------------------
-    // Status Constants
+    // Status Constants — AR Invoice Lifecycle
     // -----------------------------------------------------------------------
 
-    public const STATUS_ISSUED            = 'issued';
-    public const STATUS_PAYMENT_SUBMITTED = 'payment_submitted';
-    public const STATUS_PAID              = 'paid';
-    public const STATUS_OVERDUE           = 'overdue';
+    public const STATUS_DRAFT        = 'draft';
+    public const STATUS_ISSUED       = 'issued';
+    public const STATUS_PARTIAL_PAID = 'partial_paid';
+    public const STATUS_PAID         = 'paid';
+    public const STATUS_VOID         = 'void';
 
+    /**
+     * Valid state machine transitions.
+     * 
+     * DRAFT → ISSUED (after margin check)
+     * ISSUED → PARTIAL_PAID | PAID | VOID
+     * PARTIAL_PAID → PAID | VOID
+     * PAID → terminal
+     * VOID → terminal
+     */
     public const TRANSITIONS = [
-        self::STATUS_ISSUED            => [self::STATUS_PAYMENT_SUBMITTED, self::STATUS_OVERDUE],
-        self::STATUS_PAYMENT_SUBMITTED => [self::STATUS_PAID],
-        self::STATUS_OVERDUE           => [self::STATUS_PAYMENT_SUBMITTED],
-        self::STATUS_PAID              => [], // Terminal state
+        self::STATUS_DRAFT        => [self::STATUS_ISSUED],
+        self::STATUS_ISSUED       => [self::STATUS_PARTIAL_PAID, self::STATUS_PAID, self::STATUS_VOID],
+        self::STATUS_PARTIAL_PAID => [self::STATUS_PAID, self::STATUS_VOID],
+        self::STATUS_PAID         => [], // terminal
+        self::STATUS_VOID         => [], // terminal
     ];
 
     protected $guarded = ['id'];
@@ -40,9 +51,13 @@ class CustomerInvoice extends Model
         'subtotal_amount'      => 'decimal:2',
         'discount_amount'      => 'decimal:2',
         'tax_amount'           => 'decimal:2',
+        'surcharge'            => 'decimal:2',
+        'ematerai_fee'         => 'decimal:2',
+        'print_count'          => 'integer',
         'issued_at'            => 'datetime',
         'payment_submitted_at' => 'datetime',
         'verified_at'          => 'datetime',
+        'last_printed_at'      => 'datetime',
     ];
 
     // -----------------------------------------------------------------------
@@ -62,6 +77,15 @@ class CustomerInvoice extends Model
     public function goodsReceipt(): BelongsTo
     {
         return $this->belongsTo(GoodsReceipt::class);
+    }
+
+    /**
+     * Anti-Phantom Link: the SupplierInvoice that this AR invoice is based on.
+     * A CustomerInvoice MUST reference a verified SupplierInvoice.
+     */
+    public function supplierInvoice(): BelongsTo
+    {
+        return $this->belongsTo(SupplierInvoice::class);
     }
 
     public function issuedBy(): BelongsTo
@@ -93,18 +117,43 @@ class CustomerInvoice extends Model
         return in_array($status, self::TRANSITIONS[$this->status] ?? [], true);
     }
 
-    public function isIssued(): bool           { return $this->status === self::STATUS_ISSUED; }
-    public function isPaymentSubmitted(): bool  { return $this->status === self::STATUS_PAYMENT_SUBMITTED; }
-    public function isPaid(): bool             { return $this->status === self::STATUS_PAID; }
-    public function isOverdue(): bool          { return $this->status === self::STATUS_OVERDUE; }
+    /**
+     * Transition the invoice to a new status, enforcing the state machine.
+     *
+     * @param string $newStatus Target status
+     * @throws \App\Exceptions\InvalidStateTransitionException If the transition is not allowed
+     */
+    public function transitionTo(string $newStatus): void
+    {
+        if (!$this->canTransitionTo($newStatus)) {
+            throw new \App\Exceptions\InvalidStateTransitionException($this->status, $newStatus);
+        }
+
+        $this->status = $newStatus;
+        $this->save();
+    }
+
+    public function isDraft(): bool        { return $this->status === self::STATUS_DRAFT; }
+    public function isIssued(): bool       { return $this->status === self::STATUS_ISSUED; }
+    public function isPartialPaid(): bool  { return $this->status === self::STATUS_PARTIAL_PAID; }
+    public function isPaid(): bool         { return $this->status === self::STATUS_PAID; }
+    public function isVoid(): bool         { return $this->status === self::STATUS_VOID; }
+
+    /**
+     * Check if the invoice is in an immutable state (cannot be directly modified).
+     */
+    public function isImmutable(): bool
+    {
+        return in_array($this->status, [
+            self::STATUS_ISSUED,
+            self::STATUS_PARTIAL_PAID,
+            self::STATUS_PAID,
+            self::STATUS_VOID,
+        ], true);
+    }
 
     public function canConfirmPayment(): bool
     {
-        return in_array($this->status, [self::STATUS_ISSUED, self::STATUS_OVERDUE]);
-    }
-
-    public function canBeVerified(): bool
-    {
-        return $this->status === self::STATUS_PAYMENT_SUBMITTED;
+        return in_array($this->status, [self::STATUS_ISSUED, self::STATUS_PARTIAL_PAID], true);
     }
 }

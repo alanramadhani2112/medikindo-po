@@ -1,0 +1,201 @@
+<?php
+
+namespace App\Services;
+
+use App\Exceptions\AntiPhantomBillingException;
+use App\Exceptions\DuplicateMirrorException;
+use App\Models\CustomerInvoice;
+use App\Models\CustomerInvoiceLineItem;
+use App\Models\SupplierInvoice;
+use App\Models\TaxConfiguration;
+use App\Models\User;
+use App\Notifications\NewInvoiceNotification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
+
+/**
+ * Mirror Generation Service
+ *
+ * Automates creation of a draft AR CustomerInvoice from a verified AP SupplierInvoice.
+ * Implements the "Mirror Model" — AP is the single source of truth for physical goods movement.
+ *
+ * @package App\Services
+ */
+class MirrorGenerationService
+{
+    public function __construct(
+        private readonly PriceListService $priceListService,
+        private readonly InvoiceCalculationService $calculationService,
+    ) {}
+
+    /**
+     * Check whether a draft CustomerInvoice already exists for the given SupplierInvoice.
+     *
+     * @param int $supplierInvoiceId
+     * @return bool
+     */
+    public function draftExists(int $supplierInvoiceId): bool
+    {
+        return CustomerInvoice::where('supplier_invoice_id', $supplierInvoiceId)
+            ->whereNotIn('status', [CustomerInvoice::STATUS_VOID])
+            ->exists();
+    }
+
+    /**
+     * Generate a draft AR CustomerInvoice from a verified AP SupplierInvoice.
+     *
+     * Algorithm:
+     *   1. Guard: draftExists() → log warning + throw DuplicateMirrorException
+     *   2. Guard: apInvoice->status must be 'verified' or 'paid'
+     *   3. DB::transaction:
+     *      a. Create CustomerInvoice header (status=DRAFT)
+     *      b. Loop each SupplierInvoiceLineItem:
+     *         - Lookup selling_price via PriceListService
+     *         - Get tax rate from TaxConfiguration
+     *         - Calculate DPP = selling_price * qty
+     *         - Calculate tax = floor(DPP * rate / 100)
+     *         - Copy batch_number, expiry_date, quantity, uom from AP
+     *         - Save supplier_invoice_item_id (Mirror Link) and cost_price
+     *      c. Calculate grand total via InvoiceCalculationService::calculateGrandTotal()
+     *      d. Update CustomerInvoice header with totals
+     *   4. Dispatch NewInvoiceNotification to finance staff
+     *   5. Return CustomerInvoice
+     *
+     * @param SupplierInvoice $apInvoice  The verified AP invoice to mirror
+     * @param int             $customerId The organization_id of the customer (RS/Klinik)
+     * @return CustomerInvoice
+     * @throws DuplicateMirrorException    If a draft already exists
+     * @throws AntiPhantomBillingException If AP status is not verified/paid
+     */
+    public function generateARFromAP(SupplierInvoice $apInvoice, int $customerId): CustomerInvoice
+    {
+        // Guard 1: duplicate check
+        if ($this->draftExists($apInvoice->id)) {
+            Log::warning('MirrorGenerationService: Draft AR already exists for SupplierInvoice', [
+                'supplier_invoice_id' => $apInvoice->id,
+                'invoice_number'      => $apInvoice->invoice_number,
+            ]);
+            throw new DuplicateMirrorException(
+                "Draft CustomerInvoice sudah ada untuk SupplierInvoice #{$apInvoice->invoice_number}"
+            );
+        }
+
+        // Guard 2: anti-phantom billing — AP must be verified or paid
+        $allowedStatuses = ['verified', 'paid'];
+        if (!in_array($apInvoice->status, $allowedStatuses, true)) {
+            throw new AntiPhantomBillingException(
+                "SupplierInvoice belum diverifikasi (status: {$apInvoice->status})"
+            );
+        }
+
+        $customerInvoice = DB::transaction(function () use ($apInvoice, $customerId) {
+            // Step 3a: Create CustomerInvoice header
+            $customerInvoice = CustomerInvoice::create([
+                'invoice_number'      => 'AR-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
+                'organization_id'     => $customerId,
+                'supplier_invoice_id' => $apInvoice->id,
+                'purchase_order_id'   => $apInvoice->purchase_order_id,
+                'goods_receipt_id'    => $apInvoice->goods_receipt_id,
+                'status'              => CustomerInvoice::STATUS_DRAFT,
+                'due_date'            => now()->addDays(30)->toDateString(),
+                'total_amount'        => '0.00',
+                'subtotal_amount'     => '0.00',
+                'discount_amount'     => '0.00',
+                'tax_amount'          => '0.00',
+                'surcharge'           => '0.00',
+                'ematerai_fee'        => '0.00',
+                'paid_amount'         => '0.00',
+            ]);
+
+            // Step 3b: Loop each AP line item
+            $taxRate    = TaxConfiguration::getActivePPNRate();
+            $lineItemsForCalc = [];
+
+            $apInvoice->loadMissing('lineItems.product');
+
+            foreach ($apInvoice->lineItems as $apLine) {
+                $sellingPrice = $this->priceListService->lookup(
+                    $customerId,
+                    $apLine->product_id
+                );
+
+                $qty = (string) $apLine->quantity;
+
+                // DPP = selling_price * quantity
+                $dpp = bcmul($sellingPrice, $qty, 10);
+
+                // Tax = floor(DPP * rate / 100)
+                $taxAmount = $this->calculationService->calculateTaxFloor($dpp, $taxRate);
+
+                // Line total = DPP + tax (no discount at line level for mirror)
+                $lineTotal = bcadd($dpp, $taxAmount, 2);
+
+                CustomerInvoiceLineItem::create([
+                    'customer_invoice_id'      => $customerInvoice->id,
+                    'supplier_invoice_item_id' => $apLine->id,          // Mirror Link
+                    'product_id'               => $apLine->product_id,
+                    'product_name'             => $apLine->product?->name ?? '',
+                    'quantity'                 => $qty,
+                    'unit_price'               => $sellingPrice,
+                    'cost_price'               => (string) $apLine->unit_price, // from AP
+                    'discount_percentage'      => '0.00',
+                    'discount_amount'          => '0.00',
+                    'tax_rate'                 => $taxRate,
+                    'tax_amount'               => $taxAmount,
+                    'line_total'               => $lineTotal,
+                    'batch_number'             => $apLine->batch_number,  // copy identically
+                    'expiry_date'              => $apLine->expiry_date,   // copy identically
+                    'uom'                      => $apLine->uom ?? null,
+                ]);
+
+                $lineItemsForCalc[] = [
+                    'line_subtotal'   => number_format((float) $dpp, 2, '.', ''),
+                    'discount_amount' => '0.00',
+                    'tax_amount'      => $taxAmount,
+                    'line_total'      => $lineTotal,
+                ];
+            }
+
+            // Step 3c: Calculate grand total
+            $totals = $this->calculationService->calculateGrandTotal($lineItemsForCalc, '0.00');
+
+            // Step 3d: Update header with totals
+            $customerInvoice->update([
+                'subtotal_amount' => $totals['subtotal'],
+                'discount_amount' => $totals['discount'],
+                'tax_amount'      => $totals['tax_total'],
+                'ematerai_fee'    => $totals['ematerai_fee'],
+                'total_amount'    => $totals['grand_total'],
+            ]);
+
+            return $customerInvoice;
+        });
+
+        // Step 4: Dispatch notification to finance staff
+        $this->notifyFinanceStaff($customerInvoice);
+
+        return $customerInvoice;
+    }
+
+    /**
+     * Dispatch a NewInvoiceNotification to all finance staff users.
+     */
+    private function notifyFinanceStaff(CustomerInvoice $invoice): void
+    {
+        try {
+            $financeUsers = \App\Models\User::permission('view_customer_invoices')
+                ->get();
+
+            if ($financeUsers->isNotEmpty()) {
+                Notification::send($financeUsers, new NewInvoiceNotification($invoice));
+            }
+        } catch (\Throwable $e) {
+            // Non-critical — log but don't fail the transaction
+            Log::warning('MirrorGenerationService: Failed to dispatch notification', [
+                'invoice_id' => $invoice->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
+    }
+}

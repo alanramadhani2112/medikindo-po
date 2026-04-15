@@ -72,11 +72,11 @@
                 {{-- Submit --}}
                 <div class="d-flex justify-content-end gap-3">
                     <a href="{{ route('web.goods-receipts.index') }}" class="btn btn-light-secondary">
-                        <i class="ki-solid ki-cross fs-3"></i>
+                        <i class="ki-outline ki-arrow-zigzag fs-3"></i>
                         Batal
                     </a>
                     <button type="submit" class="btn btn-primary create-confirm" data-type="Penerimaan Barang">
-                        <i class="ki-solid ki-check fs-3"></i>
+                        <i class="ki-outline ki-picture fs-3"></i>
                         Konfirmasi Penerimaan Barang
                     </button>
                 </div>

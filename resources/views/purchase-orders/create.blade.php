@@ -189,7 +189,7 @@
                         @click="addItem()" 
                         :disabled="!supplierId"
                         :class="{ 'opacity-50': !supplierId }">
-                    <i class="ki-outline ki-plus fs-3"></i>
+                    <i class="ki-outline ki-picture fs-3"></i>
                     <span class="fw-bold">Tambah Produk</span>
                 </button>
                 <div x-show="!supplierId" class="text-muted fs-8 mt-1">
@@ -258,7 +258,8 @@
                                 <td class="px-5 py-4 text-center align-middle">
                                     <button type="button" @click="removeItem(index)"
                                             class="btn btn-sm btn-icon btn-light-danger">
-                                        <i class="ki-outline ki-trash fs-3"></i>
+                                        <i class="ki-outline ki-brifecase-tick
+ fs-3"></i>
                                     </button>
                                 </td>
                             </tr>

@@ -5,7 +5,7 @@
         <!--begin::Sidebar toggle-->
         <div class="d-flex align-items-center d-block d-lg-none ms-n3" title="Show sidebar menu">
             <div class="btn btn-icon btn-active-color-primary w-35px h-35px me-2" id="kt_app_sidebar_mobile_toggle">
-                <i class="ki-solid ki-abstract-14 fs-2"></i>
+                <i class="ki-outline ki-abstract-14 fs-2"></i>
             </div>
         </div>
         <!--end::Sidebar toggle-->
@@ -50,17 +50,131 @@
             <!--begin::Navbar items-->
             <div class="app-navbar-item ms-1 ms-md-3">
                 <!--begin::Notifications-->
-                <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px position-relative">
-                    <?php $notifCount = auth()->user()?->unreadNotifications()->count() ?? 0; ?>
-                    <a href="<?php echo e(route('web.notifications.index')); ?>" class="text-gray-500">
-                        <i class="ki-solid ki-notification fs-2"></i>
-                            <span class="path3"></span>
-                        </i>
-                        <?php if($notifCount > 0): ?>
-                            <span class="bullet bullet-dot bg-danger h-6px w-6px position-absolute translate-middle top-0 start-50 animation-blink"></span>
-                        <?php endif; ?>
-                    </a>
+                <?php $notifCount = auth()->user()?->unreadNotifications()->count() ?? 0; ?>
+                <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-40px h-40px position-relative" 
+                     data-kt-menu-trigger="{default: 'click', lg: 'hover'}" 
+                     data-kt-menu-attach="parent" 
+                     data-kt-menu-placement="bottom-end"
+                     id="kt_notification_toggle">
+                    <i class="ki-outline ki-notification-bing fs-1"></i>
+                    <?php if($notifCount > 0): ?>
+                        <span class="position-absolute top-0 start-100 translate-middle badge badge-sm badge-circle badge-danger" 
+                              style="font-size: 9px; min-width: 18px; height: 18px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <?php echo e($notifCount > 99 ? '99+' : $notifCount); ?>
+
+                        </span>
+                    <?php endif; ?>
                 </div>
+                
+                <!--begin::Notification dropdown-->
+                <div class="menu menu-sub menu-sub-dropdown menu-column w-350px w-lg-425px" data-kt-menu="true" id="kt_notification_menu">
+                    <!--begin::Header-->
+                    <div class="d-flex flex-column bgi-no-repeat rounded-top" 
+                         style="background-image:url('<?php echo e(asset('assets/metronic8/media/misc/menu-header-bg.jpg')); ?>'); background-size: cover; background-position: center;">
+                        <div class="px-9 pt-7 pb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h3 class="text-white fw-bold mb-0 fs-2">Notifikasi</h3>
+                                <?php if($notifCount > 0): ?>
+                                    <span class="badge badge-light-danger badge-circle fw-bold fs-7" style="min-width: 24px; height: 24px; padding: 0 8px;">
+                                        <?php echo e($notifCount); ?>
+
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            <span class="text-white opacity-75 fs-7 fw-semibold">
+                                <?php echo e($notifCount > 0 ? "Anda memiliki {$notifCount} notifikasi belum dibaca" : "Tidak ada notifikasi baru"); ?>
+
+                            </span>
+                        </div>
+                    </div>
+                    <!--end::Header-->
+                    
+                    <!--begin::Items-->
+                    <div class="scroll-y mh-350px px-5 py-5" id="kt_notification_items">
+                        <?php $__empty_1 = true; $__currentLoopData = auth()->user()->notifications()->take(5)->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
+                                $isUnread = is_null($notification->read_at);
+                                $data = $notification->data;
+                                $icon = match($data['type'] ?? 'default') {
+                                    'po_submitted' => 'document',
+                                    'po_approved' => 'check-circle',
+                                    'po_rejected' => 'cross-circle',
+                                    'goods_receipt' => 'package',
+                                    'invoice' => 'bill',
+                                    'payment' => 'wallet',
+                                    default => 'notification-bing',
+                                };
+                                $iconColor = match($data['type'] ?? 'default') {
+                                    'po_approved', 'goods_receipt' => 'success',
+                                    'po_rejected' => 'danger',
+                                    'po_submitted' => 'warning',
+                                    'invoice', 'payment' => 'info',
+                                    default => 'primary',
+                                };
+                            ?>
+                            
+                            <a href="<?php echo e(route('web.notifications.markAsRead', $notification->id)); ?>" 
+                               class="d-flex align-items-start text-hover-light-primary p-4 rounded mb-2 <?php echo e($isUnread ? 'bg-light-primary' : 'bg-hover-light'); ?>">
+                                <!--begin::Icon-->
+                                <div class="symbol symbol-45px me-4 flex-shrink-0">
+                                    <span class="symbol-label bg-light-<?php echo e($iconColor); ?>">
+                                        <i class="ki-outline ki-<?php echo e($icon); ?> fs-2 text-<?php echo e($iconColor); ?>"></i>
+                                    </span>
+                                </div>
+                                <!--end::Icon-->
+                                
+                                <!--begin::Content-->
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <span class="text-gray-900 fw-bold fs-6 d-block mb-1">
+                                            <?php echo e($data['title'] ?? 'Notifikasi'); ?>
+
+                                        </span>
+                                        <?php if($isUnread): ?>
+                                            <span class="badge badge-primary badge-sm ms-2 flex-shrink-0">Baru</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <span class="text-gray-700 fs-7 d-block mb-2 text-truncate-2-lines">
+                                        <?php echo e($data['message'] ?? ''); ?>
+
+                                    </span>
+                                    <div class="d-flex align-items-center">
+                                        <i class="ki-outline ki-time fs-7 text-gray-500 me-1"></i>
+                                        <span class="text-gray-500 fs-8"><?php echo e($notification->created_at->diffForHumans()); ?></span>
+                                    </div>
+                                </div>
+                                <!--end::Content-->
+                            </a>
+                            
+                            <?php if(!$loop->last): ?>
+                                <div class="separator separator-dashed my-2"></div>
+                            <?php endif; ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <div class="d-flex flex-column align-items-center text-center py-10 px-5">
+                                <div class="symbol symbol-100px mb-5">
+                                    <div class="symbol-label bg-light-primary">
+                                        <i class="ki-outline ki-notification-status fs-3x text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="text-gray-900 fw-bold fs-5 mb-2">Tidak ada notifikasi</div>
+                                <div class="text-gray-600 fs-7">Anda akan menerima notifikasi di sini</div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <!--end::Items-->
+                    
+                    <!--begin::Footer-->
+                    <?php if(auth()->user()->notifications()->count() > 0): ?>
+                        <div class="py-4 text-center border-top">
+                            <a href="<?php echo e(route('web.notifications.index')); ?>" class="btn btn-sm btn-color-gray-700 btn-active-color-primary fw-bold">
+                                Lihat Semua Notifikasi
+                                <i class="ki-outline ki-arrow-right fs-5 ms-1"></i>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                    <!--end::Footer-->
+                </div>
+                <!--end::Notification dropdown-->
                 <!--end::Notifications-->
             </div>
             
@@ -108,7 +222,7 @@
                         <form method="POST" action="<?php echo e(route('logout')); ?>" class="w-100">
                             <?php echo csrf_field(); ?>
                             <button type="submit" class="btn btn-light-danger btn-sm w-100 d-flex align-items-center justify-content-center">
-                                <i class="ki-solid ki-exit-right fs-3 me-2"></i>
+                                <i class="ki-outline ki-exit-right fs-3 me-2"></i>
                                 <span class="fw-bold">Keluar</span>
                             </button>
                         </form>

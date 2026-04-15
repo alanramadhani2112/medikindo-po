@@ -1,0 +1,413 @@
+/* ============================================
+   MEDIKINDO THEME - Brand Colors Override
+   Based on Medikindo Logo Colors
+   ============================================ */
+
+:root {
+    /* Primary Color - Medikindo Navy Blue */
+    --bs-primary: #1B4B7F;
+    --bs-primary-rgb: 27, 75, 127;
+    --bs-primary-light: #E8F0F8;
+    --bs-primary-inverse: #ffffff;
+    --bs-primary-active: #153A63;
+    
+    /* Secondary Color - Medikindo Teal/Cyan */
+    --bs-secondary: #00A3A3;
+    --bs-secondary-rgb: 0, 163, 163;
+    --bs-secondary-light: #E6F7F7;
+    --bs-secondary-inverse: #ffffff;
+    
+    /* Accent Color - Medikindo Gold/Yellow */
+    --bs-warning: #F5A623;
+    --bs-warning-rgb: 245, 166, 35;
+    --bs-warning-light: #FEF5E7;
+    
+    /* Keep other colors */
+    --bs-success: #50cd89;
+    --bs-danger: #f1416c;
+    --bs-info: #7239ea;
+}
+
+/* ============================================
+   PRIMARY COLOR OVERRIDES
+   ============================================ */
+
+/* Buttons */
+.btn-primary {
+    background-color: #1B4B7F !important;
+    border-color: #1B4B7F !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #153A63 !important;
+    border-color: #153A63 !important;
+    color: #ffffff !important;
+}
+
+.btn-light-primary {
+    background-color: #E8F0F8 !important;
+    border-color: #E8F0F8 !important;
+    color: #1B4B7F !important;
+}
+
+.btn-light-primary:hover {
+    background-color: #1B4B7F !important;
+    border-color: #1B4B7F !important;
+    color: #ffffff !important;
+}
+
+/* Badges */
+.badge-primary {
+    background-color: #1B4B7F !important;
+    color: #ffffff !important;
+}
+
+.badge-light-primary {
+    background-color: #E8F0F8 !important;
+    color: #1B4B7F !important;
+}
+
+/* Text Colors */
+.text-primary {
+    color: #1B4B7F !important;
+}
+
+.text-hover-primary:hover {
+    color: #1B4B7F !important;
+}
+
+/* Background Colors */
+.bg-primary {
+    background-color: #1B4B7F !important;
+}
+
+.bg-light-primary {
+    background-color: #E8F0F8 !important;
+}
+
+/* Border Colors */
+.border-primary {
+    border-color: #1B4B7F !important;
+}
+
+/* Links */
+a.text-primary:hover {
+    color: #153A63 !important;
+}
+
+/* Active Menu Items */
+.menu-link.active {
+    background-color: #E8F0F8 !important;
+    color: #1B4B7F !important;
+}
+
+.menu-link.active .menu-icon i {
+    color: #1B4B7F !important;
+}
+
+/* Tabs */
+.nav-tabs .nav-link.active {
+    color: #1B4B7F !important;
+    border-bottom-color: #1B4B7F !important;
+}
+
+.nav-line-tabs .nav-link.active {
+    color: #1B4B7F !important;
+    border-bottom-color: #1B4B7F !important;
+}
+
+/* Pagination */
+.page-link:hover {
+    color: #1B4B7F !important;
+    background-color: #E8F0F8 !important;
+    border-color: #1B4B7F !important;
+}
+
+.page-item.active .page-link {
+    background-color: #1B4B7F !important;
+    border-color: #1B4B7F !important;
+}
+
+/* Forms */
+.form-control:focus,
+.form-select:focus {
+    border-color: #1B4B7F !important;
+    box-shadow: 0 0 0 0.25rem rgba(27, 75, 127, 0.1) !important;
+}
+
+.form-check-input:checked {
+    background-color: #1B4B7F !important;
+    border-color: #1B4B7F !important;
+}
+
+/* Dropdown */
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: #E8F0F8 !important;
+    color: #1B4B7F !important;
+}
+
+/* Alerts */
+.alert-primary {
+    background-color: #E8F0F8 !important;
+    border-color: #D1E2F0 !important;
+    color: #1B4B7F !important;
+}
+
+/* Progress Bar */
+.progress-bar {
+    background-color: #1B4B7F !important;
+}
+
+/* Spinner */
+.spinner-border-primary {
+    color: #1B4B7F !important;
+}
+
+/* Symbol/Avatar */
+.symbol-label.bg-light-primary {
+    background-color: #E8F0F8 !important;
+    color: #1B4B7F !important;
+}
+
+/* ============================================
+   SIDEBAR LOGO STYLING - CONSISTENT ACROSS ALL LAYOUTS
+   ============================================ */
+
+/* Logo Container - Standardized */
+#kt_app_sidebar_logo,
+.app-sidebar-logo {
+    padding: 1.25rem 1.5rem !important;
+}
+
+/* Logo Image - Fixed Size for Consistency */
+#kt_app_sidebar_logo img,
+.app-sidebar-logo img,
+.app-sidebar-logo-default {
+    width: auto !important;
+    height: auto !important;
+    max-height: 70px !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+}
+
+/* Responsive Logo */
+@media (max-width: 991px) {
+    #kt_app_sidebar_logo,
+    .app-sidebar-logo {
+        padding: 1rem 1.25rem !important;
+    }
+    
+    #kt_app_sidebar_logo img,
+    .app-sidebar-logo img,
+    .app-sidebar-logo-default {
+        max-height: 70px !important;
+    }
+}
+
+@media (max-width: 767px) {
+    #kt_app_sidebar_logo,
+    .app-sidebar-logo {
+        padding: 0.875rem 1rem !important;
+    }
+    
+    #kt_app_sidebar_logo img,
+    .app-sidebar-logo img,
+    .app-sidebar-logo-default {
+        max-height: 70px !important;
+    }
+}
+
+/* ============================================
+   SIDEBAR MENU STYLING
+   ============================================ */
+
+/* Active Menu Item with Brand Color */
+.app-sidebar .menu .menu-item .menu-link.active {
+    background-color: #E8F0F8;
+    color: #1B4B7F;
+}
+
+.app-sidebar .menu .menu-item .menu-link.active .menu-icon {
+    color: #1B4B7F;
+}
+
+.app-sidebar .menu .menu-item .menu-link.active .menu-title {
+    color: #1B4B7F;
+    font-weight: 600;
+}
+
+/* Hover State */
+.app-sidebar .menu .menu-item .menu-link:hover:not(.active) {
+    background-color: #F5F8FA;
+    color: #1B4B7F;
+}
+
+.app-sidebar .menu .menu-item .menu-link:hover:not(.active) .menu-icon {
+    color: #1B4B7F;
+}
+
+/* ============================================
+   HEADER STYLING
+   ============================================ */
+
+/* Notification Badge */
+.badge.badge-circle.badge-danger {
+    background-color: #f1416c !important;
+}
+
+/* User Avatar in Header */
+.app-navbar .symbol-label {
+    background-color: #E8F0F8 !important;
+    color: #1B4B7F !important;
+    font-weight: 600;
+}
+
+/* ============================================
+   DASHBOARD CARDS
+   ============================================ */
+
+/* Card with Primary Accent */
+.card-primary-accent {
+    border-left: 4px solid #1B4B7F;
+}
+
+.card-primary-accent .card-header {
+    background-color: #E8F0F8;
+}
+
+/* ============================================
+   CHARTS & ANALYTICS
+   ============================================ */
+
+/* Chart Primary Color */
+.chart-primary {
+    color: #1B4B7F;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+/* Table Row Hover */
+.table tbody tr:hover {
+    background-color: #F8FAFB;
+}
+
+/* Table Active Row */
+.table tbody tr.table-active {
+    background-color: #E8F0F8 !important;
+}
+
+/* ============================================
+   MODALS
+   ============================================ */
+
+/* Modal Header with Primary */
+.modal-header.bg-primary {
+    background-color: #1B4B7F !important;
+    color: #ffffff !important;
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+/* Shadow with Primary Color */
+.shadow-primary {
+    box-shadow: 0 0.5rem 1.5rem 0.5rem rgba(27, 75, 127, 0.075) !important;
+}
+
+.shadow-primary-sm {
+    box-shadow: 0 0.125rem 0.5rem rgba(27, 75, 127, 0.1) !important;
+}
+
+.shadow-primary-lg {
+    box-shadow: 0 1rem 3rem rgba(27, 75, 127, 0.175) !important;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .app-sidebar-logo img {
+        max-height: 40px;
+    }
+}
+
+/* ============================================
+   ACTION DROPDOWN MENU - Table Row Actions
+   ============================================ */
+
+.action-menu-wrapper {
+    position: relative;
+    display: inline-flex;
+    justify-content: flex-end;
+}
+
+.action-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 9999;
+    min-width: 180px;
+    background: #ffffff;
+    border: 1px solid #e4e6ef;
+    border-radius: 0.475rem;
+    box-shadow: 0px 8px 30px rgba(82, 63, 105, 0.2);
+    padding: 0.5rem 0;
+    /* Critical: must NOT be in document flow */
+    float: none;
+}
+
+.action-dropdown-menu.show {
+    display: block !important;
+}
+
+.action-dropdown-menu a,
+.action-dropdown-menu button[type="submit"] {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    color: #3f4254;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    transition: background-color 0.15s;
+    white-space: nowrap;
+}
+
+.action-dropdown-menu a:hover,
+.action-dropdown-menu button[type="submit"]:hover {
+    background-color: #f1f3f8;
+    color: #1B4B7F;
+}
+
+.action-dropdown-menu button.text-danger:hover {
+    background-color: #fff5f8;
+    color: #f1416c !important;
+}
+
+.action-dropdown-menu button.text-warning:hover {
+    background-color: #fff8dd;
+    color: #ffc700 !important;
+}
+
+.action-dropdown-menu .separator {
+    border-top: 1px solid #e4e6ef;
+    margin: 0.25rem 0;
+}
+
+.action-dropdown-menu .menu-item {
+    padding: 0;
+}

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keenicons Reference - Medikindo</title>
+    <link href="/assets/metronic8/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/metronic8/css/style.bundle.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+            background: #f5f8fa;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #181c32;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #7e8299;
+            margin-bottom: 30px;
+        }
+        .search-box {
+            margin-bottom: 30px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #e4e6ef;
+            border-radius: 6px;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #009ef7;
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .icon-item {
+            padding: 20px;
+            border: 2px solid #e4e6ef;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .icon-item:hover {
+            border-color: #009ef7;
+            background: #f1faff;
+            transform: translateY(-2px);
+        }
+        .icon-item i {
+            font-size: 32px;
+            color: #181c32;
+            margin-bottom: 10px;
+        }
+        .icon-name {
+            font-size: 12px;
+            color: #7e8299;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .copied-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #50cd89;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 6px;
+            display: none;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .copied-toast.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e4e6ef;
+        }
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #7e8299;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab.active {
+            color: #009ef7;
+            border-bottom-color: #009ef7;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Keenicons Reference</h1>
+        <p class="subtitle">Icon library yang digunakan di Medikindo PO System</p>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Cari icon... (contoh: plus, check, home)">
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('outline')">Outline Icons</button>
+            <button class="tab" onclick="switchTab('solid')">Solid Icons</button>
+            <button class="tab" onclick="switchTab('duotone')">Duotone Icons</button>
+        </div>
+
+        <div id="outline" class="tab-content active">
+            <div class="icon-grid" id="outlineGrid"></div>
+        </div>
+
+        <div id="solid" class="tab-content">
+            <div class="icon-grid" id="solidGrid"></div>
+        </div>
+
+        <div id="duotone" class="tab-content">
+            <div class="icon-grid" id="duotoneGrid"></div>
+        </div>
+    </div>
+
+    <div class="copied-toast" id="copiedToast">
+        ✅ Class copied to clipboard!
+    </div>
+
+    <script>
+        // Common icons used in the system
+        const commonIcons = [
+            'plus', 'minus', 'check', 'cross', 'pencil', 'trash', 'eye', 'eye-slash',
+            'magnifier', 'filter', 'setting', 'setting-2', 'home', 'dashboard',
+            'user', 'users', 'profile', 'calendar', 'time', 'clock',
+            'file', 'folder', 'document', 'note', 'notepad',
+            'arrow-up', 'arrow-down', 'arrow-left', 'arrow-right',
+            'arrow-up-right', 'arrow-down-right', 'arrow-circle-up', 'arrow-circle-down',
+            'check-circle', 'cross-circle', 'information', 'question', 'shield-tick',
+            'notification', 'message', 'sms', 'send', 'paper-plane',
+            'heart', 'star', 'bookmark', 'flag',
+            'shopping-cart', 'basket', 'wallet', 'dollar', 'credit-card',
+            'chart', 'graph', 'chart-line', 'chart-pie', 'chart-simple',
+            'package', 'box', 'delivery', 'truck', 'ship',
+            'lock', 'unlock', 'key', 'security-user',
+            'download', 'upload', 'cloud-download', 'cloud-upload',
+            'printer', 'copy', 'save', 'export', 'import',
+            'menu', 'burger-menu', 'dots-vertical', 'dots-horizontal',
+            'maximize', 'minimize', 'expand', 'compress',
+            'refresh', 'reload', 'sync', 'update',
+            'like', 'dislike', 'thumbs-up', 'thumbs-down',
+            'location', 'map', 'pin', 'compass',
+            'phone', 'tablet', 'laptop', 'monitor', 'device',
+            'wifi', 'signal', 'bluetooth', 'battery',
+            'image', 'picture', 'gallery', 'camera', 'video',
+            'music', 'volume', 'microphone', 'headphone',
+            'text', 'text-align-left', 'text-align-center', 'text-align-right',
+            'bold', 'italic', 'underline', 'link',
+            'code', 'terminal', 'command', 'git',
+            'database', 'server', 'cloud', 'network',
+            'tag', 'tags', 'label', 'category',
+            'layers', 'stack', 'grid', 'list',
+            'toggle-on', 'toggle-off', 'switch',
+            'sun', 'moon', 'weather', 'cloud-sun',
+            'fire', 'flash', 'electricity', 'energy',
+            'medal', 'award', 'trophy', 'crown',
+            'gift', 'present', 'balloon', 'confetti'
+        ];
+
+        function createIconItem(iconName, style) {
+            const div = document.createElement('div');
+            div.className = 'icon-item';
+            
+            let iconHTML = '';
+            if (style === 'duotone') {
+                iconHTML = `
+                    <i class="ki-duotone ki-${iconName}">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                `;
+            } else {
+                iconHTML = `<i class="ki-${style} ki-${iconName}"></i>`;
+            }
+            
+            div.innerHTML = `
+                ${iconHTML}
+                <div class="icon-name">ki-${style} ki-${iconName}</div>
+            `;
+            
+            div.onclick = () => copyToClipboard(`ki-${style} ki-${iconName}`);
+            return div;
+        }
+
+        function renderIcons() {
+            const outlineGrid = document.getElementById('outlineGrid');
+            const solidGrid = document.getElementById('solidGrid');
+            const duotoneGrid = document.getElementById('duotoneGrid');
+
+            commonIcons.forEach(icon => {
+                outlineGrid.appendChild(createIconItem(icon, 'outline'));
+                solidGrid.appendChild(createIconItem(icon, 'solid'));
+                duotoneGrid.appendChild(createIconItem(icon, 'duotone'));
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('copiedToast');
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.icon-item').forEach(item => {
+                const iconName = item.querySelector('.icon-name').textContent.toLowerCase();
+                item.style.display = iconName.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        // Initialize
+        renderIcons();
+    </script>
+</body>
+</html>

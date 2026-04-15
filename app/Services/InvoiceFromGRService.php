@@ -24,6 +24,7 @@ class InvoiceFromGRService
     public function __construct(
         private readonly InvoiceCalculationService $calculationService,
         private readonly AuditService $auditService,
+        private readonly InventoryService $inventoryService,
     ) {}
 
     /**
@@ -322,6 +323,20 @@ class InvoiceFromGRService
             // Prepare line items with GR data (CUSTOMER invoice - use selling_price from Product)
             $lineItemsData = $this->prepareLineItems($gr, $items, 'customer');
 
+            // Validate stock availability BEFORE creating invoice
+            foreach ($lineItemsData as $itemData) {
+                $availableStock = $this->inventoryService->getAvailableStock(
+                    $po->organization_id,
+                    $itemData['product_id']
+                );
+
+                if ($availableStock < $itemData['quantity']) {
+                    throw new DomainException(
+                        "Insufficient stock for product [{$itemData['product_name']}]. Available: {$availableStock}, Required: {$itemData['quantity']}"
+                    );
+                }
+            }
+
             // Calculate invoice totals using existing pricing engine
             $calculation = $this->calculationService->calculateCompleteInvoice($lineItemsData);
 
@@ -351,12 +366,12 @@ class InvoiceFromGRService
                 'version'              => 1,
             ]);
 
-            // Create line items with GR references
+            // Create line items with GR references AND reduce inventory (Stock OUT)
             foreach ($calculation['line_items'] as $index => $lineCalc) {
                 $itemData = $lineItemsData[$index];
                 $grItem = GoodsReceiptItem::find($itemData['goods_receipt_item_id']);
 
-                $invoice->lineItems()->create([
+                $lineItem = $invoice->lineItems()->create([
                     'goods_receipt_item_id' => $grItem->id,
                     'product_id'            => $grItem->purchaseOrderItem->product_id,
                     'product_name'          => $itemData['product_name'],
@@ -372,6 +387,16 @@ class InvoiceFromGRService
                     'tax_amount'            => $lineCalc['tax_amount'],
                     'line_total'            => $lineCalc['line_total'],
                 ]);
+
+                // --- Reduce Inventory (Stock OUT) ---
+                $this->inventoryService->reduceStock(
+                    organizationId: $po->organization_id,
+                    productId: $itemData['product_id'],
+                    quantity: $itemData['quantity'],
+                    referenceType: 'App\Models\CustomerInvoiceLineItem',
+                    referenceId: $lineItem->id,
+                    createdBy: $actor->id
+                );
             }
 
             // Audit log

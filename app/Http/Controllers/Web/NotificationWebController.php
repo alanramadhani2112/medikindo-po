@@ -33,4 +33,29 @@ class NotificationWebController extends Controller
             'count' => $request->user()->unreadNotifications()->count()
         ]);
     }
+
+    public function getRecent(Request $request)
+    {
+        $notifications = $request->user()
+            ->notifications()
+            ->take(5)
+            ->get()
+            ->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'title' => $notification->data['title'] ?? 'Notifikasi',
+                    'message' => $notification->data['message'] ?? '',
+                    'icon' => $notification->data['icon'] ?? 'notification',
+                    'type' => $notification->data['type'] ?? 'info',
+                    'url' => route('web.notifications.markAsRead', $notification->id),
+                    'read_at' => $notification->read_at,
+                    'created_at' => $notification->created_at->diffForHumans(),
+                ];
+            });
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $request->user()->unreadNotifications()->count()
+        ]);
+    }
 }

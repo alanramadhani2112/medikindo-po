@@ -2,8 +2,8 @@
 <div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
     <!--begin::Logo-->
     <div class="app-sidebar-logo flex-shrink-0 d-none d-md-flex align-items-center px-8" id="kt_app_sidebar_logo">
-        <a href="{{ route('web.dashboard') }}">
-            <img alt="Logo" src="{{ asset('assets/metronic8/media/logos/default-dark.svg') }}" class="h-25px app-sidebar-logo-default" />
+        <a href="{{ route('web.dashboard') }}" class="d-flex align-items-center">
+            <img alt="Medikindo Logo" src="{{ asset('logo-medikindo.png') }}" class="app-sidebar-logo-default" />
         </a>
     </div>
     <!--end::Logo-->
@@ -19,7 +19,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.dashboard') ? 'active' : '' }}" href="{{ route('web.dashboard') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-home fs-2"></i>
+                            <i class="ki-outline ki-abstract-26 fs-2"></i>
                         </span>
                         <span class="menu-title">Dashboard</span>
                     </a>
@@ -37,7 +37,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.po.*') ? 'active' : '' }}" href="{{ route('web.po.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-purchase fs-2"></i>
+                            <i class="ki-outline ki-purchase fs-2"></i>
                         </span>
                         <span class="menu-title">Purchase Orders</span>
                     </a>
@@ -48,7 +48,8 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.approvals.*') ? 'active' : '' }}" href="{{ route('web.approvals.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-basket-ok fs-2"></i>
+                            <i class="ki-outline ki-brifecase-tick
+-ok fs-2"></i>
                         </span>
                         <span class="menu-title">Approvals</span>
                         @if(isset($pendingApprovalCount) && $pendingApprovalCount > 0)
@@ -62,7 +63,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.goods-receipts.*') ? 'active' : '' }}" href="{{ route('web.goods-receipts.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-questionnaire-tablet fs-2"></i>
+                            <i class="ki-outline ki-courier-express fs-2"></i>
                         </span>
                         <span class="menu-title">Goods Receipt</span>
                     </a>
@@ -81,7 +82,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.invoices.customer.*') ? 'active' : '' }}" href="{{ route('web.invoices.customer.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-bill fs-2 text-success"></i>
+                            <i class="ki-outline ki-check fs-2 text-success"></i>
                         </span>
                         <span class="menu-title">Tagihan ke RS/Klinik</span>
                         <span class="menu-badge">
@@ -104,7 +105,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.invoices.supplier.*') ? 'active' : '' }}" href="{{ route('web.invoices.supplier.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-arrow-down fs-2 text-danger"></i>
+                            <i class="ki-outline ki-check fs-2 text-danger"></i>
                         </span>
                         <span class="menu-title">Hutang ke Supplier</span>
                         <span class="menu-badge">
@@ -126,7 +127,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.payments.*') ? 'active' : '' }}" href="{{ route('web.payments.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-wallet fs-2"></i>
+                            <i class="ki-outline ki-bill fs-2"></i>
                         </span>
                         <span class="menu-title">Payments</span>
                     </a>
@@ -137,7 +138,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.financial-controls.*') ? 'active' : '' }}" href="{{ route('web.financial-controls.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-chart-line fs-2"></i>
+                            <i class="ki-outline ki-courier fs-2"></i>
                         </span>
                         <span class="menu-title">Credit Control</span>
                     </a>
@@ -157,7 +158,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.organizations.*') ? 'active' : '' }}" href="{{ route('web.organizations.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-people fs-2"></i>
+                            <i class="ki-outline ki-bank fs-2"></i>
                         </span>
                         <span class="menu-title">Organizations</span>
                     </a>
@@ -168,7 +169,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.suppliers.*') ? 'active' : '' }}" href="{{ route('web.suppliers.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-cube-2 fs-2"></i>
+                            <i class="ki-outline ki-cube-2 fs-2"></i>
                         </span>
                         <span class="menu-title">Suppliers</span>
                     </a>
@@ -179,7 +180,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.products.*') ? 'active' : '' }}" href="{{ route('web.products.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-capsule fs-2"></i>
+                            <i class="ki-outline ki-paintbucket fs-2"></i>
                         </span>
                         <span class="menu-title">Products</span>
                     </a>
@@ -190,7 +191,7 @@
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs('web.users.*') ? 'active' : '' }}" href="{{ route('web.users.index') }}">
                         <span class="menu-icon">
-                            <i class="ki-solid ki-user fs-2"></i>
+                            <i class="ki-outline ki-twitter fs-2"></i>
                         </span>
                         <span class="menu-title">Users</span>
                     </a>

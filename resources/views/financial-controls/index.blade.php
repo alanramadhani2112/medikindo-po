@@ -4,7 +4,7 @@
         {{-- Success Alert --}}
     @if(session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
+            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
             <div>{{ session('success') }}</div>
         </div>
     @endif
@@ -37,7 +37,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-solid ki-shield-tick fs-2 me-2"></i>
+                        <i class="ki-outline ki-shield-tick fs-2 me-2"></i>
                         Limit Kredit Per Organisasi
                     </h3>
                     <div class="card-toolbar">
@@ -116,38 +116,34 @@
                                             @endif
                                         </td>
                                         <td class="text-center pe-4">
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light btn-active-light-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ki-solid ki-dots-horizontal fs-3"></i>
+                                            <div class="action-menu-wrapper">
+                                                <button type="button" class="btn btn-sm btn-light btn-active-light-primary" data-action-menu>
+                                                    <i class="ki-outline ki-dots-horizontal fs-3"></i>
                                                     Aksi
                                                 </button>
-                                                <ul class="dropdown-menu">
-                                                    <li>
-                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ $limit->id }}">
-                                                            <i class="ki-solid ki-notepad-edit fs-3 me-2 text-primary"></i>
-                                                            Edit Plafon
-                                                        </a>
-                                                    </li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li>
-                                                        <form method="POST" action="{{ route('web.financial-controls.update', $limit) }}" class="d-inline">
-                                                            @csrf @method('PATCH')
-                                                            <input type="hidden" name="max_limit" value="{{ $limit->max_limit }}">
-                                                            @if($limit->is_active)
-                                                                <button type="submit" name="is_active" value="0" class="dropdown-item text-warning">
-                                                                    <i class="ki-solid ki-cross-circle fs-3 me-2"></i>
-                                                                    Nonaktifkan
-                                                                </button>
-                                                            @else
-                                                                <input type="hidden" name="is_active" value="1">
-                                                                <button type="submit" class="dropdown-item text-success">
-                                                                    <i class="ki-solid ki-check-circle fs-3 me-2"></i>
-                                                                    Aktifkan
-                                                                </button>
-                                                            @endif
-                                                        </form>
-                                                    </li>
-                                                </ul>
+                                                <div class="action-dropdown-menu" style="display: none;">
+                                                    <a href="#" class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#editModal{{ $limit->id }}">
+                                                        <i class="ki-outline ki-parcel fs-3 me-2 text-warning"></i>
+                                                        Edit Plafon
+                                                    </a>
+                                                    <div class="separator"></div>
+                                                    <form method="POST" action="{{ route('web.financial-controls.update', $limit) }}">
+                                                        @csrf @method('PATCH')
+                                                        <input type="hidden" name="max_limit" value="{{ $limit->max_limit }}">
+                                                        @if($limit->is_active)
+                                                            <button type="submit" name="is_active" value="0" class="d-flex align-items-center text-warning">
+                                                                <i class="ki-outline ki-arrow-zigzag-circle fs-3 me-2"></i>
+                                                                Nonaktifkan
+                                                            </button>
+                                                        @else
+                                                            <input type="hidden" name="is_active" value="1">
+                                                            <button type="submit" class="d-flex align-items-center text-success">
+                                                                <i class="ki-outline ki-check-circle fs-3 me-2"></i>
+                                                                Aktifkan
+                                                            </button>
+                                                        @endif
+                                                    </form>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -155,7 +151,7 @@
                                     <tr>
                                         <td colspan="6" class="text-center py-10">
                                             <div class="d-flex flex-column align-items-center">
-                                                <i class="ki-solid ki-shield-tick fs-3x text-gray-400 mb-3"></i>
+                                                <i class="ki-outline ki-shield-tick fs-3x text-gray-400 mb-3"></i>
                                                 <h3 class="fs-5 fw-bold text-gray-800 mb-1">Belum Ada Kebijakan Kredit</h3>
                                                 <p class="text-muted fs-7">Terapkan limit kredit untuk setiap organisasi di sini.</p>
                                             </div>
@@ -174,7 +170,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-solid ki-plus fs-2 me-2"></i>
+                        <i class="ki-outline ki-picture fs-2 me-2"></i>
                         Terapkan Limit Kredit Baru
                     </h3>
                 </div>
@@ -218,7 +214,7 @@
                         <div class="separator my-5"></div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="ki-solid ki-check fs-3"></i>
+                            <i class="ki-outline ki-check fs-3"></i>
                             Simpan Kebijakan Kredit
                         </button>
                     </form>
@@ -234,11 +230,11 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">
-                        <i class="ki-solid ki-notepad-edit fs-2 me-2 text-primary"></i>
+                        <i class="ki-outline ki-parcel fs-2 me-2 text-warning"></i>
                         Edit Plafon Kredit
                     </h3>
                     <button type="button" class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                        <i class="ki-solid ki-cross fs-1"></i>
+                        <i class="ki-outline ki-arrow-zigzag fs-1"></i>
                     </button>
                 </div>
                 <form method="POST" action="{{ route('web.financial-controls.update', $limit) }}">
@@ -263,7 +259,7 @@
 
                         <div class="mb-5 p-4 bg-light-info rounded border border-info">
                             <div class="d-flex align-items-start gap-3">
-                                <i class="ki-solid ki-information-5 fs-2x text-info"></i>
+                                <i class="ki-outline ki-information-5 fs-2x text-info"></i>
                                 <div>
                                     <div class="fw-bold text-gray-900 mb-1">Informasi Utilisasi</div>
                                     <div class="text-gray-700 fs-7">
@@ -284,11 +280,11 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                            <i class="ki-solid ki-cross fs-3"></i>
+                            <i class="ki-outline ki-arrow-zigzag fs-3"></i>
                             Batal
                         </button>
                         <button type="submit" class="btn btn-primary update-confirm" data-name="Plafon Kredit {{ $limit->organization?->name }}">
-                            <i class="ki-solid ki-check fs-3"></i>
+                            <i class="ki-outline ki-check fs-3"></i>
                             Simpan Perubahan
                         </button>
                     </div>

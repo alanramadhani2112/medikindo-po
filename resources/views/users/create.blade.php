@@ -14,7 +14,6 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-solid ki-user-tick fs-2 me-2"></i>
                         Registrasi Pengguna Baru
                     </h3>
                 </div>
@@ -22,7 +21,7 @@
                     {{-- Error Alert --}}
                     @if($errors->any())
                         <div class="alert alert-danger d-flex align-items-start mb-5">
-                            <i class="ki-solid ki-information-5 fs-2 me-3"></i>
+                            <i class="ki-outline ki-information-5 fs-2 me-3"></i>
                             <div>
                                 <ul class="mb-0">
                                     @foreach($errors->all() as $error)
@@ -111,11 +110,11 @@
                         {{-- Action Buttons --}}
                         <div class="d-flex justify-content-end gap-3 mt-7 pt-7 border-top">
                             <a href="{{ route('web.users.index') }}" class="btn btn-light">
-                                <i class="ki-solid ki-cross fs-2"></i>
+                                <i class="ki-outline ki-arrow-zigzag fs-2"></i>
                                 Batal
                             </a>
                             <button type="submit" class="btn btn-primary create-confirm" data-type="pengguna baru">
-                                <i class="ki-solid ki-check fs-2"></i>
+                                <i class="ki-outline ki-picture fs-2"></i>
                                 Tambah Pengguna
                             </button>
                         </div>

@@ -19,18 +19,19 @@
                        class="form-control form-control-solid">
             </div>
             <button type="submit" class="btn btn-dark">
-                <i class="ki-solid ki-magnifier fs-2"></i>
+                <i class="ki-outline ki-chart
+ fs-2"></i>
                 Filter
             </button>
             @if(request('search'))
                 <a href="{{ route('module.index') }}" class="btn btn-light">
-                    <i class="ki-solid ki-cross fs-2"></i>
+                    <i class="ki-outline ki-arrow-zigzag fs-2"></i>
                     Reset
                 </a>
             @endif
             <div class="ms-auto">
                 <a href="{{ route('module.create') }}" class="btn btn-primary">
-                    <i class="ki-solid ki-plus fs-2"></i>
+                    <i class="ki-outline ki-picture fs-2"></i>
                     Create New
                 </a>
             </div>

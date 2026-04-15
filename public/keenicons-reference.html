@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keenicons Reference - Medikindo PO System</title>
+    <link href="/assets/metronic8/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f8fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e4e6ef;
+        }
+        .header h1 {
+            font-size: 32px;
+            color: #181c32;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #7e8299;
+            font-size: 16px;
+        }
+        .search-box {
+            margin-bottom: 30px;
+            position: sticky;
+            top: 20px;
+            background: white;
+            z-index: 100;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e4e6ef;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-box input:focus {
+            border-color: #009ef7;
+            box-shadow: 0 0 0 3px rgba(0, 158, 247, 0.1);
+        }
+        .style-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .style-tab {
+            padding: 12px 24px;
+            background: #f5f8fa;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #7e8299;
+            transition: all 0.3s;
+        }
+        .style-tab:hover {
+            background: #e4e6ef;
+        }
+        .style-tab.active {
+            background: #009ef7;
+            color: white;
+            border-color: #009ef7;
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .icon-card {
+            background: #f9f9f9;
+            border: 2px solid #e4e6ef;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .icon-card:hover {
+            border-color: #009ef7;
+            background: #f1faff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 158, 247, 0.15);
+        }
+        .icon-card i {
+            font-size: 48px;
+            color: #181c32;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .icon-name {
+            font-size: 13px;
+            color: #7e8299;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .icon-class {
+            font-size: 11px;
+            color: #009ef7;
+            background: #f1faff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        .copied-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #50cd89;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            font-weight: 600;
+        }
+        .copied-toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #181c32;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e4e6ef;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card.blue {
+            background: linear-gradient(135deg, #009ef7 0%, #0077b6 100%);
+        }
+        .stat-card.green {
+            background: linear-gradient(135deg, #50cd89 0%, #2e7d32 100%);
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Keenicons Reference</h1>
+            <p>Klik icon untuk copy class-nya. Semua icon yang tersedia di sistem Medikindo PO.</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card blue">
+                <div class="stat-number" id="totalIcons">0</div>
+                <div class="stat-label">Total Icons</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-number" id="visibleIcons">0</div>
+                <div class="stat-label">Visible Icons</div>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Cari icon... (contoh: home, user, check, arrow)" />
+        </div>
+
+        <div class="style-tabs">
+            <div class="style-tab active" data-style="outline">Outline (Recommended)</div>
+            <div class="style-tab" data-style="solid">Solid</div>
+            <div class="style-tab" data-style="duotone">Duotone</div>
+        </div>
+
+        <!-- COMMON ICONS -->
+        <div class="section-title">📌 Common Icons (Paling Sering Dipakai)</div>
+        <div class="icon-grid" id="commonIcons"></div>
+
+        <!-- NAVIGATION -->
+        <div class="section-title">🧭 Navigation & UI</div>
+        <div class="icon-grid" id="navigationIcons"></div>
+
+        <!-- ACTIONS -->
+        <div class="section-title">⚡ Actions & Operations</div>
+        <div class="icon-grid" id="actionIcons"></div>
+
+        <!-- BUSINESS -->
+        <div class="section-title">💼 Business & Finance</div>
+        <div class="icon-grid" id="businessIcons"></div>
+
+        <!-- STATUS -->
+        <div class="section-title">✅ Status & Indicators</div>
+        <div class="icon-grid" id="statusIcons"></div>
+
+        <!-- COMMUNICATION -->
+        <div class="section-title">💬 Communication</div>
+        <div class="icon-grid" id="communicationIcons"></div>
+
+        <!-- FILES -->
+        <div class="section-title">📁 Files & Documents</div>
+        <div class="icon-grid" id="fileIcons"></div>
+
+        <!-- ARROWS -->
+        <div class="section-title">➡️ Arrows & Directions</div>
+        <div class="icon-grid" id="arrowIcons"></div>
+
+        <!-- MISC -->
+        <div class="section-title">🔧 Miscellaneous</div>
+        <div class="icon-grid" id="miscIcons"></div>
+    </div>
+
+    <div class="copied-toast" id="copiedToast">
+        ✓ Class copied to clipboard!
+    </div>
+
+    <script>
+        // Icon database
+        const icons = {
+            common: [
+                { name: 'Home', icon: 'home' },
+                { name: 'Dashboard', icon: 'element-11' },
+                { name: 'Menu', icon: 'menu' },
+                { name: 'Search', icon: 'magnifier' },
+                { name: 'Settings', icon: 'setting-2' },
+                { name: 'User', icon: 'user' },
+                { name: 'Profile', icon: 'profile-circle' },
+                { name: 'Notification', icon: 'notification' },
+                { name: 'Calendar', icon: 'calendar' },
+                { name: 'Clock', icon: 'time' },
+            ],
+            navigation: [
+                { name: 'Abstract', icon: 'abstract-26' },
+                { name: 'Category', icon: 'category' },
+                { name: 'Grid', icon: 'element-11' },
+                { name: 'List', icon: 'row-horizontal' },
+                { name: 'Filter', icon: 'filter' },
+                { name: 'Sort', icon: 'sort' },
+                { name: 'More Vertical', icon: 'dots-vertical' },
+                { name: 'More Horizontal', icon: 'dots-horizontal' },
+            ],
+            actions: [
+                { name: 'Plus', icon: 'plus' },
+                { name: 'Add Circle', icon: 'plus-circle' },
+                { name: 'Minus', icon: 'minus' },
+                { name: 'Edit', icon: 'pencil' },
+                { name: 'Delete', icon: 'trash' },
+                { name: 'Save', icon: 'save-2' },
+                { name: 'Download', icon: 'download' },
+                { name: 'Upload', icon: 'upload' },
+                { name: 'Print', icon: 'printer' },
+                { name: 'Copy', icon: 'copy' },
+                { name: 'Duplicate', icon: 'copy-success' },
+                { name: 'Refresh', icon: 'arrows-circle' },
+                { name: 'Sync', icon: 'arrows-loop' },
+            ],
+            business: [
+                { name: 'Purchase', icon: 'purchase' },
+                { name: 'Basket', icon: 'basket' },
+                { name: 'Basket OK', icon: 'basket-ok' },
+                { name: 'Delivery', icon: 'delivery' },
+                { name: 'Truck', icon: 'delivery-3' },
+                { name: 'Package', icon: 'package' },
+                { name: 'Box', icon: 'parcel' },
+                { name: 'Dollar', icon: 'dollar' },
+                { name: 'Money', icon: 'wallet' },
+                { name: 'Invoice', icon: 'bill' },
+                { name: 'Receipt', icon: 'receipt-square' },
+                { name: 'Chart', icon: 'chart-line' },
+                { name: 'Chart Simple', icon: 'chart-simple' },
+                { name: 'Graph', icon: 'graph-up' },
+                { name: 'Analytics', icon: 'chart-line-up' },
+                { name: 'Bank', icon: 'bank' },
+                { name: 'Credit Card', icon: 'credit-cart' },
+            ],
+            status: [
+                { name: 'Check', icon: 'check' },
+                { name: 'Check Circle', icon: 'check-circle' },
+                { name: 'Cross', icon: 'cross' },
+                { name: 'Close Circle', icon: 'cross-circle' },
+                { name: 'Information', icon: 'information' },
+                { name: 'Info Circle', icon: 'information-2' },
+                { name: 'Warning', icon: 'information-3' },
+                { name: 'Shield', icon: 'shield' },
+                { name: 'Shield Check', icon: 'shield-tick' },
+                { name: 'Lock', icon: 'lock' },
+                { name: 'Unlock', icon: 'lock-2' },
+                { name: 'Eye', icon: 'eye' },
+                { name: 'Eye Slash', icon: 'eye-slash' },
+                { name: 'Star', icon: 'star' },
+                { name: 'Heart', icon: 'heart' },
+            ],
+            communication: [
+                { name: 'Message', icon: 'message-text' },
+                { name: 'Chat', icon: 'messages' },
+                { name: 'SMS', icon: 'sms' },
+                { name: 'Email', icon: 'sms' },
+                { name: 'Send', icon: 'send' },
+                { name: 'Phone', icon: 'phone' },
+                { name: 'Call', icon: 'call' },
+            ],
+            files: [
+                { name: 'File', icon: 'file' },
+                { name: 'Document', icon: 'document' },
+                { name: 'Folder', icon: 'folder' },
+                { name: 'Archive', icon: 'archive' },
+                { name: 'Clipboard', icon: 'clipboard' },
+                { name: 'Note', icon: 'note' },
+                { name: 'Book', icon: 'book' },
+            ],
+            arrows: [
+                { name: 'Arrow Up', icon: 'arrow-up' },
+                { name: 'Arrow Down', icon: 'arrow-down' },
+                { name: 'Arrow Left', icon: 'arrow-left' },
+                { name: 'Arrow Right', icon: 'arrow-right' },
+                { name: 'Arrow Circle Up', icon: 'arrow-circle-up' },
+                { name: 'Arrow Circle Down', icon: 'arrow-circle-down' },
+                { name: 'Arrow Circle Left', icon: 'arrow-circle-left' },
+                { name: 'Arrow Circle Right', icon: 'arrow-circle-right' },
+                { name: 'Double Arrow Up', icon: 'double-up' },
+                { name: 'Double Arrow Down', icon: 'double-down' },
+                { name: 'Double Arrow Left', icon: 'double-left' },
+                { name: 'Double Arrow Right', icon: 'double-right' },
+            ],
+            misc: [
+                { name: 'Location', icon: 'geolocation' },
+                { name: 'Map', icon: 'map' },
+                { name: 'Pin', icon: 'pin' },
+                { name: 'Flag', icon: 'flag' },
+                { name: 'Tag', icon: 'tag' },
+                { name: 'Bookmark', icon: 'bookmark' },
+                { name: 'Link', icon: 'link' },
+                { name: 'Share', icon: 'share' },
+                { name: 'Export', icon: 'exit-up' },
+                { name: 'Import', icon: 'exit-down' },
+                { name: 'Logout', icon: 'entrance-left' },
+                { name: 'Login', icon: 'entrance-right' },
+                { name: 'Power', icon: 'switch' },
+                { name: 'Gear', icon: 'gear' },
+                { name: 'Tools', icon: 'wrench' },
+                { name: 'Calendar Remove', icon: 'calendar-remove' },
+                { name: 'Calendar Add', icon: 'calendar-add' },
+            ]
+        };
+
+        let currentStyle = 'outline';
+
+        // Render icons
+        function renderIcons() {
+            Object.keys(icons).forEach(category => {
+                const container = document.getElementById(`${category}Icons`);
+                container.innerHTML = '';
+                
+                icons[category].forEach(item => {
+                    const iconClass = `ki-${currentStyle} ki-${item.icon}`;
+                    const card = document.createElement('div');
+                    card.className = 'icon-card';
+                    card.setAttribute('data-name', item.name.toLowerCase());
+                    card.setAttribute('data-icon', item.icon.toLowerCase());
+                    card.innerHTML = `
+                        <i class="${iconClass}"></i>
+                        <div class="icon-name">${item.name}</div>
+                        <div class="icon-class">${iconClass}</div>
+                    `;
+                    card.onclick = () => copyToClipboard(iconClass);
+                    container.appendChild(card);
+                });
+            });
+
+            updateStats();
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('copiedToast');
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.icon-card');
+            
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const icon = card.getAttribute('data-icon');
+                const matches = name.includes(searchTerm) || icon.includes(searchTerm);
+                card.style.display = matches ? 'block' : 'none';
+            });
+
+            updateStats();
+        });
+
+        // Style tabs
+        document.querySelectorAll('.style-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.style-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentStyle = tab.getAttribute('data-style');
+                renderIcons();
+            });
+        });
+
+        // Update stats
+        function updateStats() {
+            const allCards = document.querySelectorAll('.icon-card');
+            const visibleCards = Array.from(allCards).filter(card => card.style.display !== 'none');
+            
+            document.getElementById('totalIcons').textContent = allCards.length;
+            document.getElementById('visibleIcons').textContent = visibleCards.length;
+        }
+
+        // Initial render
+        renderIcons();
+    </script>
+</body>
+</html>

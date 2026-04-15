@@ -67,11 +67,11 @@
 
                     <div class="d-flex justify-content-end gap-3">
                         <a href="{{ route('web.organizations.index') }}" class="btn btn-light-secondary">
-                            <i class="ki-solid ki-cross fs-3"></i>
+                            <i class="ki-outline ki-arrow-zigzag fs-3"></i>
                             Batal
                         </a>
                         <button type="submit" class="btn btn-primary update-confirm" data-name="{{ $organization->name }}">
-                            <i class="ki-solid ki-check fs-3"></i>
+                            <i class="ki-outline ki-check fs-3"></i>
                             Perbarui Data
                         </button>
                     </div>

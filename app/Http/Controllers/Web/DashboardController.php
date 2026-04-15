@@ -20,8 +20,19 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
+        // Get period parameters
+        $period = $request->get('period', 'today');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        // Set date range in dashboard service
+        $this->dashboardService->setDateRange($period, $startDate, $endDate);
+
+        // Get dashboard data
         $data = $this->dashboardService->getDataForUser($request->user());
         $data['breadcrumbs'] = [];
+        $data['currentPeriod'] = $period;
+        
         return view('dashboard.role-based', $data);
     }
 

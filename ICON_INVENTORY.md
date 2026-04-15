@@ -1,9 +1,9 @@
 # Daftar Icon yang Digunakan di Sistem Medikindo PO
 
 **Tanggal**: 14 April 2026  
-**Format Icon**: `ki-solid ki-{name}` (Keenicons Duotone)  
+**Format Icon**: `ki-outline ki-{name}` (Keenicons Outline)  
 **Total Icon Unik**: 72 icon  
-**Update Terakhir**: 14 April 2026 - Migrasi dari Outline ke Duotone
+**Update Terakhir**: 14 April 2026 - Migrasi dari Solid ke Outline
 
 ---
 
@@ -13,133 +13,136 @@
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| abstract-14 | `ki-solid ki-abstract-14` | Sidebar mobile toggle, menu toggle |
-| abstract-26 | `ki-solid ki-abstract-26` | UI elements |
-| element-11 | `ki-solid ki-element-11` | Dashboard menu icon |
-| home | `ki-solid ki-home` | Home/Dashboard |
-| home-2 | `ki-solid ki-home-2` | Alternative home icon |
-| dots-horizontal | `ki-solid ki-dots-horizontal` | Action menu (horizontal) |
-| dots-vertical | `ki-solid ki-dots-vertical` | Action menu (vertical) |
-| setting-2 | `ki-solid ki-setting-2` | Settings |
-| exit-right | `ki-solid ki-exit-right` | Logout button |
+| abstract-14 | `ki-outline ki-abstract-14` | Sidebar mobile toggle, menu toggle |
+| abstract-26 | `ki-outline ki-abstract-26` | UI elements |
+| home | `ki-outline ki-check-circle` | Dashboard menu icon |
+| home-2 | `ki-outline ki-check-circle-2` | Alternative home icon |
+| dots-horizontal | `ki-outline ki-dots-horizontal` | Action menu (horizontal) |
+| dots-vertical | `ki-outline ki-dots-vertical` | Action menu (vertical) |
+| setting-2 | `ki-outline ki-setting-2` | Settings |
+| exit-right | `ki-outline ki-exit-right` | Logout button |
 
 ### ➡️ Arrows & Directions (7 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| arrow-up | `ki-solid ki-arrow-up` | Tagihan ke RS/Klinik (AR) |
-| arrow-down | `ki-solid ki-arrow-down` | Hutang ke Supplier (AP) |
-| arrow-left | `ki-solid ki-arrow-left` | Back navigation |
-| arrow-right | `ki-solid ki-arrow-right` | Forward navigation |
-| arrow-right-left | `ki-solid ki-arrow-right-left` | Transfer/Exchange |
-| black-left | `ki-solid ki-black-left` | Pagination previous |
-| black-right | `ki-solid ki-black-right` | Pagination next |
-| right | `ki-solid ki-right` | Next/Continue |
+| arrow-up | `ki-outline ki-arrow-up` | Tagihan ke RS/Klinik (AR) |
+| arrow-down | `ki-outline ki-arrow-down` | Hutang ke Supplier (AP) |
+| arrow-left | `ki-outline ki-arrow-down` | Back navigation |
+| arrow-right | `ki-outline ki-arrow-right` | Forward navigation |
+| arrow-right-left | `ki-outline ki-arrow-right-left` | Transfer/Exchange |
+| black-left | `ki-outline ki-black-left` | Pagination previous |
+| black-right | `ki-outline ki-black-right` | Pagination next |
+| right | `ki-outline ki-right` | Next/Continue |
 
 ### ✅ Actions & Status (11 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| check | `ki-solid ki-check` | Confirm/Save button |
-| check-circle | `ki-solid ki-check-circle` | Success message, approval |
-| check-square | `ki-solid ki-check-square` | Approvals menu |
-| cross | `ki-solid ki-cross` | Cancel/Close button |
-| cross-circle | `ki-solid ki-cross-circle` | Error message, reject |
-| plus | `ki-solid ki-plus` | Add/Create button |
-| pencil | `ki-solid ki-pencil` | Edit button |
-| trash | `ki-solid ki-trash` | Delete button |
-| eye | `ki-solid ki-eye` | View/Detail button |
-| lock | `ki-solid ki-lock` | Security/Lock status |
-| verify | `ki-solid ki-verify` | Verification |
+| check | `ki-outline ki-check` | Confirm/Save button |
+| check-circle | `ki-outline ki-check-circle` | Success message, approval |
+| check-square | `ki-outline ki-check-square` | Approvals menu |
+| cross | `ki-outline ki-arrow-zigzag` | Cancel/Close button |
+| cross-circle | `ki-outline ki-arrow-zigzag-circle` | Error message, reject |
+| plus | `ki-outline ki-picture` | Add/Create button |
+| pencil | `ki-outline ki-pencil` | Edit button (deprecated, use notepad-edit) |
+| trash | `ki-outline ki-brifecase-tick
+` | Delete button |
+| eye | `ki-outline ki-facebook` | View/Detail button |
+| lock | `ki-outline ki-lock` | Security/Lock status |
+| verify | `ki-outline ki-verify` | Verification |
 
 ### 🏢 Business & Organizations (8 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| office-bag | `ki-solid ki-office-bag` | Organizations menu |
-| bank | `ki-solid ki-bank` | Organizations/Financial |
-| hospital | `ki-solid ki-hospital` | Healthcare organizations |
-| shop | `ki-solid ki-shop` | Retail/Store |
-| delivery | `ki-solid ki-delivery` | Delivery |
-| delivery-3 | `ki-solid ki-delivery-3` | Suppliers menu |
-| basket | `ki-solid ki-basket` | Shopping/Orders |
-| purchase | `ki-solid ki-purchase` | Purchase Orders menu |
+| office-bag | `ki-outline ki-office-bag` | Organizations menu |
+| bank | `ki-outline ki-bank` | Organizations/Financial |
+| hospital | `ki-outline ki-hospital` | Healthcare organizations |
+| shop | `ki-outline ki-shop` | Retail/Store |
+| delivery | `ki-outline ki-cube-2` | Delivery |
+| delivery-3 | `ki-outline ki-cube-2-3` | Suppliers menu |
+| basket | `ki-outline ki-brifecase-tick
+` | Shopping/Orders |
+| purchase | `ki-outline ki-purchase` | Purchase Orders menu |
 
 ### 📄 Documents & Files (9 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| document | `ki-solid ki-document` | Documents |
-| file | `ki-solid ki-file` | Files |
-| file-deleted | `ki-solid ki-file-deleted` | Empty state |
-| file-down | `ki-solid ki-file-down` | Download file |
-| note | `ki-solid ki-note` | Notes |
-| note-2 | `ki-solid ki-note-2` | Alternative notes |
-| notepad-edit | `ki-solid ki-notepad-edit` | Edit document |
-| bill | `ki-solid ki-bill` | Invoices/Bills |
-| printer | `ki-solid ki-printer` | Print |
+| document | `ki-outline ki-document` | Documents |
+| file | `ki-outline ki-file` | Files |
+| file-deleted | `ki-outline ki-file-deleted` | Empty state |
+| file-down | `
+ki-outline ki-document` | Download file |
+| note | `ki-outline ki-note` | Notes |
+| note-2 | `ki-outline ki-note-2` | Alternative notes |
+| notepad-edit | `ki-outline ki-parcel` | Edit document/button |
+| bill | `ki-outline ki-bill` | Invoices/Bills |
+| printer | `ki-outline ki-document` | Print |
 
 ### 👤 Users & People (4 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| user | `ki-solid ki-user` | User profile |
-| user-tick | `ki-solid ki-user-tick` | Verified user |
-| profile-user | `ki-solid ki-profile-user` | Users menu |
-| notification | `ki-solid ki-notification` | Notifications |
-| notification-bing | `ki-solid ki-notification-bing` | Notification bell |
+| user | `ki-outline ki-user` | User profile |
+| user-tick | `ki-outline ki-user-tick` | Verified user |
+| profile-user | `ki-outline ki-twitter` | Users menu |
+| notification | `ki-outline ki-notification` | Notifications |
+| notification-bing | `ki-outline ki-notification-bing` | Notification bell |
 
 ### 💰 Finance & Payment (5 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| wallet | `ki-solid ki-wallet` | Payments menu |
-| dollar | `ki-solid ki-dollar` | Money/Currency |
-| calculator | `ki-solid ki-calculator` | Calculations |
-| chart | `ki-solid ki-chart` | Charts/Analytics |
-| chart-line-up | `ki-solid ki-chart-line-up` | Growth chart |
-| chart-simple | `ki-solid ki-chart-simple` | Credit Control menu |
+| wallet | `ki-outline ki-entrance-right` | Payments menu |
+| dollar | `ki-outline ki-dollar` | Money/Currency |
+| calculator | `ki-outline ki-calculator` | Calculations |
+| chart | `ki-outline ki-chart` | Charts/Analytics |
+| chart-line-up | `ki-outline ki-chart-line-up` | Growth chart |
+| chart-simple | `ki-outline ki-chart-simple` | Credit Control menu |
 
 ### 📦 Inventory & Products (3 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| package | `ki-solid ki-package` | Goods Receipt menu |
-| capsule | `ki-solid ki-capsule` | Products menu (medical) |
-| geolocation | `ki-solid ki-geolocation` | Location/Address |
+| package | `ki-outline ki-package` | Goods Receipt menu |
+| capsule | `ki-outline ki-paintbucket` | Products menu (medical) |
+| geolocation | `ki-outline ki-geolocation` | Location/Address |
 
 ### 🛡️ Security & Protection (3 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| shield-tick | `ki-solid ki-shield-tick` | Active/Protected |
-| shield-cross | `ki-solid ki-shield-cross` | Inactive/Unprotected |
-| lock | `ki-solid ki-lock` | Locked/Secured |
+| shield-tick | `ki-outline ki-shield-tick` | Active/Protected |
+| shield-cross | `ki-outline ki-shield-cross` | Inactive/Unprotected |
+| lock | `ki-outline ki-lock` | Locked/Secured |
 
 ### 📞 Communication (3 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| phone | `ki-solid ki-phone` | Phone number |
-| sms | `ki-solid ki-sms` | Messages |
-| send | `ki-solid ki-send` | Send/Submit |
+| phone | `ki-outline ki-phone` | Phone number |
+| sms | `ki-outline ki-sms` | Messages |
+| send | `ki-outline ki-send` | Send/Submit |
 
 ### 🔍 Search & Info (4 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| magnifier | `ki-solid ki-magnifier` | Search button |
-| information | `ki-solid ki-information` | Info icon |
-| information-5 | `ki-solid ki-information-5` | Info box |
-| cloud-download | `ki-solid ki-cloud-download` | Download |
+| magnifier | `ki-outline ki-filter
+` | Search button |
+| information | `ki-outline ki-information` | Info icon |
+| information-5 | `ki-outline ki-information-5` | Info box |
+| cloud-download | `ki-outline ki-cloud-download` | Download |
 
 ### ⏰ Time & Date (3 icons)
 
 | Icon Name | Kode | Penggunaan |
 |-----------|------|------------|
-| time | `ki-solid ki-time` | Time |
-| timer | `ki-solid ki-timer` | Timer/Duration |
-| calendar | `ki-solid ki-calendar` | Date picker |
+| time | `ki-outline ki-time` | Time |
+| timer | `ki-outline ki-calendar-search` | Timer/Duration |
+| calendar | `ki-outline ki-calendar` | Date picker |
 
 ---
 
@@ -180,7 +183,7 @@
 
 ### Format Standar
 ```html
-<i class="ki-solid ki-{icon-name} fs-{size}"></i>
+<i class="ki-outline ki-{icon-name} fs-{size}"></i>
 ```
 
 ### Ukuran yang Digunakan
@@ -211,18 +214,18 @@
 ## 📍 Lokasi Penggunaan Icon
 
 ### Sidebar Menu
-- Dashboard: `ki-element-11`
+- Dashboard: `ki-home`
 - Purchase Orders: `ki-purchase`
-- Approvals: `ki-check-square`
-- Goods Receipt: `ki-package`
-- Tagihan ke RS/Klinik: `ki-arrow-up`
-- Hutang ke Supplier: `ki-arrow-down`
+- Approvals: `ki-basket-ok`
+- Goods Receipt: `ki-questionnaire-tablet`
+- Tagihan ke RS/Klinik: `ki-bill` (with text-success)
+- Hutang ke Supplier: `ki-arrow-down` (with text-danger)
 - Payments: `ki-wallet`
-- Credit Control: `ki-chart-simple`
-- Organizations: `ki-bank`
-- Suppliers: `ki-delivery-3`
+- Credit Control: `ki-chart-line`
+- Organizations: `ki-people`
+- Suppliers: `ki-cube-2`
 - Products: `ki-capsule`
-- Users: `ki-profile-user`
+- Users: `ki-user`
 
 ### Header
 - Notifications: `ki-notification-bing`
@@ -266,7 +269,7 @@ Jika Anda ingin mengganti icon, berikut rekomendasi berdasarkan konsistensi:
 5. ✅ `ki-trash` → Sudah konsisten
 
 ### Prioritas Sedang (Menu Icons)
-1. ✅ `ki-element-11` → Dashboard (sudah bagus)
+1. ✅ `ki-home` → Dashboard (sudah diupdate dari ki-element-11)
 2. ✅ `ki-purchase` → PO (sudah bagus)
 3. ✅ `ki-package` → GR (sudah bagus)
 4. ✅ `ki-wallet` → Payment (sudah bagus)

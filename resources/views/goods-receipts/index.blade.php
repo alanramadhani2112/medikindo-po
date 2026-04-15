@@ -4,7 +4,7 @@
         {{-- Success Alert --}}
     @if(session('success'))
         <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-solid ki-check-circle fs-2 me-3"></i>
+            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
             <div>{{ session('success') }}</div>
         </div>
     @endif
@@ -16,7 +16,8 @@
                 {{-- LEFT: Search --}}
                 <div class="flex-grow-1" style="max-width: 400px;">
                     <div class="position-relative">
-                        <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                        <i class="ki-outline ki-chart
+ fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                         <input type="text" name="search" value="{{ request('search') }}" 
                                class="form-control form-control-solid ps-12" 
                                placeholder="Cari nomor GR atau nomor PO...">
@@ -32,14 +33,15 @@
                 
                 {{-- Search Button --}}
                 <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-solid ki-magnifier fs-2"></i>
-                    Cari
+                    <i class="ki-outline ki-chart
+ fs-2"></i>
+                    Filter
                 </button>
                 
                 {{-- Reset Button --}}
                 @if(request()->filled('search') || request()->filled('status'))
                     <a href="{{ route('web.goods-receipts.index') }}" class="btn btn-light">
-                        <i class="ki-solid ki-cross fs-2"></i>
+                        <i class="ki-outline ki-arrow-zigzag fs-2"></i>
                         Reset
                     </a>
                 @endif
@@ -72,8 +74,8 @@
                     <li class="nav-item">
                         <a href="{{ route('web.goods-receipts.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
                            class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
-                                <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
+                            <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
+                            <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
                             <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                                 {{ $count }}
                             </span>
@@ -88,14 +90,13 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">
-                <i class="ki-solid ki-delivery fs-2 me-2"></i>
                 Daftar Penerimaan Barang
             </h3>
             
             @can('view_goods_receipt')
             <div>
                 <a href="{{ route('web.goods-receipts.create') }}" class="btn btn-primary">
-                    <i class="ki-solid ki-plus fs-2"></i>
+                    <i class="ki-outline ki-picture fs-2"></i>
                     Rekam Penerimaan Barang
                 </a>
             </div>
@@ -132,7 +133,7 @@
                                 <td>
                                     <div class="fw-bold text-gray-800 fs-6 mb-1">{{ $receipt->purchaseOrder?->supplier?->name ?? '—' }}</div>
                                     <div class="text-muted fs-7">
-                                        <i class="ki-solid ki-office-bag fs-7 me-1"></i>
+                                        <i class="ki-outline ki-office-bag fs-7 me-1"></i>
                                         {{ $receipt->purchaseOrder?->organization?->name ?? '—' }}
                                     </div>
                                 </td>
@@ -149,24 +150,24 @@
                                 <td>
                                     <div class="fw-bold text-gray-800 fs-6">{{ $receipt->received_date->format('d/m/Y') }}</div>
                                     <div class="text-muted fs-7 mt-1">
-                                        <i class="ki-solid ki-user fs-7 me-1"></i>
+                                        <i class="ki-outline ki-user"></i>
                                         {{ $receipt->receivedBy?->name ?? '—' }}
                                     </div>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <div class="d-flex justify-content-end">
-                                        <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ki-solid ki-dots-vertical fs-3"></i>
+                                    <div class="action-menu-wrapper">
+                                        <button type="button" class="btn btn-sm btn-light btn-active-light-primary" data-action-menu>
+                                            <i class="ki-outline ki-dots-vertical fs-3"></i>
                                             Aksi
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a href="{{ route('web.goods-receipts.show', $receipt) }}" class="dropdown-item">
-                                                <i class="ki-solid ki-eye fs-4 me-2 text-primary"></i>
+                                        <div class="action-dropdown-menu" style="display: none;">
+                                            <a href="{{ route('web.goods-receipts.show', $receipt) }}" class="d-flex align-items-center">
+                                                <i class="ki-outline ki-facebook fs-4 me-2 text-primary"></i>
                                                 Lihat Detail
                                             </a>
-                                            <a href="{{ route('web.goods-receipts.pdf', $receipt) }}" class="dropdown-item" target="_blank">
-                                                <i class="ki-solid ki-file-down fs-4 me-2 text-info"></i>
+                                            <a href="{{ route('web.goods-receipts.pdf', $receipt) }}" class="d-flex align-items-center" target="_blank">
+                                                <i class="
+ki-outline ki-document fs-4 me-2 text-info"></i>
                                                 Download PDF
                                             </a>
                                         </div>
@@ -177,12 +178,12 @@
                             <tr>
                                 <td colspan="6" class="text-center py-10">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-solid ki-package fs-3x text-gray-400 mb-3"></i>
+                                        <i class="ki-outline ki-package fs-3x text-gray-400 mb-3"></i>
                                         <h3 class="fs-5 fw-bold text-gray-800 mb-1">Belum Ada Penerimaan Barang</h3>
                                         <p class="text-muted fs-7">Data penerimaan barang akan muncul setelah proses konfirmasi penerimaan.</p>
                                         @can('confirm_receipt')
                                             <a href="{{ route('web.goods-receipts.create') }}" class="btn btn-primary mt-3">
-                                                <i class="ki-solid ki-plus fs-2"></i>
+                                                <i class="ki-outline ki-picture fs-2"></i>
                                                 Rekam Penerimaan
                                             </a>
                                         @endcan

@@ -70,6 +70,13 @@ class RolePermissionSeeder extends Seeder
             // Finance / Credit
             'view_credit_control',
 
+            // Inventory
+            'view_inventory',
+            'manage_inventory',
+
+            // Reports
+            'view_reports',
+
             // Master Data
             'manage_organizations',
             'manage_suppliers',
@@ -99,6 +106,7 @@ class RolePermissionSeeder extends Seeder
             'confirm_receipt',          // Can create GR (receive goods)
             'view_invoices',            // Can view invoices related to their PO
             'confirm_payment',          // Can confirm their own payments
+            'view_inventory',           // Can view inventory
         ]);
 
         // Approver (Medikindo Ops — approves and ships POs)
@@ -143,6 +151,11 @@ class RolePermissionSeeder extends Seeder
             'verify_payment',
             // Finance
             'view_credit_control',
+            // Inventory
+            'view_inventory',
+            'manage_inventory',
+            // Reports
+            'view_reports',
         ]);
 
         // Finance (manages invoices and payments)
@@ -162,6 +175,8 @@ class RolePermissionSeeder extends Seeder
             'confirm_payment',
             'verify_payment',
             'view_credit_control',
+            'view_inventory',           // Can view inventory
+            'view_reports',             // Can view reports
         ]);
 
         // Super Admin — ALL permissions

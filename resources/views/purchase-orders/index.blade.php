@@ -10,7 +10,8 @@
             {{-- LEFT: Search --}}
             <div class="flex-grow-1" style="max-width: 400px;">
                 <div class="position-relative">
-                    <i class="ki-solid ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <i class="ki-outline ki-chart
+ fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
                     <input type="text" name="search" value="{{ request('search') }}" 
                            class="form-control form-control-solid ps-12" 
                            placeholder="Cari nomor PO, organisasi, atau supplier...">
@@ -39,14 +40,15 @@
             
             {{-- Search Button --}}
             <button type="submit" class="btn btn-dark">
-                <i class="ki-solid ki-magnifier fs-2"></i>
+                <i class="ki-outline ki-chart
+ fs-2"></i>
                 Filter
             </button>
             
             {{-- Reset Button --}}
             @if(request()->filled('search') || request()->filled('organization') || request()->filled('date_from'))
                 <a href="{{ route('web.po.index', ['tab' => $tab ?? 'all']) }}" class="btn btn-light">
-                    <i class="ki-solid ki-cross fs-2"></i>
+                    <i class="ki-outline ki-arrow-zigzag fs-2"></i>
                     Reset
                 </a>
             @endif
@@ -55,7 +57,7 @@
             @can('create_purchase_orders')
             <div class="ms-auto">
                 <a href="{{ route('web.po.create') }}" class="btn btn-primary">
-                    <i class="ki-solid ki-plus fs-2"></i>
+                    <i class="ki-outline ki-picture fs-2"></i>
                     Buat PO Baru
                 </a>
             </div>
@@ -86,8 +88,8 @@
                 <li class="nav-item">
                     <a href="{{ route('web.po.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
                        class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                        <i class="ki-solid {{ $tabData['icon'] }} fs-4 me-2"></i>
-                        <span class="fs-6 fw-bold">{{ $tabData['label'] }}</span>
+                        <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
+                        <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
                         <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
                             {{ $count }}
                         </span>
@@ -122,7 +124,7 @@
                                     {{ $order->po_number }}
                                 </a>
                                 <div class="text-muted fs-7 mt-1">
-                                    <i class="ki-solid ki-user fs-7 me-1"></i>
+                                    <i class="ki-outline ki-user"></i>
                                     {{ $order->creator->name ?? '-' }}
                                 </div>
                             </td>
@@ -159,38 +161,38 @@
                                 <div class="text-muted fs-8">{{ $order->created_at->diffForHumans() }}</div>
                             </td>
                             <td class="text-end pe-4">
-                                <div class="d-flex justify-content-end">
-                                    <button type="button" class="btn btn-sm btn-light btn-active-light-primary" 
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ki-solid ki-dots-vertical fs-3"></i>
+                                <div class="action-menu-wrapper">
+                                    <button type="button" class="btn btn-sm btn-light btn-active-light-primary" data-action-menu>
+                                        <i class="ki-outline ki-dots-vertical fs-3"></i>
                                         Aksi
                                     </button>
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a href="{{ route('web.po.show', $order) }}" class="dropdown-item">
-                                            <i class="ki-solid ki-eye fs-4 me-2 text-primary"></i>
+                                    <div class="action-dropdown-menu" style="display: none;">
+                                        <a href="{{ route('web.po.show', $order) }}" class="d-flex align-items-center">
+                                            <i class="ki-outline ki-facebook fs-4 me-2 text-primary"></i>
                                             Lihat Detail
                                         </a>
                                         @if($order->status === 'draft')
                                             @can('update_purchase_orders')
-                                            <a href="{{ route('web.po.edit', $order) }}" class="dropdown-item">
-                                                <i class="ki-solid ki-notepad-edit fs-4 me-2 text-primary"></i>
+                                            <a href="{{ route('web.po.edit', $order) }}" class="d-flex align-items-center">
+                                                <i class="ki-outline ki-parcel fs-4 me-2 text-warning"></i>
                                                 Edit PO
                                             </a>
                                             @endcan
                                         @endif
-                                        <a href="{{ route('web.po.pdf', $order) }}" class="dropdown-item" target="_blank">
-                                            <i class="ki-solid ki-file-down fs-4 me-2 text-info"></i>
+                                        <a href="{{ route('web.po.pdf', $order) }}" class="d-flex align-items-center" target="_blank">
+                                            <i class="
+ki-outline ki-document fs-4 me-2 text-info"></i>
                                             Download PDF
                                         </a>
                                         @if($order->status === 'draft')
                                             @can('delete_purchase_orders')
-                                            <div class="dropdown-divider"></div>
-                                            <form action="{{ route('web.po.destroy', $order) }}" method="POST" class="d-inline" 
-                                                  onsubmit="return confirm('Yakin ingin menghapus PO ini?');">
+                                            <div class="separator"></div>
+                                            <form action="{{ route('web.po.destroy', $order) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="ki-solid ki-trash fs-4 me-2"></i>
+                                                <button type="submit" class="d-flex align-items-center text-danger"
+                                                        onclick="return confirm('Yakin ingin menghapus PO ini?')">
+                                                    <i class="ki-outline ki-trash fs-4 me-2"></i>
                                                     Hapus PO
                                                 </button>
                                             </form>
@@ -204,7 +206,7 @@
                         <tr>
                             <td colspan="7" class="text-center py-10">
                                 <div class="d-flex flex-column align-items-center">
-                                    <i class="ki-solid ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                                    <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                     <h3 class="fs-5 fw-bold text-gray-800 mb-1">Tidak Ada Data</h3>
                                     <p class="text-muted fs-7">Belum ada purchase order yang tersedia saat ini.</p>
                                 </div>

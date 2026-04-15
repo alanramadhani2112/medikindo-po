@@ -306,7 +306,7 @@ Common Icon Mappings:
 ```blade
 <!-- In Buttons -->
 <button class="btn btn-primary">
-    <i class="ki-outline ki-plus fs-3"></i>
+    <i class="ki-outline ki-picture fs-3"></i>
     Add New
 </button>
 
@@ -651,7 +651,8 @@ For each view category, complete this checklist:
             </div>
             <div class="col-md-8 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="ki-outline ki-filter fs-3"></i>
+                    <i class="ki-outline ki-filter
+ fs-3"></i>
                     Filter
                 </button>
                 <button type="reset" class="btn btn-light">Reset</button>

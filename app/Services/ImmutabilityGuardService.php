@@ -65,13 +65,18 @@ class ImmutabilityGuardService
     ];
 
     /**
-     * Statuses that indicate an invoice is issued and immutable
+     * Statuses that indicate an invoice is issued and immutable.
+     * Includes all AR Invoice statuses per Requirement 6.6.
      */
     private const IMMUTABLE_STATUSES = [
+        // AR Invoice statuses (Requirement 6.6)
         'issued',
+        'partial_paid',
+        'paid',
+        'void',
+        // Legacy / AP statuses
         'pending_approval',
         'approved',
-        'paid',
         'partially_paid',
         'verified',
         'overdue',

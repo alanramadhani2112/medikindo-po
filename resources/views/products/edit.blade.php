@@ -14,7 +14,6 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="ki-solid ki-notepad-edit fs-2 me-2"></i>
                         Ubah Data Produk
                     </h3>
                 </div>
@@ -22,7 +21,7 @@
                     {{-- Error Alert --}}
                     @if($errors->any())
                         <div class="alert alert-danger d-flex align-items-start mb-5">
-                            <i class="ki-solid ki-information-5 fs-2 me-3"></i>
+                            <i class="ki-outline ki-information-5 fs-2 me-3"></i>
                             <div>
                                 <ul class="mb-0">
                                     @foreach($errors->all() as $error)
@@ -98,7 +97,7 @@
                             <div class="col-12">
                                 <div class="separator separator-dashed my-7"></div>
                                 <h3 class="fs-5 fw-bold text-gray-900 mb-5">
-                                    <i class="ki-solid ki-chart-line-up fs-3 text-success me-2"></i>
+                                    <i class="ki-outline ki-courier-up fs-3 text-success me-2"></i>
                                     Perhitungan Harga & Profit
                                 </h3>
                             </div>
@@ -232,6 +231,46 @@
                                 @enderror
                             </div>
 
+                            {{-- Expiry Date & Batch Number --}}
+                            <div class="col-12">
+                                <div class="separator separator-dashed my-7"></div>
+                                <h3 class="fs-5 fw-bold text-gray-900 mb-5">
+                                    <i class="ki-outline ki-calendar-remove fs-3 text-warning me-2"></i>
+                                    Informasi Kadaluarsa (Opsional)
+                                </h3>
+                            </div>
+
+                            <div class="col-md-6">
+                                {{-- Expiry Date --}}
+                                <div class="mb-5">
+                                    <label class="form-label fs-6 fw-semibold">Tanggal Kadaluarsa</label>
+                                    <input type="date" name="expiry_date" value="{{ old('expiry_date', $product->expiry_date?->format('Y-m-d')) }}"
+                                           class="form-control form-control-solid @error('expiry_date') is-invalid @enderror">
+                                    <div class="form-text text-muted">Tanggal expired produk (jika ada)</div>
+                                    @error('expiry_date')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                {{-- Batch Number --}}
+                                <div class="mb-5">
+                                    <label class="form-label fs-6 fw-semibold">Nomor Batch</label>
+                                    <input type="text" name="batch_no" value="{{ old('batch_no', $product->batch_no) }}" maxlength="100"
+                                           placeholder="Contoh: BATCH-2026-001"
+                                           class="form-control form-control-solid @error('batch_no') is-invalid @enderror">
+                                    <div class="form-text text-muted">Nomor batch produk (jika ada)</div>
+                                    @error('batch_no')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="separator separator-dashed my-7"></div>
+                            </div>
+
                             {{-- Deskripsi --}}
                             <div class="col-12 mb-5">
                                 <label class="form-label fs-6 fw-semibold">Deskripsi Produk</label>
@@ -259,11 +298,11 @@
                         {{-- Action Buttons --}}
                         <div class="d-flex justify-content-end gap-3 mt-7 pt-7 border-top">
                             <a href="{{ route('web.products.index') }}" class="btn btn-light">
-                                <i class="ki-solid ki-cross fs-2"></i>
+                                <i class="ki-outline ki-arrow-zigzag fs-2"></i>
                                 Batal
                             </a>
                             <button type="submit" class="btn btn-primary update-confirm" data-name="{{ $product->name }}">
-                                <i class="ki-solid ki-check fs-2"></i>
+                                <i class="ki-outline ki-check fs-2"></i>
                                 Perbarui Produk
                             </button>
                         </div>
