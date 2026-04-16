@@ -16,6 +16,8 @@ class GoodsReceiptWebController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorize('viewAny', GoodsReceipt::class);
+        
         $user  = $request->user();
         $query = GoodsReceipt::with(['purchaseOrder.organization', 'purchaseOrder.supplier', 'receivedBy', 'items'])
             ->filter($request, [
@@ -55,6 +57,8 @@ class GoodsReceiptWebController extends Controller
 
     public function create(Request $request)
     {
+        $this->authorize('create', GoodsReceipt::class);
+        
         $user = $request->user();
 
         // Load POs available to receive — status must be 'approved' only
@@ -80,6 +84,9 @@ class GoodsReceiptWebController extends Controller
     {
         $data = $request->validated();
         $po   = PurchaseOrder::findOrFail($data['purchase_order_id']);
+        
+        $this->authorize('create', GoodsReceipt::class);
+        $this->authorize('confirmReceipt', $po);
 
         try {
             $receipt = $this->goodsReceiptService->confirmReceipt(
@@ -97,6 +104,8 @@ class GoodsReceiptWebController extends Controller
 
     public function show(GoodsReceipt $goodsReceipt)
     {
+        $this->authorize('view', $goodsReceipt);
+        
         $goodsReceipt->load(['purchaseOrder.supplier', 'purchaseOrder.organization', 'receivedBy', 'items.purchaseOrderItem.product']);
         $breadcrumbs = [
             ['label' => 'Logistics & Operations', 'url' => 'javascript:void(0)'],
@@ -108,6 +117,8 @@ class GoodsReceiptWebController extends Controller
 
     public function exportPdf(GoodsReceipt $goodsReceipt)
     {
+        $this->authorize('view', $goodsReceipt);
+        
         $goodsReceipt->load(['purchaseOrder.supplier', 'purchaseOrder.organization', 'receivedBy', 'items.purchaseOrderItem.product']);
         
         $pdf = Pdf::loadView('pdf.goods_receipt', compact('goodsReceipt'))->setPaper('a4', 'portrait');

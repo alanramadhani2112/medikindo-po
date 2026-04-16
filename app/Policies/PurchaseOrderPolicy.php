@@ -31,7 +31,18 @@ class PurchaseOrderPolicy
     {
         return $po->isDraft()
             && $user->hasAnyRole(['Super Admin', 'Healthcare User'])
-            && ($user->isSuperAdmin() || $user->organization_id === $po->organization_id);
+            && ($user->isSuperAdmin() || (int) $user->organization_id === (int) $po->organization_id);
+    }
+
+    /**
+     * Determine if user can confirm goods receipt for this PO.
+     * This is different from update - PO must be approved, not draft.
+     */
+    public function confirmReceipt(User $user, PurchaseOrder $po): bool
+    {
+        return $po->isApproved()
+            && $user->hasAnyRole(['Super Admin', 'Healthcare User', 'Admin Pusat'])
+            && ($user->isSuperAdmin() || (int) $user->organization_id === (int) $po->organization_id);
     }
 
     public function submit(User $user, PurchaseOrder $po): bool

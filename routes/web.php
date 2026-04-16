@@ -20,10 +20,19 @@ use Illuminate\Support\Facades\Route;
 // ─────────────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthWebController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthWebController::class, 'login'])->name('login.post');
+    Route::post('/login', [AuthWebController::class, 'login'])
+        ->name('login.post')
+        ->middleware('throttle:5,15'); // 5 attempts per 15 minutes
 });
 
-Route::post('/logout', [AuthWebController::class, 'logout'])->name('logout')->middleware('auth');
+// CSRF Token Refresh (for preventing 419 errors on long-open login pages)
+Route::get('/refresh-csrf', function () {
+    return response()->json(['token' => csrf_token()]);
+})->name('refresh-csrf');
+
+Route::post('/logout', [AuthWebController::class, 'logout'])
+    ->name('logout')
+    ->middleware(['auth', 'throttle:10,1']); // 10 logouts per minute
 
 // ─────────────────────────────────────────────────────────────
 // Authenticated Routes — prefixed with "web." to avoid API conflicts
@@ -34,7 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/', fn() => redirect()->route('web.dashboard'));
 
     // ── Dashboard ──────────────────────────────────────────────
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('web.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('web.dashboard')
+        ->middleware('can:view_dashboard');
     Route::get('/dashboard/audit', [DashboardController::class, 'audit'])->name('web.dashboard.audit')->middleware('can:view_audit');
     Route::get('/dashboard/finance', [DashboardController::class, 'finance'])->name('web.dashboard.finance')->middleware('can:view_invoices');
 
@@ -78,10 +89,14 @@ Route::middleware('auth')->group(function () {
     // ── Goods Receipts ─────────────────────────────────────────
     Route::prefix('goods-receipts')->name('web.goods-receipts.')->middleware('can:view_goods_receipt')->group(function () {
         Route::get('/',               [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'index'])->name('index');
-        Route::get('/create',         [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'create'])->name('create');
-        Route::post('/',              [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'store'])->name('store');
         Route::get('/{goodsReceipt}', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'show'])->name('show');
         Route::get('/{goodsReceipt}/pdf', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'exportPdf'])->name('pdf');
+        
+        // Separate middleware for create/store operations
+        Route::middleware('can:confirm_receipt')->group(function () {
+            Route::get('/create', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'create'])->name('create');
+            Route::post('/',      [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'store'])->name('store');
+        });
     });
 
     // ── Invoices (AP & AR) ─────────────────────────────────────
@@ -150,6 +165,25 @@ Route::middleware('auth')->group(function () {
             ->name('web.invoices.supplier.verify');
     });
 
+    // ── Credit Notes ───────────────────────────────────────────
+    Route::prefix('credit-notes')->name('web.credit-notes.')->middleware('can:view_invoices')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'index'])->name('index');
+        Route::get('/{creditNote}', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'show'])->name('show');
+        
+        Route::middleware('can:create_invoices')->group(function () {
+            // Create credit note for customer invoice
+            Route::get('/customer-invoice/{invoice}/create', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'createForCustomerInvoice'])
+                ->name('create-customer');
+            Route::post('/customer-invoice/{invoice}', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'storeForCustomerInvoice'])
+                ->name('store-customer');
+            
+            // Credit note actions
+            Route::post('/{creditNote}/issue', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'issue'])->name('issue');
+            Route::post('/{creditNote}/apply', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'apply'])->name('apply');
+            Route::post('/{creditNote}/cancel', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'cancel'])->name('cancel');
+        });
+    });
+
     // Price List Management
     Route::resource('/price-lists', PriceListWebController::class)
         ->names('web.price-lists')
@@ -167,6 +201,42 @@ Route::middleware('auth')->group(function () {
         Route::post('/incoming', [\App\Http\Controllers\Web\PaymentWebController::class, 'storeIncoming'])->name('store.incoming')->middleware('can:process_payments');
         Route::get('/outgoing',  [\App\Http\Controllers\Web\PaymentWebController::class, 'createOutgoing'])->name('create.outgoing');
         Route::post('/outgoing', [\App\Http\Controllers\Web\PaymentWebController::class, 'storeOutgoing'])->name('store.outgoing')->middleware('can:process_payments');
+    });
+
+    // ── Payment Proofs ─────────────────────────────────────────
+    Route::prefix('payment-proofs')->name('web.payment-proofs.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'index'])
+            ->name('index')
+            ->middleware('can:view_payment_status');
+        
+        Route::middleware('can:submit_payment_proof')->group(function () {
+            Route::get('/create', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'store'])->name('store');
+        });
+
+        Route::get('/{paymentProof}', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'show'])
+            ->name('show');
+
+        // Finance User actions
+        Route::middleware('can:verify_payment_proof')->group(function () {
+            Route::get('/{paymentProof}/verify', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'verify'])->name('verify');
+            Route::post('/{paymentProof}/verify', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'processVerification'])->name('process-verification');
+        });
+
+        Route::middleware('can:approve_payment')->group(function () {
+            Route::get('/{paymentProof}/approve', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'approve'])->name('approve');
+            Route::post('/{paymentProof}/approve', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'processApproval'])->name('process-approval');
+            Route::get('/{paymentProof}/reject', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'reject'])->name('reject');
+            Route::post('/{paymentProof}/reject', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'processRejection'])->name('process-rejection');
+        });
+
+        // Document management
+        Route::middleware('can:upload_payment_document')->group(function () {
+            Route::post('/{paymentProof}/documents', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'uploadDocument'])->name('upload-document');
+        });
+        
+        Route::get('/{paymentProof}/documents/{document}', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'downloadDocument'])
+            ->name('download-document');
     });
 
     // ── Financial Controls (Credit Control) ────────────────────
