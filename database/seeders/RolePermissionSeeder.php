@@ -61,11 +61,27 @@ class RolePermissionSeeder extends Seeder
             'manage_invoice',         // Alias for create_invoices
             'approve_invoice_discrepancy',
 
+            // Credit Notes
+            'view_credit_notes',
+            'create_credit_notes',
+            'issue_credit_notes',
+            'apply_credit_notes',
+
             // Payments
             'view_payments',
             'process_payments',
             'confirm_payment',        // For Healthcare User to confirm payment
             'verify_payment',         // For Finance to verify payment
+
+            // Payment Proof System
+            'submit_payment_proof',
+            'upload_payment_document',
+            'view_payment_status',
+            'update_payment_submission',
+            'verify_payment_proof',
+            'approve_payment',
+            'view_payment_documents',
+            'request_payment_clarification',
 
             // Finance / Credit
             'view_credit_control',
@@ -107,6 +123,11 @@ class RolePermissionSeeder extends Seeder
             'view_invoices',            // Can view invoices related to their PO
             'confirm_payment',          // Can confirm their own payments
             'view_inventory',           // Can view inventory
+            // Payment Proof System - Healthcare User permissions
+            'submit_payment_proof',
+            'upload_payment_document',
+            'view_payment_status',
+            'update_payment_submission',
         ]);
 
         // Approver (Medikindo Ops — approves and ships POs)
@@ -116,6 +137,8 @@ class RolePermissionSeeder extends Seeder
             'view_purchase_orders',   // Can view PO details
             'view_approvals',
             'approve_purchase_orders',
+            'view_goods_receipt',     // Can view GR to verify delivery was received
+            'view_receipt',           // Alias
         ]);
 
         // Admin Pusat (Medikindo Central Admin — manages operations: PO, GR, Invoice, Payment)
@@ -149,6 +172,15 @@ class RolePermissionSeeder extends Seeder
             'process_payments',
             'confirm_payment',
             'verify_payment',
+            // Payment Proof System - Admin Pusat has all permissions
+            'submit_payment_proof',
+            'upload_payment_document',
+            'view_payment_status',
+            'update_payment_submission',
+            'verify_payment_proof',
+            'approve_payment',
+            'view_payment_documents',
+            'request_payment_clarification',
             // Finance
             'view_credit_control',
             // Inventory
@@ -177,6 +209,11 @@ class RolePermissionSeeder extends Seeder
             'view_credit_control',
             'view_inventory',           // Can view inventory
             'view_reports',             // Can view reports
+            // Payment Proof System - Finance User permissions
+            'verify_payment_proof',
+            'approve_payment',
+            'view_payment_documents',
+            'request_payment_clarification',
         ]);
 
         // Super Admin — ALL permissions

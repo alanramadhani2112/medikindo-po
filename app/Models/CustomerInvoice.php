@@ -10,41 +10,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\BelongsToOrganization;
 use App\Traits\Filterable;
 use App\Traits\HasOptimisticLocking;
+use App\Enums\CustomerInvoiceStatus;
+use App\Exceptions\InvalidStateTransitionException;
 
 class CustomerInvoice extends Model
 {
     use HasFactory, SoftDeletes, BelongsToOrganization, Filterable, HasOptimisticLocking;
 
-    // -----------------------------------------------------------------------
-    // Status Constants — AR Invoice Lifecycle
-    // -----------------------------------------------------------------------
-
-    public const STATUS_DRAFT        = 'draft';
-    public const STATUS_ISSUED       = 'issued';
-    public const STATUS_PARTIAL_PAID = 'partial_paid';
-    public const STATUS_PAID         = 'paid';
-    public const STATUS_VOID         = 'void';
-
-    /**
-     * Valid state machine transitions.
-     * 
-     * DRAFT → ISSUED (after margin check)
-     * ISSUED → PARTIAL_PAID | PAID | VOID
-     * PARTIAL_PAID → PAID | VOID
-     * PAID → terminal
-     * VOID → terminal
-     */
-    public const TRANSITIONS = [
-        self::STATUS_DRAFT        => [self::STATUS_ISSUED],
-        self::STATUS_ISSUED       => [self::STATUS_PARTIAL_PAID, self::STATUS_PAID, self::STATUS_VOID],
-        self::STATUS_PARTIAL_PAID => [self::STATUS_PAID, self::STATUS_VOID],
-        self::STATUS_PAID         => [], // terminal
-        self::STATUS_VOID         => [], // terminal
-    ];
-
     protected $guarded = ['id'];
 
     protected $casts = [
+        'status'               => CustomerInvoiceStatus::class,
         'due_date'             => 'date',
         'total_amount'         => 'decimal:2',
         'paid_amount'          => 'decimal:2',
@@ -108,52 +84,128 @@ class CustomerInvoice extends Model
         return $this->hasMany(CustomerInvoiceLineItem::class);
     }
 
+    public function paymentProofs(): HasMany
+    {
+        return $this->hasMany(PaymentProof::class);
+    }
+
+    public function creditNotes(): HasMany
+    {
+        return $this->hasMany(CreditNote::class);
+    }
+
     // -----------------------------------------------------------------------
     // State Machine Helpers
     // -----------------------------------------------------------------------
 
-    public function canTransitionTo(string $status): bool
+    /**
+     * Check if this invoice can transition to the given status.
+     */
+    public function canTransitionTo(CustomerInvoiceStatus $status): bool
     {
-        return in_array($status, self::TRANSITIONS[$this->status] ?? [], true);
+        return $this->status->canTransitionTo($status);
     }
 
     /**
      * Transition the invoice to a new status, enforcing the state machine.
      *
-     * @param string $newStatus Target status
-     * @throws \App\Exceptions\InvalidStateTransitionException If the transition is not allowed
+     * @param CustomerInvoiceStatus $newStatus Target status
+     * @throws InvalidStateTransitionException If the transition is not allowed
      */
-    public function transitionTo(string $newStatus): void
+    public function transitionTo(CustomerInvoiceStatus $newStatus): void
     {
         if (!$this->canTransitionTo($newStatus)) {
-            throw new \App\Exceptions\InvalidStateTransitionException($this->status, $newStatus);
+            throw new InvalidStateTransitionException(
+                "Tidak dapat mengubah status dari '{$this->status->getLabel()}' ke '{$newStatus->getLabel()}'"
+            );
         }
 
         $this->status = $newStatus;
         $this->save();
     }
 
-    public function isDraft(): bool        { return $this->status === self::STATUS_DRAFT; }
-    public function isIssued(): bool       { return $this->status === self::STATUS_ISSUED; }
-    public function isPartialPaid(): bool  { return $this->status === self::STATUS_PARTIAL_PAID; }
-    public function isPaid(): bool         { return $this->status === self::STATUS_PAID; }
-    public function isVoid(): bool         { return $this->status === self::STATUS_VOID; }
+    /**
+     * Get the status badge HTML for display.
+     */
+    public function getStatusBadge(): string
+    {
+        return '<span class="badge ' . $this->status->getBadgeClass() . '">' . $this->status->getLabel() . '</span>';
+    }
+
+    // Status check helpers using enum
+    public function isDraft(): bool        { return $this->status === CustomerInvoiceStatus::DRAFT; }
+    public function isIssued(): bool       { return $this->status === CustomerInvoiceStatus::ISSUED; }
+    public function isPartialPaid(): bool  { return $this->status === CustomerInvoiceStatus::PARTIAL_PAID; }
+    public function isPaid(): bool         { return $this->status === CustomerInvoiceStatus::PAID; }
+    public function isVoid(): bool         { return $this->status === CustomerInvoiceStatus::VOID; }
 
     /**
      * Check if the invoice is in an immutable state (cannot be directly modified).
      */
     public function isImmutable(): bool
     {
-        return in_array($this->status, [
-            self::STATUS_ISSUED,
-            self::STATUS_PARTIAL_PAID,
-            self::STATUS_PAID,
-            self::STATUS_VOID,
-        ], true);
+        return $this->status->isImmutable();
     }
 
+    /**
+     * Check if the invoice can accept payments.
+     */
     public function canConfirmPayment(): bool
     {
-        return in_array($this->status, [self::STATUS_ISSUED, self::STATUS_PARTIAL_PAID], true);
+        return $this->status->canAcceptPayment();
+    }
+
+    // -----------------------------------------------------------------------
+    // Credit Note Handling
+    // -----------------------------------------------------------------------
+
+    /**
+     * Apply credit note to reduce invoice balance
+     */
+    public function applyCreditNote(CreditNote $creditNote): void
+    {
+        if ($creditNote->customer_invoice_id !== $this->id) {
+            throw new \DomainException('Credit note does not belong to this invoice');
+        }
+
+        if (!$creditNote->isIssued()) {
+            throw new \DomainException('Credit note must be issued before applying');
+        }
+
+        // Calculate new amounts after credit note
+        $creditAmount = $creditNote->total_amount;
+        
+        // If credit note amount >= remaining balance, mark as paid
+        $remainingBalance = $this->total_amount - $this->paid_amount;
+        
+        if ($creditAmount >= $remainingBalance) {
+            $this->paid_amount = $this->total_amount;
+            $this->transitionTo(CustomerInvoiceStatus::PAID);
+        } else {
+            $this->paid_amount += $creditAmount;
+            if ($this->paid_amount > 0 && $this->paid_amount < $this->total_amount) {
+                $this->transitionTo(CustomerInvoiceStatus::PARTIAL_PAID);
+            }
+        }
+
+        $this->save();
+    }
+
+    /**
+     * Get total credit note amount applied to this invoice
+     */
+    public function getTotalCreditNoteAmount(): float
+    {
+        return $this->creditNotes()
+            ->where('status', CreditNote::STATUS_APPLIED)
+            ->sum('total_amount');
+    }
+
+    /**
+     * Get remaining balance after payments and credit notes
+     */
+    public function getRemainingBalance(): float
+    {
+        return $this->total_amount - $this->paid_amount - $this->getTotalCreditNoteAmount();
     }
 }
