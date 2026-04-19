@@ -342,12 +342,12 @@ class InvoiceFromGRService
             // Calculate invoice totals using existing pricing engine
             $calculation = $this->calculationService->calculateCompleteInvoice($lineItemsData);
 
+            // Get final totals including surcharge and e-meterai using the dedicated method
+            $surchargeStr = (string)($metadata['surcharge'] ?? '0');
+            $finalTotals = $this->calculationService->calculateGrandTotal($calculation['line_items'], $surchargeStr);
+
             // Detect discrepancies (GR vs Invoice, PO vs Invoice)
             $discrepancies = $this->detectDiscrepancies($gr, $po, $lineItemsData, $calculation);
-
-            // Add surcharge to total amount
-            $surcharge = $metadata['surcharge'] ?? 0;
-            $totalWithSurcharge = $calculation['invoice_totals']['total_amount'] + $surcharge;
 
             // Create customer invoice
             $invoice = CustomerInvoice::create([
@@ -355,12 +355,13 @@ class InvoiceFromGRService
                 'organization_id'      => $po->organization_id,
                 'purchase_order_id'    => $po->id,
                 'goods_receipt_id'     => $gr->id,
-                'status'               => CustomerInvoice::STATUS_ISSUED,
-                'total_amount'         => $totalWithSurcharge,
-                'subtotal_amount'      => $calculation['invoice_totals']['subtotal_amount'],
-                'discount_amount'      => $calculation['invoice_totals']['discount_amount'],
-                'tax_amount'           => $calculation['invoice_totals']['tax_amount'],
-                'surcharge'            => $surcharge,
+                'status'               => \App\Enums\CustomerInvoiceStatus::ISSUED,
+                'total_amount'         => $finalTotals['grand_total'],
+                'subtotal_amount'      => $finalTotals['subtotal'],
+                'discount_amount'      => $finalTotals['discount'],
+                'tax_amount'           => $finalTotals['tax_total'],
+                'surcharge'            => $surchargeStr,
+                'ematerai_fee'         => $finalTotals['ematerai_fee'],
                 'paid_amount'          => 0,
                 'discrepancy_detected' => $discrepancies['has_discrepancy'],
                 'expected_total'       => $discrepancies['expected_total'] ?? null,

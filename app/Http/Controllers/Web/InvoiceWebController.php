@@ -26,14 +26,15 @@ class InvoiceWebController extends Controller
     public function indexSupplier(Request $request)
     {
         $user = $request->user();
+        $tab = $request->get('tab', '');
 
         // Load Supplier Invoices
         $supplierQuery = SupplierInvoice::with(['supplier', 'purchaseOrder', 'goodsReceipt'])
             ->filter($request, [
-                'search_column' => function($q, $s) {
+                'search_column' => function ($q, $s) {
                     $q->where('invoice_number', 'like', "%{$s}%")
-                      ->orWhere('distributor_invoice_number', 'like', "%{$s}%")
-                      ->orWhereHas('supplier', fn($s2) => $s2->where('name', 'like', "%{$s}%"));
+                        ->orWhere('distributor_invoice_number', 'like', "%{$s}%")
+                        ->orWhereHas('supplier', fn($s2) => $s2->where('name', 'like', "%{$s}%"));
                 },
                 'status' => 'status',
             ]);
@@ -42,26 +43,45 @@ class InvoiceWebController extends Controller
             $supplierQuery->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
         }
 
-        $supplierInvoices = $supplierQuery->latest()->paginate(15);
+        // Apply tab filter if exists
+        if ($tab !== '') {
+            $supplierQuery->where('status', $tab);
+        }
+
+        // Clone for stats
+        $statsQuery = SupplierInvoice::query();
+        if (! $user->hasRole('Super Admin')) {
+            $statsQuery->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
+        }
+
+        $stats = [
+            'draft'    => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::DRAFT)->count(),
+            'verified' => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::VERIFIED)->count(),
+            'paid'     => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::PAID)->count(),
+            'overdue'  => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::OVERDUE)->count(),
+        ];
+
+        $supplierInvoices = $supplierQuery->latest()->paginate(15)->withQueryString();
 
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
             ['label' => 'Hutang ke Supplier']
         ];
 
-        return view('invoices.index_supplier', compact('supplierInvoices', 'breadcrumbs'));
+        return view('invoices.index_supplier', compact('supplierInvoices', 'breadcrumbs', 'stats', 'tab'));
     }
 
     public function indexCustomer(Request $request)
     {
         $user = $request->user();
+        $tab = $request->get('tab', '');
 
         // Load Customer Invoices
         $customerQuery = CustomerInvoice::with(['organization', 'purchaseOrder', 'goodsReceipt'])
             ->filter($request, [
-                'search_column' => function($q, $s) {
+                'search_column' => function ($q, $s) {
                     $q->where('invoice_number', 'like', "%{$s}%")
-                      ->orWhereHas('organization', fn($c) => $c->where('name', 'like', "%{$s}%"));
+                        ->orWhereHas('organization', fn($c) => $c->where('name', 'like', "%{$s}%"));
                 },
                 'status' => 'status',
             ]);
@@ -70,14 +90,33 @@ class InvoiceWebController extends Controller
             $customerQuery->where('organization_id', $user->organization_id);
         }
 
-        $customerInvoices = $customerQuery->latest()->paginate(15);
+        // Apply tab filter if exists
+        if ($tab !== '') {
+            $customerQuery->where('status', $tab);
+        }
+
+        // Clone for stats
+        $statsQuery = CustomerInvoice::query();
+        if (! $user->hasRole('Super Admin')) {
+            $statsQuery->where('organization_id', $user->organization_id);
+        }
+
+        $stats = [
+            'draft'        => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::DRAFT)->count(),
+            'issued'       => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::ISSUED)->count(),
+            'partial_paid' => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID)->count(),
+            'paid'         => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::PAID)->count(),
+            'void'         => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::VOID)->count(),
+        ];
+
+        $customerInvoices = $customerQuery->latest()->paginate(15)->withQueryString();
 
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
             ['label' => 'Tagihan ke RS/Klinik']
         ];
 
-        return view('invoices.index_customer', compact('customerInvoices', 'breadcrumbs'));
+        return view('invoices.index_customer', compact('customerInvoices', 'breadcrumbs', 'stats', 'tab'));
     }
 
     public function index(Request $request)
@@ -88,9 +127,9 @@ class InvoiceWebController extends Controller
         // Load Supplier Invoices
         $supplierQuery = SupplierInvoice::with(['supplier', 'purchaseOrder'])
             ->filter($request, [
-                'search_column' => function($q, $s) {
+                'search_column' => function ($q, $s) {
                     $q->where('invoice_number', 'like', "%{$s}%")
-                      ->orWhereHas('supplier', fn($s2) => $s2->where('name', 'like', "%{$s}%"));
+                        ->orWhereHas('supplier', fn($s2) => $s2->where('name', 'like', "%{$s}%"));
                 },
                 'status' => 'status',
             ]);
@@ -104,9 +143,9 @@ class InvoiceWebController extends Controller
         // Load Customer Invoices
         $customerQuery = CustomerInvoice::with(['organization', 'purchaseOrder'])
             ->filter($request, [
-                'search_column' => function($q, $s) {
+                'search_column' => function ($q, $s) {
                     $q->where('invoice_number', 'like', "%{$s}%")
-                      ->orWhereHas('organization', fn($c) => $c->where('name', 'like', "%{$s}%"));
+                        ->orWhereHas('organization', fn($c) => $c->where('name', 'like', "%{$s}%"));
                 },
                 'status' => 'status',
             ]);
@@ -128,38 +167,38 @@ class InvoiceWebController extends Controller
     public function showSupplier(SupplierInvoice $invoice)
     {
         $invoice->load([
-            'supplier', 
-            'purchaseOrder.items.product', 
-            'goodsReceipt.items.purchaseOrderItem.product', 
+            'supplier',
+            'purchaseOrder.items.product',
+            'goodsReceipt.items.purchaseOrderItem.product',
             'paymentAllocations.payment',
             'lineItems' // Load line items
         ]);
-        
+
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
             ['label' => 'Hutang ke Supplier', 'url' => route('web.invoices.supplier.index')],
             ['label' => $invoice->invoice_number]
         ];
-        
+
         return view('invoices.show_supplier', compact('invoice', 'breadcrumbs'));
     }
 
     public function showCustomer(CustomerInvoice $invoice)
     {
         $invoice->load([
-            'organization', 
-            'purchaseOrder.items.product', 
-            'goodsReceipt.items.purchaseOrderItem.product', 
+            'organization',
+            'purchaseOrder.items.product',
+            'goodsReceipt.items.purchaseOrderItem.product',
             'paymentAllocations.payment',
             'lineItems' // Load line items
         ]);
-        
+
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
             ['label' => 'Tagihan ke RS/Klinik', 'url' => route('web.invoices.customer.index')],
             ['label' => $invoice->invoice_number]
         ];
-        
+
         return view('invoices.show_customer', compact('invoice', 'breadcrumbs'));
     }
 
@@ -193,7 +232,7 @@ class InvoiceWebController extends Controller
         // Load GRs with status 'completed' AND has remaining quantity
         $query = GoodsReceipt::with(['purchaseOrder.supplier', 'items.product', 'items.purchaseOrderItem'])
             ->where('status', 'completed')
-            ->whereHas('purchaseOrder', function($q) {
+            ->whereHas('purchaseOrder', function ($q) {
                 $q->whereNotNull('supplier_id');
             });
 
@@ -203,7 +242,7 @@ class InvoiceWebController extends Controller
         }
 
         // Only show GRs that have remaining quantity to invoice
-        $goodsReceipts = $query->get()->filter(function($gr) {
+        $goodsReceipts = $query->get()->filter(function ($gr) {
             return $gr->hasRemainingQuantity();
         })->values();
 
@@ -225,10 +264,10 @@ class InvoiceWebController extends Controller
     {
         try {
             $validated = $request->validated();
-            
+
             // Get GoodsReceipt object
             $gr = GoodsReceipt::findOrFail($validated['goods_receipt_id']);
-            
+
             // Prepare metadata with distributor invoice info
             $metadata = [
                 'distributor_invoice_number' => $validated['distributor_invoice_number'],
@@ -237,7 +276,7 @@ class InvoiceWebController extends Controller
                 'due_date'                   => $validated['due_date'],
                 'notes'                      => $validated['notes'] ?? null,
             ];
-            
+
             $invoice = $this->invoiceFromGRService->createSupplierInvoiceFromGR(
                 $gr,
                 $request->user(),
@@ -273,9 +312,9 @@ class InvoiceWebController extends Controller
         $user = $request->user();
 
         // Load GRs with status 'completed' AND has remaining quantity
-        $query = GoodsReceipt::with(['purchaseOrder.organization', 'items.product', 'items.purchaseOrderItem'])
+        $query = GoodsReceipt::with(['purchaseOrder.organization', 'items.purchaseOrderItem.product', 'items.product'])
             ->where('status', 'completed')
-            ->whereHas('purchaseOrder', function($q) {
+            ->whereHas('purchaseOrder', function ($q) {
                 $q->whereNotNull('organization_id');
             });
 
@@ -285,7 +324,7 @@ class InvoiceWebController extends Controller
         }
 
         // Only show GRs that have remaining quantity to invoice (AR) AND have an associated Supplier Invoice
-        $goodsReceipts = $query->get()->filter(function($gr) {
+        $goodsReceipts = $query->get()->filter(function ($gr) {
             $hasSupplierInvoice = \App\Models\SupplierInvoice::where('goods_receipt_id', $gr->id)->exists();
             return $hasSupplierInvoice && $gr->hasRemainingArQuantity();
         })->values();
@@ -308,10 +347,10 @@ class InvoiceWebController extends Controller
     {
         try {
             $validated = $request->validated();
-            
+
             // Get GoodsReceipt object
             $gr = GoodsReceipt::findOrFail($validated['goods_receipt_id']);
-            
+
             // Prepare metadata
             $metadata = [
                 'custom_invoice_number' => $validated['custom_invoice_number'] ?? null,
@@ -319,7 +358,7 @@ class InvoiceWebController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'surcharge' => $request->input('surcharge', 0),
             ];
-            
+
             $invoice = $this->invoiceFromGRService->createCustomerInvoiceFromGR(
                 $gr,
                 $request->user(),
@@ -405,11 +444,11 @@ class InvoiceWebController extends Controller
 
         try {
             $this->invoiceService->approveDiscrepancy(
-                $invoice, 
-                $request->user(), 
+                $invoice,
+                $request->user(),
                 $request->approval_reason
             );
-            
+
             return redirect()
                 ->route('web.invoices.customer.show', $invoice)
                 ->with('success', 'Discrepancy invoice telah disetujui. Invoice sekarang berstatus ISSUED.');
@@ -435,11 +474,11 @@ class InvoiceWebController extends Controller
 
         try {
             $this->invoiceService->rejectDiscrepancy(
-                $invoice, 
-                $request->user(), 
+                $invoice,
+                $request->user(),
                 $request->rejection_reason
             );
-            
+
             return redirect()
                 ->route('web.invoices.customer.show', $invoice)
                 ->with('success', 'Discrepancy invoice telah ditolak. Invoice berstatus REJECTED.');

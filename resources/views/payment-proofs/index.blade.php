@@ -65,7 +65,7 @@
                     <td>{{ $item->payment_date->format('d M Y') }}</td>
                     <td><span class="fw-bold">Rp {{ number_format($item->amount, 0, ',', '.') }}</span></td>
                     <td>
-                        <x-badge :color="$item->status->color()" :label="$item->status->label()" />
+                        <x-badge :variant="$item->status->color()">{{ $item->status->label() }}</x-badge>
                     </td>
                     <td class="text-end">
                         <a href="{{ route('web.payment-proofs.show', $item) }}" class="btn btn-icon btn-light-primary btn-sm">

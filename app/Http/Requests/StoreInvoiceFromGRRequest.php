@@ -90,11 +90,11 @@ class StoreInvoiceFromGRRequest extends FormRequest
             );
         }
 
-        // Rule: GR must have remaining quantity
-        if (!$gr->hasRemainingQuantity()) {
+        // Rule: GR must have remaining quantity (AR)
+        if (!$gr->hasRemainingArQuantity()) {
             $validator->errors()->add(
                 'goods_receipt_id',
-                'Goods Receipt is fully invoiced. No remaining quantity available.'
+                'Goods Receipt is fully invoiced (Customer Billing). No remaining quantity available.'
             );
         }
     }
@@ -134,8 +134,8 @@ class StoreInvoiceFromGRRequest extends FormRequest
                 continue;
             }
 
-            // Rule: Quantity must not exceed remaining quantity
-            $remainingQty = $grItem->remaining_quantity;
+            // Rule: Quantity must not exceed remaining quantity (AR)
+            $remainingQty = $grItem->remaining_ar_quantity;
             
             if ($quantity > $remainingQty) {
                 $productName = $grItem->purchaseOrderItem->product->name ?? 'Unknown';

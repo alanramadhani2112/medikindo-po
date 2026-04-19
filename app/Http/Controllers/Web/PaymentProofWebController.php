@@ -209,6 +209,7 @@ class PaymentProofWebController extends Controller
 
         $paymentProof->load([
             'customerInvoice.organization',
+            'customerInvoice.lineItems.product',
             'submittedBy',
             'paymentDocuments'
         ]);
@@ -258,7 +259,7 @@ class PaymentProofWebController extends Controller
 
             return redirect()
                 ->route('web.payment-proofs.show', $paymentProof)
-                ->with('success', 'Pembayaran berhasil diverifikasi dan disetujui. Invoice telah diperbarui.');
+                ->with('success', 'Bukti pembayaran berhasil diverifikasi dan disetujui.');
 
         } catch (\Exception $e) {
             return back()
@@ -330,7 +331,7 @@ class PaymentProofWebController extends Controller
 
             return redirect()
                 ->route('web.payment-proofs.show', $paymentProof)
-                ->with('success', 'Bukti pembayaran berhasil diverifikasi. Pembayaran telah dicatat.');
+                ->with('success', 'Bukti pembayaran berhasil disetujui. Pembayaran telah dicatat.');
 
         } catch (\Exception $e) {
             return back()

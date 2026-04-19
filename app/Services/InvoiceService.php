@@ -122,7 +122,7 @@ class InvoiceService
                     'discount_amount'   => $supplierInvoiceCalculation['invoice_totals']['discount_amount'],
                     'tax_amount'        => $supplierInvoiceCalculation['invoice_totals']['tax_amount'],
                     'paid_amount'       => '0.00',
-                    'status'            => $initialStatus,
+                    'status'            => \App\Enums\SupplierInvoiceStatus::DRAFT,
                     'issued_by'         => $actor->id,
                     'issued_at'         => now(),
                     'due_date'          => $dueDate,
@@ -163,7 +163,7 @@ class InvoiceService
                     'discount_amount'   => $customerInvoiceCalculation['invoice_totals']['discount_amount'],
                     'tax_amount'        => $customerInvoiceCalculation['invoice_totals']['tax_amount'],
                     'paid_amount'       => '0.00',
-                    'status'            => $initialStatus,
+                    'status'            => \App\Enums\CustomerInvoiceStatus::ISSUED,
                     'issued_by'         => $actor->id,
                     'issued_at'         => now(),
                     'due_date'          => $dueDate,
@@ -433,7 +433,7 @@ class InvoiceService
             $before = $fresh->status;
 
             $fresh->update([
-                'status'                => CustomerInvoice::STATUS_PAYMENT_SUBMITTED,
+                'status'                => \App\Enums\CustomerInvoiceStatus::ISSUED, // Transition to Issued if it was draft, but usually it is already Issued
                 'payment_reference'     => $data['payment_reference'] ?? null,
                 'payment_submitted_at'  => now(),
                 'paid_amount'           => $data['paid_amount'] ?? $fresh->total_amount,
@@ -445,7 +445,7 @@ class InvoiceService
                 entityId:   $fresh->id,
                 metadata:   [
                     'before_status'     => $before,
-                    'after_status'      => CustomerInvoice::STATUS_PAYMENT_SUBMITTED,
+                    'after_status'      => 'payment_submitted', // Keep as string for audit metadata if needed, or use enum value
                     'payment_reference' => $fresh->payment_reference,
                 ],
                 userId: $actor->id,
@@ -487,7 +487,7 @@ class InvoiceService
             $before = $fresh->status;
 
             $fresh->update([
-                'status'      => CustomerInvoice::STATUS_PAID,
+                'status'      => \App\Enums\CustomerInvoiceStatus::PAID,
                 'verified_by' => $actor->id,
                 'verified_at' => now(),
             ]);
@@ -498,7 +498,7 @@ class InvoiceService
                 entityId:   $fresh->id,
                 metadata:   [
                     'before_status' => $before,
-                    'after_status'  => CustomerInvoice::STATUS_PAID,
+                    'after_status'  => 'paid',
                     'verified_by'   => $actor->id,
                 ],
                 userId: $actor->id,

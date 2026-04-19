@@ -38,7 +38,7 @@ class MirrorGenerationService
     public function draftExists(int $supplierInvoiceId): bool
     {
         return CustomerInvoice::where('supplier_invoice_id', $supplierInvoiceId)
-            ->whereNotIn('status', [CustomerInvoice::STATUS_VOID])
+            ->whereNotIn('status', [\App\Enums\CustomerInvoiceStatus::VOID])
             ->exists();
     }
 
@@ -97,7 +97,7 @@ class MirrorGenerationService
                 'supplier_invoice_id' => $apInvoice->id,
                 'purchase_order_id'   => $apInvoice->purchase_order_id,
                 'goods_receipt_id'    => $apInvoice->goods_receipt_id,
-                'status'              => CustomerInvoice::STATUS_DRAFT,
+                'status'              => \App\Enums\CustomerInvoiceStatus::DRAFT,
                 'due_date'            => now()->addDays(30)->toDateString(),
                 'total_amount'        => '0.00',
                 'subtotal_amount'     => '0.00',

@@ -47,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(PurchaseOrder::class, PurchaseOrderPolicy::class);
         Gate::policy(Approval::class, ApprovalPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(\App\Models\PaymentProof::class, \App\Policies\PaymentProofPolicy::class);
 
         // Register observers
         PurchaseOrderItem::observe(PurchaseOrderItemObserver::class);

@@ -103,68 +103,26 @@ Route::middleware('auth')->group(function () {
 
     // ── Invoices (AP & AR) ─────────────────────────────────────
     Route::prefix('invoices')->name('web.invoices.')->middleware('can:view_invoices')->group(function () {
-        // Supplier Invoice (AP) - Index
+        // Supplier Invoice (AP)
         Route::get('/supplier',                            [\App\Http\Controllers\Web\InvoiceWebController::class, 'indexSupplier'])->name('supplier.index');
-
-        // Supplier Invoice (AP) - Create from Goods Receipt
-        Route::get('/supplier/create',                     [\App\Http\Controllers\Web\InvoiceWebController::class, 'createSupplier'])
-            ->name('supplier.create')
-            ->middleware('can:create_invoices');
-        Route::post('/supplier',                           [\App\Http\Controllers\Web\InvoiceWebController::class, 'storeSupplier'])
-            ->name('supplier.store')
-            ->middleware('can:create_invoices');
-
+        Route::get('/supplier/create',                     [\App\Http\Controllers\Web\InvoiceWebController::class, 'createSupplier'])->name('supplier.create')->middleware('can:create_invoices');
+        Route::post('/supplier',                           [\App\Http\Controllers\Web\InvoiceWebController::class, 'storeSupplier'])->name('supplier.store')->middleware('can:create_invoices');
         Route::get('/supplier/{invoice}',                  [\App\Http\Controllers\Web\InvoiceWebController::class, 'showSupplier'])->name('supplier.show');
         Route::get('/supplier/{invoice}/pdf',              [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportSupplierPdf'])->name('supplier.pdf');
+        Route::post('/supplier/{invoice}/verify',          [\App\Http\Controllers\Web\APVerificationController::class, 'verify'])->name('supplier.verify')->middleware('can:create_invoices');
 
-        // Customer Invoice (AR) - Index
+        // Customer Invoice (AR)
         Route::get('/customer',                            [\App\Http\Controllers\Web\InvoiceWebController::class, 'indexCustomer'])->name('customer.index');
-
-        // Customer Invoice (AR) - Create from Goods Receipt
-        Route::get('/customer/create',                     [\App\Http\Controllers\Web\InvoiceWebController::class, 'createCustomer'])
-            ->name('customer.create')
-            ->middleware('can:create_invoices');
-        Route::post('/customer',                           [\App\Http\Controllers\Web\InvoiceWebController::class, 'storeCustomer'])
-            ->name('customer.store')
-            ->middleware('can:create_invoices');
-
+        Route::get('/customer/create',                     [\App\Http\Controllers\Web\InvoiceWebController::class, 'createCustomer'])->name('customer.create')->middleware('can:create_invoices');
+        Route::post('/customer',                           [\App\Http\Controllers\Web\InvoiceWebController::class, 'storeCustomer'])->name('customer.store')->middleware('can:create_invoices');
         Route::get('/customer/{invoice}',                  [\App\Http\Controllers\Web\InvoiceWebController::class, 'showCustomer'])->name('customer.show');
         Route::get('/customer/{invoice}/pdf',              [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportCustomerPdf'])->name('customer.pdf');
 
-        Route::post('/customer/{invoice}/confirm-payment', [\App\Http\Controllers\Web\InvoiceWebController::class, 'confirmPayment'])
-            ->name('customer.confirm_payment')
-            ->middleware('can:process_payments');
+        Route::post('/customer/{invoice}/confirm-payment', [\App\Http\Controllers\Web\InvoiceWebController::class, 'confirmPayment'])->name('customer.confirm_payment')->middleware('can:confirm_payment');
+        Route::post('/customer/{invoice}/verify-payment',  [\App\Http\Controllers\Web\InvoiceWebController::class, 'verifyPayment'])->name('customer.verify_payment')->middleware('can:verify_payment');
 
-        Route::post('/customer/{invoice}/verify-payment', [\App\Http\Controllers\Web\InvoiceWebController::class, 'verifyPayment'])
-            ->name('customer.verify_payment')
-            ->middleware('can:create_invoices');
-
-        Route::post('/customer/{invoice}/approve-discrepancy', [\App\Http\Controllers\Web\InvoiceWebController::class, 'approveDiscrepancy'])
-            ->name('customer.approve_discrepancy')
-            ->middleware('can:create_invoices');
-
-        Route::post('/customer/{invoice}/reject-discrepancy', [\App\Http\Controllers\Web\InvoiceWebController::class, 'rejectDiscrepancy'])
-            ->name('customer.reject_discrepancy')
-            ->middleware('can:create_invoices');
-    });
-
-    // ── AR Invoice System — New Routes (Sprint 3) ─────────────
-    Route::middleware('can:view_invoices')->group(function () {
-        // Customer Invoice (AR) — new dedicated controller
-        Route::get('/invoices/customer', [CustomerInvoiceWebController::class, 'index'])
-            ->name('web.invoices.customer.index');
-        Route::get('/invoices/customer/{invoice}', [CustomerInvoiceWebController::class, 'show'])
-            ->name('web.invoices.customer.show');
-        Route::post('/invoices/customer/{invoice}/issue', [CustomerInvoiceWebController::class, 'issue'])
-            ->name('web.invoices.customer.issue');
-        Route::post('/invoices/customer/{invoice}/void', [CustomerInvoiceWebController::class, 'void'])
-            ->name('web.invoices.customer.void');
-        Route::get('/invoices/customer/{invoice}/pdf', [CustomerInvoiceWebController::class, 'print'])
-            ->name('web.invoices.customer.pdf');
-
-        // AP Verification — trigger Mirror generation
-        Route::post('/invoices/supplier/{invoice}/verify', [APVerificationController::class, 'verify'])
-            ->name('web.invoices.supplier.verify');
+        Route::post('/customer/{invoice}/approve-discrepancy', [\App\Http\Controllers\Web\InvoiceWebController::class, 'approveDiscrepancy'])->name('customer.approve_discrepancy')->middleware('can:create_invoices');
+        Route::post('/customer/{invoice}/reject-discrepancy',  [\App\Http\Controllers\Web\InvoiceWebController::class, 'rejectDiscrepancy'])->name('customer.reject_discrepancy')->middleware('can:create_invoices');
     });
 
     // ── Credit Notes ───────────────────────────────────────────

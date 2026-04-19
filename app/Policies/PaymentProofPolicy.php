@@ -57,7 +57,8 @@ class PaymentProofPolicy
      */
     public function verify(User $user, PaymentProof $paymentProof): bool
     {
-        return $user->hasRole(['Finance', 'Super Admin']);
+        return $user->hasPermissionTo('verify_payment_proof') || 
+               $user->hasRole(['Finance', 'Super Admin']);
     }
 
     /**
@@ -65,7 +66,8 @@ class PaymentProofPolicy
      */
     public function approve(User $user, PaymentProof $paymentProof): bool
     {
-        return $user->hasRole(['Finance', 'Super Admin']);
+        return $user->hasPermissionTo('approve_payment') || 
+               $user->hasRole(['Finance', 'Super Admin']);
     }
 
     /**
@@ -73,7 +75,8 @@ class PaymentProofPolicy
      */
     public function reject(User $user, PaymentProof $paymentProof): bool
     {
-        return $user->hasRole(['Finance', 'Super Admin']);
+        return $user->hasPermissionTo('approve_payment') || 
+               $user->hasRole(['Finance', 'Super Admin']);
     }
 
     /**

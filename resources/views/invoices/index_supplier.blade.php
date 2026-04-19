@@ -6,24 +6,43 @@
         @endcan
     </x-slot>
 
+    <x-slot name="tabs">
+        @foreach(['', 'draft', 'verified', 'paid', 'overdue'] as $statusKey)
+            @php 
+                $statusEnum = $statusKey ? App\Enums\SupplierInvoiceStatus::tryFrom($statusKey) : null;
+                $isActive = ($tab === $statusKey);
+                $label = $statusEnum ? $statusEnum->getLabel() : 'Semua Tagihan';
+                $icon = match($statusKey) {
+                    'draft' => 'document',
+                    'verified' => 'shield-search',
+                    'paid' => 'check-circle',
+                    'overdue' => 'warning',
+                    default => 'list'
+                };
+            @endphp
+            <li class="nav-item">
+                <a class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}" 
+                   href="{{ route('web.invoices.supplier.index', ['tab' => $statusKey]) }}">
+                    <i class="ki-outline ki-{{ $icon }} fs-4 me-3"></i>
+                    <span class="fs-6 fw-bold me-3">{{ $label }}</span>
+                    @if($statusKey !== '')
+                        <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
+                            {{ $stats[$statusKey] ?? 0 }}
+                        </span>
+                    @endif
+                </a>
+            </li>
+        @endforeach
+    </x-slot>
+
     <x-slot name="toolbar">
         <x-filter-bar :action="route('web.invoices.supplier.index')">
+            <input type="hidden" name="tab" value="{{ $tab }}">
             <div class="flex-grow-1" style="max-width: 400px;">
                 <div class="position-relative">
                     <i class="ki-outline ki-magnifier fs-2 position-absolute top-50 translate-middle-y ms-4"></i>
                     <input type="text" name="search" class="form-control form-control-solid ps-12" placeholder="No. Invoice atau Supplier..." value="{{ request('search') }}">
                 </div>
-            </div>
-            
-            <div style="min-width: 150px;">
-                <select name="status" class="form-select form-select-solid">
-                    <option value="">Semua Status</option>
-                    @foreach(\App\Enums\SupplierInvoiceStatus::cases() as $status)
-                        <option value="{{ $status->value }}" @selected(request('status') === $status->value)>
-                            {{ $status->getLabel() }}
-                        </option>
-                    @endforeach
-                </select>
             </div>
         </x-filter-bar>
     </x-slot>

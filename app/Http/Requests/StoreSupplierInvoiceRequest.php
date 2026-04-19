@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\GoodsReceipt;
+use App\Models\GoodsReceiptItem;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreSupplierInvoiceRequest extends FormRequest
 {
@@ -26,6 +29,48 @@ class StoreSupplierInvoiceRequest extends FormRequest
             'items.*.unit_price'            => 'required|numeric|min:0',
             'items.*.discount_percent'      => 'nullable|numeric|min:0|max:100',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $this->validateGoodsReceipt($validator);
+            $this->validateItems($validator);
+        });
+    }
+
+    protected function validateGoodsReceipt(Validator $validator): void
+    {
+        $grId = $this->input('goods_receipt_id');
+        if (!$grId) return;
+
+        $gr = GoodsReceipt::find($grId);
+        if (!$gr) return;
+
+        if (!$gr->hasRemainingQuantity()) { // AP check
+            $validator->errors()->add('goods_receipt_id', 'Goods Receipt is fully invoiced (Supplier Payables).');
+        }
+    }
+
+    protected function validateItems(Validator $validator): void
+    {
+        $grId = $this->input('goods_receipt_id');
+        $items = $this->input('items', []);
+        if (!$grId || empty($items)) return;
+
+        foreach ($items as $index => $item) {
+            $grItemId = $item['goods_receipt_item_id'] ?? null;
+            $quantity = $item['quantity'] ?? 0;
+            if (!$grItemId) continue;
+
+            $grItem = GoodsReceiptItem::find($grItemId);
+            if (!$grItem) continue;
+
+            $remaining = $grItem->remaining_ap_quantity;
+            if ($quantity > $remaining) {
+                $validator->errors()->add("items.{$index}.quantity", "Quantity ({$quantity}) exceeds remaining AP quantity ({$remaining}).");
+            }
+        }
     }
 
     public function messages()
