@@ -39,17 +39,21 @@
     $classes = trim("$baseClasses $variantClasses $sizeClasses");
     $slotText = trim((string) $slot);
     $buttonText = $slotText !== '' ? $slot : $label;
+    $attributeBag =
+        $attributes instanceof \Illuminate\View\ComponentAttributeBag
+            ? $attributes
+            : new \Illuminate\View\ComponentAttributeBag($attributes);
 @endphp
 
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes]) }}>
+    <a href="{{ $href }}" {{ $attributeBag->merge(['class' => $classes]) }}>
         @if ($icon)
             <i class="ki-outline ki-{{ $icon }} fs-3"></i>
         @endif
         {{ $buttonText }}
     </a>
 @else
-    <button type="{{ $type }}" {{ $attributes->merge(['class' => $classes]) }}>
+    <button type="{{ $type }}" {{ $attributeBag->merge(['class' => $classes]) }}>
         @if ($icon)
             <i class="ki-outline ki-{{ $icon }} fs-3"></i>
         @endif

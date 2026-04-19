@@ -7,17 +7,9 @@
         <div class="d-flex flex-column">
             <div class="d-flex align-items-center gap-3 mb-2">
                 <h1 class="fs-2 fw-bold text-gray-900 mb-0">{{ $invoice->invoice_number }}</h1>
-                @php
-                    $statusColor = match($invoice->status) {
-                        'paid' => 'success',
-                        'overdue' => 'danger',
-                        default => 'warning'
-                    };
-                @endphp
-                <span class="badge badge-{{ $statusColor }}">{{ strtoupper($invoice->status) }}</span>
-                
-                {{-- GR Compliance Badge --}}
-                @if($invoice->goods_receipt_id)
+                <span class="badge {{ $invoice->status->getBadgeClass() }}">{{ $invoice->status->getLabel() }}</span>
+
+                {{-- GR Compliance Badge --}}                @if($invoice->goods_receipt_id)
                     <span class="badge badge-light-success">
                         <i class="ki-outline ki-check-circle fs-5 me-1"></i>
                         Berdasarkan Penerimaan Barang

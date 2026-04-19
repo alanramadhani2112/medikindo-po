@@ -18,7 +18,7 @@ class PurchaseOrderWebController extends Controller
     {
         $user = $request->user();
         $tab = $request->get('tab', 'all');
-        
+
         $query = PurchaseOrder::with(['organization', 'supplier', 'creator'])
             ->filter($request, [
                 'search_column' => 'po_number',
@@ -36,7 +36,7 @@ class PurchaseOrderWebController extends Controller
                 'rejected' => PurchaseOrder::STATUS_REJECTED,
                 'completed' => PurchaseOrder::STATUS_COMPLETED,
             ];
-            
+
             if (isset($statusMap[$tab])) {
                 $query->where('status', $statusMap[$tab]);
             }
@@ -92,15 +92,15 @@ class PurchaseOrderWebController extends Controller
         if (! $request->user()->can('create_po')) {
             abort(403, 'Akses Ditolak. Anda tidak memiliki izin untuk membuat Purchase Order.');
         }
-        
+
         // Load suppliers with only active products
-        $suppliers = Supplier::with(['products' => function($query) {
+        $suppliers = Supplier::with(['products' => function ($query) {
             $query->where('is_active', true)->orderBy('name');
         }])
-        ->where('is_active', true)
-        ->orderBy('name')
-        ->get();
-        
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
         $organizations = null;
         if ($request->user()->hasRole('Super Admin')) {
             $organizations = Organization::where('is_active', true)->orderBy('name')->get();
@@ -140,7 +140,7 @@ class PurchaseOrderWebController extends Controller
         }
 
         return redirect()->route('web.po.show', $po)
-                         ->with('success', "PO #{$po->po_number} berhasil dibuat.");
+            ->with('success', "PO #{$po->po_number} berhasil dibuat.");
     }
 
     public function show(PurchaseOrder $purchaseOrder)
@@ -159,11 +159,11 @@ class PurchaseOrderWebController extends Controller
         if (! $request->user()->can('submit_po')) {
             abort(403, 'Akses Ditolak. Anda tidak memiliki izin untuk mengajukan Purchase Order.');
         }
-        
+
         try {
             $this->poService->submitPO($purchaseOrder, $request->user());
             return redirect()->route('web.po.show', $purchaseOrder)
-                             ->with('success', 'PO berhasil diajukan untuk persetujuan.');
+                ->with('success', 'PO berhasil diajukan untuk persetujuan.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -180,13 +180,13 @@ class PurchaseOrderWebController extends Controller
         }
 
         // Load suppliers with only active products
-        $suppliers = Supplier::with(['products' => function($query) {
+        $suppliers = Supplier::with(['products' => function ($query) {
             $query->where('is_active', true)->orderBy('name');
         }])
-        ->where('is_active', true)
-        ->orderBy('name')
-        ->get();
-        
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
         $organizations = null;
         if (auth()->user()->hasRole('Super Admin')) {
             $organizations = Organization::where('is_active', true)->orderBy('name')->get();
@@ -235,7 +235,7 @@ class PurchaseOrderWebController extends Controller
             $this->poService->syncItems($purchaseOrder, $data['items']);
 
             return redirect()->route('web.po.show', $purchaseOrder)
-                             ->with('success', "PO #{$purchaseOrder->po_number} berhasil diperbarui.");
+                ->with('success', "PO #{$purchaseOrder->po_number} berhasil diperbarui.");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -249,13 +249,13 @@ class PurchaseOrderWebController extends Controller
 
         if (! $purchaseOrder->isRejected()) {
             return redirect()->route('web.po.show', $purchaseOrder)
-                             ->with('error', 'Hanya PO berstatus Ditolak yang dapat dibuka kembali.');
+                ->with('error', 'Hanya PO berstatus Ditolak yang dapat dibuka kembali.');
         }
 
         try {
             $this->poService->reopen($purchaseOrder, $request->user());
             return redirect()->route('web.po.edit', $purchaseOrder)
-                             ->with('success', "PO #{$purchaseOrder->po_number} dibuka kembali sebagai Draft. Silakan revisi dan ajukan ulang.");
+                ->with('success', "PO #{$purchaseOrder->po_number} dibuka kembali sebagai Draft. Silakan revisi dan ajukan ulang.");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -277,9 +277,9 @@ class PurchaseOrderWebController extends Controller
     public function exportPdf(PurchaseOrder $purchaseOrder)
     {
         $purchaseOrder->load(['organization', 'supplier', 'creator', 'items.product', 'approvals.approver']);
-        
+
         $pdf = Pdf::loadView('pdf.purchase_order', ['po' => $purchaseOrder])->setPaper('a4', 'portrait');
-        
+
         return $pdf->stream('PO_' . $purchaseOrder->po_number . '.pdf');
     }
 }

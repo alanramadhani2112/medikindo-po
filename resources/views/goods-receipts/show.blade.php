@@ -56,6 +56,7 @@ ki-outline ki-document fs-3"></i>
                 <thead>
                     <tr class="fw-bold text-muted bg-light">
                         <th class="ps-4 rounded-start">Produk</th>
+                        <th>Batch / Exp</th>
                         <th class="text-end">Dipesan (PO)</th>
                         <th class="text-end">Masuk (GR)</th>
                         <th class="text-center">Selisih</th>
@@ -75,6 +76,12 @@ ki-outline ki-document fs-3"></i>
                                 <div class="d-flex flex-column">
                                     <span class="fw-bold text-gray-900 fs-6">{{ $item->purchaseOrderItem?->product?->name ?? '—' }}</span>
                                     <span class="text-muted fs-7">SKU: {{ $item->purchaseOrderItem?->product?->sku ?? '—' }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="badge badge-light-dark fw-bold fs-7 mb-1">{{ $item->batch_no ?? '—' }}</span>
+                                    <span class="text-muted fs-8">{{ $item->expiry_date?->format('d M Y') ?? '—' }}</span>
                                 </div>
                             </td>
                             <td class="text-end">

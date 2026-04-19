@@ -56,8 +56,8 @@ class InvoiceFromGRService
             throw new DomainException("Goods Receipt must have a valid Purchase Order with supplier.");
         }
 
-        // Validate quantities
-        $this->validateQuantities($gr, $items);
+        // Validate quantities for AP (Supplier)
+        $this->validateQuantities($gr, $items, 'ap');
 
         // Validate batch & expiry consistency
         $this->validateBatchExpiry($gr, $items);
@@ -147,9 +147,10 @@ class InvoiceFromGRService
      * 
      * @param GoodsReceipt $gr
      * @param array $items
+     * @param string $type 'ap' or 'ar'
      * @throws DomainException
      */
-    private function validateQuantities(GoodsReceipt $gr, array $items): void
+    private function validateQuantities(GoodsReceipt $gr, array $items, string $type = 'ap'): void
     {
         foreach ($items as $item) {
             $grItem = GoodsReceiptItem::find($item['goods_receipt_item_id']);
@@ -162,7 +163,8 @@ class InvoiceFromGRService
                 throw new DomainException("Goods Receipt Item ID {$grItem->id} does not belong to GR {$gr->gr_number}.");
             }
 
-            $remainingQty = $grItem->remaining_quantity;
+            // Check correct remaining quantity attribute based on invoice type
+            $remainingQty = $type === 'ar' ? $grItem->remaining_ar_quantity : $grItem->remaining_ap_quantity;
             $requestedQty = $item['quantity'];
 
             if ($requestedQty > $remainingQty) {
@@ -313,8 +315,8 @@ class InvoiceFromGRService
             throw new DomainException("Goods Receipt must have a valid Purchase Order with organization.");
         }
 
-        // Validate quantities
-        $this->validateQuantities($gr, $items);
+        // Validate quantities for AR (Customer)
+        $this->validateQuantities($gr, $items, 'ar');
 
         // Validate batch & expiry consistency
         $this->validateBatchExpiry($gr, $items);

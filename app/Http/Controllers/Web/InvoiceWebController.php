@@ -191,7 +191,7 @@ class InvoiceWebController extends Controller
         $user = $request->user();
 
         // Load GRs with status 'completed' AND has remaining quantity
-        $query = GoodsReceipt::with(['purchaseOrder.supplier', 'items.purchaseOrderItem.product'])
+        $query = GoodsReceipt::with(['purchaseOrder.supplier', 'items.product', 'items.purchaseOrderItem'])
             ->where('status', 'completed')
             ->whereHas('purchaseOrder', function($q) {
                 $q->whereNotNull('supplier_id');
@@ -205,7 +205,7 @@ class InvoiceWebController extends Controller
         // Only show GRs that have remaining quantity to invoice
         $goodsReceipts = $query->get()->filter(function($gr) {
             return $gr->hasRemainingQuantity();
-        });
+        })->values();
 
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
@@ -273,7 +273,7 @@ class InvoiceWebController extends Controller
         $user = $request->user();
 
         // Load GRs with status 'completed' AND has remaining quantity
-        $query = GoodsReceipt::with(['purchaseOrder.organization', 'items.purchaseOrderItem.product'])
+        $query = GoodsReceipt::with(['purchaseOrder.organization', 'items.product', 'items.purchaseOrderItem'])
             ->where('status', 'completed')
             ->whereHas('purchaseOrder', function($q) {
                 $q->whereNotNull('organization_id');
@@ -284,11 +284,11 @@ class InvoiceWebController extends Controller
             $query->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
         }
 
-        // Only show GRs that have remaining quantity to invoice AND have an associated Supplier Invoice
+        // Only show GRs that have remaining quantity to invoice (AR) AND have an associated Supplier Invoice
         $goodsReceipts = $query->get()->filter(function($gr) {
             $hasSupplierInvoice = \App\Models\SupplierInvoice::where('goods_receipt_id', $gr->id)->exists();
-            return $hasSupplierInvoice && $gr->hasRemainingQuantity();
-        });
+            return $hasSupplierInvoice && $gr->hasRemainingArQuantity();
+        })->values();
 
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],

@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
     // ── Goods Receipts ─────────────────────────────────────────
     Route::prefix('goods-receipts')->name('web.goods-receipts.')->middleware('can:view_goods_receipt')->group(function () {
         Route::get('/',               [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'index'])->name('index');
-        
+
         // Separate middleware for create/store operations
         Route::middleware('can:confirm_receipt')->group(function () {
             Route::get('/create', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'create'])->name('create');
@@ -105,7 +105,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('invoices')->name('web.invoices.')->middleware('can:view_invoices')->group(function () {
         // Supplier Invoice (AP) - Index
         Route::get('/supplier',                            [\App\Http\Controllers\Web\InvoiceWebController::class, 'indexSupplier'])->name('supplier.index');
-        
+
         // Supplier Invoice (AP) - Create from Goods Receipt
         Route::get('/supplier/create',                     [\App\Http\Controllers\Web\InvoiceWebController::class, 'createSupplier'])
             ->name('supplier.create')
@@ -113,13 +113,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/supplier',                           [\App\Http\Controllers\Web\InvoiceWebController::class, 'storeSupplier'])
             ->name('supplier.store')
             ->middleware('can:create_invoices');
-        
+
         Route::get('/supplier/{invoice}',                  [\App\Http\Controllers\Web\InvoiceWebController::class, 'showSupplier'])->name('supplier.show');
         Route::get('/supplier/{invoice}/pdf',              [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportSupplierPdf'])->name('supplier.pdf');
-        
+
         // Customer Invoice (AR) - Index
         Route::get('/customer',                            [\App\Http\Controllers\Web\InvoiceWebController::class, 'indexCustomer'])->name('customer.index');
-        
+
         // Customer Invoice (AR) - Create from Goods Receipt
         Route::get('/customer/create',                     [\App\Http\Controllers\Web\InvoiceWebController::class, 'createCustomer'])
             ->name('customer.create')
@@ -127,7 +127,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/customer',                           [\App\Http\Controllers\Web\InvoiceWebController::class, 'storeCustomer'])
             ->name('customer.store')
             ->middleware('can:create_invoices');
-        
+
         Route::get('/customer/{invoice}',                  [\App\Http\Controllers\Web\InvoiceWebController::class, 'showCustomer'])->name('customer.show');
         Route::get('/customer/{invoice}/pdf',              [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportCustomerPdf'])->name('customer.pdf');
 
@@ -171,14 +171,14 @@ Route::middleware('auth')->group(function () {
     Route::prefix('credit-notes')->name('web.credit-notes.')->middleware('can:view_invoices')->group(function () {
         Route::get('/', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'index'])->name('index');
         Route::get('/{creditNote}', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'show'])->name('show');
-        
+
         Route::middleware('can:create_invoices')->group(function () {
             // Create credit note for customer invoice
             Route::get('/customer-invoice/{invoice}/create', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'createForCustomerInvoice'])
                 ->name('create-customer');
             Route::post('/customer-invoice/{invoice}', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'storeForCustomerInvoice'])
                 ->name('store-customer');
-            
+
             // Credit note actions
             Route::post('/{creditNote}/issue', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'issue'])->name('issue');
             Route::post('/{creditNote}/apply', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'apply'])->name('apply');
@@ -210,7 +210,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'index'])
             ->name('index')
             ->middleware('can:view_payment_status');
-        
+
         Route::middleware('can:submit_payment_proof')->group(function () {
             Route::get('/create', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'create'])->name('create');
             Route::post('/', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'store'])->name('store');
@@ -236,7 +236,7 @@ Route::middleware('auth')->group(function () {
         Route::middleware('can:upload_payment_document')->group(function () {
             Route::post('/{paymentProof}/documents', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'uploadDocument'])->name('upload-document');
         });
-        
+
         Route::get('/{paymentProof}/documents/{document}', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'downloadDocument'])
             ->name('download-document');
     });
@@ -314,5 +314,4 @@ Route::middleware('auth')->group(function () {
     Route::get('/examples/toolbar-demo', fn() => view('examples.toolbar-demo'))->name('web.examples.toolbar');
     Route::get('/test-layout', [\App\Http\Controllers\Web\TestController::class, 'layout'])->name('web.test.layout');
     Route::get('/diagnostic', fn() => view('diagnostic'))->name('web.diagnostic');
-
 });

@@ -1,53 +1,31 @@
-@extends('layouts.app')
+<x-layout :title="'AP ' . $invoice->invoice_number" :pageTitle="$invoice->invoice_number" breadcrumb="Hutang ke Supplier">
 
-@section('content')
-<div class="container-fluid">
-    {{-- Page Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-7">
-        <div class="d-flex align-items-center gap-3">
-            <h1 class="fs-2 fw-bold text-gray-900 mb-0">{{ $invoice->invoice_number }}</h1>
-            @php
-                $statusColor = match($invoice->status) {
-                    'paid' => 'success',
-                    'unpaid' => 'warning',
-                    'overdue' => 'danger',
-                    'draft' => 'secondary',
-                    'verified' => 'success',
-                    default => 'primary'
-                };
-            @endphp
-            <span class="badge badge-{{ $statusColor }}">{{ strtoupper($invoice->status) }}</span>
-        </div>
-        <div class="d-flex gap-3">
-            {{-- Verify & Create AR Button — only if status is 'issued' --}}
-            @if($invoice->status === 'issued')
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#verifyModal">
-                    <i class="ki-outline ki-verify fs-3"></i>
-                    Verifikasi &amp; Buat AR
-                </button>
-            @endif
+    <x-page-header :title="$invoice->invoice_number" description="Detail tagihan dari distributor/supplier">
+        <x-slot name="actions">
+            <span class="badge {{ $invoice->status->getBadgeClass() }} fs-7 me-2">{{ $invoice->status->getLabel() }}</span>
+            
             <button onclick="window.open('{{ route('web.invoices.supplier.pdf', $invoice) }}', '_blank')" 
-                    class="btn btn-light-primary">
-                <i class="ki-outline ki-document fs-2"></i>
+                    class="btn btn-light-primary btn-sm">
+                <i class="ki-outline ki-document fs-3"></i>
                 PDF
             </button>
-            <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light">
-                <i class="ki-outline ki-arrow-down fs-2"></i>
+            <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-secondary btn-sm">
+                <i class="ki-outline ki-arrow-left fs-3"></i>
                 Kembali
             </a>
-        </div>
-    </div>
+        </x-slot>
+    </x-page-header>
 
     {{-- Summary Card --}}
-    <div class="card bg-dark mb-7">
+    <div class="card bg-gray-900 mb-7">
         <div class="card-body">
             <div class="row align-items-center">
                 <div class="col-md-4">
-                    <span class="text-gray-400 fs-7 fw-bold text-uppercase">Total Nilai Tagihan AP</span>
-                    <h2 class="text-white fs-2x fw-bold mt-2 mb-3">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</h2>
+                    <span class="text-gray-500 fs-7 fw-bold text-uppercase">Total Nilai Tagihan AP</span>
+                    <h2 class="text-white fs-2hx fw-bold mt-2 mb-3">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</h2>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="text-gray-400 fs-7">Tenggat:</span>
-                        <span class="text-danger fw-bold">{{ $invoice->due_date?->format('d M Y') ?? '—' }}</span>
+                        <span class="text-gray-500 fs-7">Tenggat:</span>
+                        <span class="text-danger fw-bold fs-6">{{ $invoice->due_date?->format('d M Y') ?? '—' }}</span>
                     </div>
                 </div>
                 <div class="col-md-8">
@@ -56,7 +34,7 @@
                             <span class="text-gray-500 fs-7 fw-bold">Sudah Dibayar</span>
                             <h4 class="text-primary fs-2 fw-bold mt-1">Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}</h4>
                         </div>
-                        <div class="col-auto text-end border-start border-gray-700 ps-5">
+                        <div class="col-auto text-end border-start border-gray-800 ps-5 ms-5">
                             <span class="text-gray-500 fs-7 fw-bold">Sisa Tagihan (AP)</span>
                             <h4 class="text-danger fs-2 fw-bold mt-1">Rp {{ number_format($invoice->total_amount - $invoice->paid_amount, 0, ',', '.') }}</h4>
                         </div>
@@ -69,181 +47,102 @@
     <div class="row">
         {{-- Left Column: Reference Info --}}
         <div class="col-lg-4 mb-7">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="ki-outline ki-information-5 fs-2 me-2"></i>
-                        Informasi Referensi
-                    </h3>
+            <x-card title="Informasi Referensi" icon="information">
+                <div class="mb-7">
+                    <span class="text-gray-600 fs-7 fw-bold d-block">Supplier Penagih</span>
+                    <h6 class="text-gray-900 fw-bold fs-5 mt-1">{{ $invoice->supplier?->name ?? '—' }}</h6>
                 </div>
-                <div class="card-body">
-                    <div class="mb-7">
-                        <span class="text-gray-600 fs-7 fw-bold">Supplier Penagih</span>
-                        <h6 class="text-gray-900 fw-bold fs-5 mt-1">{{ $invoice->supplier?->name ?? '—' }}</h6>
-                    </div>
-                    
-                    <div class="border-top pt-7">
-                        <span class="text-gray-400 fs-8 fw-bold text-uppercase mb-5 d-block">Referensi Dokumen</span>
-                        <div class="d-flex flex-column gap-3">
-                            @if($invoice->goods_receipt_id)
-                                <a href="{{ route('web.goods-receipts.show', $invoice->goods_receipt_id) }}" 
-                                   class="d-flex align-items-center gap-3 p-3 rounded bg-light-primary text-primary">
-                                    <div class="symbol symbol-30px">
-                                        <div class="symbol-label bg-white text-primary">
-                                            <i class="ki-outline ki-package fs-4"></i>
-                                        </div>
-                                    </div>
-                                    <span class="fs-7 fw-semibold">{{ $invoice->goodsReceipt?->gr_number ?? 'Dokumen GR' }}</span>
-                                </a>
-                            @else
-                                <div class="d-flex align-items-center gap-3 p-3 rounded bg-light-secondary text-muted">
-                                    <div class="symbol symbol-30px">
-                                        <div class="symbol-label bg-white text-muted">
-                                            <i class="ki-outline ki-package fs-4"></i>
-                                        </div>
-                                    </div>
-                                    <span class="fs-7 fw-semibold">Goods Receipt belum tersedia</span>
-                                </div>
-                            @endif
-                            <a href="{{ route('web.po.show', $invoice->purchase_order_id) }}" 
-                               class="d-flex align-items-center gap-3 p-3 rounded bg-light-primary text-primary">
-                                <div class="symbol symbol-30px">
+                
+                <div class="border-top pt-7">
+                    <span class="text-gray-400 fs-8 fw-bold text-uppercase mb-5 d-block">Referensi Dokumen</span>
+                    <div class="d-flex flex-column gap-3">
+                        @if($invoice->goods_receipt_id)
+                            <a href="{{ route('web.goods-receipts.show', $invoice->goods_receipt_id) }}" 
+                               class="d-flex align-items-center gap-3 p-3 rounded bg-light-primary text-primary text-hover-primary border border-primary border-dashed">
+                                <div class="symbol symbol-35px">
                                     <div class="symbol-label bg-white text-primary">
-                                        <i class="ki-outline ki-document fs-4"></i>
+                                        <i class="ki-outline ki-package fs-3"></i>
                                     </div>
                                 </div>
-                                <span class="fs-7 fw-semibold">{{ $invoice->purchaseOrder?->po_number ?? 'Dokumen PO' }}</span>
+                                <div class="d-flex flex-column">
+                                    <span class="fs-7 fw-bold">Goods Receipt</span>
+                                    <span class="fs-8">{{ $invoice->goodsReceipt?->gr_number ?? 'Dokumen GR' }}</span>
+                                </div>
                             </a>
-                        </div>
+                        @endif
+                        <a href="{{ route('web.po.show', $invoice->purchase_order_id) }}" 
+                           class="d-flex align-items-center gap-3 p-3 rounded bg-light-info text-info text-hover-info border border-info border-dashed">
+                            <div class="symbol symbol-35px">
+                                <div class="symbol-label bg-white text-info">
+                                    <i class="ki-outline ki-document fs-3"></i>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <span class="fs-7 fw-bold">Purchase Order</span>
+                                <span class="fs-8">{{ $invoice->purchaseOrder?->po_number ?? 'Dokumen PO' }}</span>
+                            </div>
+                        </a>
                     </div>
                 </div>
-            </div>
+            </x-card>
         </div>
 
         {{-- Right Column: Payment History --}}
         <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="ki-outline ki-entrance-right fs-2 me-2"></i>
-                        Riwayat Pembayaran
-                    </h3>
-                    @if($invoice->status !== 'paid')
-                        <div class="card-toolbar">
-                            <a href="{{ route('web.payments.create.outgoing', ['invoice_id' => $invoice->id]) }}" 
-                               class="btn btn-sm btn-danger">
-                                <i class="ki-outline ki-entrance-right fs-4"></i>
-                                Catat Pembayaran Outgoing
-                            </a>
-                        </div>
-                    @endif
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
-                            <thead>
-                                <tr class="fw-bold text-muted bg-light">
-                                    <th class="ps-4 rounded-start">Nomor Pembayaran / Ref</th>
-                                    <th class="text-end">Total Terbayar</th>
-                                    <th class="text-end pe-4 rounded-end">Waktu</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($invoice->paymentAllocations as $alloc)
-                                    <tr>
-                                        <td class="ps-4">
-                                            <div class="d-flex flex-column">
-                                                <span class="text-gray-800 fw-bold">{{ $alloc->payment?->payment_number }}</span>
-                                                <span class="text-gray-600 fs-7">{{ $alloc->payment?->payment_method }} - {{ $alloc->payment?->reference ?? 'Tanpa Ref' }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="text-primary fw-bold">+ Rp {{ number_format($alloc->allocated_amount, 0, ',', '.') }}</span>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <div class="d-flex align-items-center justify-content-end gap-2">
-                                                <i class="ki-outline ki-time fs-6 text-gray-400"></i>
-                                                <span class="text-gray-600 fs-7">{{ $alloc->created_at->format('d M Y H:i') }}</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="text-center py-10">
-                                            <div class="d-flex flex-column align-items-center">
-                                                <i class="ki-outline ki-entrance-right fs-3x text-gray-400 mb-3"></i>
-                                                <span class="text-gray-500 fs-6">Belum ada catatan pembayaran riil terkait tagihan ini.</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+            <x-card title="Riwayat Pembayaran" icon="entrance-right">
+                @if($invoice->status->value !== 'paid')
+                    <x-slot name="actions">
+                        <a href="{{ route('web.payments.create.outgoing', ['invoice_id' => $invoice->id]) }}" 
+                           class="btn btn-sm btn-danger">
+                            <i class="ki-outline ki-plus fs-4"></i>
+                            Catat Pembayaran
+                        </a>
+                    </x-slot>
+                @endif
 
-{{-- Verify Modal --}}
-@if($invoice->status === 'issued')
-<div class="modal fade" id="verifyModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('web.invoices.supplier.verify', $invoice) }}">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold text-success">
-                        <i class="ki-outline ki-verify fs-3 me-2"></i>
-                        Verifikasi &amp; Buat AR Invoice
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="table-responsive">
+                    <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
+                        <thead>
+                            <tr class="fw-bold text-muted bg-light">
+                                <th class="ps-4 rounded-start">Nomor Pembayaran / Ref</th>
+                                <th class="text-end">Total Terbayar</th>
+                                <th class="text-end pe-4 rounded-end">Waktu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($invoice->paymentAllocations as $alloc)
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex flex-column">
+                                            <span class="text-gray-800 fw-bold">{{ $alloc->payment?->payment_number }}</span>
+                                            <span class="text-gray-600 fs-7">{{ $alloc->payment?->payment_method }} - {{ $alloc->payment?->reference ?? 'Tanpa Ref' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-primary fw-bold">+ Rp {{ number_format($alloc->allocated_amount, 0, ',', '.') }}</span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-flex align-items-center justify-content-end gap-2">
+                                            <i class="ki-outline ki-time fs-6 text-gray-400"></i>
+                                            <span class="text-gray-600 fs-7">{{ $alloc->created_at->format('d M Y H:i') }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center py-10">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="ki-outline ki-entrance-right fs-3x text-gray-400 mb-3"></i>
+                                            <span class="text-gray-500 fs-6">Belum ada catatan pembayaran riil terkait tagihan ini.</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
-                <div class="modal-body">
-                    <div class="alert alert-info mb-4">
-                        <i class="ki-outline ki-information-5 fs-4 me-2"></i>
-                        Invoice supplier akan diverifikasi dan draft AR akan dibuat otomatis menggunakan harga dari Master Price List.
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold required">RS/Klinik (Customer)</label>
-                        <select name="customer_id" class="form-select" required>
-                            <option value="">-- Pilih RS/Klinik --</option>
-                            @foreach(\App\Models\Organization::where('is_active', true)->orderBy('name')->get() as $org)
-                                <option value="{{ $org->id }}">
-                                    {{ $org->name }}
-                                    @if($org->customer_code) ({{ $org->customer_code }}) @endif
-                                </option>
-                            @endforeach
-                        </select>
-                        <div class="form-text text-muted">Pilih RS/Klinik yang akan ditagih untuk invoice AR ini.</div>
-                    </div>
-                    <div class="bg-light rounded p-4">
-                        <div class="fs-7 fw-bold text-gray-600 mb-2">Detail Invoice AP</div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-gray-500 fs-7">No. Invoice</span>
-                            <span class="fw-semibold fs-7">{{ $invoice->invoice_number }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-gray-500 fs-7">Supplier</span>
-                            <span class="fw-semibold fs-7">{{ $invoice->supplier?->name ?? '—' }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-gray-500 fs-7">Total AP</span>
-                            <span class="fw-bold fs-7">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="ki-outline ki-verify fs-4 me-1"></i>
-                        Verifikasi &amp; Buat AR
-                    </button>
-                </div>
-            </form>
+            </x-card>
         </div>
     </div>
-</div>
-@endif
-@endsection
+
+</x-layout>

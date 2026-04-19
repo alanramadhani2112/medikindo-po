@@ -1,69 +1,118 @@
 <x-layout title="Input Invoice Pemasok" pageTitle="Input Invoice Pemasok" breadcrumb="Input invoice dari distributor">
 
-    <x-page-header 
-        title="Input Invoice Pemasok" 
+    <x-page-header title="Input Invoice Pemasok"
         description="Input invoice yang diterima dari distributor berdasarkan Penerimaan Barang (Goods Receipt).">
     </x-page-header>
 
-    <div x-data="invoiceForm()">
+    @push('styles')
+        <style>
+            .gr-search-wrapper {
+                position: relative;
+            }
+
+            .gr-dropdown {
+                position: absolute;
+                z-index: 1050;
+                background: #fff;
+                border: 1px solid #e4e6ef;
+                border-radius: 0.475rem;
+                box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, .1);
+                max-height: 250px;
+                overflow-y: auto;
+                width: 100%;
+                margin-top: 2px;
+            }
+
+            .gr-dropdown-item {
+                padding: 0.75rem 1rem;
+                cursor: pointer;
+                border-bottom: 1px solid #f5f5f5;
+                transition: background .15s;
+            }
+
+            .gr-dropdown-item:last-child {
+                border-bottom: none;
+            }
+
+            .gr-dropdown-item:hover {
+                background: #f1f3f9;
+            }
+
+            .gr-dropdown-empty {
+                padding: 0.75rem 1rem;
+                color: #a1a5b7;
+                font-size: 0.85rem;
+            }
+        </style>
+    @endpush
+
+    @php
+        $grData = $goodsReceipts->map(fn($gr) => [
+            'id' => $gr->id,
+            'gr_number' => $gr->gr_number,
+            'po_number' => $gr->purchaseOrder?->po_number ?? '—',
+            'supplier_name' => $gr->purchaseOrder?->supplier?->name ?? '—',
+            'items' => $gr->items->map(fn($item) => [
+                'id' => $item->id,
+                'product_name' => $item->product?->name ?? '—',
+                'product_unit' => $item->product?->unit ?? 'unit',
+                'batch_no' => $item->batch_no,
+                'expiry_date' => $item->expiry_date?->format('Y-m-d'),
+                'quantity_received' => $item->quantity_received,
+                'remaining_quantity' => $item->remaining_quantity,
+                'unit_price' => $item->purchaseOrderItem?->unit_price ?? 0,
+                'discount_percent' => $item->purchaseOrderItem?->discount_percent ?? 0,
+            ])->toArray()
+        ])->toArray();
+    @endphp
+
+    <div x-data="invoiceForm()" x-init='initData(@json($grData))'>
         <form method="POST" action="{{ route('web.invoices.supplier.store') }}" id="invoice-form">
             @csrf
 
             {{-- GR Selection --}}
             <x-card title="Pilih Penerimaan Barang" class="mb-5">
-                <div class="alert alert-warning d-flex align-items-center mb-5">
-                    <i class="ki-outline ki-information-5 fs-2x text-warning me-4"></i>
-                    <div>
-                        <strong>Penting:</strong> Pilih Goods Receipt yang sesuai dengan invoice fisik yang diterima dari distributor. 
-                        Batch dan expiry date harus match dengan GR untuk validasi.
-                    </div>
-                </div>
-
                 <div class="row">
                     <div class="col-md-12">
-                        <label class="form-label required fw-semibold fs-6 mb-2">Goods Receipt (Penerimaan Barang)</label>
-                        <select name="goods_receipt_id" class="form-select form-select-solid" required 
-                                x-model="selectedGrId" @change="loadGrItems()">
-                            <option value="">— Pilih Penerimaan Barang yang sudah selesai —</option>
-                            @foreach($goodsReceipts as $gr)
-                                <option value="{{ $gr->id }}" 
-                                        data-gr="{{ json_encode([
-                                            'id' => $gr->id,
-                                            'gr_number' => $gr->gr_number,
-                                            'po_number' => $gr->purchaseOrder->po_number,
-                                            'supplier_name' => $gr->purchaseOrder->supplier->name,
-                                            'supplier_id' => $gr->purchaseOrder->supplier_id,
-                                            'items' => $gr->items->map(fn($item) => [
-                                                'id' => $item->id,
-                                                'product_id' => $item->purchaseOrderItem->product_id,
-                                                'product_name' => $item->purchaseOrderItem->product->name,
-                                                'product_unit' => $item->purchaseOrderItem->product->unit,
-                                                'batch_no' => $item->batch_no,
-                                                'expiry_date' => $item->expiry_date?->format('Y-m-d'),
-                                                'quantity_received' => $item->quantity_received,
-                                                'remaining_quantity' => $item->remaining_quantity,
-                                                'invoiced_quantity' => $item->invoiced_quantity,
-                                                'unit_price' => $item->purchaseOrderItem->unit_price,
-                                                'discount_percent' => $item->purchaseOrderItem->discount_percent,
-                                                'tax_percent' => $item->purchaseOrderItem->tax_percent,
-                                            ])
-                                        ]) }}">
-                                    {{ $gr->gr_number }} - {{ $gr->purchaseOrder->supplier->name }} ({{ $gr->items->count() }} items)
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('goods_receipt_id')
-                            <div class="text-danger fs-7 mt-2">{{ $message }}</div>
-                        @enderror
+                        <label class="form-label required fw-semibold fs-6 mb-2">Goods Receipt (Penerimaan
+                            Barang)</label>
+                        <div class="gr-search-wrapper">
+                            <input type="hidden" name="goods_receipt_id" x-model="selectedGrId">
+                            <div class="position-relative">
+                                <i
+                                    class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                                <input type="text" class="form-control form-control-solid ps-12"
+                                    placeholder="Ketik Nomor GR atau Nama Supplier..." x-model="searchQuery"
+                                    @focus="showDropdown = true" @blur="setTimeout(() => showDropdown = false, 200)"
+                                    @input="selectedGrId = ''; items = []">
+                            </div>
+
+                            {{-- Dropdown --}}
+                            <div class="gr-dropdown" x-show="showDropdown && filteredGrs().length > 0" x-cloak>
+                                <template x-for="gr in filteredGrs()" :key="gr.id">
+                                    <div class="gr-dropdown-item" @mousedown.prevent="selectGr(gr)">
+                                        <div class="fw-bold text-gray-800 fs-7" x-text="gr.gr_number"></div>
+                                        <div class="text-muted fs-8">
+                                            <span x-text="gr.supplier_name"></span>
+                                            <span class="ms-2 badge badge-light-primary fs-9"
+                                                x-text="gr.items.length + ' item'"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="gr-dropdown" x-show="showDropdown && searchQuery && filteredGrs().length === 0"
+                                x-cloak>
+                                <div class="po-dropdown-empty">Data GR tidak ditemukan</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {{-- GR Info --}}
                 <div x-show="selectedGrId" x-transition class="mt-5">
-                    <div class="alert alert-primary d-flex align-items-center">
+                    <div class="alert alert-primary d-flex align-items-center mb-0">
                         <i class="ki-outline ki-information-5 fs-2x text-primary me-4"></i>
                         <div class="d-flex flex-column">
-                            <h5 class="mb-1">Informasi Penerimaan Barang</h5>
                             <span><strong>GR Number:</strong> <span x-text="grInfo.gr_number"></span></span>
                             <span><strong>PO Reference:</strong> <span x-text="grInfo.po_number"></span></span>
                             <span><strong>Supplier:</strong> <span x-text="grInfo.supplier_name"></span></span>
@@ -75,63 +124,37 @@
             {{-- Invoice Details --}}
             <div x-show="selectedGrId" x-transition>
                 <x-card title="Detail Invoice Distributor" class="mb-5">
-                    <div class="alert alert-info d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-document fs-2x text-info me-4"></i>
-                        <div>
-                            <strong>Petunjuk:</strong> Input data sesuai dengan invoice fisik/PDF yang diterima dari distributor.
-                        </div>
-                    </div>
-
                     <div class="row g-5">
                         <div class="col-md-6">
                             <label class="form-label required fw-semibold fs-6 mb-2">Nomor Invoice Distributor</label>
-                            <input type="text" name="distributor_invoice_number" class="form-control form-control-solid" 
-                                   placeholder="Contoh: INV-DIST-2024-001" required>
-                            <div class="form-text">Nomor invoice dari dokumen distributor</div>
-                            @error('distributor_invoice_number')
-                                <div class="text-danger fs-7 mt-2">{{ $message }}</div>
-                            @enderror
+                            <input type="text" name="distributor_invoice_number"
+                                class="form-control form-control-solid" placeholder="Contoh: INV-DIST-2024-001"
+                                required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label required fw-semibold fs-6 mb-2">Tanggal Invoice Distributor</label>
-                            <input type="date" name="distributor_invoice_date" class="form-control form-control-solid" required>
-                            <div class="form-text">Tanggal terbit invoice dari distributor</div>
-                            @error('distributor_invoice_date')
-                                <div class="text-danger fs-7 mt-2">{{ $message }}</div>
-                            @enderror
+                            <input type="date" name="distributor_invoice_date"
+                                class="form-control form-control-solid" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label required fw-semibold fs-6 mb-2">Tanggal Jatuh Tempo</label>
                             <input type="date" name="due_date" class="form-control form-control-solid" required>
-                            <div class="form-text">Tanggal jatuh tempo pembayaran</div>
-                            @error('due_date')
-                                <div class="text-danger fs-7 mt-2">{{ $message }}</div>
-                            @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold fs-6 mb-2">Nomor Invoice Internal (Opsional)</label>
-                            <input type="text" name="internal_invoice_number" class="form-control form-control-solid" 
-                                   placeholder="Nomor invoice internal Medikindo (opsional)">
-                            <div class="form-text">Akan di-generate otomatis jika kosong</div>
+                            <input type="text" name="internal_invoice_number" class="form-control form-control-solid"
+                                placeholder="Nomor invoice internal Medikindo (opsional)">
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold fs-6 mb-2">Catatan (Opsional)</label>
-                            <textarea name="notes" class="form-control form-control-solid" rows="3" 
-                                      placeholder="Catatan tambahan untuk invoice ini..."></textarea>
+                            <textarea name="notes" class="form-control form-control-solid" rows="3"
+                                placeholder="Catatan tambahan untuk invoice ini..."></textarea>
                         </div>
                     </div>
                 </x-card>
 
                 {{-- Items --}}
                 <x-card title="Item Invoice" class="mb-5">
-                    <div class="alert alert-warning d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-shield-tick fs-2x text-warning me-4"></i>
-                        <div>
-                            <strong>Validasi:</strong> Batch dan expiry date diambil dari GR (tidak dapat diubah). 
-                            <strong>Harga distributor</strong> otomatis dari PO dan tidak dapat diubah (sudah di-setting di master produk).
-                        </div>
-                    </div>
-
                     <div class="table-responsive">
                         <table class="table table-row-bordered table-row-gray-300 align-middle gs-7 gy-4">
                             <thead>
@@ -140,7 +163,6 @@
                                     <th>Batch</th>
                                     <th>Kadaluarsa</th>
                                     <th class="text-end">Diterima</th>
-                                    <th class="text-end">Sudah Diinvoice</th>
                                     <th class="text-end">Sisa</th>
                                     <th class="text-end">Harga Distributor</th>
                                     <th class="text-end">Diskon %</th>
@@ -151,86 +173,60 @@
                                 <template x-for="(item, index) in items" :key="item.id">
                                     <tr>
                                         <td class="ps-4">
-                                            <input type="hidden" :name="`items[${index}][goods_receipt_item_id]`" :value="item.id">
+                                            <input type="hidden" :name="`items[${index}][goods_receipt_item_id]`"
+                                                :value="item.id">
                                             <div class="d-flex flex-column">
                                                 <span class="text-gray-900 fw-bold" x-text="item.product_name"></span>
                                                 <span class="text-gray-500 fs-7" x-text="item.product_unit"></span>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge badge-light-primary" x-text="item.batch_no || '—'"></span>
+                                            <span class="badge badge-light-primary"
+                                                x-text="item.batch_no || '—'"></span>
                                         </td>
                                         <td>
-                                            <span class="text-gray-800" x-text="item.expiry_date ? formatDate(item.expiry_date) : '—'"></span>
+                                            <span class="text-gray-800"
+                                                x-text="item.expiry_date ? formatDate(item.expiry_date) : '—'"></span>
                                         </td>
                                         <td class="text-end">
-                                            <span class="text-gray-800 fw-semibold" x-text="item.quantity_received"></span>
+                                            <span class="text-gray-800 fw-semibold"
+                                                x-text="item.quantity_received"></span>
                                         </td>
                                         <td class="text-end">
-                                            <span class="text-primary fw-semibold" x-text="item.invoiced_quantity"></span>
+                                            <span class="text-success fw-bold"
+                                                x-text="item.remaining_quantity"></span>
                                         </td>
                                         <td class="text-end">
-                                            <span class="text-success fw-bold" x-text="item.remaining_quantity"></span>
+                                            <input type="number" class="form-control bg-light text-end"
+                                                :name="`items[${index}][unit_price]`" x-model.number="item.unit_price"
+                                                readonly style="width: 150px;">
                                         </td>
                                         <td class="text-end">
-                                            <input type="number" 
-                                                   class="form-control form-control-solid bg-light text-end" 
-                                                   :name="`items[${index}][unit_price]`" 
-                                                   required 
-                                                   step="0.01"
-                                                   min="0"
-                                                   x-model.number="item.distributor_price"
-                                                   readonly
-                                                   style="width: 150px;">
-                                            <div class="form-text text-end fs-8 text-muted">
-                                                Harga dari PO (tidak dapat diubah)
-                                            </div>
+                                            <input type="number" class="form-control text-end bg-white"
+                                                :name="`items[${index}][discount_percent]`"
+                                                x-model.number="item.discount_percent" placeholder="0"
+                                                style="width: 100px;">
                                         </td>
                                         <td class="text-end">
-                                            <input type="number" 
-                                                   class="form-control form-control-solid text-end" 
-                                                   :name="`items[${index}][discount_percent]`" 
-                                                   step="0.01"
-                                                   min="0"
-                                                   max="100"
-                                                   x-model.number="item.discount_percent"
-                                                   placeholder="0"
-                                                   style="width: 100px;">
-                                        </td>
-                                        <td class="text-end">
-                                            <input type="number" 
-                                                   class="form-control form-control-solid text-end" 
-                                                   :name="`items[${index}][quantity]`" 
-                                                   required 
-                                                   :min="1" 
-                                                   :max="item.remaining_quantity" 
-                                                   x-model.number="item.invoice_quantity"
-                                                   style="width: 120px;">
+                                            <input type="number" class="form-control text-end bg-white"
+                                                :name="`items[${index}][quantity]`" required :min="1"
+                                                :max="item.remaining_quantity" x-model.number="item.invoice_quantity"
+                                                style="width: 120px;">
                                         </td>
                                     </tr>
                                 </template>
                             </tbody>
                         </table>
                     </div>
-
-                    <div class="alert alert-light-primary d-flex align-items-center mt-5">
-                        <i class="ki-outline ki-information fs-2x text-primary me-4"></i>
-                        <div>
-                            <strong>Catatan Harga:</strong> Harga yang ditampilkan adalah <strong>harga beli dari distributor</strong> yang sudah di-setting di master produk dan tercatat di PO. 
-                            Harga ini tidak dapat diubah untuk menjaga konsistensi data. 
-                            Harga jual Medikindo ke RS/Klinik akan digunakan saat membuat invoice ke RS/Klinik.
-                        </div>
-                    </div>
                 </x-card>
 
                 {{-- Submit --}}
-                <div class="d-flex justify-content-end gap-3">
-                    <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-secondary">
-                        <i class="ki-outline ki-arrow-zigzag fs-3"></i>
+                <div class="d-flex justify-content-end gap-3 pt-5">
+                    <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light">
                         Batal
                     </a>
                     <button type="submit" class="btn btn-primary create-confirm" data-type="Invoice Pemasok">
-                        <i class="ki-outline ki-picture fs-3"></i>
+                        <i class="ki-outline ki-check-circle fs-3"></i>
                         Simpan Invoice Pemasok
                     </button>
                 </div>
@@ -239,72 +235,61 @@
     </div>
 
     @push('scripts')
-    <script>
-    function invoiceForm() {
-        return {
-            selectedGrId: '',
-            grInfo: {},
-            items: [],
-            
-            loadGrItems() {
-                if (!this.selectedGrId) {
-                    this.items = [];
-                    this.grInfo = {};
-                    return;
-                }
-                
-                const select = document.querySelector('select[name="goods_receipt_id"]');
-                const option = select.options[select.selectedIndex];
-                
-                try {
-                    const grData = JSON.parse(option.getAttribute('data-gr'));
-                    
-                    this.grInfo = {
-                        gr_number: grData.gr_number,
-                        po_number: grData.po_number,
-                        supplier_name: grData.supplier_name,
-                        supplier_id: grData.supplier_id
-                    };
-                    
-                    // Only include items with remaining quantity > 0
-                    this.items = grData.items
-                        .filter(item => item.remaining_quantity > 0)
-                        .map(item => ({
-                            ...item,
-                            invoice_quantity: item.remaining_quantity, // Default to remaining quantity
-                            distributor_price: item.unit_price, // From PO (readonly)
-                            discount_percent: item.discount_percent || 0
-                        }));
-                    
-                    if (this.items.length === 0) {
-                        alert('Semua item dari Goods Receipt ini sudah diinvoice sepenuhnya.');
-                        this.selectedGrId = '';
-                        this.grInfo = {};
+        <script>
+            function invoiceForm() {
+                return {
+                    allGrs: [],
+                    selectedGrId: '',
+                    searchQuery: '',
+                    showDropdown: false,
+                    grInfo: {},
+                    items: [],
+
+                    initData(data) {
+                        this.allGrs = data;
+                    },
+
+                    filteredGrs() {
+                        if (!this.searchQuery) return this.allGrs;
+                        const q = this.searchQuery.toLowerCase();
+                        return this.allGrs.filter(gr =>
+                            gr.gr_number.toLowerCase().includes(q) ||
+                            gr.supplier_name.toLowerCase().includes(q)
+                        );
+                    },
+
+                    selectGr(gr) {
+                        this.selectedGrId = gr.id;
+                        this.searchQuery = gr.gr_number;
+                        this.showDropdown = false;
+                        this.grInfo = {
+                            gr_number: gr.gr_number,
+                            po_number: gr.po_number,
+                            supplier_name: gr.supplier_name
+                        };
+
+                        // Load items with remaining qty
+                        this.items = gr.items
+                            .filter(item => item.remaining_quantity > 0)
+                            .map(item => ({
+                                ...item,
+                                invoice_quantity: item.remaining_quantity,
+                                discount_percent: item.discount_percent || 0
+                            }));
+                    },
+
+                    formatDate(dateString) {
+                        if (!dateString) return '—';
+                        const date = new Date(dateString);
+                        return date.toLocaleDateString('id-ID', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
                     }
-                } catch (e) {
-                    console.error('Error parsing GR data:', e);
-                    this.items = [];
-                    this.grInfo = {};
                 }
-            },
-            
-            formatDate(dateString) {
-                if (!dateString) return '—';
-                const date = new Date(dateString);
-                const options = { year: 'numeric', month: 'short', day: 'numeric' };
-                return date.toLocaleDateString('id-ID', options);
-            },
-            
-            formatCurrency(amount) {
-                if (!amount) return 'Rp 0';
-                return 'Rp ' + parseFloat(amount).toLocaleString('id-ID', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 2
-                });
             }
-        }
-    }
-    </script>
+        </script>
     @endpush
 
 </x-layout>

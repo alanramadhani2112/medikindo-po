@@ -107,20 +107,6 @@
                         </div>
                     </div>
 
-                    {{-- AR: Customer Invoice --}}
-                    <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs('web.invoices.customer.*') ? 'active' : '' }}"
-                            href="{{ route('web.invoices.customer.index') }}">
-                            <span class="menu-icon">
-                                <i class="ki-outline ki-check fs-2 text-success"></i>
-                            </span>
-                            <span class="menu-title">Customer Invoice</span>
-                            <span class="menu-badge">
-                                <span class="badge badge-light-success badge-circle fw-bold fs-8">AR</span>
-                            </span>
-                        </a>
-                    </div>
-
                     {{-- AP: Supplier Invoice --}}
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs('web.invoices.supplier.*') ? 'active' : '' }}"
@@ -131,6 +117,20 @@
                             <span class="menu-title">Supplier Invoice</span>
                             <span class="menu-badge">
                                 <span class="badge badge-light-danger badge-circle fw-bold fs-8">AP</span>
+                            </span>
+                        </a>
+                    </div>
+
+                    {{-- AR: Customer Invoice --}}
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs('web.invoices.customer.*') ? 'active' : '' }}"
+                            href="{{ route('web.invoices.customer.index') }}">
+                            <span class="menu-icon">
+                                <i class="ki-outline ki-check fs-2 text-success"></i>
+                            </span>
+                            <span class="menu-title">Customer Invoice</span>
+                            <span class="menu-badge">
+                                <span class="badge badge-light-success badge-circle fw-bold fs-8">AR</span>
                             </span>
                         </a>
                     </div>

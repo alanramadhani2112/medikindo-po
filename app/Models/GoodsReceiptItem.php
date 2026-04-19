@@ -41,11 +41,9 @@ class GoodsReceiptItem extends Model
     }
 
     /**
-     * Get remaining quantity available for invoicing
-     * 
-     * @return int
+     * Get remaining quantity available for Supplier Invoicing (AP)
      */
-    public function getRemainingQuantityAttribute(): int
+    public function getRemainingApQuantityAttribute(): int
     {
         $invoiced = $this->supplierInvoiceLineItems()
             ->whereHas('supplierInvoice', function($q) {
@@ -54,6 +52,28 @@ class GoodsReceiptItem extends Model
             ->sum('quantity');
 
         return max(0, $this->quantity_received - (int)$invoiced);
+    }
+
+    /**
+     * Get remaining quantity available for Customer Invoicing (AR)
+     */
+    public function getRemainingArQuantityAttribute(): int
+    {
+        $invoiced = $this->customerInvoiceLineItems()
+            ->whereHas('customerInvoice', function($q) {
+                $q->whereNotIn('status', ['void', 'cancelled']);
+            })
+            ->sum('quantity');
+
+        return max(0, $this->quantity_received - (int)$invoiced);
+    }
+
+    /**
+     * Legacy attribute for backward compatibility (defaults to AP)
+     */
+    public function getRemainingQuantityAttribute(): int
+    {
+        return $this->remaining_ap_quantity;
     }
 
     /**

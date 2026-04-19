@@ -62,17 +62,8 @@
                                             {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
                                     </td>
                                     <td class="text-center">
-                                        @php
-                                            $statusColor = match ($invoice->status) {
-                                                'paid' => 'success',
-                                                'overdue' => 'danger',
-                                                default => 'warning',
-                                            };
-                                        @endphp
-                                        <span
-                                            class="badge badge-{{ $statusColor }}">{{ strtoupper($invoice->status) }}</span>
-                                    </td>
-                                    <td class="text-end pe-4">
+                                        <span class="badge {{ $invoice->status->getBadgeClass() }}">{{ $invoice->status->getLabel() }}</span>
+                                    </td>                                    <td class="text-end pe-4">
                                         <a href="{{ route('web.invoices.customer.show', $invoice) }}"
                                             class="btn btn-sm btn-light btn-active-light-primary">
                                             <i class="ki-outline ki-eye fs-4"></i>

@@ -11,17 +11,7 @@
         <div class="d-flex flex-column">
             <div class="d-flex align-items-center gap-3 mb-2">
                 <h1 class="fs-2 fw-bold text-gray-900 mb-0">{{ $invoice->invoice_number }}</h1>
-                @php
-                    $badgeClass = match($invoice->status) {
-                        'draft'        => 'badge-secondary',
-                        'issued'       => 'badge-warning',
-                        'partial_paid' => 'badge-info',
-                        'paid'         => 'badge-success',
-                        'void'         => 'badge-danger',
-                        default        => 'badge-secondary',
-                    };
-                @endphp
-                <span class="badge {{ $badgeClass }} fs-7">{{ strtoupper(str_replace('_', ' ', $invoice->status)) }}</span>
+                <span class="badge {{ $invoice->status->getBadgeClass() }} fs-7">{{ $invoice->status->getLabel() }}</span>
                 @if($invoice->supplierInvoice)
                     <span class="badge badge-light-primary fs-8">
                         <i class="ki-outline ki-verify fs-8 me-1"></i>

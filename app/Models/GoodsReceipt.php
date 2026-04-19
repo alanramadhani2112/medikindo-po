@@ -70,23 +70,27 @@ class GoodsReceipt extends Model
     }
 
     /**
-     * Check if this GR has any remaining quantity for invoicing
-     * 
-     * @return bool
+     * Check if this GR has any remaining quantity for Supplier invoicing (AP)
      */
     public function hasRemainingQuantity(): bool
     {
-        return $this->items->some(fn($item) => $item->remaining_quantity > 0);
+        return $this->items->some(fn($item) => $item->remaining_ap_quantity > 0);
     }
 
     /**
-     * Check if this GR is fully invoiced
-     * 
-     * @return bool
+     * Check if this GR has any remaining quantity for Customer invoicing (AR)
+     */
+    public function hasRemainingArQuantity(): bool
+    {
+        return $this->items->some(fn($item) => $item->remaining_ar_quantity > 0);
+    }
+
+    /**
+     * Check if this GR is fully invoiced (AP)
      */
     public function isFullyInvoiced(): bool
     {
-        return $this->items->every(fn($item) => $item->isFullyInvoiced());
+        return $this->items->every(fn($item) => $item->remaining_ap_quantity <= 0);
     }
 
     // -----------------------------------------------------------------------
