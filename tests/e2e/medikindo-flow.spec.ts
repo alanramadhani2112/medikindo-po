@@ -319,14 +319,37 @@ test('Skenario 6: Pembayaran RS & Alokasi Otomatis Kas', async ({ page }) => {
     // Admin Verifikasi
     await performLogin(page, 'admin');
     await page.goto(`${proofUrl}/verify`);
+    await page.waitForLoadState('networkidle');
     
-    // Di halaman Approve/Verify
+    console.log('📝 Filling verification checklist...');
+    
+    // Checklist semua persyaratan (Directly check the input with force)
+    await page.check('#check_bank', { force: true });
+    await page.check('#check_amount', { force: true });
+    await page.check('#check_customer', { force: true });
+    await page.check('#check_doc', { force: true });
+
+    await page.waitForTimeout(1000); // Beri waktu Alpine.js proses state
+
     await page.fill('textarea[name="approval_notes"]', 'Sesuai dengan mutasi bank (E2E)');
-    await page.click('button:has-text("Setujui & Verifikasi Pembayaran")');
+    
+    // Pastikan button tidak disabled sebelum diklik
+    const approveBtn = page.locator('button:has-text("Setujui")').first();
+    await expect(approveBtn).toBeEnabled({ timeout: 15000 });
+    
+    console.log('🚀 Clicking Approve button...');
+    await approveBtn.click();
     
     await verifySuccess(page, 'berhasil disetujui');
     
     // Pastikan invoice lunas
+    console.log('✅ Payment approved, verifying invoice status is LUNAS...');
     await page.goto(customerInvoiceUrl);
-    await expect(page.locator('.badge:has-text("PAID"), .badge:has-text("LUNAS")').first()).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    
+    // Gunakan regex case-insensitive agar lebih robust
+    const statusBadge = page.locator('.badge');
+    await expect(statusBadge.filter({ hasText: /LUNAS|PAID/i }).first()).toBeVisible({ timeout: 15000 });
+    
+    console.log('🎉 COMPLETE BUSINESS CYCLE VERIFIED SUCCESSFULY!');
 });
