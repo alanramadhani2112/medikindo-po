@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
             $table->string('po_number', 50)->unique()->comment('System-generated PO number');
-            $table->foreignId('clinic_id')->constrained('clinics')->restrictOnDelete();
+            $table->foreignId('organization_id')->constrained('organizations')->restrictOnDelete();
             $table->foreignId('supplier_id')->constrained('suppliers')->restrictOnDelete();
             $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
 
@@ -38,7 +38,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('po_number');
-            $table->index('clinic_id');
+            $table->index('organization_id');
             $table->index('supplier_id');
             $table->index('status');
             $table->index('has_narcotics');

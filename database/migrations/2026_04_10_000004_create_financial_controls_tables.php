@@ -10,17 +10,17 @@ return new class extends Migration
     {
         Schema::create('credit_limits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('clinic_id')->constrained('clinics')->cascadeOnDelete();
+            $table->foreignId('organization_id')->constrained('organizations')->cascadeOnDelete();
             $table->decimal('max_limit', 15, 2);
             $table->foreignId('created_by')->nullable()->constrained('users')->restrictOnDelete();
             $table->timestamps();
 
-            $table->unique('clinic_id'); 
+            $table->unique('organization_id'); 
         });
 
         Schema::create('credit_usages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('clinic_id')->constrained('clinics')->cascadeOnDelete();
+            $table->foreignId('organization_id')->constrained('organizations')->cascadeOnDelete();
             $table->foreignId('purchase_order_id')->constrained('purchase_orders')->restrictOnDelete();
             $table->decimal('amount_used', 15, 2);
             $table->string('status', 30)->default('reserved'); // reserved, billed, released

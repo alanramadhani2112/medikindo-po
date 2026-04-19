@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('supplier_invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number')->unique();
-            $table->foreignId('clinic_id')->constrained('clinics')->restrictOnDelete();
+            $table->foreignId('organization_id')->constrained('organizations')->restrictOnDelete();
             $table->foreignId('supplier_id')->constrained('suppliers')->restrictOnDelete();
             $table->foreignId('purchase_order_id')->constrained('purchase_orders')->restrictOnDelete();
             $table->foreignId('goods_receipt_id')->nullable()->constrained('goods_receipts')->nullOnDelete();
@@ -26,7 +26,7 @@ return new class extends Migration
         Schema::create('customer_invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number')->unique();
-            $table->foreignId('clinic_id')->constrained('clinics')->restrictOnDelete();
+            $table->foreignId('organization_id')->constrained('organizations')->restrictOnDelete();
             $table->foreignId('purchase_order_id')->constrained('purchase_orders')->restrictOnDelete();
             $table->foreignId('goods_receipt_id')->nullable()->constrained('goods_receipts')->nullOnDelete();
             $table->decimal('total_amount', 15, 2);
@@ -43,4 +43,7 @@ return new class extends Migration
         Schema::dropIfExists('customer_invoices');
         Schema::dropIfExists('supplier_invoices');
     }
+
+    // NOTE: This migration was refactored to use 'organizations' directly (not 'clinics')
+    // because the clinics→organizations rename happens in the same migration batch.
 };

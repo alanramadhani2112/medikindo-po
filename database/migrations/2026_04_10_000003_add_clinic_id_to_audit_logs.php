@@ -7,24 +7,24 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Add organization_id to audit_logs table.
+     * (Originally named add_clinic_id but uses organization_id directly.)
      */
     public function up(): void
     {
         Schema::table('audit_logs', function (Blueprint $blueprint) {
-            $blueprint->foreignId('clinic_id')->nullable()->after('user_id')->constrained()->nullOnDelete();
-            $blueprint->index('clinic_id');
+            if (!Schema::hasColumn('audit_logs', 'organization_id')) {
+                $blueprint->foreignId('organization_id')->nullable()->after('user_id')->constrained('organizations')->nullOnDelete();
+                $blueprint->index('organization_id');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('audit_logs', function (Blueprint $blueprint) {
-            $blueprint->dropForeign(['clinic_id']);
-            $blueprint->dropColumn('clinic_id');
+            $blueprint->dropForeign(['organization_id']);
+            $blueprint->dropColumn('organization_id');
         });
     }
 };

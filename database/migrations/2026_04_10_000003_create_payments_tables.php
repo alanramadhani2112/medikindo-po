@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('payment_number')->unique();
             $table->enum('type', ['incoming', 'outgoing']);
-            $table->foreignId('clinic_id')->nullable()->constrained('clinics')->nullOnDelete();
+            $table->foreignId('organization_id')->nullable()->constrained('organizations')->nullOnDelete();
             $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->nullOnDelete();
             $table->decimal('amount', 15, 2);
             $table->date('payment_date');
