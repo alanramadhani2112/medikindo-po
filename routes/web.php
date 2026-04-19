@@ -90,14 +90,15 @@ Route::middleware('auth')->group(function () {
     // ── Goods Receipts ─────────────────────────────────────────
     Route::prefix('goods-receipts')->name('web.goods-receipts.')->middleware('can:view_goods_receipt')->group(function () {
         Route::get('/',               [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'index'])->name('index');
-        Route::get('/{goodsReceipt}', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'show'])->name('show');
-        Route::get('/{goodsReceipt}/pdf', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'exportPdf'])->name('pdf');
         
         // Separate middleware for create/store operations
         Route::middleware('can:confirm_receipt')->group(function () {
             Route::get('/create', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'create'])->name('create');
             Route::post('/',      [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'store'])->name('store');
         });
+
+        Route::get('/{goodsReceipt}', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'show'])->name('show');
+        Route::get('/{goodsReceipt}/pdf', [\App\Http\Controllers\Web\GoodsReceiptWebController::class, 'exportPdf'])->name('pdf');
     });
 
     // ── Invoices (AP & AR) ─────────────────────────────────────

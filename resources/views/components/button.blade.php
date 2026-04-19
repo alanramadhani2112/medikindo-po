@@ -1,7 +1,9 @@
 @props([
     'variant' => 'primary',
+    'color' => null,
     'size' => 'md',
     'icon' => null,
+    'label' => null,
     'href' => null,
     'type' => 'button',
     'outline' => false,
@@ -9,9 +11,10 @@
 
 @php
     $baseClasses = 'btn';
-    
+    $resolvedVariant = $color ?? $variant;
+
     // Variant classes
-    $variantClasses = match($variant) {
+    $variantClasses = match ($resolvedVariant) {
         'primary' => $outline ? 'btn-outline btn-outline-primary' : 'btn-primary',
         'secondary' => $outline ? 'btn-outline btn-outline-secondary' : 'btn-secondary',
         'success' => $outline ? 'btn-outline btn-outline-success' : 'btn-success',
@@ -22,9 +25,9 @@
         'dark' => 'btn-dark',
         default => $outline ? 'btn-outline btn-outline-primary' : 'btn-primary',
     };
-    
+
     // Size classes
-    $sizeClasses = match($size) {
+    $sizeClasses = match ($size) {
         'xs' => 'btn-sm',
         'sm' => 'btn-sm',
         'md' => '',
@@ -32,22 +35,24 @@
         'xl' => 'btn-lg',
         default => '',
     };
-    
+
     $classes = trim("$baseClasses $variantClasses $sizeClasses");
+    $slotText = trim((string) $slot);
+    $buttonText = $slotText !== '' ? $slot : $label;
 @endphp
 
-@if($href)
+@if ($href)
     <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes]) }}>
-        @if($icon)
+        @if ($icon)
             <i class="ki-outline ki-{{ $icon }} fs-3"></i>
         @endif
-        {{ $slot }}
+        {{ $buttonText }}
     </a>
 @else
     <button type="{{ $type }}" {{ $attributes->merge(['class' => $classes]) }}>
-        @if($icon)
+        @if ($icon)
             <i class="ki-outline ki-{{ $icon }} fs-3"></i>
         @endif
-        {{ $slot }}
+        {{ $buttonText }}
     </button>
 @endif
