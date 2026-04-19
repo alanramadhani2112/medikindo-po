@@ -14,40 +14,52 @@ Conversion Metadata:
             <div class="d-flex align-items-center gap-3">
                 <h1 class="fs-2 fw-bold text-gray-900 mb-0">{{ $po->po_number }}</h1>
                 @php
-                    $badgeClass = match($po->status) {
-                        'draft' => 'badge-light-secondary',
-                        'submitted' => 'badge-light-warning',
-                        'approved' => 'badge-light-primary',
-                        'shipped' => 'badge-light-primary',
-                        'delivered', 'completed' => 'badge-light-success',
-                        'rejected', 'cancelled' => 'badge-light-danger',
-                        default => 'badge-light-secondary'
-                    };
+                    $statusMap = [
+                        'draft'     => ['label' => 'Draft',     'class' => 'badge-light-secondary'],
+                        'submitted' => ['label' => 'Diajukan',  'class' => 'badge-light-warning'],
+                        'approved'  => ['label' => 'Disetujui', 'class' => 'badge-light-info'],
+                        'rejected'  => ['label' => 'Ditolak',   'class' => 'badge-light-danger'],
+                        'completed' => ['label' => 'Selesai',   'class' => 'badge-light-success'],
+                    ];
+                    $st = $statusMap[$po->status] ?? ['label' => strtoupper($po->status), 'class' => 'badge-light-secondary'];
                 @endphp
-                <span class="badge {{ $badgeClass }} fw-bold">{{ strtoupper($po->status) }}</span>
+                <span class="badge {{ $st['class'] }} fw-bold fs-7">{{ $st['label'] }}</span>
+                @if($po->has_narcotics)
+                    <span class="badge badge-light-danger fw-bold fs-8">⚠ NARKOTIKA</span>
+                @endif
             </div>
-            <p class="text-gray-600 fs-6 mb-0">Pesanan diterbitkan pada {{ $po->created_at->format('d M Y, H:i') }} oleh {{ $po->creator?->name ?? 'System' }}</p>
+            <p class="text-gray-600 fs-6 mb-0">Dibuat pada {{ $po->created_at->format('d M Y, H:i') }} oleh {{ $po->creator?->name ?? 'System' }}</p>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
+            {{-- Draft: bisa edit dan ajukan --}}
             @if($po->isDraft())
+                @can('update_purchase_orders')
+                    <a href="{{ route('web.po.edit', $po) }}" class="btn btn-warning">
+                        <i class="ki-outline ki-pencil fs-3 me-2"></i>
+                        Edit PO
+                    </a>
+                @endcan
                 @can('submit_po')
-                    <form method="POST" action="{{ route('web.po.submit', $po) }}">
+                    <form method="POST" action="{{ route('web.po.submit', $po) }}"
+                          onsubmit="return confirm('Ajukan PO ini ke Medikindo untuk persetujuan?')">
                         @csrf
                         <button type="submit" class="btn btn-primary">
                             <i class="ki-outline ki-send fs-3 me-2"></i>
-                            Submit
+                            Ajukan ke Medikindo
                         </button>
                     </form>
                 @endcan
             @endif
 
-            @if($po->isApproved())
-                @can('approve_po')
-                    <form method="POST" action="{{ route('web.po.mark_shipped', $po) }}">
+            {{-- Rejected: bisa kembali ke draft --}}
+            @if($po->isRejected())
+                @can('update_purchase_orders')
+                    <form method="POST" action="{{ route('web.po.reopen', $po) }}"
+                          onsubmit="return confirm('Buka kembali PO ini sebagai Draft untuk direvisi?')">
                         @csrf
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ki-outline ki-cube-2 fs-3 me-2"></i>
-                            Kirim
+                        <button type="submit" class="btn btn-warning">
+                            <i class="ki-outline ki-arrows-circle fs-3 me-2"></i>
+                            Buka Kembali & Revisi
                         </button>
                     </form>
                 @endcan
@@ -58,11 +70,49 @@ Conversion Metadata:
                 PDF
             </button>
             <a href="{{ route('web.po.index') }}" class="btn btn-secondary">
-                <i class="ki-outline ki-arrow-down fs-3 me-2"></i>
+                <i class="ki-outline ki-arrow-left fs-3 me-2"></i>
                 Kembali
             </a>
         </div>
     </div>
+
+    {{-- Status info banner --}}
+    @if($po->isSubmitted())
+        <div class="alert alert-warning d-flex align-items-center mb-7">
+            <i class="ki-outline ki-information-5 fs-2 me-3 text-warning"></i>
+            <div>
+                <strong>PO sedang menunggu persetujuan Medikindo.</strong>
+                Diajukan pada {{ $po->submitted_at?->format('d M Y, H:i') ?? '-' }}.
+            </div>
+        </div>
+    @elseif($po->isRejected())
+        <div class="alert alert-danger d-flex align-items-center mb-7">
+            <i class="ki-outline ki-cross-circle fs-2 me-3 text-danger"></i>
+            <div>
+                <strong>PO ini ditolak.</strong>
+                Silakan revisi dan ajukan kembali.
+                @if($po->approvals->where('status','rejected')->first()?->notes)
+                    <br><span class="text-muted fs-7">Alasan: {{ $po->approvals->where('status','rejected')->first()->notes }}</span>
+                @endif
+            </div>
+        </div>
+    @elseif($po->isApproved())
+        <div class="alert alert-info d-flex align-items-center mb-7">
+            <i class="ki-outline ki-check-circle fs-2 me-3 text-info"></i>
+            <div>
+                <strong>PO telah disetujui.</strong>
+                Disetujui pada {{ $po->approved_at?->format('d M Y, H:i') ?? '-' }}.
+            </div>
+        </div>
+    @elseif($po->isCompleted())
+        <div class="alert alert-success d-flex align-items-center mb-7">
+            <i class="ki-outline ki-verify fs-2 me-3 text-success"></i>
+            <div>
+                <strong>PO telah selesai.</strong>
+                Barang sudah diterima dan dikonfirmasi.
+            </div>
+        </div>
+    @endif
 
     {{-- --- 2. MAIN GRID (2:1) --- --}}
     <div class="row g-5 g-xl-8">
@@ -167,11 +217,16 @@ Conversion Metadata:
                                     $approvalBadgeClass = match($approval->status) {
                                         'approved' => 'badge-light-success',
                                         'rejected' => 'badge-light-danger',
-                                        default => 'badge-light-warning'
+                                        default    => 'badge-light-warning'
+                                    };
+                                    $approvalLabel = match($approval->status) {
+                                        'approved' => 'Disetujui',
+                                        'rejected' => 'Ditolak',
+                                        default    => 'Menunggu'
                                     };
                                 @endphp
                                 <span class="badge {{ $approvalBadgeClass }} fw-bold">
-                                    {{ strtoupper($approval->status) }}
+                                    {{ $approvalLabel }}
                                 </span>
                             </div>
                             <div class="text-gray-900 fw-semibold fs-6 mb-1">{{ $approval->approver?->name ?? 'System' }}</div>

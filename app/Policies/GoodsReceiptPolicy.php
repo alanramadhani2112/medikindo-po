@@ -8,6 +8,19 @@ use App\Models\User;
 class GoodsReceiptPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     * Super Admin bypasses all authorization checks.
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any goods receipts.
      */
     public function viewAny(User $user): bool
@@ -20,12 +33,6 @@ class GoodsReceiptPolicy
      */
     public function view(User $user, GoodsReceipt $goodsReceipt): bool
     {
-        // Super Admin can view all
-        if ($user->hasRole('Super Admin')) {
-            return true;
-        }
-
-        // Organization users can only view their own organization's receipts
         return (int) $goodsReceipt->purchaseOrder->organization_id === (int) $user->organization_id;
     }
 
@@ -35,18 +42,7 @@ class GoodsReceiptPolicy
      */
     public function create(User $user): bool
     {
-        // Check if user has the specific permission to confirm receipt
-        if ($user->can('confirm_receipt')) {
-            return true;
-        }
-
-        // Super Admin can always create
-        if ($user->hasRole('Super Admin')) {
-            return true;
-        }
-
-        // Fallback: check view permission (for backward compatibility)
-        return $user->can('view_goods_receipt');
+        return $user->can('confirm_receipt') || $user->can('view_goods_receipt');
     }
 
     /**
@@ -54,12 +50,6 @@ class GoodsReceiptPolicy
      */
     public function update(User $user, GoodsReceipt $goodsReceipt): bool
     {
-        // Super Admin can update all
-        if ($user->hasRole('Super Admin')) {
-            return true;
-        }
-
-        // Organization users can only update their own organization's receipts
         return (int) $goodsReceipt->purchaseOrder->organization_id === (int) $user->organization_id;
     }
 
@@ -68,12 +58,6 @@ class GoodsReceiptPolicy
      */
     public function delete(User $user, GoodsReceipt $goodsReceipt): bool
     {
-        // Super Admin can delete all
-        if ($user->hasRole('Super Admin')) {
-            return true;
-        }
-
-        // Organization users can only delete their own organization's receipts
         return (int) $goodsReceipt->purchaseOrder->organization_id === (int) $user->organization_id;
     }
 }

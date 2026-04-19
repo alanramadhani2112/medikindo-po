@@ -192,14 +192,27 @@ class PurchaseOrderWebController extends Controller
             $organizations = Organization::where('is_active', true)->orderBy('name')->get();
         }
 
-        $purchaseOrder->load('items');
+        $purchaseOrder->load('items.product');
+
+        // Pre-map items for Alpine.js (avoid arrow function inside @json in Blade)
+        $poItems = $purchaseOrder->items->map(function ($i) {
+            return [
+                'product_id'   => $i->product_id,
+                'product_name' => $i->product?->name ?? '',
+                'product_sku'  => $i->product?->sku ?? '',
+                'quantity'     => $i->quantity,
+                'unit_price'   => (int) $i->unit_price,
+                'subtotal'     => (int) $i->subtotal,
+            ];
+        })->values()->all();
+
         $breadcrumbs = [
             ['label' => 'Procurement', 'url' => 'javascript:void(0)'],
             ['label' => 'Purchase Orders', 'url' => route('web.po.index')],
             ['label' => 'Edit PO', 'url' => 'javascript:void(0)'],
             ['label' => $purchaseOrder->po_number]
         ];
-        return view('purchase-orders.edit', compact('purchaseOrder', 'suppliers', 'organizations', 'breadcrumbs'));
+        return view('purchase-orders.edit', compact('purchaseOrder', 'suppliers', 'organizations', 'breadcrumbs', 'poItems'));
     }
 
     public function update(Request $request, PurchaseOrder $purchaseOrder)
@@ -223,6 +236,26 @@ class PurchaseOrderWebController extends Controller
 
             return redirect()->route('web.po.show', $purchaseOrder)
                              ->with('success', "PO #{$purchaseOrder->po_number} berhasil diperbarui.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function reopen(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        if (! $request->user()->can('update_po')) {
+            abort(403, 'Akses Ditolak.');
+        }
+
+        if (! $purchaseOrder->isRejected()) {
+            return redirect()->route('web.po.show', $purchaseOrder)
+                             ->with('error', 'Hanya PO berstatus Ditolak yang dapat dibuka kembali.');
+        }
+
+        try {
+            $this->poService->reopen($purchaseOrder, $request->user());
+            return redirect()->route('web.po.edit', $purchaseOrder)
+                             ->with('success', "PO #{$purchaseOrder->po_number} dibuka kembali sebagai Draft. Silakan revisi dan ajukan ulang.");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

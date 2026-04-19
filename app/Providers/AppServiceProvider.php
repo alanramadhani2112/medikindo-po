@@ -37,6 +37,13 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.bootstrap-5');
         \Illuminate\Pagination\Paginator::defaultSimpleView('vendor.pagination.bootstrap-5');
 
+        // Super Admin God Mode - bypass all authorization checks
+        Gate::before(function (User $user, string $ability) {
+            if ($user->isSuperAdmin()) {
+                return true;
+            }
+        });
+
         Gate::policy(PurchaseOrder::class, PurchaseOrderPolicy::class);
         Gate::policy(Approval::class, ApprovalPolicy::class);
         Gate::policy(User::class, UserPolicy::class);

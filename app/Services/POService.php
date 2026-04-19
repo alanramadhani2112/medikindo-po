@@ -188,6 +188,43 @@ class POService
     }
 
     // -----------------------------------------------------------------------
+    // Reopen PO (rejected → draft)
+    // -----------------------------------------------------------------------
+
+    public function reopen(PurchaseOrder $po, User $actor): PurchaseOrder
+    {
+        if (! $po->isRejected()) {
+            throw new DomainException("Only rejected POs can be reopened. Current status: {$po->status}.");
+        }
+
+        return DB::transaction(function () use ($po, $actor) {
+            $before = $po->status;
+
+            // Delete old approval records so fresh approvals can be created on re-submit
+            $po->approvals()->delete();
+
+            $po->update([
+                'status'       => PurchaseOrder::STATUS_DRAFT,
+                'submitted_at' => null,
+            ]);
+
+            $this->auditService->log(
+                action:     'po.reopened',
+                entityType: PurchaseOrder::class,
+                entityId:   $po->id,
+                metadata:   [
+                    'po_number'     => $po->po_number,
+                    'before_status' => $before,
+                    'after_status'  => PurchaseOrder::STATUS_DRAFT,
+                    'actor_id'      => $actor->id,
+                ],
+            );
+
+            return $po->fresh();
+        });
+    }
+
+    // -----------------------------------------------------------------------
     // Delete PO (draft only)
     // -----------------------------------------------------------------------
 

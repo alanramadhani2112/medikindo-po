@@ -71,7 +71,9 @@ class ApprovalWebController extends Controller
                 ? "PO #{$purchaseOrder->po_number} berhasil disetujui."
                 : "PO #{$purchaseOrder->po_number} ditolak.";
 
-            return redirect()->route('web.approvals.index')->with('success', $msg);
+            $flashKey = $data['decision'] === 'approved' ? 'success' : 'error';
+
+            return redirect()->route('web.approvals.index')->with($flashKey, $msg);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

@@ -8,6 +8,19 @@ use App\Models\User;
 class CreditNotePolicy
 {
     /**
+     * Perform pre-authorization checks.
+     * Super Admin bypasses all authorization checks.
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any credit notes.
      */
     public function viewAny(User $user): bool
@@ -20,12 +33,6 @@ class CreditNotePolicy
      */
     public function view(User $user, CreditNote $creditNote): bool
     {
-        // Super Admin can view all
-        if ($user->hasRole('Super Admin')) {
-            return true;
-        }
-
-        // Organization users can only view their own organization's credit notes
         return (int) $creditNote->organization_id === (int) $user->organization_id;
     }
 
@@ -34,7 +41,7 @@ class CreditNotePolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_invoices') || $user->hasRole('Super Admin');
+        return $user->can('create_invoices');
     }
 
     /**
@@ -42,17 +49,8 @@ class CreditNotePolicy
      */
     public function update(User $user, CreditNote $creditNote): bool
     {
-        // Super Admin can update all
-        if ($user->hasRole('Super Admin')) {
-            return true;
-        }
-
-        // Must have permission and belong to same organization
-        if (!$user->can('create_invoices')) {
-            return false;
-        }
-
-        return (int) $creditNote->organization_id === (int) $user->organization_id;
+        return $user->can('create_invoices')
+            && (int) $creditNote->organization_id === (int) $user->organization_id;
     }
 
     /**
@@ -60,12 +58,6 @@ class CreditNotePolicy
      */
     public function delete(User $user, CreditNote $creditNote): bool
     {
-        // Only Super Admin can delete credit notes
-        if (!$user->hasRole('Super Admin')) {
-            return false;
-        }
-
-        // Can only delete draft credit notes
         return $creditNote->isDraft();
     }
 }

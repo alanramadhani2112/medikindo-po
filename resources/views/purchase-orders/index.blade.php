@@ -72,12 +72,11 @@
         <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
             @php
                 $tabOptions = [
-                    'all' => ['label' => 'Semua', 'icon' => 'ki-home'],
-                    'draft' => ['label' => 'Draft', 'icon' => 'ki-document'],
-                    'submitted' => ['label' => 'Diajukan', 'icon' => 'ki-send'],
-                    'approved' => ['label' => 'Disetujui', 'icon' => 'ki-check-circle'],
-                    'rejected' => ['label' => 'Ditolak', 'icon' => 'ki-cross-circle'],
-                    'completed' => ['label' => 'Selesai', 'icon' => 'ki-verify'],
+                    'all'       => ['label' => 'Semua',    'icon' => 'ki-home',         'color' => 'primary'],
+                    'draft'     => ['label' => 'Draft',    'icon' => 'ki-document',     'color' => 'secondary'],
+                    'submitted' => ['label' => 'Diajukan', 'icon' => 'ki-send',         'color' => 'warning'],
+                    'rejected'  => ['label' => 'Ditolak',  'icon' => 'ki-cross-circle', 'color' => 'danger'],
+                    'completed' => ['label' => 'Selesai',  'icon' => 'ki-verify',       'color' => 'success'],
                 ];
             @endphp
             @foreach($tabOptions as $val => $tabData)
@@ -88,9 +87,9 @@
                 <li class="nav-item">
                     <a href="{{ route('web.po.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
                        class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                        <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
-                        <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
-                        <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
+                        <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-2"></i>
+                        <span class="fs-6 fw-bold me-2">{{ $tabData['label'] }}</span>
+                        <span class="badge badge-{{ $isActive ? $tabData['color'] : 'light-secondary' }}">
                             {{ $count }}
                         </span>
                     </a>
@@ -138,19 +137,18 @@
                             </td>
                             <td>
                                 @php
-                                    $statusColor = match($order->status) {
-                                        'draft' => 'secondary',
-                                        'submitted' => 'warning',
-                                        'approved' => 'success',
-                                        'shipped' => 'primary',
-                                        'delivered', 'completed' => 'success',
-                                        'rejected', 'cancelled' => 'danger',
-                                        default => 'primary'
-                                    };
+                                    $statusMap = [
+                                        'draft'     => ['label' => 'Draft',    'color' => 'secondary'],
+                                        'submitted' => ['label' => 'Diajukan', 'color' => 'warning'],
+                                        'approved'  => ['label' => 'Disetujui','color' => 'info'],
+                                        'rejected'  => ['label' => 'Ditolak',  'color' => 'danger'],
+                                        'completed' => ['label' => 'Selesai',  'color' => 'success'],
+                                    ];
+                                    $st = $statusMap[$order->status] ?? ['label' => strtoupper($order->status), 'color' => 'primary'];
                                 @endphp
-                                <span class="badge badge-{{ $statusColor }}">{{ strtoupper($order->status) }}</span>
+                                <span class="badge badge-light-{{ $st['color'] }} fw-bold">{{ $st['label'] }}</span>
                                 @if($order->has_narcotics)
-                                    <span class="badge badge-danger d-block mt-1">⚠ NARKOTIKA</span>
+                                    <span class="badge badge-light-danger d-block mt-1">⚠ NARKOTIKA</span>
                                 @endif
                             </td>
                             <td class="text-end">

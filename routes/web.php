@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/{purchaseOrder}/edit', [PurchaseOrderWebController::class, 'edit'])->name('edit');
             Route::put('/{purchaseOrder}',      [PurchaseOrderWebController::class, 'update'])->name('update');
             Route::post('/{purchaseOrder}/submit', [PurchaseOrderWebController::class, 'submit'])->name('submit');
+            Route::post('/{purchaseOrder}/reopen', [PurchaseOrderWebController::class, 'reopen'])->name('reopen');
         });
 
         Route::middleware('can:delete_purchase_orders')->group(function () {

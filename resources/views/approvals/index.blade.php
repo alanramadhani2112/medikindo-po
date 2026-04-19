@@ -1,12 +1,6 @@
 <x-layout title="Manajemen Persetujuan" pageTitle="Manajemen Persetujuan" :breadcrumbs="$breadcrumbs">
 
-    {{-- Success Alert --}}
-    @if(session('success'))
-        <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
-            <div>{{ session('success') }}</div>
-        </div>
-    @endif
+    {{-- Notifikasi ditangani oleh layout (components/layout.blade.php) --}}
 
     {{-- Filter Bar --}}
     <div class="card mb-5">

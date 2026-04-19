@@ -6,6 +6,19 @@ use App\Models\User;
 
 class UserPolicy
 {
+    /**
+     * Perform pre-authorization checks.
+     * Super Admin bypasses all authorization checks.
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        return null;
+    }
+
     public function viewAny(User $actor): bool
     {
         return $actor->hasAnyPermission(['manage_user', 'full_access']);

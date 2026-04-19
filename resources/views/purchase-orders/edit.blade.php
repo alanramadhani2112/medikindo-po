@@ -1,153 +1,137 @@
-{{-- 
-Conversion Metadata:
-- Original: Tailwind CSS
-- Converted: Bootstrap 5 + Metronic 8
-- Date: 2024
-- Category: Purchase Orders
-- Validated: Pending
---}}
 <x-layout title="Ubah PO" pageTitle="Ubah Purchase Order" breadcrumb="Form ubah draf pesanan pembelian">
 
-    {{-- Alpine.js Component Script - Must be defined BEFORE Alpine initializes --}}
     @push('head-scripts')
     <script>
-    // Define poForm globally BEFORE Alpine initializes
     document.addEventListener('alpine:init', () => {
         Alpine.data('poForm', () => ({
             supplierId: '{{ old('supplier_id', $purchaseOrder->supplier_id) }}',
             products: [],
             items: [],
-            
+
+            // Product search state per row
+            searchQuery: {},
+            showDropdown: {},
+
             get total() {
                 return this.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
             },
-            
-            init() {
-                console.log('PO Form Edit initialized');
-                this.loadProducts(false);
 
-                @if(old('items'))
-                    this.items = @json(old('items'));
-                    this.items.forEach(item => this.calcSubtotal(item));
-                @else
-                    this.items = @json($purchaseOrder->items->map(fn($i) => [
-                        'product_id' => $i->product_id,
-                        'quantity'   => $i->quantity,
-                        'unit_price' => (int)$i->unit_price,
-                        'subtotal'   => (int)$i->subtotal
-                    ]));
-                @endif
-                
-                console.log('Loaded items:', this.items.length);
+            init() {
+                // Wait for DOM to be ready before reading supplier select options
+                this.$nextTick(() => {
+                    this.loadProducts(false);
+
+                    @if(old('items'))
+                        this.items = @json(old('items'));
+                        this.items.forEach((item, i) => {
+                            this.calcSubtotal(i);
+                            this.searchQuery[i] = item.product_name || '';
+                            this.showDropdown[i] = false;
+                        });
+                    @else
+                        this.items = @json($poItems);
+                        this.items.forEach((item, i) => {
+                            this.searchQuery[i] = item.product_name + (item.product_sku ? ' (' + item.product_sku + ')' : '');
+                            this.showDropdown[i] = false;
+                        });
+                    @endif
+                });
             },
-            
+
             loadProducts(clearItems = true) {
-                console.log('loadProducts called (edit), supplierId:', this.supplierId);
-                
                 if (!this.supplierId) {
                     this.products = [];
-                    this.items = [];
+                    if (clearItems) this.items = [];
                     return;
                 }
-                
                 const select = document.querySelector('select[name="supplier_id"]');
-                if (!select) {
-                    console.error('Supplier select not found');
-                    return;
-                }
-                
-                const option = Array.from(select.options).find(o => o.value == this.supplierId);
-                console.log('Selected option:', option);
-                console.log('Option dataset.products:', option ? option.dataset.products : 'N/A');
-                
-                if (option) {
-                    try {
-                        this.products = option.dataset.products ? JSON.parse(option.dataset.products) : [];
-                        console.log('Products loaded:', this.products.length);
-                        console.log('Products:', this.products);
-                    } catch(e) {
-                        console.error('Error loading products:', e);
-                        this.products = [];
-                    }
-                } else {
+                const option = select ? Array.from(select.options).find(o => o.value == this.supplierId) : null;
+                try {
+                    this.products = option && option.dataset.products ? JSON.parse(option.dataset.products) : [];
+                } catch(e) {
                     this.products = [];
                 }
-
                 if (clearItems) {
                     this.items = [];
+                    this.searchQuery = {};
+                    this.showDropdown = {};
                 }
             },
-            
+
             addItem() {
-                console.log('Adding item...');
                 if (!this.supplierId) {
                     alert('Silakan pilih supplier terlebih dahulu');
                     return;
                 }
-                if (this.products.length === 0) {
-                    alert('Tidak ada produk tersedia untuk supplier ini');
-                    return;
-                }
-                this.items.push({ 
-                    product_id: '', 
-                    product_name: '',
-                    quantity: 1, 
-                    unit_price: 0, 
-                    subtotal: 0 
-                });
-                console.log('Item added. Total items:', this.items.length);
+                const idx = this.items.length;
+                this.items.push({ product_id: '', product_name: '', product_sku: '', quantity: 1, unit_price: 0, subtotal: 0 });
+                this.searchQuery[idx] = '';
+                this.showDropdown[idx] = false;
             },
-            
+
             removeItem(index) {
-                console.log('Removing item at index:', index);
                 this.items.splice(index, 1);
+                const newSearch = {};
+                const newDropdown = {};
+                this.items.forEach((_, i) => {
+                    newSearch[i] = this.searchQuery[i < index ? i : i + 1] || '';
+                    newDropdown[i] = false;
+                });
+                this.searchQuery = newSearch;
+                this.showDropdown = newDropdown;
             },
-            
-            onProductChange(index) {
+
+            filteredProducts(index) {
+                const q = (this.searchQuery[index] || '').toLowerCase();
+                if (!q) return this.products.slice(0, 50);
+                return this.products.filter(p => {
+                    const fullName = p.name.toLowerCase();
+                    const fullSku = (p.sku || '').toLowerCase();
+                    const combined = fullName + (fullSku ? ' (' + fullSku + ')' : '');
+                    return fullName.includes(q) || fullSku.includes(q) || combined.includes(q);
+                }).slice(0, 50);
+            },
+
+            selectProduct(index, product) {
                 const item = this.items[index];
-                
-                if (!item.product_id) {
-                    console.warn('No product selected');
-                    return;
-                }
-                
-                console.log('onProductChange called for index:', index);
-                console.log('item.product_id:', item.product_id, 'type:', typeof item.product_id);
-                console.log('Available products:', this.products);
-                
-                // Type-safe product lookup (product.id is number, item.product_id is string)
-                const product = this.products.find(p => p.id === Number(item.product_id));
-                console.log('Found product:', product);
-                
-                if (!product) {
-                    console.error('Product not found for ID:', item.product_id);
-                    return;
-                }
-                
-                // Assign derived fields safely
-                // Use cost_price for PO (buying from distributor)
-                const costPrice = Number(product.cost_price) || Number(product.price) || 0;
-                console.log('Product cost_price:', product.cost_price);
-                console.log('Using cost price:', costPrice);
-                
-                item.unit_price = costPrice;
+                item.product_id   = product.id;
                 item.product_name = product.name;
+                item.product_sku  = product.sku || '';
+                item.unit_price   = Number(product.cost_price) || Number(product.price) || 0;
+                this.searchQuery[index]  = product.name + (product.sku ? ' (' + product.sku + ')' : '');
+                this.showDropdown[index] = false;
                 this.calcSubtotal(index);
-                
-                console.log('Updated item.unit_price to:', item.unit_price);
-                console.log('Item after update:', item);
             },
-            
+
+            openSearch(index) {
+                this.showDropdown[index] = true;
+                this.$nextTick(() => {
+                    const input = document.querySelector(`[data-search-input="${index}"]`);
+                    const dropdown = document.querySelector(`[data-search-dropdown="${index}"]`);
+                    if (input && dropdown) {
+                        const rect = input.getBoundingClientRect();
+                        // Use fixed positioning relative to viewport (no scroll offset needed)
+                        dropdown.style.top   = rect.bottom + 'px';
+                        dropdown.style.left  = rect.left + 'px';
+                        dropdown.style.width = rect.width + 'px';
+                    }
+                });
+            },
+
+            closeSearch(index) {
+                setTimeout(() => { this.showDropdown[index] = false; }, 200);
+            },
+
             calcSubtotal(index) {
                 const item = this.items[index];
                 item.subtotal = (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
             },
-            
+
             updateQuantity(index, value) {
                 this.items[index].quantity = parseInt(value) || 1;
                 this.calcSubtotal(index);
             },
-            
+
             formatRupiah(value) {
                 return 'Rp ' + (value || 0).toLocaleString('id-ID');
             }
@@ -156,10 +140,36 @@ Conversion Metadata:
     </script>
     @endpush
 
+    @push('styles')
+    <style>
+    .product-search-wrapper { position: relative; }
+    .product-dropdown {
+        position: fixed;
+        z-index: 9999;
+        background: #fff;
+        border: 1px solid #e4e6ef;
+        border-radius: 0.475rem;
+        box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,.12);
+        max-height: 220px;
+        overflow-y: auto;
+        min-width: 280px;
+    }
+    .product-dropdown-item {
+        padding: 0.6rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f5f5f5;
+        transition: background .15s;
+    }
+    .product-dropdown-item:last-child { border-bottom: none; }
+    .product-dropdown-item:hover { background: #f1f3f9; }
+    .product-dropdown-empty { padding: 0.75rem 1rem; color: #a1a5b7; font-size: 0.85rem; }
+    </style>
+    @endpush
+
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4 mb-7">
         <div>
             <h1 class="fs-2 fw-bold text-gray-900 mb-2">Ubah Purchase Order #{{ $purchaseOrder->po_number }}</h1>
-            <p class="text-gray-600 fs-6 mb-0">Hanya draf PO yang dapat diubah. Pastikan supplier dan produk sudah sesuai.</p>
+            <p class="text-gray-600 fs-6 mb-0">Hanya PO berstatus Draft yang dapat diubah.</p>
         </div>
     </div>
 
@@ -167,7 +177,7 @@ Conversion Metadata:
         @csrf
         @method('PUT')
 
-        {{-- Organization Selection --}}
+        {{-- Informasi Pemesanan --}}
         <x-card title="Informasi Pemesanan" icon="information" class="card-flush mb-7">
             <div class="row g-5">
                 @if(isset($organizations) && $organizations->isNotEmpty())
@@ -187,13 +197,13 @@ Conversion Metadata:
                     <x-select name="supplier_id" label="Supplier Pemenuhan Item" required x-model="supplierId" @change="loadProducts()">
                         <option value="">— Pilih Supplier —</option>
                         @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->id }}" 
+                            <option value="{{ $supplier->id }}"
                                     data-products="{{ json_encode($supplier->products) }}">
                                 {{ $supplier->name }} ({{ $supplier->code }})
                             </option>
                         @endforeach
                     </x-select>
-                    <div class="form-text text-gray-600">Item produk akan diload berdasarkan supplier terpilih</div>
+                    <div class="form-text text-gray-600">Mengganti supplier akan mereset daftar item</div>
                 </div>
                 <div class="col-md-6">
                     <x-input name="notes" label="Catatan Tambahan (Opsional)" value="{{ old('notes', $purchaseOrder->notes) }}" placeholder="Contoh: Kirim secepatnya..." />
@@ -202,31 +212,29 @@ Conversion Metadata:
             </div>
         </x-card>
 
-        {{-- Items --}}
-        <x-card title="Daftar Entitas Produk Pembelian" icon="package" class="card-flush mb-7">
+        {{-- Daftar Produk --}}
+        <x-card title="Daftar Item Produk" icon="package" class="card-flush mb-7">
             <x-slot name="actions">
-                <button type="button" 
-                        class="btn btn-sm btn-primary d-flex align-items-center gap-2" 
-                        @click="addItem()" 
+                <button type="button"
+                        class="btn btn-sm btn-primary d-flex align-items-center gap-2"
+                        @click="addItem()"
                         :disabled="!supplierId"
                         :class="{ 'opacity-50': !supplierId }">
-                    <i class="ki-outline ki-picture fs-3"></i>
+                    <i class="ki-outline ki-plus fs-3"></i>
                     <span class="fw-bold">Tambah Produk</span>
                 </button>
-                <div x-show="!supplierId" class="text-muted fs-8 mt-1">
-                    Pilih supplier terlebih dahulu
-                </div>
+                <div x-show="!supplierId" class="text-muted fs-8 mt-1">Pilih supplier terlebih dahulu</div>
             </x-slot>
 
             <div class="table-responsive">
                 <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
                     <thead>
                         <tr class="fw-bold text-muted">
-                            <th class="min-w-200px">Deskripsi SKU / Alat Medis</th>
-                            <th class="min-w-140px">Kuantitas</th>
-                            <th class="min-w-200px">Unit Price (Rp)</th>
-                            <th class="min-w-150px text-end">Subtotal</th>
-                            <th class="min-w-80px text-center">Aksi</th>
+                            <th class="min-w-250px">Produk</th>
+                            <th class="min-w-120px">Kuantitas</th>
+                            <th class="min-w-160px">Harga Satuan (Rp)</th>
+                            <th class="min-w-140px text-end">Subtotal</th>
+                            <th class="min-w-60px text-center">Hapus</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -236,62 +244,100 @@ Conversion Metadata:
                                     <div class="d-flex flex-column align-items-center">
                                         <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
                                         <h6 class="text-gray-800 fw-semibold fs-6 mb-1">Daftar Item Kosong</h6>
-                                        <p class="text-gray-600 fs-7 mb-0">Pilih supplier utama, kemudian tekan "Tambah Produk".</p>
+                                        <p class="text-gray-600 fs-7 mb-0">Tekan "Tambah Produk" untuk menambahkan item.</p>
                                     </div>
                                 </td>
                             </tr>
                         </template>
+
                         <template x-for="(item, index) in items" :key="index">
                             <tr>
-                                <td class="px-5 py-4">
-                                    <select x-bind:name="'items[' + index + '][product_id]'" 
-                                              x-model="item.product_id"
-                                              @change="onProductChange(index)"
-                                              class="form-select form-select-solid">
-                                        <option value="">— Pilih Produk —</option>
-                                        <template x-for="p in products" :key="p.id">
-                                            <option x-bind:value="p.id" 
-                                                    x-bind:data-price="p.cost_price || p.price || 0" 
-                                                    x-bind:selected="p.id == item.product_id"
-                                                    x-text="p.name + ' (' + p.sku + ')'"></option>
-                                        </template>
-                                    </select>
+                                {{-- Product Search --}}
+                                <td class="px-4 py-3">
+                                    <div class="product-search-wrapper">
+                                        <input type="hidden" x-bind:name="'items[' + index + '][product_id]'" x-bind:value="item.product_id">
+
+                                        <input type="text"
+                                               class="form-control form-control-solid"
+                                               placeholder="Ketik nama atau SKU produk..."
+                                               x-model="searchQuery[index]"
+                                               x-bind:data-search-input="index"
+                                               @focus="openSearch(index)"
+                                               @blur="closeSearch(index)"
+                                               @input="item.product_id = ''; item.product_name = ''"
+                                               autocomplete="off">
+
+                                        <div class="product-dropdown" 
+                                             x-show="showDropdown[index]" 
+                                             x-bind:data-search-dropdown="index"
+                                             x-cloak>
+                                            <template x-if="filteredProducts(index).length === 0">
+                                                <div class="product-dropdown-empty">
+                                                    <i class="ki-outline ki-information-5 me-1"></i>
+                                                    Produk tidak ditemukan
+                                                </div>
+                                            </template>
+                                            <template x-for="p in filteredProducts(index)" :key="p.id">
+                                                <div class="product-dropdown-item"
+                                                     @mousedown.prevent="selectProduct(index, p)">
+                                                    <div class="fw-bold text-gray-800 fs-7" x-text="p.name"></div>
+                                                    <div class="text-muted fs-8">
+                                                        <span x-text="'SKU: ' + (p.sku || '-')"></span>
+                                                        <span class="ms-3 text-primary fw-semibold" x-text="'Rp ' + (Number(p.cost_price || p.price || 0)).toLocaleString('id-ID')"></span>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div x-show="item.product_id" class="mt-1">
+                                        <span class="badge badge-light-primary fs-8" x-text="item.product_sku ? 'SKU: ' + item.product_sku : ''"></span>
+                                    </div>
+                                    <div x-show="!item.product_id && searchQuery[index]" class="text-danger fs-8 mt-1">
+                                        Pilih produk dari daftar
+                                    </div>
                                 </td>
-                                <td class="px-5 py-4">
-                                    <input type="number" 
-                                             x-bind:name="'items[' + index + '][quantity]'" 
-                                             x-bind:value="item.quantity"
-                                             @input="updateQuantity(index, $event.target.value)"
-                                             min="1"
-                                             class="form-control form-control-solid" />
+
+                                {{-- Quantity --}}
+                                <td class="px-4 py-3">
+                                    <input type="number"
+                                           x-bind:name="'items[' + index + '][quantity]'"
+                                           x-bind:value="item.quantity"
+                                           @input="updateQuantity(index, $event.target.value)"
+                                           min="1"
+                                           class="form-control form-control-solid" />
                                 </td>
-                                <td class="px-5 py-4">
-                                    <input type="number" 
-                                             x-bind:name="'items[' + index + '][unit_price]'" 
-                                             x-bind:value="item.unit_price"
-                                             readonly
-                                             class="form-control form-control-solid bg-light" 
-                                             style="cursor: not-allowed;" />
-                                    <div class="form-text text-muted fs-8 mt-1">Harga otomatis dari master produk</div>
+
+                                {{-- Unit Price --}}
+                                <td class="px-4 py-3">
+                                    <input type="number"
+                                           x-bind:name="'items[' + index + '][unit_price]'"
+                                           x-bind:value="item.unit_price"
+                                           readonly
+                                           class="form-control form-control-solid bg-light"
+                                           style="cursor: not-allowed;" />
+                                    <div class="form-text text-muted fs-8 mt-1">Otomatis dari master produk</div>
                                 </td>
-                                <td class="px-5 py-4 text-end align-middle">
+
+                                {{-- Subtotal --}}
+                                <td class="px-4 py-3 text-end align-middle">
                                     <span class="text-gray-900 fw-bold fs-6" x-text="formatRupiah(item.subtotal)"></span>
                                 </td>
-                                <td class="px-5 py-4 text-center align-middle">
+
+                                {{-- Remove --}}
+                                <td class="px-4 py-3 text-center align-middle">
                                     <button type="button" @click="removeItem(index)"
                                             class="btn btn-sm btn-icon btn-light-danger">
-                                        <i class="ki-outline ki-brifecase-tick
- fs-3"></i>
+                                        <i class="ki-outline ki-trash fs-4"></i>
                                     </button>
                                 </td>
                             </tr>
                         </template>
-                        
+
                         <tr x-show="items.length > 0" class="bg-light">
-                            <td colspan="3" class="px-5 py-5 text-end">
-                                <span class="text-gray-800 fw-semibold fs-5 me-4">Kalkulasi Total Pembayaran</span>
+                            <td colspan="3" class="px-4 py-4 text-end">
+                                <span class="text-gray-800 fw-semibold fs-5">Total Nilai PO</span>
                             </td>
-                            <td class="px-5 py-5 text-end align-middle">
+                            <td class="px-4 py-4 text-end align-middle">
                                 <span class="text-primary fw-bold fs-4" x-text="formatRupiah(total)"></span>
                             </td>
                             <td></td>
@@ -314,4 +360,3 @@ Conversion Metadata:
     </form>
 
 </x-layout>
-
