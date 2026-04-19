@@ -1,231 +1,154 @@
-@extends('layouts.app', ['pageTitle' => 'Purchase Orders'])
+<x-index-layout title="Purchase Orders" :breadcrumbs="[['label' => 'Purchase Orders']]">
+    <x-slot name="actions">
+        @can('create_purchase_orders')
+            <x-button :href="route('web.po.create')" icon="plus" label="Buat PO Baru" />
+        @endcan
+    </x-slot>
 
-@section('content')
-{{-- Filter Bar (STANDARD) --}}
-<div class="card mb-5">
-    <div class="card-body">
-        <form action="{{ route('web.po.index') }}" method="GET" class="d-flex flex-wrap gap-3">
+    <x-slot name="toolbar">
+        <x-filter-bar :action="route('web.po.index')">
             <input type="hidden" name="tab" value="{{ $tab ?? 'all' }}">
             
-            {{-- LEFT: Search --}}
             <div class="flex-grow-1" style="max-width: 400px;">
                 <div class="position-relative">
-                    <i class="ki-outline ki-chart
- fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
-                    <input type="text" name="search" value="{{ request('search') }}" 
-                           class="form-control form-control-solid ps-12" 
-                           placeholder="Cari nomor PO, organisasi, atau supplier...">
+                    <i class="ki-outline ki-magnifier fs-2 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <input type="text" name="search" class="form-control form-control-solid ps-12" placeholder="Cari nomor PO, organisasi, atau supplier..." value="{{ request('search') }}">
                 </div>
             </div>
             
-            {{-- Organization Filter (Super Admin only) --}}
             @if(auth()->user()->hasRole('Super Admin'))
-            <select name="organization" class="form-select form-select-solid" style="max-width: 200px;">
-                <option value="">Semua Organisasi</option>
-                @foreach($organizations ?? [] as $org)
-                    <option value="{{ $org->id }}" {{ request('organization') == $org->id ? 'selected' : '' }}>
-                        {{ $org->name }}
-                    </option>
-                @endforeach
-            </select>
+                <div style="min-width: 150px;">
+                    <select name="organization" class="form-select form-select-solid">
+                        <option value="">Semua Organisasi</option>
+                        @foreach($organizations ?? [] as $org)
+                            <option value="{{ $org->id }}" {{ request('organization') == $org->id ? 'selected' : '' }}>
+                                {{ $org->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             @endif
             
-            {{-- Date Range --}}
-            <input type="date" name="date_from" value="{{ request('date_from') }}" 
-                   class="form-control form-control-solid" style="max-width: 180px;" 
-                   placeholder="Dari Tanggal">
-            <input type="date" name="date_to" value="{{ request('date_to') }}" 
-                   class="form-control form-control-solid" style="max-width: 180px;" 
-                   placeholder="Sampai Tanggal">
-            
-            {{-- Search Button --}}
-            <button type="submit" class="btn btn-dark">
-                <i class="ki-outline ki-chart
- fs-2"></i>
-                Filter
-            </button>
-            
-            {{-- Reset Button --}}
-            @if(request()->filled('search') || request()->filled('organization') || request()->filled('date_from'))
-                <a href="{{ route('web.po.index', ['tab' => $tab ?? 'all']) }}" class="btn btn-light">
-                    <i class="ki-outline ki-arrow-zigzag fs-2"></i>
-                    Reset
-                </a>
-            @endif
-            
-            {{-- RIGHT: Create Button --}}
-            @can('create_purchase_orders')
-            <div class="ms-auto">
-                <a href="{{ route('web.po.create') }}" class="btn btn-primary">
-                    <i class="ki-outline ki-picture fs-2"></i>
-                    Buat PO Baru
-                </a>
+            <div style="max-width: 150px;">
+                <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control form-control-solid">
             </div>
-            @endcan
-        </form>
-    </div>
-</div>
+            <div style="max-width: 150px;">
+                <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control form-control-solid">
+            </div>
+        </x-filter-bar>
+    </x-slot>
 
-{{-- Tabs (STANDARD) --}}
-<div class="card mb-5">
-    <div class="card-header border-0 pt-6 pb-2">
-        <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
-            @php
-                $tabOptions = [
-                    'all'       => ['label' => 'Semua',    'icon' => 'ki-home',         'color' => 'primary'],
-                    'draft'     => ['label' => 'Draft',    'icon' => 'ki-document',     'color' => 'secondary'],
-                    'submitted' => ['label' => 'Diajukan', 'icon' => 'ki-send',         'color' => 'warning'],
-                    'rejected'  => ['label' => 'Ditolak',  'icon' => 'ki-cross-circle', 'color' => 'danger'],
-                    'completed' => ['label' => 'Selesai',  'icon' => 'ki-verify',       'color' => 'success'],
-                ];
+    <x-slot name="tabs">
+        @php
+            $tabOptions = [
+                'all'       => ['label' => 'Semua',    'icon' => 'ki-home'],
+                'draft'     => ['label' => 'Draft',    'icon' => 'ki-document'],
+                'submitted' => ['label' => 'Diajukan', 'icon' => 'ki-send'],
+                'approved'  => ['label' => 'Disetujui','icon' => 'ki-check-circle'],
+                'rejected'  => ['label' => 'Ditolak',  'icon' => 'ki-cross-circle'],
+                'completed' => ['label' => 'Selesai',  'icon' => 'ki-verify'],
+            ];
+        @endphp
+        @foreach($tabOptions as $val => $tabData)
+            @php 
+                $isActive = ($tab ?? 'all') === $val;
+                $count = $counts[$val] ?? 0;
             @endphp
-            @foreach($tabOptions as $val => $tabData)
-                @php 
-                    $isActive = ($tab ?? 'all') === $val;
-                    $count = $counts[$val] ?? 0;
-                @endphp
-                <li class="nav-item">
-                    <a href="{{ route('web.po.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
-                       class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                        <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-2"></i>
-                        <span class="fs-6 fw-bold me-2">{{ $tabData['label'] }}</span>
-                        <span class="badge badge-{{ $isActive ? $tabData['color'] : 'light-secondary' }}">
-                            {{ $count }}
-                        </span>
-                    </a>
-                </li>
-            @endforeach
-        </ul>
-    </div>
-</div>
+            <li class="nav-item">
+                <a href="{{ route('web.po.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
+                   class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
+                    <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
+                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
+                    <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
+                        {{ $count }}
+                    </span>
+                </a>
+            </li>
+        @endforeach
+    </x-slot>
 
-{{-- Table (STANDARD) --}}
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-row-dashed table-row-gray-300 align-middle gs-7 gy-4">
-                <thead>
-                    <tr class="fw-bold text-muted bg-light">
-                        <th class="ps-4 rounded-start min-w-150px">Nomor PO</th>
-                        <th class="min-w-150px">Organisasi</th>
-                        <th class="min-w-150px">Supplier</th>
-                        <th class="min-w-100px">Status</th>
-                        <th class="text-end min-w-120px">Total Amount</th>
-                        <th class="min-w-120px d-none d-md-table-cell">Tanggal</th>
-                        <th class="text-end pe-4 rounded-end min-w-150px">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($purchaseOrders as $order)
-                        <tr>
-                            <td class="ps-4">
-                                <a href="{{ route('web.po.show', $order) }}" class="text-gray-900 text-hover-primary fw-bold fs-6">
-                                    {{ $order->po_number }}
-                                </a>
-                                <div class="text-muted fs-7 mt-1">
-                                    <i class="ki-outline ki-user"></i>
-                                    {{ $order->creator->name ?? '-' }}
-                                </div>
-                            </td>
-                            <td>
-                                <div class="fw-bold text-gray-800 fs-6">{{ $order->organization->name ?? '-' }}</div>
-                                <div class="text-muted fs-7">{{ $order->organization->type ?? '-' }}</div>
-                            </td>
-                            <td>
-                                <div class="fw-bold text-gray-800 fs-6">{{ $order->supplier->name ?? '-' }}</div>
-                                <div class="text-muted fs-7">{{ $order->supplier->contact ?? '-' }}</div>
-                            </td>
-                            <td>
-                                @php
-                                    $statusMap = [
-                                        'draft'     => ['label' => 'Draft',    'color' => 'secondary'],
-                                        'submitted' => ['label' => 'Diajukan', 'color' => 'warning'],
-                                        'approved'  => ['label' => 'Disetujui','color' => 'info'],
-                                        'rejected'  => ['label' => 'Ditolak',  'color' => 'danger'],
-                                        'completed' => ['label' => 'Selesai',  'color' => 'success'],
-                                    ];
-                                    $st = $statusMap[$order->status] ?? ['label' => strtoupper($order->status), 'color' => 'primary'];
-                                @endphp
-                                <span class="badge badge-light-{{ $st['color'] }} fw-bold">{{ $st['label'] }}</span>
-                                @if($order->has_narcotics)
-                                    <span class="badge badge-light-danger d-block mt-1">⚠ NARKOTIKA</span>
-                                @endif
-                            </td>
-                            <td class="text-end">
-                                <span class="fw-bold text-gray-900 fs-6">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
-                            </td>
-                            <td class="d-none d-md-table-cell">
-                                <div class="text-gray-800 fw-semibold fs-7">{{ $order->created_at->format('d/m/Y') }}</div>
-                                <div class="text-muted fs-8">{{ $order->created_at->diffForHumans() }}</div>
-                            </td>
-                            <td class="text-end pe-4">
-                                <div class="action-menu-wrapper">
-                                    <button type="button" class="btn btn-sm btn-light btn-active-light-primary" data-action-menu>
-                                        <i class="ki-outline ki-dots-vertical fs-3"></i>
-                                        Aksi
-                                    </button>
-                                    <div class="action-dropdown-menu" style="display: none;">
-                                        <a href="{{ route('web.po.show', $order) }}" class="d-flex align-items-center">
-                                            <i class="ki-outline ki-facebook fs-4 me-2 text-primary"></i>
-                                            Lihat Detail
-                                        </a>
-                                        @if($order->status === 'draft')
-                                            @can('update_purchase_orders')
-                                            <a href="{{ route('web.po.edit', $order) }}" class="d-flex align-items-center">
-                                                <i class="ki-outline ki-parcel fs-4 me-2 text-warning"></i>
-                                                Edit PO
-                                            </a>
-                                            @endcan
-                                        @endif
-                                        <a href="{{ route('web.po.pdf', $order) }}" class="d-flex align-items-center" target="_blank">
-                                            <i class="
-ki-outline ki-document fs-4 me-2 text-info"></i>
-                                            Download PDF
-                                        </a>
-                                        @if($order->status === 'draft')
-                                            @can('delete_purchase_orders')
-                                            <div class="separator"></div>
-                                            <form action="{{ route('web.po.destroy', $order) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="d-flex align-items-center text-danger"
-                                                        onclick="return confirm('Yakin ingin menghapus PO ini?')">
-                                                    <i class="ki-outline ki-trash fs-4 me-2"></i>
-                                                    Hapus PO
-                                                </button>
-                                            </form>
-                                            @endcan
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-10">
-                                <div class="d-flex flex-column align-items-center">
-                                    <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
-                                    <h3 class="fs-5 fw-bold text-gray-800 mb-1">Tidak Ada Data</h3>
-                                    <p class="text-muted fs-7">Belum ada purchase order yang tersedia saat ini.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <x-slot name="tableHeader">Daftar Purchase Order</x-slot>
+
+    <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4 mb-0">
+        <thead>
+            <tr class="fw-bold text-muted">
+                <th>Nomor PO</th>
+                <th>Organisasi</th>
+                <th>Supplier</th>
+                <th>Status</th>
+                <th class="text-end">Total</th>
+                <th class="text-end">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($purchaseOrders as $order)
+                <tr>
+                    <td>
+                        <a href="{{ route('web.po.show', $order) }}" class="text-gray-900 text-hover-primary fw-bold fs-6">
+                            {{ $order->po_number }}
+                        </a>
+                        <div class="text-muted fs-7 mt-1">
+                            <i class="ki-outline ki-user fs-7 me-1"></i>
+                            {{ $order->creator->name ?? '-' }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-gray-800 fs-6">{{ $order->organization->name ?? '-' }}</div>
+                        <div class="text-muted fs-7">{{ $order->organization->type ?? '-' }}</div>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-gray-800 fs-6">{{ $order->supplier->name ?? '-' }}</div>
+                        <div class="text-muted fs-7">{{ $order->supplier->contact ?? '-' }}</div>
+                    </td>
+                    <td>
+                        @php
+                            $statusMap = [
+                                'draft'     => ['label' => 'Draft',    'color' => 'secondary'],
+                                'submitted' => ['label' => 'Diajukan', 'color' => 'warning'],
+                                'approved'  => ['label' => 'Disetujui','color' => 'info'],
+                                'rejected'  => ['label' => 'Ditolak',  'color' => 'danger'],
+                                'completed' => ['label' => 'Selesai',  'color' => 'success'],
+                            ];
+                            $st = $statusMap[$order->status] ?? ['label' => strtoupper($order->status), 'color' => 'primary'];
+                        @endphp
+                        <span class="badge badge-light-{{ $st['color'] }} fw-bold">{{ $st['label'] }}</span>
+                        @if($order->has_narcotics)
+                            <span class="badge badge-light-danger d-block mt-1">⚠ NARKOTIKA</span>
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        <span class="fw-bold text-gray-900 fs-6">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                        <div class="text-muted fs-8 mt-1">{{ $order->created_at->format('d/m/Y') }}</div>
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ route('web.po.show', $order) }}" class="btn btn-icon btn-light-primary btn-sm" title="Lihat Detail">
+                            <i class="ki-outline ki-eye fs-2"></i>
+                        </a>
+                        @if($order->status === 'draft')
+                            @can('update_purchase_orders')
+                            <a href="{{ route('web.po.edit', $order) }}" class="btn btn-icon btn-light-warning btn-sm" title="Edit PO">
+                                <i class="ki-outline ki-pencil fs-2"></i>
+                            </a>
+                            @endcan
+                        @endif
+                        <a href="{{ route('web.po.pdf', $order) }}" class="btn btn-icon btn-light-info btn-sm" target="_blank" title="Download PDF">
+                            <i class="ki-outline ki-file-down fs-2"></i>
+                        </a>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center py-10">
+                        <x-empty-state icon="file-deleted" title="Tidak Ada Data" message="Belum ada purchase order yang tersedia untuk filter ini." />
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    @if($purchaseOrders->hasPages())
+        <div class="d-flex justify-content-end mt-5">
+            {{ $purchaseOrders->links() }}
         </div>
-        
-        {{-- Pagination (STANDARD) --}}
-        @if($purchaseOrders->hasPages())
-        <div class="d-flex flex-stack flex-wrap pt-7">
-            <div class="fs-6 fw-semibold text-gray-700">
-                Menampilkan {{ $purchaseOrders->firstItem() }} - {{ $purchaseOrders->lastItem() }} dari {{ $purchaseOrders->total() }} data
-            </div>
-            <div>
-                {{ $purchaseOrders->links() }}
-            </div>
-        </div>
-        @endif
-    </div>
-</div>
-@endsection
+    @endif
+</x-index-layout>

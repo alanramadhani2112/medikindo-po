@@ -41,7 +41,9 @@ class PaymentService
 
             // Update invoice state machine
             $invoice->paid_amount += $amount;
-            $invoice->status = $invoice->paid_amount >= $invoice->total_amount ? 'paid' : 'partial';
+            $invoice->status = $invoice->paid_amount >= $invoice->total_amount 
+                ? \App\Enums\CustomerInvoiceStatus::PAID 
+                : \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID;
             $invoice->save();
 
             // Link with Financial Control to release organization credit
@@ -109,7 +111,9 @@ class PaymentService
             ]);
 
             $invoice->paid_amount += $amount;
-            $invoice->status = $invoice->paid_amount >= $invoice->total_amount ? 'paid' : 'partial';
+            $invoice->status = $invoice->paid_amount >= $invoice->total_amount 
+                ? \App\Enums\SupplierInvoiceStatus::PAID 
+                : \App\Enums\SupplierInvoiceStatus::VERIFIED;
             $invoice->save();
 
             $this->auditService->log(

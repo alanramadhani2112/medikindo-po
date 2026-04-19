@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomerInvoice;
+use App\Enums\CustomerInvoiceStatus;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -24,7 +25,7 @@ class ARAgingController extends Controller
         $today = now()->startOfDay();
 
         $invoices = CustomerInvoice::with(['organization'])
-            ->whereNotIn('status', [CustomerInvoice::STATUS_PAID, CustomerInvoice::STATUS_VOID])
+            ->whereNotIn('status', [CustomerInvoiceStatus::PAID->value, CustomerInvoiceStatus::VOID->value])
             ->whereNotNull('due_date')
             ->get();
 

@@ -69,7 +69,7 @@
                 <div class="menu menu-sub menu-sub-dropdown menu-column w-350px w-lg-425px" data-kt-menu="true" id="kt_notification_menu">
                     <!--begin::Header-->
                     <div class="d-flex flex-column bgi-no-repeat rounded-top" 
-                         style="background-image:url('{{ asset('assets/metronic8/media/misc/menu-header-bg.jpg') }}'); background-size: cover; background-position: center;">
+                         style="background-image:url('{{ asset('assets/media/misc/menu-header-bg.jpg') }}'); background-size: cover; background-position: center;">
                         <div class="px-9 pt-7 pb-5">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h3 class="text-white fw-bold mb-0 fs-2">Notifikasi</h3>

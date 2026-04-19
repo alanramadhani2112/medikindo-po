@@ -30,6 +30,7 @@ class StoreInvoiceFromGRRequest extends FormRequest
             'custom_invoice_number' => 'nullable|string|max:255|unique:customer_invoices,invoice_number',
             'due_date' => 'required|date|after_or_equal:today',
             'notes' => 'nullable|string|max:1000',
+            'surcharge' => 'nullable|numeric|min:0',
             
             'items' => 'required|array|min:1',
             'items.*.goods_receipt_item_id' => [

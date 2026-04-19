@@ -107,7 +107,7 @@ class InvoiceService
             // Determine initial status based on discrepancy
             $initialStatus = $discrepancyResult['discrepancy_detected'] 
                 ? 'pending_approval' 
-                : SupplierInvoice::STATUS_ISSUED;
+                : \App\Enums\SupplierInvoiceStatus::DRAFT;
 
             // --- Supplier Invoice (AP) ---
             if (! $supplierInvoice) {
@@ -267,7 +267,7 @@ class InvoiceService
             $before = $fresh->status;
 
             $fresh->update([
-                'status' => CustomerInvoice::STATUS_ISSUED,
+                'status' => \App\Enums\CustomerInvoiceStatus::ISSUED,
                 'approved_by' => $actor->id,
                 'approved_at' => now(),
                 'approval_reason' => $approvalReason,
@@ -280,7 +280,7 @@ class InvoiceService
 
             if ($supplierInvoice) {
                 $supplierInvoice->update([
-                    'status' => SupplierInvoice::STATUS_ISSUED,
+                    'status' => \App\Enums\SupplierInvoiceStatus::VERIFIED,
                     'approved_by' => $actor->id,
                     'approved_at' => now(),
                     'approval_reason' => $approvalReason,

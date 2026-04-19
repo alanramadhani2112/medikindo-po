@@ -86,7 +86,7 @@ class ProductAnalyticsController extends Controller
             $labels[] = $weekStart->format('d M') . ' - ' . $weekEnd->format('d M');
             
             $data[] = PurchaseOrderItem::whereHas('purchaseOrder', function($q) use ($weekStart, $weekEnd) {
-                    $q->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                    $q->whereIn('status', ['approved', 'completed'])
                       ->whereBetween('created_at', [$weekStart, $weekEnd]);
                 })
                 ->sum('quantity');
@@ -123,7 +123,7 @@ class ProductAnalyticsController extends Controller
             
             // Quantity
             $quantityData[] = PurchaseOrderItem::whereHas('purchaseOrder', function($q) use ($date) {
-                    $q->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                    $q->whereIn('status', ['approved', 'completed'])
                       ->whereYear('created_at', $date->year)
                       ->whereMonth('created_at', $date->month);
                 })
@@ -131,7 +131,7 @@ class ProductAnalyticsController extends Controller
             
             // Value
             $valueData[] = PurchaseOrderItem::whereHas('purchaseOrder', function($q) use ($date) {
-                    $q->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                    $q->whereIn('status', ['approved', 'completed'])
                       ->whereYear('created_at', $date->year)
                       ->whereMonth('created_at', $date->month);
                 })
@@ -178,7 +178,7 @@ class ProductAnalyticsController extends Controller
             $labels[] = $year;
             
             $data[] = PurchaseOrderItem::whereHas('purchaseOrder', function($q) use ($year) {
-                    $q->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                    $q->whereIn('status', ['approved', 'completed'])
                       ->whereYear('created_at', $year);
                 })
                 ->sum(DB::raw('quantity * unit_price'));
@@ -201,12 +201,12 @@ class ProductAnalyticsController extends Controller
     /**
      * Get top products by sales
      */
-    private function getTopProducts($startDate, $endDate, int $limit = 10): array
+    private function getTopProducts($startDate, $endDate, int $limit = 10): \Illuminate\Support\Collection
     {
         return DB::table('purchase_order_items')
             ->join('products', 'purchase_order_items.product_id', '=', 'products.id')
             ->join('purchase_orders', 'purchase_order_items.purchase_order_id', '=', 'purchase_orders.id')
-            ->whereIn('purchase_orders.status', ['approved', 'shipped', 'delivered', 'completed'])
+            ->whereIn('purchase_orders.status', ['approved', 'completed'])
             ->whereBetween('purchase_orders.created_at', [$startDate, $endDate])
             ->select(
                 'products.id',
@@ -231,7 +231,7 @@ class ProductAnalyticsController extends Controller
         $data = DB::table('purchase_order_items')
             ->join('products', 'purchase_order_items.product_id', '=', 'products.id')
             ->join('purchase_orders', 'purchase_order_items.purchase_order_id', '=', 'purchase_orders.id')
-            ->whereIn('purchase_orders.status', ['approved', 'shipped', 'delivered', 'completed'])
+            ->whereIn('purchase_orders.status', ['approved', 'completed'])
             ->whereBetween('purchase_orders.created_at', [$startDate, $endDate])
             ->select(
                 'products.category',

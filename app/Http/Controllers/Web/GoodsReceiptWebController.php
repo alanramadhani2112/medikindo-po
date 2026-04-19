@@ -19,6 +19,8 @@ class GoodsReceiptWebController extends Controller
         $this->authorize('viewAny', GoodsReceipt::class);
         
         $user  = $request->user();
+        $tab   = $request->get('tab', 'all');
+        
         $query = GoodsReceipt::with(['purchaseOrder.organization', 'purchaseOrder.supplier', 'receivedBy', 'items'])
             ->filter($request, [
                 'search_column' => function($q, $s) {
@@ -33,7 +35,22 @@ class GoodsReceiptWebController extends Controller
             $query->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
         }
 
+        // Tab filtering for GRs
+        if ($tab !== 'all' && $tab !== 'pending') {
+            $query->where('status', $tab);
+        }
+
         $receipts = $query->latest()->paginate(15)->withQueryString();
+
+        // Pending POs (Approved but not completed)
+        $pendingPOsQuery = PurchaseOrder::with(['organization', 'supplier'])
+            ->where('status', PurchaseOrder::STATUS_APPROVED);
+        
+        if (! $user->hasRole('Super Admin')) {
+            $pendingPOsQuery->where('organization_id', $user->organization_id);
+        }
+
+        $pendingPOs = $tab === 'pending' ? $pendingPOsQuery->latest()->paginate(15)->withQueryString() : collect();
 
         // Calculate counts
         $baseCountQuery = GoodsReceipt::query();
@@ -43,6 +60,7 @@ class GoodsReceiptWebController extends Controller
 
         $counts = [
             'all'       => (clone $baseCountQuery)->count(),
+            'pending'   => $pendingPOsQuery->count(),
             'partial'   => (clone $baseCountQuery)->where('status', 'partial')->count(),
             'completed' => (clone $baseCountQuery)->where('status', 'completed')->count(),
         ];
@@ -52,7 +70,7 @@ class GoodsReceiptWebController extends Controller
             ['label' => 'Goods Receipts']
         ];
 
-        return view('goods-receipts.index', compact('receipts', 'counts', 'breadcrumbs'));
+        return view('goods-receipts.index', compact('receipts', 'pendingPOs', 'counts', 'breadcrumbs', 'tab'));
     }
 
     public function create(Request $request)

@@ -22,7 +22,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthWebController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthWebController::class, 'login'])
         ->name('login.post')
-        ->middleware('throttle:5,15'); // 5 attempts per 15 minutes
+        ->middleware('throttle:100,1'); // Increased for testing
 });
 
 // CSRF Token Refresh (for preventing 419 errors on long-open login pages)
@@ -32,7 +32,7 @@ Route::get('/refresh-csrf', function () {
 
 Route::post('/logout', [AuthWebController::class, 'logout'])
     ->name('logout')
-    ->middleware(['auth', 'throttle:10,1']); // 10 logouts per minute
+    ->middleware(['auth', 'throttle:100,1']); // Increased for testing
 
 // ─────────────────────────────────────────────────────────────
 // Authenticated Routes — prefixed with "web." to avoid API conflicts

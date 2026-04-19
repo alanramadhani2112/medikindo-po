@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Diagnostic Page</title>
     
-    <link href="{{ asset('assets/metronic8/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/metronic8/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
     
     <style>
         body { padding: 20px; font-family: Inter, sans-serif; }
@@ -52,8 +52,8 @@
         </p>
     </div>
     
-    <script src="{{ asset('assets/metronic8/plugins/global/plugins.bundle.js') }}"></script>
-    <script src="{{ asset('assets/metronic8/js/scripts.bundle.js') }}"></script>
+    <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
+    <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {

@@ -1,116 +1,101 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container-fluid">
-    {{-- Page Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-7">
-        <div>
-            <h1 class="fs-2 fw-bold text-gray-900 mb-2">
-                <i class="ki-outline ki-arrow-down fs-2 text-danger me-2"></i>
-                Hutang ke Supplier (AP)
-            </h1>
-            <p class="text-gray-600 fs-6 mb-0">Kelola invoice dari distributor/supplier</p>
-        </div>
+<x-index-layout title="Hutang ke Supplier (AP)" description="Kelola tagihan yang diterima dari distributor/supplier" :breadcrumbs="[['label' => 'Account Payable']]">
+    
+    <x-slot name="actions">
         @can('create_invoices')
-        <div>
-            <a href="{{ route('web.invoices.supplier.create') }}" class="btn btn-primary">
-                <i class="ki-outline ki-picture fs-3"></i>
-                Input Invoice Pemasok
-            </a>
-        </div>
+            <x-button :href="route('web.invoices.supplier.create')" icon="plus" label="Input Invoice Pemasok" />
         @endcan
-    </div>
+    </x-slot>
 
-    {{-- Invoice Table --}}
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
-                    <thead>
-                        <tr class="fw-bold text-muted bg-light">
-                            <th class="ps-4 rounded-start">Nomor Invoice</th>
-                            <th>Invoice Distributor</th>
-                            <th>Supplier</th>
-                            <th>PO Number</th>
-                            <th class="text-end">Total</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-end pe-4 rounded-end">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($supplierInvoices as $invoice)
-                            <tr>
-                                <td class="ps-4">
-                                    <a href="{{ route('web.invoices.supplier.show', $invoice) }}" 
-                                       class="fw-bold text-gray-900 text-hover-primary">
-                                        {{ $invoice->invoice_number }}
-                                    </a>
-                                    <div class="text-muted fs-7 mt-1">{{ $invoice->created_at->format('d M Y') }}</div>
-                                </td>
-                                <td>
-                                    @if($invoice->distributor_invoice_number)
-                                        <span class="fw-semibold text-primary">{{ $invoice->distributor_invoice_number }}</span>
-                                        @if($invoice->distributor_invoice_date)
-                                            <div class="text-muted fs-7 mt-1">{{ $invoice->distributor_invoice_date->format('d M Y') }}</div>
-                                        @endif
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <span class="fw-semibold text-gray-700">{{ $invoice->supplier?->name ?? '—' }}</span>
-                                </td>
-                                <td>
-                                    <span class="text-gray-600">{{ $invoice->purchaseOrder?->po_number ?? '—' }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <span class="fw-bold text-gray-900">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
-                                </td>
-                                <td class="text-center">
-                                    @php
-                                        $statusColor = match($invoice->status) {
-                                            'paid' => 'success',
-                                            'overdue' => 'danger',
-                                            default => 'warning'
-                                        };
-                                    @endphp
-                                    <span class="badge badge-{{ $statusColor }}">{{ strtoupper($invoice->status) }}</span>
-                                </td>
-                                <td class="text-end pe-4">
-                                    <a href="{{ route('web.invoices.supplier.show', $invoice) }}" 
-                                       class="btn btn-sm btn-light btn-active-light-primary">
-                                        <i class="ki-outline ki-facebook fs-4"></i>
-                                        Lihat
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-10">
-                                    <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-document fs-3x text-gray-400 mb-3"></i>
-                                        <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum Ada Invoice Pemasok</span>
-                                        <span class="text-gray-500 fs-6">Invoice akan muncul setelah diinput dari distributor.</span>
-                                        @can('create_invoices')
-                                        <a href="{{ route('web.invoices.supplier.create') }}" class="btn btn-sm btn-primary mt-4">
-                                            <i class="ki-outline ki-picture fs-4"></i>
-                                            Input Invoice Pertama
-                                        </a>
-                                        @endcan
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            @if($supplierInvoices->hasPages())
-                <div class="d-flex justify-content-center mt-7">
-                    {{ $supplierInvoices->links() }}
+    <x-slot name="toolbar">
+        <x-filter-bar :action="route('web.invoices.supplier.index')">
+            <div class="flex-grow-1" style="max-width: 400px;">
+                <div class="position-relative">
+                    <i class="ki-outline ki-magnifier fs-2 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <input type="text" name="search" class="form-control form-control-solid ps-12" placeholder="No. Invoice atau Supplier..." value="{{ request('search') }}">
                 </div>
-            @endif
+            </div>
+            
+            <div style="min-width: 150px;">
+                <select name="status" class="form-select form-select-solid">
+                    <option value="">Semua Status</option>
+                    @foreach(\App\Enums\SupplierInvoiceStatus::cases() as $status)
+                        <option value="{{ $status->value }}" @selected(request('status') === $status->value)>
+                            {{ $status->getLabel() }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </x-filter-bar>
+    </x-slot>
+
+    <x-slot name="tableHeader">Daftar Tagihan Pemasok</x-slot>
+
+    <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4 mb-0">
+        <thead>
+            <tr class="fw-bold text-muted">
+                <th>Nomor Invoice</th>
+                <th>Invoice Distributor</th>
+                <th>Supplier</th>
+                <th>PO Number</th>
+                <th class="text-end">Total</th>
+                <th class="text-center">Status</th>
+                <th class="text-end">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($supplierInvoices as $invoice)
+                <tr>
+                    <td>
+                        <a href="{{ route('web.invoices.supplier.show', $invoice) }}" 
+                           class="fw-bold text-gray-900 text-hover-primary">
+                            {{ $invoice->invoice_number }}
+                        </a>
+                        <div class="text-muted fs-7 mt-1">{{ $invoice->created_at->format('d M Y') }}</div>
+                    </td>
+                    <td>
+                        @if($invoice->distributor_invoice_number)
+                            <span class="fw-bold text-primary">{{ $invoice->distributor_invoice_number }}</span>
+                            @if($invoice->distributor_invoice_date)
+                                <div class="text-muted fs-7 mt-1">{{ $invoice->distributor_invoice_date->format('d M Y') }}</div>
+                            @endif
+                        @else
+                            <span class="text-muted">—</span>
+                        @endif
+                    </td>
+                    <td>
+                        <span class="fw-bold text-gray-800 fs-6">{{ $invoice->supplier?->name ?? '—' }}</span>
+                    </td>
+                    <td>
+                        <span class="text-gray-700 fs-7">{{ $invoice->purchaseOrder?->po_number ?? '—' }}</span>
+                    </td>
+                    <td class="text-end">
+                        <span class="fw-bold text-gray-900 fs-6">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge {{ $invoice->status->getBadgeClass() }} fw-bold">{{ $invoice->status->getLabel() }}</span>
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ route('web.invoices.supplier.show', $invoice) }}" class="btn btn-icon btn-light-primary btn-sm" title="Lihat Detail">
+                            <i class="ki-outline ki-eye fs-2"></i>
+                        </a>
+                        <a href="{{ route('web.invoices.supplier.pdf', $invoice) }}" target="_blank" class="btn btn-icon btn-light-info btn-sm" title="Cetak PDF">
+                            <i class="ki-outline ki-file-down fs-2"></i>
+                        </a>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" class="text-center py-10">
+                        <x-empty-state icon="document" title="Tidak Ada Data" message="Belum ada tagihan pemasok yang terdaftar." />
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    @if($supplierInvoices->hasPages())
+        <div class="d-flex justify-content-end mt-5">
+            {{ $supplierInvoices->links() }}
         </div>
-    </div>
-</div>
-@endsection
+    @endif
+</x-index-layout>

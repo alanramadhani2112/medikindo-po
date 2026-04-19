@@ -5,7 +5,7 @@
         description="Buat tagihan (invoice) ke RS/Klinik berdasarkan Penerimaan Barang (Goods Receipt) yang telah dikonfirmasi.">
     </x-page-header>
 
-    <div x-data="invoiceForm()">
+    <div x-data="invoiceForm()" x-init="init()">
         <form method="POST" action="{{ route('web.invoices.customer.store') }}" id="invoice-form">
             @csrf
 
@@ -35,15 +35,19 @@
                                                 'quantity_received' => $item->quantity_received,
                                                 'remaining_quantity' => $item->remaining_quantity,
                                                 'invoiced_quantity' => $item->invoiced_quantity,
-                                                'unit_price' => $item->purchaseOrderItem->unit_price,
+                                                // IMPORTANT: Use selling_price for customer invoice
+                                                'unit_price' => $item->purchaseOrderItem->product->selling_price ?? $item->purchaseOrderItem->product->price,
                                                 'discount_percent' => $item->purchaseOrderItem->discount_percent,
-                                                'tax_percent' => $item->purchaseOrderItem->tax_percent,
+                                                'tax_percent' => 11, // Standard PPN
                                             ])
                                         ]) }}">
                                     {{ $gr->gr_number }} - {{ $gr->purchaseOrder->organization->name }} ({{ $gr->items->count() }} items)
                                 </option>
                             @endforeach
                         </select>
+                        <div class="form-text text-muted mt-2">
+                            Hanya menampilkan GR yang sudah memiliki Invoice Pemasok (Supplier Invoice).
+                        </div>
                         @error('goods_receipt_id')
                             <div class="text-danger fs-7 mt-2">{{ $message }}</div>
                         @enderror
@@ -67,32 +71,31 @@
             {{-- Invoice Details --}}
             <div x-show="selectedGrId" x-transition>
                 <x-card title="Detail Tagihan" class="mb-5">
-                    <div class="alert alert-success d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-shield-tick fs-2x text-success me-4"></i>
-                        <div>
-                            <strong>Informasi:</strong> Tagihan ini akan diterbitkan kepada RS/Klinik berdasarkan barang yang telah diterima. 
-                            Harga dan detail produk sesuai dengan Purchase Order yang telah disetujui.
-                        </div>
-                    </div>
-
                     <div class="row g-5">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label required fw-semibold fs-6 mb-2">Tanggal Jatuh Tempo</label>
                             <input type="date" name="due_date" class="form-control form-control-solid" required>
-                            <div class="form-text">Tanggal jatuh tempo pembayaran dari RS/Klinik</div>
                             @error('due_date')
                                 <div class="text-danger fs-7 mt-2">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold fs-6 mb-2">Surcharge (Biaya Tambahan)</label>
+                            <div class="input-group input-group-solid">
+                                <span class="input-group-text">Rp</span>
+                                <input type="number" name="surcharge" class="form-control form-control-solid" 
+                                       x-model.number="surcharge" @input="calculateTotals()" placeholder="0">
+                            </div>
+                            <div class="form-text text-primary">Akan ditambahkan ke nilai total tagihan</div>
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold fs-6 mb-2">Nomor Invoice (Opsional)</label>
                             <input type="text" name="custom_invoice_number" class="form-control form-control-solid" 
-                                   placeholder="Kosongkan untuk generate otomatis">
-                            <div class="form-text">Akan di-generate otomatis jika kosong</div>
+                                   placeholder="Auto-generate jika kosong">
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold fs-6 mb-2">Catatan (Opsional)</label>
-                            <textarea name="notes" class="form-control form-control-solid" rows="3" 
+                            <textarea name="notes" class="form-control form-control-solid" rows="2" 
                                       placeholder="Catatan tambahan untuk tagihan ini..."></textarea>
                         </div>
                     </div>
@@ -100,26 +103,16 @@
 
                 {{-- Items --}}
                 <x-card title="Item Tagihan" class="mb-5">
-                    <div class="alert alert-info d-flex align-items-center mb-5">
-                        <i class="ki-outline ki-information fs-2x text-info me-4"></i>
-                        <div>
-                            <strong>Informasi:</strong> Batch dan tanggal kadaluarsa diambil dari Penerimaan Barang (tidak dapat diubah). 
-                            Harga sesuai dengan Purchase Order yang telah disetujui RS/Klinik.
-                        </div>
-                    </div>
-
                     <div class="table-responsive">
                         <table class="table table-row-bordered table-row-gray-300 align-middle gs-7 gy-4">
                             <thead>
                                 <tr class="fw-bold text-muted bg-light">
                                     <th class="ps-4">Produk</th>
-                                    <th>Batch</th>
-                                    <th>Kadaluarsa</th>
-                                    <th class="text-end">Diterima</th>
-                                    <th class="text-end">Sudah Diinvoice</th>
-                                    <th class="text-end">Sisa</th>
-                                    <th class="text-end">Harga Satuan</th>
-                                    <th class="text-end">Qty Invoice</th>
+                                    <th>Batch / Kadaluarsa</th>
+                                    <th class="text-end">Sisa GR</th>
+                                    <th class="text-end">Harga Jual (Rp)</th>
+                                    <th class="text-end">Qty Tagih</th>
+                                    <th class="text-end">Subtotal (Rp)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -133,27 +126,16 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge badge-light-primary" x-text="item.batch_no || '—'"></span>
-                                        </td>
-                                        <td>
-                                            <span class="text-gray-800" x-text="item.expiry_date ? formatDate(item.expiry_date) : '—'"></span>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="text-gray-800 fw-semibold" x-text="item.quantity_received"></span>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="text-primary fw-semibold" x-text="item.invoiced_quantity"></span>
+                                            <div class="d-flex flex-column">
+                                                <span class="badge badge-light-primary mb-1" x-text="item.batch_no || '—'"></span>
+                                                <span class="text-gray-600 fs-8" x-text="item.expiry_date ? formatDate(item.expiry_date) : '—'"></span>
+                                            </div>
                                         </td>
                                         <td class="text-end">
                                             <span class="text-success fw-bold" x-text="item.remaining_quantity"></span>
                                         </td>
                                         <td class="text-end">
-                                            <div class="d-flex flex-column align-items-end">
-                                                <span class="text-gray-900 fw-semibold" x-text="formatCurrency(item.unit_price)"></span>
-                                                <span class="text-gray-500 fs-8" x-show="item.discount_percent > 0">
-                                                    Disc: <span x-text="item.discount_percent"></span>%
-                                                </span>
-                                            </div>
+                                            <span class="text-gray-900 fw-semibold" x-text="formatCurrency(item.unit_price)"></span>
                                         </td>
                                         <td class="text-end">
                                             <input type="number" 
@@ -163,19 +145,49 @@
                                                    :min="1" 
                                                    :max="item.remaining_quantity" 
                                                    x-model.number="item.invoice_quantity"
-                                                   style="width: 120px;">
+                                                   @input="calculateTotals()"
+                                                   style="width: 100px; margin-left: auto;">
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-900 fw-bold" x-text="formatCurrency(item.unit_price * item.invoice_quantity)"></span>
                                         </td>
                                     </tr>
                                 </template>
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Totals Summary --}}
+                    <div class="d-flex justify-content-end mt-5">
+                        <div class="w-100 w-md-350px">
+                            <div class="d-flex flex-stack mb-3">
+                                <div class="fw-semibold text-gray-600 fs-6">Subtotal:</div>
+                                <div class="fw-bold text-gray-800 fs-6" x-text="formatCurrency(summary.subtotal)"></div>
+                            </div>
+                            <div class="d-flex flex-stack mb-3">
+                                <div class="fw-semibold text-gray-600 fs-6">PPN (11%):</div>
+                                <div class="fw-bold text-gray-800 fs-6" x-text="formatCurrency(summary.tax)"></div>
+                            </div>
+                            <div class="d-flex flex-stack mb-3" x-show="surcharge > 0">
+                                <div class="fw-semibold text-gray-600 fs-6">Surcharge:</div>
+                                <div class="fw-bold text-primary fs-6" x-text="formatCurrency(surcharge)"></div>
+                            </div>
+                            <div class="d-flex flex-stack mb-3" x-show="summary.ematerai > 0">
+                                <div class="fw-semibold text-gray-600 fs-6">e-Meterai:</div>
+                                <div class="fw-bold text-gray-800 fs-6" x-text="formatCurrency(summary.ematerai)"></div>
+                            </div>
+                            <div class="separator separator-dashed my-3"></div>
+                            <div class="d-flex flex-stack">
+                                <div class="fw-bold text-gray-800 fs-4">Total Tagihan:</div>
+                                <div class="fw-bolder text-gray-900 fs-3" x-text="formatCurrency(summary.grandTotal)"></div>
+                            </div>
+                        </div>
+                    </div>
                 </x-card>
 
                 {{-- Submit --}}
-                <div class="d-flex justify-content-end gap-3">
+                <div class="d-flex justify-content-end gap-3 pb-10">
                     <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light-secondary">
-                        <i class="ki-outline ki-arrow-zigzag fs-3"></i>
                         Batal
                     </a>
                     <button type="submit" class="btn btn-success create-confirm" data-type="Tagihan ke RS/Klinik">
@@ -194,11 +206,22 @@
             selectedGrId: '',
             grInfo: {},
             items: [],
+            surcharge: 0,
+            summary: {
+                subtotal: 0,
+                tax: 0,
+                grandTotal: 0
+            },
             
+            init() {
+                // Initial calculation
+            },
+
             loadGrItems() {
                 if (!this.selectedGrId) {
                     this.items = [];
                     this.grInfo = {};
+                    this.calculateTotals();
                     return;
                 }
                 
@@ -215,24 +238,40 @@
                         organization_id: grData.organization_id
                     };
                     
-                    // Only include items with remaining quantity > 0
                     this.items = grData.items
                         .filter(item => item.remaining_quantity > 0)
                         .map(item => ({
                             ...item,
-                            invoice_quantity: item.remaining_quantity // Default to remaining quantity
+                            invoice_quantity: item.remaining_quantity
                         }));
                     
-                    if (this.items.length === 0) {
-                        alert('Semua item dari Goods Receipt ini sudah diinvoice sepenuhnya.');
-                        this.selectedGrId = '';
-                        this.grInfo = {};
-                    }
+                    this.calculateTotals();
                 } catch (e) {
                     console.error('Error parsing GR data:', e);
                     this.items = [];
                     this.grInfo = {};
                 }
+            },
+
+            calculateTotals() {
+                let subtotal = 0;
+                this.items.forEach(item => {
+                    subtotal += (item.unit_price * item.invoice_quantity);
+                });
+
+                let tax = Math.floor(subtotal * 0.11);
+                let nett = subtotal + tax + (parseFloat(this.surcharge) || 0);
+                
+                // e-Meterai logic (Threshold Rp 5.000.000)
+                let ematerai = nett >= 5000000 ? 10000 : 0;
+                let grandTotal = nett + ematerai;
+
+                this.summary = {
+                    subtotal: subtotal,
+                    tax: tax,
+                    ematerai: ematerai,
+                    grandTotal: grandTotal
+                };
             },
             
             formatDate(dateString) {
@@ -243,10 +282,9 @@
             },
             
             formatCurrency(amount) {
-                if (!amount) return 'Rp 0';
-                return 'Rp ' + parseFloat(amount).toLocaleString('id-ID', {
+                return 'Rp ' + (amount || 0).toLocaleString('id-ID', {
                     minimumFractionDigits: 0,
-                    maximumFractionDigits: 2
+                    maximumFractionDigits: 0
                 });
             }
         }

@@ -1,7 +1,6 @@
 @extends('layouts.app', ['pageTitle' => 'Dashboard'])
 
 @section('content')
-
     {{-- KPI Stats Row --}}
     <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
         <div class="col-md-6 col-xl-3">
@@ -12,7 +11,8 @@
                             <span class="text-white opacity-75 fw-semibold fs-7">Total Purchase Orders</span>
                             <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['all'] ?? 0) }}</span>
                         </div>
-                        <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
+                        <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded"
+                            style="width:56px;height:56px;">
                             <i class="ki-outline ki-entrance-right fs-2x text-white"></i>
                         </div>
                     </div>
@@ -30,7 +30,8 @@
                             <span class="text-white opacity-75 fw-semibold fs-7">Menunggu Persetujuan</span>
                             <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['pending'] ?? 0) }}</span>
                         </div>
-                        <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
+                        <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded"
+                            style="width:56px;height:56px;">
                             <i class="ki-outline ki-calendar-search fs-2x text-white"></i>
                         </div>
                     </div>
@@ -48,7 +49,8 @@
                             <span class="text-white opacity-75 fw-semibold fs-7">Penerimaan Barang (GR)</span>
                             <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['received'] ?? 0) }}</span>
                         </div>
-                        <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
+                        <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded"
+                            style="width:56px;height:56px;">
                             <i class="ki-outline ki-package fs-2x text-white"></i>
                         </div>
                     </div>
@@ -64,9 +66,11 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex flex-column">
                             <span class="text-white opacity-75 fw-semibold fs-7">Total Klinik Aktif</span>
-                            <span class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['organizations'] ?? 0) }}</span>
+                            <span
+                                class="text-white fw-bold fs-2x mt-1">{{ number_format($stats['organizations'] ?? 0) }}</span>
                         </div>
-                        <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded" style="width:56px;height:56px;">
+                        <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-25 rounded"
+                            style="width:56px;height:56px;">
                             <i class="ki-outline ki-bank fs-2x text-white"></i>
                         </div>
                     </div>
@@ -109,45 +113,51 @@
                             </thead>
                             <tbody>
                                 @forelse($recentOrders ?? [] as $order)
-                                @php
-                                    $badge = match($order->status) {
-                                        'approved','shipped','delivered','completed' => 'success',
-                                        'submitted' => 'warning',
-                                        'rejected'  => 'danger',
-                                        default     => 'primary',
-                                    };
-                                @endphp
-                                <tr>
-                                    <td>
-                                        <a href="{{ route('web.po.show', $order) }}" class="text-dark fw-bold text-hover-primary fs-6">
-                                            {{ $order->po_number }}
-                                        </a>
-                                        <span class="text-muted fw-semibold d-block fs-7">{{ $order->created_at->format('d M Y') }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-dark fw-bold d-block fs-6">{{ $order->organization->name }}</span>
-                                        <span class="text-muted fw-semibold d-block fs-7">{{ $order->supplier->name ?? '—' }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-dark fw-bold d-block fs-6">
-                                            Rp {{ number_format($order->total_amount, 0, ',', '.') }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{{ $badge }}">{{ strtoupper($order->status) }}</span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a href="{{ route('web.po.show', $order) }}" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm">
-                                            <i class="ki-outline ki-facebook fs-4"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                    @php
+                                        $badge = match ($order->status) {
+                                            'approved', 'shipped', 'delivered', 'completed' => 'success',
+                                            'submitted' => 'warning',
+                                            'rejected' => 'danger',
+                                            default => 'primary',
+                                        };
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('web.po.show', $order) }}"
+                                                class="text-dark fw-bold text-hover-primary fs-6">
+                                                {{ $order->po_number }}
+                                            </a>
+                                            <span
+                                                class="text-muted fw-semibold d-block fs-7">{{ $order->created_at->format('d M Y') }}</span>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="text-dark fw-bold d-block fs-6">{{ $order->organization->name }}</span>
+                                            <span
+                                                class="text-muted fw-semibold d-block fs-7">{{ $order->supplier->name ?? '—' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-dark fw-bold d-block fs-6">
+                                                Rp {{ number_format($order->total_amount, 0, ',', '.') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge badge-{{ $badge }}">{{ strtoupper($order->status) }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{{ route('web.po.show', $order) }}"
+                                                class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm">
+                                                <i class="ki-outline ki-eye fs-4"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-10 text-muted">
-                                        Belum ada purchase order terbaru.
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-10 text-muted">
+                                            Belum ada purchase order terbaru.
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -182,34 +192,35 @@
                     <!--begin::Quick Links-->
                     <div class="fw-bold text-uppercase text-muted fs-7 mb-4">Akses Cepat</div>
                     @can('create_purchase_orders')
-                    <a href="{{ route('web.po.create') }}" class="d-flex align-items-center py-3 border-bottom">
-                        <span class="bullet bullet-vertical h-40px bg-primary me-4"></span>
-                        <div class="flex-grow-1">
-                            <span class="text-gray-800 fw-bold fs-6 d-block">Buat Purchase Order</span>
-                            <span class="text-muted fw-semibold fs-7">Ajukan PO baru</span>
-                        </div>
-                        <i class="ki-outline ki-right fs-4 text-muted"></i>
-                    </a>
+                        <a href="{{ route('web.po.create') }}" class="d-flex align-items-center py-3 border-bottom">
+                            <span class="bullet bullet-vertical h-40px bg-primary me-4"></span>
+                            <div class="flex-grow-1">
+                                <span class="text-gray-800 fw-bold fs-6 d-block">Buat Purchase Order</span>
+                                <span class="text-muted fw-semibold fs-7">Ajukan PO baru</span>
+                            </div>
+                            <i class="ki-outline ki-right fs-4 text-muted"></i>
+                        </a>
                     @endcan
                     @can('view_invoices')
-                    <a href="{{ route('web.invoices.customer.index') }}" class="d-flex align-items-center py-3 border-bottom">
-                        <span class="bullet bullet-vertical h-40px bg-warning me-4"></span>
-                        <div class="flex-grow-1">
-                            <span class="text-gray-800 fw-bold fs-6 d-block">Kelola Invoices</span>
-                            <span class="text-muted fw-semibold fs-7">Pantau tagihan masuk/keluar</span>
-                        </div>
-                        <i class="ki-outline ki-right fs-4 text-muted"></i>
-                    </a>
+                        <a href="{{ route('web.invoices.customer.index') }}"
+                            class="d-flex align-items-center py-3 border-bottom">
+                            <span class="bullet bullet-vertical h-40px bg-warning me-4"></span>
+                            <div class="flex-grow-1">
+                                <span class="text-gray-800 fw-bold fs-6 d-block">Kelola Invoices</span>
+                                <span class="text-muted fw-semibold fs-7">Pantau tagihan masuk/keluar</span>
+                            </div>
+                            <i class="ki-outline ki-right fs-4 text-muted"></i>
+                        </a>
                     @endcan
                     @can('view_goods_receipt')
-                    <a href="{{ route('web.goods-receipts.index') }}" class="d-flex align-items-center py-3">
-                        <span class="bullet bullet-vertical h-40px bg-success me-4"></span>
-                        <div class="flex-grow-1">
-                            <span class="text-gray-800 fw-bold fs-6 d-block">Goods Receipt</span>
-                            <span class="text-muted fw-semibold fs-7">Konfirmasi penerimaan barang</span>
-                        </div>
-                        <i class="ki-outline ki-right fs-4 text-muted"></i>
-                    </a>
+                        <a href="{{ route('web.goods-receipts.index') }}" class="d-flex align-items-center py-3">
+                            <span class="bullet bullet-vertical h-40px bg-success me-4"></span>
+                            <div class="flex-grow-1">
+                                <span class="text-gray-800 fw-bold fs-6 d-block">Goods Receipt</span>
+                                <span class="text-muted fw-semibold fs-7">Konfirmasi penerimaan barang</span>
+                            </div>
+                            <i class="ki-outline ki-right fs-4 text-muted"></i>
+                        </a>
                     @endcan
                     <!--end::Quick Links-->
                 </div>
@@ -218,5 +229,4 @@
         <!--end::System Info-->
     </div>
     <!--end::Content Row-->
-
 @endsection

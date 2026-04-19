@@ -147,7 +147,7 @@ class DashboardService
 
         // ROW 2: Financial Status
         $outstandingInvoices = \App\Models\CustomerInvoice::where('organization_id', $orgId)
-            ->whereIn('status', ['unpaid', 'partial'])
+            ->whereIn('status', [\App\Enums\CustomerInvoiceStatus::ISSUED->value, \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value])
             ->sum(DB::raw('total_amount - paid_amount'));
             
         $creditLimit = \App\Models\CreditLimit::where('organization_id', $orgId)->first();
@@ -155,14 +155,14 @@ class DashboardService
         $creditAvailable = 0;
         if ($creditLimit) {
             $totalAR = \App\Models\CustomerInvoice::where('organization_id', $orgId)
-                ->whereIn('status', ['unpaid', 'partial'])
+                ->whereIn('status', [\App\Enums\CustomerInvoiceStatus::ISSUED->value, \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value])
                 ->sum(DB::raw('total_amount - paid_amount'));
             $creditUtilization = $creditLimit->max_limit > 0 ? ($totalAR / $creditLimit->max_limit) * 100 : 0;
             $creditAvailable = $creditLimit->max_limit - $totalAR;
         }
         
         $paymentDueSoon = \App\Models\CustomerInvoice::where('organization_id', $orgId)
-            ->whereIn('status', ['unpaid', 'partial'])
+            ->whereIn('status', [\App\Enums\CustomerInvoiceStatus::ISSUED->value, \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value])
             ->where('due_date', '<=', now()->addDays(7))
             ->sum(DB::raw('total_amount - paid_amount'));
 
@@ -392,24 +392,24 @@ class DashboardService
     private function getFinanceDashboard(User $user): array
     {
         // Cards Data
-        $totalReceivable = CustomerInvoice::whereIn('status', ['unpaid', 'partial'])
+        $totalReceivable = CustomerInvoice::whereIn('status', [\App\Enums\CustomerInvoiceStatus::ISSUED->value, \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value])
             ->sum(DB::raw('total_amount - paid_amount'));
             
-        $totalPayable = SupplierInvoice::whereIn('status', ['issued', 'payment_submitted'])
+        $totalPayable = SupplierInvoice::whereIn('status', [\App\Enums\SupplierInvoiceStatus::DRAFT->value, \App\Enums\SupplierInvoiceStatus::VERIFIED->value])
             ->sum(DB::raw('total_amount - paid_amount'));
             
         $overdueInvoices = SupplierInvoice::where('due_date', '<', now())
-            ->whereIn('status', ['issued', 'payment_submitted'])
+            ->whereIn('status', [\App\Enums\SupplierInvoiceStatus::DRAFT->value, \App\Enums\SupplierInvoiceStatus::VERIFIED->value])
             ->count();
             
-        $pendingPayments = SupplierInvoice::where('status', 'payment_submitted')->count();
+        $pendingPayments = SupplierInvoice::where('status', \App\Enums\SupplierInvoiceStatus::VERIFIED->value)->count();
         
         $todayCashflow = Payment::whereDate('payment_date', now())
             ->sum('amount');
 
         // Outstanding Invoices
         $outstandingInvoices = SupplierInvoice::with(['supplier', 'purchaseOrder.organization'])
-            ->whereIn('status', ['issued', 'payment_submitted'])
+            ->whereIn('status', [\App\Enums\SupplierInvoiceStatus::DRAFT->value, \App\Enums\SupplierInvoiceStatus::VERIFIED->value])
             ->orderBy('due_date', 'asc')
             ->limit(15)
             ->get();
@@ -485,18 +485,18 @@ class DashboardService
         // GROUP 2: OPERATIONS STATUS
         $poPendingApproval = PurchaseOrder::where('status', 'submitted')->count();
         
-        $poInProgress = PurchaseOrder::whereIn('status', ['approved', 'shipped'])
+        $poInProgress = PurchaseOrder::whereIn('status', ['approved'])
             ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->count();
-        $poInProgressPrev = PurchaseOrder::whereIn('status', ['approved', 'shipped'])
+        $poInProgressPrev = PurchaseOrder::whereIn('status', ['approved'])
             ->whereBetween('created_at', [$previousPeriod['start'], $previousPeriod['end']])
             ->count();
         $poInProgressGrowth = $this->calculateGrowth($poInProgress, $poInProgressPrev);
         
-        $poCompleted = PurchaseOrder::where('status', 'delivered')
+        $poCompleted = PurchaseOrder::where('status', 'completed')
             ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->count();
-        $poCompletedPrev = PurchaseOrder::where('status', 'delivered')
+        $poCompletedPrev = PurchaseOrder::where('status', 'completed')
             ->whereBetween('created_at', [$previousPeriod['start'], $previousPeriod['end']])
             ->count();
         $poCompletedGrowth = $this->calculateGrowth($poCompleted, $poCompletedPrev);
@@ -506,13 +506,13 @@ class DashboardService
             ->count();
 
         // GROUP 3: FINANCIAL OVERVIEW
-        $totalReceivable = CustomerInvoice::whereIn('status', ['unpaid', 'partial'])
+        $totalReceivable = CustomerInvoice::whereIn('status', [\App\Enums\CustomerInvoiceStatus::ISSUED->value, \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value])
             ->sum(DB::raw('total_amount - paid_amount'));
-        $totalPayable = SupplierInvoice::whereIn('status', ['issued', 'payment_submitted'])
+        $totalPayable = SupplierInvoice::whereIn('status', [\App\Enums\SupplierInvoiceStatus::DRAFT->value, \App\Enums\SupplierInvoiceStatus::VERIFIED->value])
             ->sum(DB::raw('total_amount - paid_amount'));
-        $outstandingInvoice = SupplierInvoice::whereIn('status', ['issued', 'payment_submitted'])->count();
+        $outstandingInvoice = SupplierInvoice::whereIn('status', [\App\Enums\SupplierInvoiceStatus::DRAFT->value, \App\Enums\SupplierInvoiceStatus::VERIFIED->value])->count();
         $overdueInvoice = SupplierInvoice::where('due_date', '<', now())
-            ->whereIn('status', ['issued', 'payment_submitted'])
+            ->whereIn('status', [\App\Enums\SupplierInvoiceStatus::DRAFT->value, \App\Enums\SupplierInvoiceStatus::VERIFIED->value])
             ->count();
 
         // GROUP 4: SYSTEM HEALTH

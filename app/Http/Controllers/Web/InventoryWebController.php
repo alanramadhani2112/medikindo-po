@@ -15,8 +15,6 @@ class InventoryWebController extends Controller
     public function __construct(
         private readonly InventoryService $inventoryService
     ) {
-        $this->middleware('auth');
-        $this->middleware('can:view_inventory');
     }
 
     /**

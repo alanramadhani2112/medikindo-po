@@ -11,30 +11,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\BelongsToOrganization;
 use App\Traits\Filterable;
 use App\Traits\HasOptimisticLocking;
+use App\Enums\SupplierInvoiceStatus;
 
 class SupplierInvoice extends Model
 {
     use HasFactory, SoftDeletes, BelongsToOrganization, Filterable, HasOptimisticLocking;
 
-    // -----------------------------------------------------------------------
-    // Status Constants — mirroring CustomerInvoice spec
-    // -----------------------------------------------------------------------
-
-    public const STATUS_ISSUED            = 'issued';
-    public const STATUS_PAYMENT_SUBMITTED = 'payment_submitted';
-    public const STATUS_PAID              = 'paid';
-    public const STATUS_OVERDUE           = 'overdue';
-
-    public const TRANSITIONS = [
-        self::STATUS_ISSUED            => [self::STATUS_PAYMENT_SUBMITTED, self::STATUS_OVERDUE],
-        self::STATUS_PAYMENT_SUBMITTED => [self::STATUS_PAID],
-        self::STATUS_OVERDUE           => [self::STATUS_PAYMENT_SUBMITTED],
-        self::STATUS_PAID              => [],
-    ];
-
     protected $guarded = ['id'];
 
     protected $casts = [
+        'status'                      => SupplierInvoiceStatus::class,
         'due_date'                    => 'date',
         'distributor_invoice_date'    => 'date',
         'total_amount'                => 'decimal:2',
@@ -95,13 +81,13 @@ class SupplierInvoice extends Model
     // State Machine Helpers
     // -----------------------------------------------------------------------
 
-    public function canTransitionTo(string $status): bool
+    public function canTransitionTo(SupplierInvoiceStatus $status): bool
     {
-        return in_array($status, self::TRANSITIONS[$this->status] ?? [], true);
+        return $this->status->canTransitionTo($status);
     }
 
-    public function isIssued(): bool          { return $this->status === self::STATUS_ISSUED; }
-    public function isPaymentSubmitted(): bool { return $this->status === self::STATUS_PAYMENT_SUBMITTED; }
-    public function isPaid(): bool            { return $this->status === self::STATUS_PAID; }
-    public function isOverdue(): bool         { return $this->status === self::STATUS_OVERDUE; }
+    public function isDraft(): bool     { return $this->status === SupplierInvoiceStatus::DRAFT; }
+    public function isVerified(): bool  { return $this->status === SupplierInvoiceStatus::VERIFIED; }
+    public function isPaid(): bool      { return $this->status === SupplierInvoiceStatus::PAID; }
+    public function isOverdue(): bool   { return $this->status === SupplierInvoiceStatus::OVERDUE; }
 }

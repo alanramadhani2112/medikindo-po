@@ -284,9 +284,10 @@ class InvoiceWebController extends Controller
             $query->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
         }
 
-        // Only show GRs that have remaining quantity to invoice
+        // Only show GRs that have remaining quantity to invoice AND have an associated Supplier Invoice
         $goodsReceipts = $query->get()->filter(function($gr) {
-            return $gr->hasRemainingQuantity();
+            $hasSupplierInvoice = \App\Models\SupplierInvoice::where('goods_receipt_id', $gr->id)->exists();
+            return $hasSupplierInvoice && $gr->hasRemainingQuantity();
         });
 
         $breadcrumbs = [
@@ -316,6 +317,7 @@ class InvoiceWebController extends Controller
                 'custom_invoice_number' => $validated['custom_invoice_number'] ?? null,
                 'due_date' => $validated['due_date'] ?? now()->addDays(30),
                 'notes' => $validated['notes'] ?? null,
+                'surcharge' => $request->input('surcharge', 0),
             ];
             
             $invoice = $this->invoiceFromGRService->createCustomerInvoiceFromGR(

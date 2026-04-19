@@ -257,15 +257,18 @@
                                     <div class="product-search-wrapper">
                                         <input type="hidden" x-bind:name="'items[' + index + '][product_id]'" x-bind:value="item.product_id">
 
-                                        <input type="text"
-                                               class="form-control form-control-solid"
-                                               placeholder="Ketik nama atau SKU produk..."
-                                               x-model="searchQuery[index]"
-                                               x-bind:data-search-input="index"
-                                               @focus="openSearch(index)"
-                                               @blur="closeSearch(index)"
-                                               @input="item.product_id = ''; item.product_name = ''"
-                                               autocomplete="off">
+                                        <div class="position-relative">
+                                            <i class="ki-outline ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
+                                            <input type="text"
+                                                   class="form-control form-control-solid ps-12"
+                                                   placeholder="Ketik nama atau SKU produk..."
+                                                   x-model="searchQuery[index]"
+                                                   x-bind:data-search-input="index"
+                                                   @focus="openSearch(index)"
+                                                   @blur="closeSearch(index)"
+                                                   @input="item.product_id = ''; item.product_name = ''"
+                                                   autocomplete="off">
+                                        </div>
 
                                         <div class="product-dropdown" 
                                              x-show="showDropdown[index]" 

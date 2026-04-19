@@ -41,14 +41,15 @@
                     </td>
                     <td class="text-center pe-5">
                         @php
-                            $statusBadge = match($invoice->status) {
-                                'draft'        => 'badge-secondary',
-                                'issued'       => 'badge-warning',
-                                'partial_paid' => 'badge-info',
-                                default        => 'badge-secondary',
+                            $statusBadge = match($invoice->status->value) {
+                                'draft'        => 'badge-light-secondary',
+                                'issued'       => 'badge-light-warning',
+                                'partial_paid' => 'badge-light-info',
+                                'paid'         => 'badge-light-success',
+                                default        => 'badge-light-secondary',
                             };
                         @endphp
-                        <span class="badge {{ $statusBadge }}">{{ strtoupper(str_replace('_', ' ', $invoice->status)) }}</span>
+                        <span class="badge {{ $statusBadge }}">{{ $invoice->status->getLabel() }}</span>
                     </td>
                 </tr>
             @endforeach

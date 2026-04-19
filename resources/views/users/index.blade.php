@@ -1,47 +1,25 @@
-@extends('layouts.app')
-
-@section('content')
-    {{-- Success Alert --}}
-    @if(session('success'))
-        <div class="alert alert-success d-flex align-items-center mb-5">
-            <i class="ki-outline ki-check-circle fs-2 me-3"></i>
-            <div>{{ session('success') }}</div>
-        </div>
-    @endif
-
-    {{-- Page Header with Add Button --}}
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h1 class="fs-2hx fw-bold text-gray-900 mb-2">Manajemen Pengguna</h1>
-            <p class="text-gray-600 fs-6 mb-0">Kelola pengguna dan hak akses sistem</p>
-        </div>
+<x-index-layout title="Manajemen Pengguna" description="Kelola pengguna dan hak akses sistem" :breadcrumbs="[['label' => 'Users']]">
+    <x-slot name="actions">
         @can('manage_users')
-            <a href="{{ route('web.users.create') }}" class="btn btn-primary">
-                <i class="ki-outline ki-picture fs-2"></i>
-                Tambah Pengguna
-            </a>
+            <x-button :href="route('web.users.create')" icon="plus" label="Tambah Pengguna" />
         @endcan
-    </div>
+    </x-slot>
 
-    {{-- Filter Bar (STANDARD) --}}
-    <div class="card mb-5">
-        <div class="card-body">
-            <form action="{{ route('web.users.index') }}" method="GET" class="d-flex flex-wrap gap-3">
-                <input type="hidden" name="status" value="{{ request('status') }}">
-                
-                {{-- LEFT: Search --}}
-                <div class="flex-grow-1" style="max-width: 400px;">
-                    <div class="position-relative">
-                        <i class="ki-outline ki-chart
- fs-3 position-absolute top-50 translate-middle-y ms-4"></i>
-                        <input type="text" name="search" value="{{ request('search') }}" 
-                               class="form-control form-control-solid ps-12" 
-                               placeholder="Cari nama atau email...">
-                    </div>
+    <x-slot name="toolbar">
+        <x-filter-bar :action="route('web.users.index')">
+            <input type="hidden" name="status" value="{{ request('status') }}">
+            
+            <div class="flex-grow-1" style="max-width: 400px;">
+                <div class="position-relative">
+                    <i class="ki-outline ki-magnifier fs-2 position-absolute top-50 translate-middle-y ms-4"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" 
+                           class="form-control form-control-solid ps-12" 
+                           placeholder="Cari nama atau email...">
                 </div>
-                
-                {{-- Role Filter --}}
-                <select name="role" class="form-select form-select-solid" style="max-width: 200px;">
+            </div>
+            
+            <div style="min-width: 150px;">
+                <select name="role" class="form-select form-select-solid">
                     <option value="">Semua Role</option>
                     @php
                         $roles = \Spatie\Permission\Models\Role::orderBy('name')->get();
@@ -53,179 +31,129 @@
                         </option>
                     @endforeach
                 </select>
-                
-                {{-- Search Button --}}
-                <button type="submit" class="btn btn-light-primary">
-                    <i class="ki-outline ki-chart
- fs-2"></i>
-                    Filter
-                </button>
-                
-                {{-- Reset Button --}}
-                @if(request()->filled('search') || request()->filled('role'))
-                    <a href="{{ route('web.users.index', ['status' => request('status')]) }}" class="btn btn-light">
-                        <i class="ki-outline ki-arrow-zigzag fs-2"></i>
-                        Reset
-                    </a>
-                @endif
-            </form>
-        </div>
-    </div>
-
-    {{-- Tabs (STANDARD) --}}
-    <div class="card mb-5">
-        <div class="card-header border-0 pt-6 pb-2">
-            <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x nav-stretch fs-6 fw-bold border-0">
-                @php
-                    $tabOptions = [
-                        '' => ['label' => 'Semua', 'icon' => 'ki-home'],
-                        'active' => ['label' => 'Aktif', 'icon' => 'ki-check-circle'],
-                        'inactive' => ['label' => 'Nonaktif', 'icon' => 'ki-cross-circle'],
-                    ];
-                    $currentTab = request('status', '');
-                    $counts = [
-                        '' => $users->total(),
-                        'active' => \App\Models\User::where('is_active', true)->count(),
-                        'inactive' => \App\Models\User::where('is_active', false)->count(),
-                    ];
-                @endphp
-                @foreach($tabOptions as $val => $tabData)
-                    @php
-                        $isActive = (string)$currentTab === (string)$val;
-                    @endphp
-                    <li class="nav-item">
-                        <a href="{{ route('web.users.index', array_merge(request()->except(['status', 'page']), ['status' => $val === '' ? null : $val])) }}" 
-                           class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                            <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
-                            <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
-                            <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-auto">
-                                {{ $counts[$val] }}
-                            </span>
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-        <div class="card-body pt-6">
-            {{-- Table --}}
-            <div class="table-responsive">
-                <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
-                    <thead>
-                        <tr class="fw-bold text-muted bg-light">
-                            <th class="ps-4 min-w-250px rounded-start">Pengguna</th>
-                            <th class="min-w-150px d-none d-md-table-cell">Role</th>
-                            <th class="min-w-200px d-none d-lg-table-cell">Organisasi</th>
-                            <th class="min-w-100px">Status</th>
-                            <th class="min-w-125px d-none d-sm-table-cell">Bergabung</th>
-                            <th class="text-end min-w-100px pe-4 rounded-end">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($users as $user)
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="symbol symbol-45px">
-                                            <div class="symbol-label fs-5 fw-bold bg-light-primary text-primary">
-                                                {{ strtoupper(substr($user->name, 0, 2)) }}
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-column">
-                                            <span class="text-gray-800 fw-bold fs-6 mb-1">{{ $user->name }}</span>
-                                            <span class="text-gray-500 fs-7">{{ $user->email }}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="d-none d-md-table-cell">
-                                    <div class="d-flex flex-wrap gap-1">
-                                        @foreach($user->roles as $role)
-                                            <span class="badge badge-light-info fs-7 fw-semibold">{{ $role->name }}</span>
-                                        @endforeach
-                                    </div>
-                                </td>
-                                <td class="d-none d-lg-table-cell">
-                                    @if($user->organization)
-                                        <div class="d-flex flex-column">
-                                            <span class="text-gray-800 fw-semibold fs-6 mb-1">{{ $user->organization->name }}</span>
-                                            <span class="text-gray-500 fs-7">{{ $user->organization->type }}</span>
-                                        </div>
-                                    @else
-                                        <span class="text-gray-400 fs-7 fst-italic">System Wide</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($user->is_active)
-                                        <span class="badge badge-light-success fs-7 fw-semibold">AKTIF</span>
-                                    @else
-                                        <span class="badge badge-light-secondary fs-7 fw-semibold">NONAKTIF</span>
-                                    @endif
-                                </td>
-                                <td class="d-none d-sm-table-cell">
-                                    <span class="text-gray-700 fw-semibold fs-6">{{ $user->created_at->format('d M Y') }}</span>
-                                </td>
-                                <td class="text-end pe-4">
-                                    @can('manage_users')
-                                        <div class="action-menu-wrapper">
-                                            <button type="button" class="btn btn-sm btn-light btn-active-light-primary" data-action-menu>
-                                                <i class="ki-outline ki-dots-vertical fs-3"></i>
-                                                Aksi
-                                            </button>
-                                            <div class="action-dropdown-menu" style="display: none;">
-                                                <div class="menu-item px-3">
-                                                    <a href="{{ route('web.users.edit', $user) }}" class="menu-link px-3">
-                                                        <i class="ki-outline ki-parcel fs-4 me-2 text-warning"></i>
-                                                        Edit Pengguna
-                                                    </a>
-                                                </div>
-                                                @if($user->id !== auth()->id())
-                                                    <div class="separator my-2"></div>
-                                                    <div class="menu-item px-3">
-                                                        <form method="POST" action="{{ route('web.users.destroy', $user) }}" class="d-inline w-100">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" 
-                                                                    class="menu-link px-3 w-100 text-start {{ $user->is_active ? 'text-warning' : 'text-success' }} toggle-status-confirm"
-                                                                    data-name="{{ $user->name }}"
-                                                                    data-status="{{ $user->is_active ? 'active' : 'inactive' }}"
-                                                                    style="background: none; border: none;">
-                                                                <i class="ki-outline ki-{{ $user->is_active ? 'cross-square' : 'check-circle' }} fs-4 me-2"></i>
-                                                                {{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Pengguna
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-10">
-                                    <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
-                                        <span class="text-gray-700 fs-5 fw-semibold mb-2">Belum ada data pengguna</span>
-                                        <span class="text-gray-500 fs-6">Tambahkan pengguna baru untuk mulai mengelola akses sistem.</span>
-                                        @can('manage_users')
-                                            <a href="{{ route('web.users.create') }}" class="btn btn-primary mt-5">
-                                                <i class="ki-outline ki-picture fs-2"></i>
-                                                Tambah Pengguna
-                                            </a>
-                                        @endcan
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
             </div>
+        </x-filter-bar>
+    </x-slot>
 
-            {{-- Pagination --}}
-            @if($users->hasPages())
-                <div class="pagination-wrapper">
-                    {{ $users->links() }}
-                </div>
-            @endif
+    <x-slot name="tabs">
+        @php
+            $tabOptions = [
+                '' => ['label' => 'Semua', 'icon' => 'ki-home'],
+                'active' => ['label' => 'Aktif', 'icon' => 'ki-check-circle'],
+                'inactive' => ['label' => 'Nonaktif', 'icon' => 'ki-cross-circle'],
+            ];
+            $currentTab = request('status', '');
+            $counts = [
+                '' => \App\Models\User::count(),
+                'active' => \App\Models\User::where('is_active', true)->count(),
+                'inactive' => \App\Models\User::where('is_active', false)->count(),
+            ];
+        @endphp
+        @foreach($tabOptions as $val => $tabData)
+            @php
+                $isActive = (string)$currentTab === (string)$val;
+            @endphp
+            <li class="nav-item">
+                <a href="{{ route('web.users.index', array_merge(request()->except(['status', 'page']), ['status' => $val === '' ? null : $val])) }}" 
+                   class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
+                    <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
+                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
+                    <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
+                        {{ $counts[$val] }}
+                    </span>
+                </a>
+            </li>
+        @endforeach
+    </x-slot>
+
+    <x-slot name="tableHeader">Daftar Pengguna</x-slot>
+
+    <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4 mb-0">
+        <thead>
+            <tr class="fw-bold text-muted">
+                <th>Pengguna</th>
+                <th>Role</th>
+                <th>Organisasi</th>
+                <th>Status</th>
+                <th>Bergabung</th>
+                <th class="text-end">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($users as $user)
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="symbol symbol-40px">
+                                <div class="symbol-label fs-6 fw-bold bg-light-primary text-primary">
+                                    {{ strtoupper(substr($user->name, 0, 2)) }}
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <span class="text-gray-800 fw-bold fs-6">{{ $user->name }}</span>
+                                <span class="text-gray-500 fs-7">{{ $user->email }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach($user->roles as $role)
+                                <span class="badge badge-light-info fs-7 fw-semibold">{{ $role->name }}</span>
+                            @endforeach
+                        </div>
+                    </td>
+                    <td>
+                        @if($user->organization)
+                            <div class="d-flex flex-column">
+                                <span class="text-gray-800 fw-semibold fs-6">{{ $user->organization->name }}</span>
+                                <span class="text-gray-500 fs-7">{{ $user->organization->type }}</span>
+                            </div>
+                        @else
+                            <span class="text-gray-400 fs-7 fst-italic">System Wide</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($user->is_active)
+                            <span class="badge badge-light-success fs-7 fw-semibold">AKTIF</span>
+                        @else
+                            <span class="badge badge-light-secondary fs-7 fw-semibold">NONAKTIF</span>
+                        @endif
+                    </td>
+                    <td>
+                        <span class="text-gray-700 fw-semibold fs-7">{{ $user->created_at->format('d M Y') }}</span>
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ route('web.users.edit', $user) }}" class="btn btn-icon btn-light-warning btn-sm" title="Edit Pengguna">
+                            <i class="ki-outline ki-pencil fs-2"></i>
+                        </a>
+                        @if($user->id !== auth()->id())
+                            <form method="POST" action="{{ route('web.users.destroy', $user) }}" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" 
+                                        class="btn btn-icon btn-light-{{ $user->is_active ? 'danger' : 'success' }} btn-sm toggle-status-confirm"
+                                        data-name="{{ $user->name }}"
+                                        data-status="{{ $user->is_active ? 'active' : 'inactive' }}"
+                                        title="{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Pengguna">
+                                    <i class="ki-outline ki-{{ $user->is_active ? 'cross-square' : 'check-circle' }} fs-2"></i>
+                                </button>
+                            </form>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center py-10">
+                        <x-empty-state icon="file-deleted" title="Tidak Ada Data" message="Belum ada data pengguna yang tersedia untuk filter ini." />
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    @if($users->hasPages())
+        <div class="d-flex justify-content-end mt-5">
+            {{ $users->links() }}
         </div>
-    </div>
-@endsection
+    @endif
+</x-index-layout>

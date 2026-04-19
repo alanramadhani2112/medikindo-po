@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Product;
 use App\Models\Supplier;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class ExtendedProductSeeder extends Seeder
 {
@@ -552,6 +554,12 @@ class ExtendedProductSeeder extends Seeder
                         'sku' => $uniqueSku,
                         'description' => $productData['description'] . ' (Kategori: ' . $productData['category'] . ')',
                         'price' => $productData['price'],
+                        'cost_price' => $productData['price'] * 0.8,
+                        'selling_price' => $productData['price'],
+                        'discount_percentage' => 0.00,
+                        'discount_amount' => 0.00,
+                        'expiry_date' => Carbon::now()->addYears(rand(1, 3))->format('Y-m-d'),
+                        'batch_no' => 'BATCH-' . strtoupper(Str::random(8)),
                         'unit' => $productData['unit'],
                         'is_narcotic' => false,
                         'is_active' => true,

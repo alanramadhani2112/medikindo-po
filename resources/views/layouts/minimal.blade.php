@@ -8,8 +8,8 @@
     <link rel="shortcut icon" href="{{ asset('favicon.png') }}" type="image/png" />
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-    <link href="{{ asset('assets/metronic8/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/metronic8/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('css/medikindo-theme.css') }}" rel="stylesheet" type="text/css" />
 </head>
 <body id="kt_app_body" data-kt-app-layout="dark-sidebar" data-kt-app-header-fixed="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" data-kt-app-sidebar-hoverable="true" data-kt-app-sidebar-push-header="true" data-kt-app-sidebar-push-toolbar="true" data-kt-app-sidebar-push-footer="true" data-kt-app-toolbar-enabled="true" class="app-default">
@@ -98,8 +98,8 @@
         </div>
     </div>
     
-    <script src="{{ asset('assets/metronic8/plugins/global/plugins.bundle.js') }}"></script>
-    <script src="{{ asset('assets/metronic8/js/scripts.bundle.js') }}"></script>
+    <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
+    <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof KTApp !== 'undefined' && typeof KTApp.init === 'function') {

@@ -4,9 +4,8 @@ namespace App\Enums;
 
 enum SupplierInvoiceStatus: string
 {
-    case ISSUED = 'issued';
+    case DRAFT = 'draft';
     case VERIFIED = 'verified';
-    case PAYMENT_SUBMITTED = 'payment_submitted';
     case PAID = 'paid';
     case OVERDUE = 'overdue';
 
@@ -16,10 +15,9 @@ enum SupplierInvoiceStatus: string
     public function canTransitionTo(self $status): bool
     {
         return match($this) {
-            self::ISSUED => in_array($status, [self::VERIFIED, self::PAYMENT_SUBMITTED, self::OVERDUE]),
-            self::VERIFIED => in_array($status, [self::PAYMENT_SUBMITTED, self::PAID]),
-            self::PAYMENT_SUBMITTED => $status === self::PAID,
-            self::OVERDUE => $status === self::PAYMENT_SUBMITTED,
+            self::DRAFT => in_array($status, [self::VERIFIED, self::OVERDUE]),
+            self::VERIFIED => $status === self::PAID,
+            self::OVERDUE => $status === self::VERIFIED || $status === self::PAID,
             self::PAID => false, // terminal state
         };
     }
@@ -30,10 +28,9 @@ enum SupplierInvoiceStatus: string
     public function getValidTransitions(): array
     {
         return match($this) {
-            self::ISSUED => [self::VERIFIED, self::PAYMENT_SUBMITTED, self::OVERDUE],
-            self::VERIFIED => [self::PAYMENT_SUBMITTED, self::PAID],
-            self::PAYMENT_SUBMITTED => [self::PAID],
-            self::OVERDUE => [self::PAYMENT_SUBMITTED],
+            self::DRAFT => [self::VERIFIED, self::OVERDUE],
+            self::VERIFIED => [self::PAID],
+            self::OVERDUE => [self::VERIFIED, self::PAID],
             self::PAID => [],
         };
     }
@@ -44,9 +41,8 @@ enum SupplierInvoiceStatus: string
     public function getLabel(): string
     {
         return match($this) {
-            self::ISSUED            => 'Menunggu Pembayaran',
+            self::DRAFT             => 'Draft / Baru',
             self::VERIFIED          => 'Diverifikasi',
-            self::PAYMENT_SUBMITTED => 'Pembayaran Diproses',
             self::PAID              => 'Lunas',
             self::OVERDUE           => 'Jatuh Tempo',
         };
@@ -58,9 +54,8 @@ enum SupplierInvoiceStatus: string
     public function getBadgeClass(): string
     {
         return match($this) {
-            self::ISSUED => 'badge-light-primary',
+            self::DRAFT => 'badge-light-primary',
             self::VERIFIED => 'badge-light-info',
-            self::PAYMENT_SUBMITTED => 'badge-light-warning',
             self::PAID => 'badge-light-success',
             self::OVERDUE => 'badge-light-danger',
         };

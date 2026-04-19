@@ -81,7 +81,7 @@ class InvoiceFromGRService
                 'supplier_id'               => $po->supplier_id,
                 'purchase_order_id'         => $po->id,
                 'goods_receipt_id'          => $gr->id,
-                'status'                    => SupplierInvoice::STATUS_ISSUED,
+                'status'                    => \App\Enums\SupplierInvoiceStatus::DRAFT,
                 'total_amount'              => $calculation['invoice_totals']['total_amount'],
                 'subtotal_amount'           => $calculation['invoice_totals']['subtotal_amount'],
                 'discount_amount'           => $calculation['invoice_totals']['discount_amount'],
@@ -343,6 +343,10 @@ class InvoiceFromGRService
             // Detect discrepancies (GR vs Invoice, PO vs Invoice)
             $discrepancies = $this->detectDiscrepancies($gr, $po, $lineItemsData, $calculation);
 
+            // Add surcharge to total amount
+            $surcharge = $metadata['surcharge'] ?? 0;
+            $totalWithSurcharge = $calculation['invoice_totals']['total_amount'] + $surcharge;
+
             // Create customer invoice
             $invoice = CustomerInvoice::create([
                 'invoice_number'       => $metadata['custom_invoice_number'] ?? $this->generateCustomerInvoiceNumber(),
@@ -350,10 +354,11 @@ class InvoiceFromGRService
                 'purchase_order_id'    => $po->id,
                 'goods_receipt_id'     => $gr->id,
                 'status'               => CustomerInvoice::STATUS_ISSUED,
-                'total_amount'         => $calculation['invoice_totals']['total_amount'],
+                'total_amount'         => $totalWithSurcharge,
                 'subtotal_amount'      => $calculation['invoice_totals']['subtotal_amount'],
                 'discount_amount'      => $calculation['invoice_totals']['discount_amount'],
                 'tax_amount'           => $calculation['invoice_totals']['tax_amount'],
+                'surcharge'            => $surcharge,
                 'paid_amount'          => 0,
                 'discrepancy_detected' => $discrepancies['has_discrepancy'],
                 'expected_total'       => $discrepancies['expected_total'] ?? null,

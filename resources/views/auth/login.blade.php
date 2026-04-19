@@ -8,11 +8,11 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="shortcut icon" href="{{ asset('favicon.png') }}" type="image/png" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
-        <link href="/assets/metronic8/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
-        <link href="/assets/metronic8/css/style.bundle.css" rel="stylesheet" type="text/css" />
+        <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+        <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
         <style>
-            body { background-image: url('/assets/metronic8/media/auth/bg4.jpg'); background-size: cover; background-position: center; }
-            [data-bs-theme="dark"] body { background-image: url('/assets/metronic8/media/auth/bg4-dark.jpg'); }
+            body { background-image: url('/assets/media/auth/bg4.jpg'); background-size: cover; background-position: center; }
+            [data-bs-theme="dark"] body { background-image: url('/assets/media/auth/bg4-dark.jpg'); }
         </style>
     </head>
     <!--end::Head-->
@@ -21,7 +21,7 @@
 <script>var defaultThemeMode = "light"; var themeMode; if ( document.documentElement ) { if ( document.documentElement.hasAttribute("data-bs-theme-mode")) { themeMode = document.documentElement.getAttribute("data-bs-theme-mode"); } else { if ( localStorage.getItem("data-bs-theme") !== null ) { themeMode = localStorage.getItem("data-bs-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-bs-theme", themeMode); }</script>
         
         <div class="d-flex flex-column flex-root" id="kt_app_root">
-            <style>body { background-image: url('/assets/metronic8/media/auth/bg4.jpg'); } [data-bs-theme="dark"] body { background-image: url('/assets/metronic8/media/auth/bg4-dark.jpg'); }</style>
+            <style>body { background-image: url('/assets/media/auth/bg4.jpg'); } [data-bs-theme="dark"] body { background-image: url('/assets/media/auth/bg4-dark.jpg'); }</style>
             <!--begin::Authentication - Sign-in -->
             <div class="d-flex flex-column flex-column-fluid flex-lg-row">
                 <!--begin::Aside-->
@@ -115,8 +115,8 @@
             <!--end::Authentication - Sign-in-->
         </div>
 
-        <script src="/assets/metronic8/plugins/global/plugins.bundle.js"></script>
-        <script src="/assets/metronic8/js/scripts.bundle.js"></script>
+        <script src="/assets/plugins/global/plugins.bundle.js"></script>
+        <script src="/assets/js/scripts.bundle.js"></script>
     </body>
     <!--end::Body-->
 </html>

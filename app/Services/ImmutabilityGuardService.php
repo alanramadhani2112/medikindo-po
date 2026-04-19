@@ -74,12 +74,12 @@ class ImmutabilityGuardService
         'partial_paid',
         'paid',
         'void',
-        // Legacy / AP statuses
-        'pending_approval',
-        'approved',
-        'partially_paid',
+        // Supplier Invoice statuses
         'verified',
+        'paid',
         'overdue',
+        // Legacy / Mixed
+        'pending_approval',
     ];
 
     public function __construct(
