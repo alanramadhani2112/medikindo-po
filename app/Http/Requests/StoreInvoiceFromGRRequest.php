@@ -30,7 +30,7 @@ class StoreInvoiceFromGRRequest extends FormRequest
             'custom_invoice_number' => 'nullable|string|max:255|unique:customer_invoices,invoice_number',
             'due_date' => 'required|date|after_or_equal:today',
             'notes' => 'nullable|string|max:1000',
-            'surcharge' => 'nullable|numeric|min:0',
+            'surcharge' => 'nullable|numeric|min:0|max:999999999999',
             
             'items' => 'required|array|min:1',
             'items.*.goods_receipt_item_id' => [
@@ -158,6 +158,9 @@ class StoreInvoiceFromGRRequest extends FormRequest
             'custom_invoice_number.unique' => 'Nomor invoice sudah digunakan.',
             'due_date.required' => 'Tanggal jatuh tempo harus diisi.',
             'due_date.after_or_equal' => 'Tanggal jatuh tempo harus hari ini atau setelahnya.',
+            'surcharge.numeric' => 'Surcharge harus berupa angka.',
+            'surcharge.min' => 'Surcharge tidak boleh negatif.',
+            'surcharge.max' => 'Surcharge maksimal Rp 999.999.999.999 (999 miliar).',
             'items.required' => 'Minimal 1 item harus diisi.',
             'items.*.goods_receipt_item_id.required' => 'Item Goods Receipt harus dipilih.',
             'items.*.goods_receipt_item_id.exists' => 'Item Goods Receipt tidak ditemukan.',

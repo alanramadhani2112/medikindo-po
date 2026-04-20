@@ -145,9 +145,17 @@
                             <label class="form-label fw-semibold fs-6 mb-2">Surcharge (Biaya Tambahan)</label>
                             <div class="input-group input-group-solid">
                                 <span class="input-group-text">Rp</span>
-                                <input type="number" name="surcharge" class="form-control form-control-solid"
-                                    x-model.number="surcharge" @input="calculateTotals()" placeholder="0">
+                                <input type="number" 
+                                       name="surcharge" 
+                                       class="form-control form-control-solid"
+                                       x-model.number="surcharge" 
+                                       @input="calculateTotals()" 
+                                       placeholder="0"
+                                       min="0"
+                                       max="999999999999"
+                                       step="1">
                             </div>
+                            <div class="form-text">Maksimal: Rp 999.999.999.999 (999 miliar)</div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold fs-6 mb-2">Nomor Invoice (Opsional)</label>
@@ -298,9 +306,22 @@
                     },
 
                     calculateTotals() {
+                        // Validate and cap surcharge
+                        let surchargeValue = parseFloat(this.surcharge) || 0;
+                        const MAX_SURCHARGE = 999999999999; // 999 billion
+                        
+                        if (surchargeValue < 0) {
+                            surchargeValue = 0;
+                            this.surcharge = 0;
+                        } else if (surchargeValue > MAX_SURCHARGE) {
+                            surchargeValue = MAX_SURCHARGE;
+                            this.surcharge = MAX_SURCHARGE;
+                            alert('Surcharge maksimal Rp 999.999.999.999 (999 miliar)');
+                        }
+                        
                         let subtotal = this.items.reduce((sum, i) => sum + (i.unit_price * i.invoice_quantity), 0);
                         let tax = Math.floor(subtotal * 0.11);
-                        let nett = subtotal + tax + (parseFloat(this.surcharge) || 0);
+                        let nett = subtotal + tax + surchargeValue;
                         let ematerai = nett >= 5000000 ? 10000 : 0;
                         this.summary = {
                             subtotal,
