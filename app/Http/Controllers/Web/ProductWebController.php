@@ -69,7 +69,7 @@ class ProductWebController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $rules = [
             'supplier_id'         => ['required', 'exists:suppliers,id'],
             'name'                => ['required', 'string', 'max:255'],
             'sku'                 => ['required', 'string', 'max:50', 'unique:products,sku'],
@@ -84,11 +84,28 @@ class ProductWebController extends Controller
             'is_narcotic'         => ['nullable', 'boolean'],
             'expiry_date'         => ['nullable', 'date', 'after:today'],
             'batch_no'            => ['nullable', 'string', 'max:100'],
-        ]);
+        ];
+
+        // Conditional validation: if is_narcotic = true, narcotic_group is REQUIRED
+        if ($request->boolean('is_narcotic')) {
+            $rules['narcotic_group'] = ['required', 'in:I,II,III'];
+        }
+
+        $data = $request->validate($rules);
         
         $data['is_narcotic'] = $request->boolean('is_narcotic');
         $data['discount_percentage'] = $data['discount_percentage'] ?? 0;
         $data['discount_amount'] = $data['discount_amount'] ?? 0;
+        
+        // Auto-set requires_sp and requires_prescription if narcotic
+        if ($data['is_narcotic']) {
+            $data['requires_sp'] = true;
+            $data['requires_prescription'] = true;
+        } else {
+            $data['requires_sp'] = false;
+            $data['requires_prescription'] = false;
+            $data['narcotic_group'] = null;
+        }
         
         $product = Product::create($data);
 
@@ -113,7 +130,7 @@ class ProductWebController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $data = $request->validate([
+        $rules = [
             'supplier_id'         => ['required', 'exists:suppliers,id'],
             'name'                => ['required', 'string', 'max:255'],
             'sku'                 => ['required', 'string', 'max:50', 'unique:products,sku,' . $product->id],
@@ -128,11 +145,28 @@ class ProductWebController extends Controller
             'is_narcotic'         => ['nullable', 'boolean'],
             'expiry_date'         => ['nullable', 'date', 'after:today'],
             'batch_no'            => ['nullable', 'string', 'max:100'],
-        ]);
+        ];
+
+        // Conditional validation: if is_narcotic = true, narcotic_group is REQUIRED
+        if ($request->boolean('is_narcotic')) {
+            $rules['narcotic_group'] = ['required', 'in:I,II,III'];
+        }
+
+        $data = $request->validate($rules);
 
         $data['is_narcotic'] = $request->boolean('is_narcotic');
         $data['discount_percentage'] = $data['discount_percentage'] ?? 0;
         $data['discount_amount'] = $data['discount_amount'] ?? 0;
+        
+        // Auto-set requires_sp and requires_prescription if narcotic
+        if ($data['is_narcotic']) {
+            $data['requires_sp'] = true;
+            $data['requires_prescription'] = true;
+        } else {
+            $data['requires_sp'] = false;
+            $data['requires_prescription'] = false;
+            $data['narcotic_group'] = null;
+        }
         
         $oldData = $product->toArray();
         $product->update($data);

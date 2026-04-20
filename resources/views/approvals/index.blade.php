@@ -129,7 +129,7 @@
                                                 data-title="Konfirmasi Penolakan"
                                                 data-message="Apakah Anda yakin ingin <strong>menolak</strong> pengajuan PO ini?"
                                                 onclick="document.getElementById('notes_rejected_{{ $po->id }}').value = document.getElementById('notes_{{ $po->id }}').value;">
-                                            <i class="ki-outline ki-arrow-zigzag-circle fs-4"></i>
+                                            <i class="ki-outline ki-arrows-circle fs-4"></i>
                                             Tolak
                                         </button>
                                     </form>

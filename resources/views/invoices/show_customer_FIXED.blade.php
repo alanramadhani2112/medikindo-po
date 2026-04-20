@@ -84,7 +84,7 @@
             <div class="card mb-5">
                 <div class="card-header bg-light-primary">
                     <h3 class="card-title text-primary">
-                        <i class="ki-outline ki-hospital fs-2 me-2"></i>
+                        <i class="ki-outline ki-geolocation fs-2 me-2"></i>
                         Tagihan Kepada (Bill To)
                     </h3>
                 </div>

@@ -68,14 +68,25 @@ class OrganizationWebController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'           => ['required', 'string', 'max:255'],
-            'type'           => ['required', 'string', 'in:clinic,hospital'],
-            'code'           => ['required', 'string', 'max:20', 'unique:organizations,code'],
-            'email'          => ['nullable', 'email'],
-            'phone'          => ['nullable', 'string', 'max:20'],
-            'address'        => ['nullable', 'string'],
-            'license_number' => ['nullable', 'string', 'max:100'],
+            'name'                        => ['required', 'string', 'max:255'],
+            'type'                        => ['required', 'string', 'in:clinic,hospital'],
+            'code'                        => ['required', 'string', 'max:20', 'unique:organizations,code'],
+            'address'                     => ['nullable', 'string'],
+            'city'                        => ['nullable', 'string', 'max:100'],
+            'province'                    => ['nullable', 'string', 'max:100'],
+            'phone'                       => ['nullable', 'string', 'max:20'],
+            'email'                       => ['nullable', 'email'],
+            'license_number'              => ['nullable', 'string', 'max:100'],
+            'is_authorized_narcotic'      => ['nullable', 'boolean'],
+            'npwp'                        => ['nullable', 'string', 'max:20'],
+            'nik'                         => ['nullable', 'string', 'max:16'],
+            'customer_code'               => ['nullable', 'string', 'max:50', 'unique:organizations,customer_code'],
+            'default_tax_rate'            => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'default_discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
+        
+        $data['is_authorized_narcotic'] = $request->boolean('is_authorized_narcotic');
+        
         $organization = Organization::create($data);
 
         $this->auditService->log('create', 'Organization', $organization->id, $organization->toArray());
@@ -97,14 +108,24 @@ class OrganizationWebController extends Controller
     public function update(Request $request, Organization $organization)
     {
         $data = $request->validate([
-            'name'           => ['required', 'string', 'max:255'],
-            'type'           => ['required', 'string', 'in:clinic,hospital'],
-            'code'           => ['required', 'string', 'max:20', 'unique:organizations,code,' . $organization->id],
-            'email'          => ['nullable', 'email'],
-            'phone'          => ['nullable', 'string', 'max:20'],
-            'address'        => ['nullable', 'string'],
-            'license_number' => ['nullable', 'string', 'max:100'],
+            'name'                        => ['required', 'string', 'max:255'],
+            'type'                        => ['required', 'string', 'in:clinic,hospital'],
+            'code'                        => ['required', 'string', 'max:20', 'unique:organizations,code,' . $organization->id],
+            'address'                     => ['nullable', 'string'],
+            'city'                        => ['nullable', 'string', 'max:100'],
+            'province'                    => ['nullable', 'string', 'max:100'],
+            'phone'                       => ['nullable', 'string', 'max:20'],
+            'email'                       => ['nullable', 'email'],
+            'license_number'              => ['nullable', 'string', 'max:100'],
+            'is_authorized_narcotic'      => ['nullable', 'boolean'],
+            'npwp'                        => ['nullable', 'string', 'max:20'],
+            'nik'                         => ['nullable', 'string', 'max:16'],
+            'customer_code'               => ['nullable', 'string', 'max:50', 'unique:organizations,customer_code,' . $organization->id],
+            'default_tax_rate'            => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'default_discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
+
+        $data['is_authorized_narcotic'] = $request->boolean('is_authorized_narcotic');
 
         $oldData = $organization->toArray();
         $organization->update($data);

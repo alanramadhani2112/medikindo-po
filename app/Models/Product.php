@@ -42,6 +42,9 @@ class Product extends Model
         'discount_percentage',
         'discount_amount',
         'is_narcotic',
+        'narcotic_group',
+        'requires_sp',
+        'requires_prescription',
         'description',
         'is_active',
         'expiry_date',
@@ -51,14 +54,16 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'price'               => 'decimal:2',
-            'cost_price'          => 'decimal:2',
-            'selling_price'       => 'decimal:2',
-            'discount_percentage' => 'decimal:2',
-            'discount_amount'     => 'decimal:2',
-            'is_narcotic'         => 'boolean',
-            'is_active'           => 'boolean',
-            'expiry_date'         => 'date',
+            'price'                  => 'decimal:2',
+            'cost_price'             => 'decimal:2',
+            'selling_price'          => 'decimal:2',
+            'discount_percentage'    => 'decimal:2',
+            'discount_amount'        => 'decimal:2',
+            'is_narcotic'            => 'boolean',
+            'requires_sp'            => 'boolean',
+            'requires_prescription'  => 'boolean',
+            'is_active'              => 'boolean',
+            'expiry_date'            => 'date',
         ];
     }
 

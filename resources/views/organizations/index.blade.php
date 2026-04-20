@@ -32,7 +32,7 @@
         @php
             $tabOptions = [
                 'all' => ['label' => 'Semua', 'icon' => 'ki-home'],
-                'hospital' => ['label' => 'Rumah Sakit', 'icon' => 'ki-hospital'],
+                'hospital' => ['label' => 'Rumah Sakit', 'icon' => 'ki-geolocation'],
                 'clinic' => ['label' => 'Klinik', 'icon' => 'ki-office-bag'],
             ];
             $currentTab = request('tab', 'all');

@@ -68,14 +68,19 @@ class SupplierWebController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'           => ['required', 'string', 'max:255'],
-            'code'           => ['required', 'string', 'max:20', 'unique:suppliers,code'],
-            'email'          => ['nullable', 'email'],
-            'phone'          => ['nullable', 'string', 'max:20'],
-            'address'        => ['nullable', 'string'],
-            'npwp'           => ['nullable', 'string', 'max:30'],
-            'license_number' => ['nullable', 'string', 'max:100'],
+            'name'                   => ['required', 'string', 'max:255'],
+            'code'                   => ['required', 'string', 'max:20', 'unique:suppliers,code'],
+            'address'                => ['nullable', 'string'],
+            'phone'                  => ['nullable', 'string', 'max:20'],
+            'email'                  => ['nullable', 'email'],
+            'npwp'                   => ['nullable', 'string', 'max:30'],
+            'license_number'         => ['required', 'string', 'max:100', 'unique:suppliers,license_number'],
+            'license_expiry_date'    => ['nullable', 'date', 'after:today'],
+            'is_authorized_narcotic' => ['nullable', 'boolean'],
         ]);
+        
+        $data['is_authorized_narcotic'] = $request->boolean('is_authorized_narcotic');
+        
         $supplier = Supplier::create($data);
 
         $this->auditService->log('create', 'Supplier', $supplier->id, $supplier->toArray());
@@ -97,14 +102,18 @@ class SupplierWebController extends Controller
     public function update(Request $request, Supplier $supplier)
     {
         $data = $request->validate([
-            'name'           => ['required', 'string', 'max:255'],
-            'code'           => ['required', 'string', 'max:20', 'unique:suppliers,code,' . $supplier->id],
-            'email'          => ['nullable', 'email'],
-            'phone'          => ['nullable', 'string', 'max:20'],
-            'address'        => ['nullable', 'string'],
-            'npwp'           => ['nullable', 'string', 'max:30'],
-            'license_number' => ['nullable', 'string', 'max:100'],
+            'name'                   => ['required', 'string', 'max:255'],
+            'code'                   => ['required', 'string', 'max:20', 'unique:suppliers,code,' . $supplier->id],
+            'address'                => ['nullable', 'string'],
+            'phone'                  => ['nullable', 'string', 'max:20'],
+            'email'                  => ['nullable', 'email'],
+            'npwp'                   => ['nullable', 'string', 'max:30'],
+            'license_number'         => ['required', 'string', 'max:100', 'unique:suppliers,license_number,' . $supplier->id],
+            'license_expiry_date'    => ['nullable', 'date', 'after:today'],
+            'is_authorized_narcotic' => ['nullable', 'boolean'],
         ]);
+
+        $data['is_authorized_narcotic'] = $request->boolean('is_authorized_narcotic');
 
         $oldData = $supplier->toArray();
         $supplier->update($data);

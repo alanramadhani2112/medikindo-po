@@ -5,7 +5,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-7 gap-3">
         <div>
             <h1 class="fs-2hx fw-bold text-gray-900 mb-2">
-                <i class="ki-outline ki-notepad-bingn-on fs-2hx text-primary me-2"></i>
+                <i class="ki-outline ki-notification-on fs-2hx text-primary me-2"></i>
                 Notifikasi
             </h1>
             <p class="text-gray-600 fs-6 mb-0">Kelola semua notifikasi dan update sistem Anda</p>
@@ -29,7 +29,7 @@
                 <div class="card-body d-flex align-items-center py-5">
                     <div class="symbol symbol-50px me-4">
                         <span class="symbol-label bg-light-primary">
-                            <i class="ki-outline ki-notepad-bingn-bing fs-2x text-primary"></i>
+                            <i class="ki-outline ki-notification fs-2x text-primary"></i>
                         </span>
                     </div>
                     <div>
@@ -197,7 +197,7 @@
                             <div class="d-flex flex-column align-items-center">
                                 <div class="symbol symbol-150px mb-7">
                                     <div class="symbol-label bg-light-primary">
-                                        <i class="ki-outline ki-notepad-bingn-status fs-5x text-primary"></i>
+                                        <i class="ki-outline ki-notification-status fs-5x text-primary"></i>
                                     </div>
                                 </div>
                                 <h3 class="text-gray-900 fs-2 fw-bold mb-3">Belum ada notifikasi</h3>

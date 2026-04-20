@@ -16,9 +16,12 @@ class Organization extends Model
         'type', // hospital or clinic
         'code',
         'address',
+        'city',
+        'province',
         'phone',
         'email',
         'license_number',
+        'is_authorized_narcotic',
         'is_active',
         'default_tax_rate',
         'default_discount_percentage',
@@ -33,6 +36,7 @@ class Organization extends Model
     {
         return [
             'is_active'                   => 'boolean',
+            'is_authorized_narcotic'      => 'boolean',
             'default_tax_rate'            => 'decimal:2',
             'default_discount_percentage' => 'decimal:2',
             'bank_accounts'               => 'array',

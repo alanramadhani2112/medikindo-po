@@ -18,13 +18,17 @@ class Supplier extends Model
         'email',
         'npwp',
         'license_number',
+        'license_expiry_date',
+        'is_authorized_narcotic',
         'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
+            'is_active'              => 'boolean',
+            'is_authorized_narcotic' => 'boolean',
+            'license_expiry_date'    => 'date',
         ];
     }
 

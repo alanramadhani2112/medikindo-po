@@ -96,7 +96,7 @@
                             <div class="col-12">
                                 <div class="separator separator-dashed my-7"></div>
                                 <h3 class="fs-5 fw-bold text-gray-900 mb-5">
-                                    <i class="ki-outline ki-courier-up fs-3 text-success me-2"></i>
+                                    <i class="ki-outline ki-delivery fs-3 text-success me-2"></i>
                                     Perhitungan Harga & Profit
                                 </h3>
                             </div>
@@ -280,6 +280,25 @@
                                     </label>
                                 </div>
                             </div>
+
+                            {{-- Conditional: Narcotic Group (shown only if is_narcotic = true) --}}
+                            <div class="col-12 mb-5" id="narcotic_group_field" style="display: none;">
+                                <label class="form-label fs-6 fw-semibold required">Golongan Narkotika</label>
+                                <select name="narcotic_group" class="form-select form-select-solid @error('narcotic_group') is-invalid @enderror" id="narcotic_group_select">
+                                    <option value="">Pilih Golongan</option>
+                                    <option value="I" {{ old('narcotic_group') === 'I' ? 'selected' : '' }}>Golongan I</option>
+                                    <option value="II" {{ old('narcotic_group') === 'II' ? 'selected' : '' }}>Golongan II</option>
+                                    <option value="III" {{ old('narcotic_group') === 'III' ? 'selected' : '' }}>Golongan III</option>
+                                </select>
+                                <div class="form-text">
+                                    <strong>Golongan I:</strong> Paling berbahaya, hanya untuk penelitian<br>
+                                    <strong>Golongan II:</strong> Dapat digunakan untuk terapi dengan pengawasan ketat<br>
+                                    <strong>Golongan III:</strong> Dapat digunakan untuk terapi dengan pengawasan
+                                </div>
+                                @error('narcotic_group')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         {{-- Action Buttons --}}
@@ -302,6 +321,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('assets/js/master-data-forms.js') }}"></script>
 <script>
 // Profit Calculator
 document.addEventListener('DOMContentLoaded', function() {

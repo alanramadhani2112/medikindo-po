@@ -71,7 +71,7 @@
                                 @endif
                                 @if (session('error'))
                                     <div class="alert alert-danger d-flex align-items-center mb-5">
-                                        <i class="ki-outline ki-arrow-zigzag-circle fs-2 text-danger me-3"></i>
+                                        <i class="ki-outline ki-arrows-circle fs-2 text-danger me-3"></i>
                                         <span>{{ session('error') }}</span>
                                     </div>
                                 @endif

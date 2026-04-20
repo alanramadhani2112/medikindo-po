@@ -86,7 +86,7 @@
                 <div class="card border-primary h-100">
                     <div class="card-header bg-light-primary">
                         <h3 class="card-title text-primary fw-bold">
-                            <i class="ki-outline ki-hospital fs-2 me-2"></i>
+                            <i class="ki-outline ki-geolocation fs-2 me-2"></i>
                             TAGIHAN KEPADA
                         </h3>
                     </div>

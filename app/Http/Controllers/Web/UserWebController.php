@@ -89,6 +89,7 @@ class UserWebController extends Controller
             'password'        => ['required', 'string', 'min:8'],
             'role'            => ['required', 'string', 'exists:roles,name'],
             'organization_id' => ['nullable', 'integer', 'exists:organizations,id'],
+            'is_pharmacist'   => ['nullable', 'boolean'],
         ]);
 
         $newUser = User::create([
@@ -97,6 +98,7 @@ class UserWebController extends Controller
             'password'        => Hash::make($data['password']),
             'organization_id' => $data['organization_id'] ?? null,
             'is_active'       => true,
+            'is_pharmacist'   => $request->boolean('is_pharmacist'),
         ]);
         $newUser->syncRoles([$data['role']]);
 
@@ -130,6 +132,7 @@ class UserWebController extends Controller
             'role'            => ['required', 'string', 'exists:roles,name'],
             'organization_id' => ['nullable', 'integer', 'exists:organizations,id'],
             'is_active'       => ['nullable', 'boolean'],
+            'is_pharmacist'   => ['nullable', 'boolean'],
         ]);
 
         $oldData = $user->toArray();
@@ -140,6 +143,7 @@ class UserWebController extends Controller
             'email'           => $data['email'],
             'organization_id' => $data['organization_id'] ?? null,
             'is_active'       => $request->has('is_active') ? (bool) $data['is_active'] : $user->is_active,
+            'is_pharmacist'   => $request->boolean('is_pharmacist'),
         ]);
 
         if (! empty($data['password'])) {

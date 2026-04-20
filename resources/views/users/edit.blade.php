@@ -75,16 +75,32 @@
                                 <div class="mb-5">
                                     <label class="form-label fs-6 fw-semibold required">Role</label>
                                     @php $userRole = $user->roles->first()?->name; @endphp
-                                    <select name="role" required class="form-select form-select-solid @error('role') is-invalid @enderror">
+                                    <select name="role" id="role_select" required class="form-select form-select-solid @error('role') is-invalid @enderror">
                                         <option value="">— Pilih Role —</option>
                                         <option value="Super Admin" {{ old('role', $userRole) === 'Super Admin' ? 'selected' : '' }}>Super Admin</option>
-                                        <option value="Healthcare User" {{ old('role', $userRole) === 'Healthcare User' ? 'selected' : '' }}>Healthcare User</option>
+                                        <option value="Healthcare" {{ old('role', $userRole) === 'Healthcare' ? 'selected' : '' }}>Healthcare</option>
                                         <option value="Approver" {{ old('role', $userRole) === 'Approver' ? 'selected' : '' }}>Approver</option>
                                         <option value="Finance" {{ old('role', $userRole) === 'Finance' ? 'selected' : '' }}>Finance</option>
                                     </select>
                                     @error('role')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                </div>
+
+                                {{-- Conditional: Pharmacist Checkbox (shown only if role = Healthcare) --}}
+                                <div class="mb-5" id="pharmacist_field" style="display: none;">
+                                    <div class="form-check form-switch form-check-custom form-check-solid">
+                                        <input class="form-check-input" type="checkbox" name="is_pharmacist" 
+                                               id="is_pharmacist" value="1" 
+                                               {{ old('is_pharmacist', $user->is_pharmacist) ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-semibold text-gray-700" for="is_pharmacist">
+                                            User adalah Apoteker Berlisensi
+                                        </label>
+                                    </div>
+                                    <div class="form-text text-info mt-2">
+                                        <i class="ki-outline ki-information-5 fs-5"></i>
+                                        Apoteker memiliki akses tambahan untuk verifikasi resep narkotika
+                                    </div>
                                 </div>
                             </div>
 
@@ -136,3 +152,7 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('assets/js/master-data-forms.js') }}"></script>
+@endpush

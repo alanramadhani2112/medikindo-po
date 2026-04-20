@@ -34,7 +34,7 @@
                         </div>
                         <div class="app-navbar-item ms-1 ms-md-3">
                             <a href="#" class="btn btn-icon btn-custom btn-color-gray-600 btn-active-light btn-active-color-primary w-35px h-35px w-md-40px h-md-40px">
-                                <i class="ki-outline ki-notepad-bingn fs-1"></i>
+                                <i class="ki-outline ki-note fs-1"></i>
                             </a>
                         </div>
                         <div class="app-navbar-item ms-1 ms-md-3">

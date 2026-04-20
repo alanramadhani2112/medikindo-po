@@ -88,12 +88,23 @@
 
                                 {{-- Nomor Izin PBF --}}
                                 <div class="mb-5">
-                                    <label class="form-label fs-6 fw-semibold">Nomor Izin PBF</label>
-                                    <input type="text" name="license_number" value="{{ old('license_number', $supplier->license_number) }}"
+                                    <label class="form-label fs-6 fw-semibold required">Nomor Izin PBF</label>
+                                    <input type="text" name="license_number" value="{{ old('license_number', $supplier->license_number) }}" required
                                            placeholder="Nomor izin resmi..."
                                            class="form-control form-control-solid @error('license_number') is-invalid @enderror">
                                     <div class="form-text">Wajib untuk penyalur sediaan farmasi</div>
                                     @error('license_number')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Tanggal Kadaluarsa Izin --}}
+                                <div class="mb-5">
+                                    <label class="form-label fs-6 fw-semibold">Tanggal Kadaluarsa Izin</label>
+                                    <input type="date" name="license_expiry_date" value="{{ old('license_expiry_date', $supplier->license_expiry_date?->format('Y-m-d')) }}"
+                                           class="form-control form-control-solid @error('license_expiry_date') is-invalid @enderror">
+                                    <div class="form-text">Tanggal berakhirnya izin distribusi</div>
+                                    @error('license_expiry_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -109,6 +120,22 @@
                                     @error('address')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                </div>
+
+                                {{-- Izin Narkotika --}}
+                                <div class="mb-5">
+                                    <div class="form-check form-switch form-check-custom form-check-solid">
+                                        <input class="form-check-input" type="checkbox" name="is_authorized_narcotic" 
+                                               id="is_authorized_narcotic" value="1" 
+                                               {{ old('is_authorized_narcotic', $supplier->is_authorized_narcotic) ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-semibold text-gray-700" for="is_authorized_narcotic">
+                                            Memiliki Izin Distribusi Narkotika
+                                        </label>
+                                    </div>
+                                    <div class="form-text text-warning mt-2">
+                                        <i class="ki-outline ki-information-5 fs-5"></i>
+                                        Centang jika supplier memiliki izin resmi untuk mendistribusikan obat narkotika/psikotropika
+                                    </div>
                                 </div>
                             </div>
                         </div>

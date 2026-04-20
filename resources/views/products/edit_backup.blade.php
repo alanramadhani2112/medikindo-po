@@ -109,7 +109,7 @@
                             <div class="col-12">
                                 <div class="separator separator-dashed my-7"></div>
                                 <h3 class="fs-5 fw-bold text-gray-900 mb-5">
-                                    <i class="ki-outline ki-courier-up fs-3 text-success me-2"></i>
+                                    <i class="ki-outline ki-delivery fs-3 text-success me-2"></i>
                                     Perhitungan Harga & Profit
                                 </h3>
                             </div>

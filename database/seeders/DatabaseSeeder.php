@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
             // Fiscal config
             TaxConfigurationSeeder::class, // AR Invoice: PPN rates and e-Meterai threshold
+            CreditLimitSeeder::class,      // Credit limits based on organization type
 
             // Clean role-based test users (run after roles and organizations exist)
             CleanUserSeeder::class,

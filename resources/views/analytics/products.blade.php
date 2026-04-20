@@ -94,7 +94,7 @@
     <div class="d-flex align-items-center mb-5">
         <div class="symbol symbol-40px me-3">
             <div class="symbol-label bg-light-primary">
-                <i class="ki-outline ki-courier-up fs-2 text-primary"></i>
+                <i class="ki-outline ki-delivery fs-2 text-primary"></i>
             </div>
         </div>
         <div>
