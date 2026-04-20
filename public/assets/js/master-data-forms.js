@@ -36,7 +36,7 @@ function togglePharmacistField() {
     
     const role = roleSelect.value;
     
-    if (role === 'Healthcare') {
+    if (role === 'Healthcare User') {
         pharmacistField.style.display = '';
     } else {
         pharmacistField.style.display = 'none';

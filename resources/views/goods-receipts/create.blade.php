@@ -73,7 +73,17 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label required fw-semibold fs-6 mb-2">Nomor Surat Jalan (DO)</label>
-                        <input type="text" name="delivery_order_number" class="form-control form-control-solid" required placeholder="Contoh: DO/2026/001">
+                        <input type="text" 
+                               name="delivery_order_number" 
+                               id="delivery_order_number"
+                               class="form-control form-control-solid @error('delivery_order_number') is-invalid @enderror" 
+                               required 
+                               placeholder="Contoh: DO/2026/001"
+                               value="{{ old('delivery_order_number') }}">
+                        @error('delivery_order_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">Nomor surat jalan dari supplier (wajib diisi)</div>
                     </div>
                 </div>
             </x-card>
@@ -181,6 +191,37 @@
             }
         };
     }
+
+    // Form validation before submit
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('gr-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const deliveryOrderNumber = document.getElementById('delivery_order_number');
+                
+                if (!deliveryOrderNumber || !deliveryOrderNumber.value.trim()) {
+                    e.preventDefault();
+                    
+                    // Show error message
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validasi Gagal',
+                        text: 'Nomor Surat Jalan (DO) wajib diisi!',
+                        confirmButtonText: 'OK'
+                    });
+                    
+                    // Focus on the field
+                    if (deliveryOrderNumber) {
+                        deliveryOrderNumber.focus();
+                        deliveryOrderNumber.classList.add('is-invalid');
+                    }
+                    
+                    return false;
+                }
+            });
+        }
+    });
+    
     </script>
     @endpush
 </x-layout>

@@ -27,4 +27,18 @@ class StoreGoodsReceiptRequest extends FormRequest
             'notes'                      => 'nullable|string',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'delivery_order_number.required' => 'Nomor surat jalan (DO) wajib diisi.',
+            'delivery_order_number.string'   => 'Nomor surat jalan harus berupa teks.',
+            'delivery_order_number.max'      => 'Nomor surat jalan maksimal 255 karakter.',
+            'purchase_order_id.required'     => 'Purchase Order wajib dipilih.',
+            'items.required'                 => 'Minimal harus ada 1 item yang diterima.',
+            'items.*.quantity_received.required' => 'Jumlah diterima wajib diisi.',
+            'items.*.batch_no.required'      => 'Nomor batch wajib diisi.',
+            'items.*.expiry_date.required'   => 'Tanggal kadaluarsa wajib diisi.',
+        ];
+    }
 }
