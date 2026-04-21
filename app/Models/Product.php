@@ -104,8 +104,6 @@ class Product extends Model
         'sterilization_method',
         'description',
         'is_active',
-        'expiry_date',
-        'batch_no',
         'min_stock_level',
         'max_stock_level',
         'reorder_quantity',
@@ -130,100 +128,9 @@ class Product extends Model
             'requires_prescription'  => 'boolean',
             'is_sterile'             => 'boolean',
             'is_active'              => 'boolean',
-            'expiry_date'            => 'date',
             'registration_date'      => 'date',
             'registration_expiry'    => 'date',
         ];
-    }
-
-    /**
-     * EXPIRY DATE HELPERS
-     */
-
-    /**
-     * Check if product is expired
-     */
-    public function isExpired(): bool
-    {
-        if (!$this->expiry_date) {
-            return false;
-        }
-        return $this->expiry_date->isPast();
-    }
-
-    /**
-     * Check if product is expiring soon (within 60 days)
-     */
-    public function isExpiringSoon(int $days = 60): bool
-    {
-        if (!$this->expiry_date) {
-            return false;
-        }
-        return $this->expiry_date->isFuture() && $this->expiry_date->diffInDays(now()) <= $days;
-    }
-
-    /**
-     * Get days until expiry
-     */
-    public function getDaysUntilExpiryAttribute(): ?int
-    {
-        if (!$this->expiry_date) {
-            return null;
-        }
-        return $this->expiry_date->diffInDays(now(), false);
-    }
-
-    /**
-     * Get expiry status for UI
-     */
-    public function getExpiryStatusAttribute(): string
-    {
-        if (!$this->expiry_date) {
-            return 'none';
-        }
-        if ($this->isExpired()) {
-            return 'expired';
-        }
-        if ($this->isExpiringSoon(30)) {
-            return 'critical'; // < 30 days
-        }
-        if ($this->isExpiringSoon(60)) {
-            return 'warning'; // < 60 days
-        }
-        return 'ok';
-    }
-
-    /**
-     * Get expiry status color for UI
-     */
-    public function getExpiryStatusColorAttribute(): string
-    {
-        return match($this->expiry_status) {
-            'expired' => 'danger',
-            'critical' => 'danger',
-            'warning' => 'warning',
-            'ok' => 'success',
-            default => 'secondary',
-        };
-    }
-
-    /**
-     * Scope: Get expiring products
-     */
-    public function scopeExpiringSoon($query, int $days = 60)
-    {
-        return $query->whereNotNull('expiry_date')
-            ->whereDate('expiry_date', '>', now())
-            ->whereDate('expiry_date', '<=', now()->addDays($days));
-    }
-
-    /**
-     * Scope: Get expired products
-     */
-    public function scopeExpired($query)
-    {
-        return $query->whereNotNull('expiry_date')
-            ->whereDate('expiry_date', '<', now());
     }
 
     /**

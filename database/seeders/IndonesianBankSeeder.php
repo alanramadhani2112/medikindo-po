@@ -39,7 +39,7 @@ class IndonesianBankSeeder extends Seeder
         ['name' => 'Bank Mega',                                 'code' => '426'],
         ['name' => 'Bank Sinarmas',                             'code' => '153'],
         ['name' => 'Bank Mayapada',                             'code' => '097'],
-        ['name' => 'Bank Artha Graha Internasional',            'code' => '037'],
+        ['name' => 'Bank Artha Graha International',            'code' => '037'],
         ['name' => 'Bank Bumi Arta',                            'code' => '076'],
         ['name' => 'Bank Capital Indonesia',                    'code' => '054'],
         ['name' => 'Bank CCB Indonesia',                        'code' => '036'],

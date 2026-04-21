@@ -42,20 +42,32 @@ class PaymentService
                 );
             }
 
+            // Handle file upload if present
+            $paymentProofPath = null;
+            if (isset($data['payment_proof_file']) && $data['payment_proof_file'] instanceof \Illuminate\Http\UploadedFile) {
+                $file = $data['payment_proof_file'];
+                $filename = 'payment_' . now()->format('YmdHis') . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $paymentProofPath = $file->storeAs('payment_proofs', $filename, 'public');
+            }
+
             $payment = Payment::create([
-                'payment_number'  => 'PAY-IN-' . now()->format('YmdHis') . '-' . $invoice->id,
-                'type'            => 'incoming',
-                'organization_id' => $invoice->organization_id,
-                'amount'          => $amount,
-                'payment_date'    => $data['payment_date'] ?? now(),
-                'payment_method'  => $data['payment_method'] ?? 'Bank Transfer',
-                'bank_account_id' => $data['bank_account_id'] ?? null,
-                'bank_name_manual'=> $data['bank_name_manual'] ?? null,
-                'reference'       => $data['reference'] ?? null,
-                'description'     => $data['description'] ?? "Pembayaran Invoice {$invoice->invoice_number}",
-                'surcharge_amount'    => $data['surcharge_amount'] ?? 0,
-                'surcharge_percentage'=> $data['surcharge_percentage'] ?? 0,
-                'status'          => 'completed',
+                'payment_number'        => 'PAY-IN-' . now()->format('YmdHis') . '-' . $invoice->id,
+                'type'                  => 'incoming',
+                'organization_id'       => $invoice->organization_id,
+                'amount'                => $amount,
+                'payment_date'          => $data['payment_date'] ?? now(),
+                'payment_method'        => $data['payment_method'] ?? 'Bank Transfer',
+                'sender_bank_name'      => $data['sender_bank_name'] ?? null,
+                'sender_account_number' => $data['sender_account_number'] ?? null,
+                'giro_number'           => $data['giro_number'] ?? null,
+                'giro_due_date'         => $data['giro_due_date'] ?? null,
+                'issuing_bank'          => $data['issuing_bank'] ?? null,
+                'receipt_number'        => $data['receipt_number'] ?? null,
+                'payment_proof_path'    => $paymentProofPath,
+                'bank_account_id'       => $data['bank_account_id'] ?? null,
+                'reference'             => $data['reference'] ?? null,
+                'notes'                 => $data['notes'] ?? "Pembayaran Invoice {$invoice->invoice_number}",
+                'status'                => 'completed',
             ]);
 
             $allocation = $payment->allocations()->create([

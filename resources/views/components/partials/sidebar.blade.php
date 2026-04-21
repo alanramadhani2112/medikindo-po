@@ -105,27 +105,24 @@
                     @endcan
                 @endcanany
 
-                {{-- INVOICING SECTION --}}
+                {{-- HUTANG (AP - ACCOUNTS PAYABLE) SECTION --}}
                 @can('view_invoices')
                     <div class="menu-item pt-5">
                         <div class="menu-content">
-                            <span class="menu-heading fw-bold text-uppercase fs-7">Invoicing</span>
+                            <span class="menu-heading fw-bold text-uppercase fs-7">Hutang (AP)</span>
                         </div>
                     </div>
 
-                    {{-- AP: Supplier Invoice --}}
+                    {{-- Supplier Invoice --}}
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs('web.invoices.supplier.*') ? 'active' : '' }}"
                             href="{{ route('web.invoices.supplier.index') }}">
                             <span class="menu-icon">
-                                <i class="ki-outline ki-check fs-2 text-danger"></i>
+                                <i class="ki-outline ki-bill fs-2"></i>
                             </span>
-                            <span class="menu-title">Supplier Invoice</span>
-                            <span class="menu-badge">
-                                <span class="badge badge-light-danger badge-circle fw-bold fs-8">AP</span>
-                            </span>
+                            <span class="menu-title">Supplier Invoices</span>
                             @if(isset($grReadyToInvoiceCount) && $grReadyToInvoiceCount > 0)
-                                <span class="badge badge-sm badge-circle badge-danger ms-1"
+                                <span class="badge badge-sm badge-circle badge-danger ms-auto"
                                       title="{{ $grReadyToInvoiceCount }} GR siap diinvoice">
                                     {{ $grReadyToInvoiceCount }}
                                 </span>
@@ -133,21 +130,71 @@
                         </a>
                     </div>
 
-                    {{-- AR: Customer Invoice --}}
+                    {{-- Payment Out - Coming Soon --}}
+                    @can('process_payments')
+                        <div class="menu-item">
+                            <span class="menu-link disabled" style="opacity: 0.65; cursor: not-allowed;">
+                                <span class="menu-icon">
+                                    <i class="ki-outline ki-exit-right fs-2"></i>
+                                </span>
+                                <span class="menu-title">Payment Out</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-primary fw-bold fs-9 px-2 py-1">Soon</span>
+                                </span>
+                            </span>
+                        </div>
+                    @endcan
+                @endcan
+
+                {{-- PIUTANG (AR - ACCOUNTS RECEIVABLE) SECTION --}}
+                @can('view_invoices')
+                    <div class="menu-item pt-5">
+                        <div class="menu-content">
+                            <span class="menu-heading fw-bold text-uppercase fs-7">Piutang (AR)</span>
+                        </div>
+                    </div>
+
+                    {{-- Customer Invoice --}}
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs('web.invoices.customer.*') ? 'active' : '' }}"
                             href="{{ route('web.invoices.customer.index') }}">
                             <span class="menu-icon">
-                                <i class="ki-outline ki-check fs-2 text-success"></i>
+                                <i class="ki-outline ki-document fs-2"></i>
                             </span>
-                            <span class="menu-title">Customer Invoice</span>
-                            <span class="menu-badge">
-                                <span class="badge badge-light-success badge-circle fw-bold fs-8">AR</span>
-                            </span>
+                            <span class="menu-title">Customer Invoices</span>
                         </a>
                     </div>
 
-                    {{-- AR Aging Dashboard --}}
+                    {{-- Payment Proofs --}}
+                    @can('view_payment_status')
+                        <div class="menu-item">
+                            <a class="menu-link {{ request()->routeIs('web.payment-proofs.*') ? 'active' : '' }}"
+                                href="{{ route('web.payment-proofs.index') }}">
+                                <span class="menu-icon">
+                                    <i class="ki-outline ki-shield-tick fs-2"></i>
+                                </span>
+                                <span class="menu-title">Payment Proofs</span>
+                            </a>
+                        </div>
+                    @endcan
+
+                    {{-- Manual Payment Entry --}}
+                    @can('process_payments')
+                        <div class="menu-item">
+                            <a class="menu-link {{ request()->routeIs('web.payments.create.incoming') || request()->routeIs('web.payments.store.incoming') ? 'active' : '' }}"
+                                href="{{ route('web.payments.create.incoming') }}">
+                                <span class="menu-icon">
+                                    <i class="ki-outline ki-entrance-right fs-2"></i>
+                                </span>
+                                <span class="menu-title">Manual Payment Entry</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-warning badge-circle fw-bold fs-9">!</span>
+                                </span>
+                            </a>
+                        </div>
+                    @endcan
+
+                    {{-- AR Aging --}}
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs('web.ar-aging.*') ? 'active' : '' }}"
                             href="{{ route('web.ar-aging.index') }}">
@@ -168,85 +215,70 @@
                             <span class="menu-title">Credit Notes</span>
                         </a>
                     </div>
+
+                    {{-- Credit Control --}}
+                    @can('view_credit_control')
+                        <div class="menu-item">
+                            <a class="menu-link {{ request()->routeIs('web.financial-controls.*') ? 'active' : '' }}"
+                                href="{{ route('web.financial-controls.index') }}">
+                                <span class="menu-icon">
+                                    <i class="ki-outline ki-shield-search fs-2"></i>
+                                </span>
+                                <span class="menu-title">Credit Control</span>
+                            </a>
+                        </div>
+                    @endcan
                 @endcan
 
-                {{-- PAYMENT SECTION --}}
-                @canany(['view_payments', 'view_payment_status', 'view_credit_control'])
+                {{-- KAS & BANK SECTION --}}
+                @canany(['view_payments', 'manage_bank_accounts'])
                     <div class="menu-item pt-5">
                         <div class="menu-content">
-                            <span class="menu-heading fw-bold text-uppercase fs-7">Payment</span>
+                            <span class="menu-heading fw-bold text-uppercase fs-7">Kas & Bank</span>
                         </div>
                     </div>
 
+                    {{-- Payment Ledger (Buku Kas) --}}
                     @can('view_payments')
                         <div class="menu-item">
-                            <a class="menu-link {{ request()->routeIs('web.payments.*') ? 'active' : '' }}"
+                            <a class="menu-link {{ request()->routeIs('web.payments.index') ? 'active' : '' }}"
                                 href="{{ route('web.payments.index') }}">
                                 <span class="menu-icon">
-                                    <i class="ki-outline ki-bill fs-2"></i>
+                                    <i class="ki-outline ki-book fs-2"></i>
                                 </span>
                                 <span class="menu-title">Payment Ledger</span>
                             </a>
                         </div>
                     @endcan
 
-                    @can('view_payment_status')
+                    {{-- Bank Accounts --}}
+                    @can('manage_bank_accounts')
                         <div class="menu-item">
-                            <a class="menu-link {{ request()->routeIs('web.payment-proofs.*') ? 'active' : '' }}"
-                                href="{{ route('web.payment-proofs.index') }}">
+                            <a class="menu-link {{ request()->routeIs('web.bank-accounts.*') ? 'active' : '' }}"
+                                href="{{ route('web.bank-accounts.index') }}">
                                 <span class="menu-icon">
-                                    <i class="ki-outline ki-status fs-2"></i>
+                                    <i class="ki-outline ki-bank fs-2"></i>
                                 </span>
-                                <span class="menu-title">Payment Proofs</span>
+                                <span class="menu-title">Bank Accounts</span>
                             </a>
                         </div>
                     @endcan
 
-                    @can('view_credit_control')
-                        <div class="menu-item">
-                            <a class="menu-link {{ request()->routeIs('web.financial-controls.*') ? 'active' : '' }}"
-                                href="{{ route('web.financial-controls.index') }}">
-                                <span class="menu-icon">
-                                    <i class="ki-outline ki-wallet fs-2"></i>
-                                </span>
-                                <span class="menu-title">Credit Control</span>
-                            </a>
-                        </div>
-                    @endcan
-
-                    {{-- Payment Out - Coming Soon --}}
-                    @canany(['view_payments', 'manage_invoice'])
+                    {{-- Cash Flow - Coming Soon --}}
+                    @can('view_payments')
                         <div class="menu-item">
                             <span class="menu-link disabled" style="opacity: 0.65; cursor: not-allowed;">
                                 <span class="menu-icon">
-                                    <i class="ki-outline ki-send fs-2 text-primary"></i>
+                                    <i class="ki-outline ki-chart-line-up fs-2"></i>
                                 </span>
-                                <span class="menu-title">Payment Out</span>
+                                <span class="menu-title">Cash Flow</span>
                                 <span class="menu-badge">
                                     <span class="badge badge-light-primary fw-bold fs-9 px-2 py-1">Soon</span>
                                 </span>
                             </span>
                         </div>
-                    @endcanany
+                    @endcan
                 @endcanany
-
-                {{-- BANK ACCOUNTS SECTION --}}
-                @can('manage_bank_accounts')
-                    <div class="menu-item pt-5">
-                        <div class="menu-content">
-                            <span class="menu-heading fw-bold text-uppercase fs-7">Akun Bank</span>
-                        </div>
-                    </div>
-                    <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs('web.bank-accounts.*') ? 'active' : '' }}"
-                            href="{{ route('web.bank-accounts.index') }}">
-                            <span class="menu-icon">
-                                <i class="ki-outline ki-bank fs-2"></i>
-                            </span>
-                            <span class="menu-title">Bank Accounts</span>
-                        </a>
-                    </div>
-                @endcan
 
                 {{-- INVENTORY SECTION --}}
                 @can('view_inventory')

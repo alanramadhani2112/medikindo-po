@@ -2,19 +2,19 @@
     <x-page-header title="Submit Bukti Pembayaran" :breadcrumbs="$breadcrumbs" />
 
     <div class="row g-5 g-xl-10" x-data="{
-        invoiceId: '{{ $invoice->id ?? '' }}',
-        paymentType: 'full',
-        paymentMethod: 'Bank Transfer',
+        invoiceId: '{{ $invoice->id ?? old('customer_invoice_id', '') }}',
+        paymentType: '{{ old('payment_type', 'full') }}',
+        paymentMethod: '{{ old('payment_method', '') }}',
         outstanding: {{ $invoice ? ($invoice->total_amount - $invoice->paid_amount) : 0 }},
-        partialAmount: '',
+        partialAmount: '{{ old('amount', '') }}',
         invoices: @js($invoices->map(fn($i) => ['id' => $i->id, 'invoice_number' => $i->invoice_number, 'organization_name' => $i->organization->name, 'total_amount' => $i->total_amount, 'paid_amount' => $i->paid_amount, 'outstanding' => $i->total_amount - $i->paid_amount])),
 
-        get showBankFields() {
-            return ['Bank Transfer', 'Virtual Account', 'Giro', 'Cek'].includes(this.paymentMethod);
+        get showBankDropdown() {
+            return ['Bank Transfer', 'Virtual Account'].includes(this.paymentMethod);
         },
 
-        onMethodChange() {
-            // reactive — showBankFields computed automatically
+        get showGiroFields() {
+            return this.paymentMethod === 'Giro/Cek';
         },
 
         get amount() {
@@ -47,12 +47,12 @@
                 <form action="{{ route('web.payment-proofs.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    {{-- Invoice Selection --}}
+                    {{-- 1. Invoice Selection --}}
                     <div class="mb-8">
                         <label class="required form-label fw-bold">Pilih Invoice Pelanggan</label>
 
                         @if($invoice)
-                            {{-- LOCKED: Coming from "Lanjutkan Pelunasan" — invoice is fixed --}}
+                            {{-- LOCKED: Coming from specific invoice --}}
                             @php $sisa = $invoice->total_amount - $invoice->paid_amount; @endphp
                             <input type="hidden" name="customer_invoice_id" value="{{ $invoice->id }}">
                             <select class="form-select form-select-solid" disabled>
@@ -66,7 +66,7 @@
                                 Invoice terkunci — pelunasan untuk pembayaran sebelumnya.
                             </div>
                         @else
-                            {{-- OPEN: Fresh submission — user picks an invoice --}}
+                            {{-- OPEN: User picks an invoice --}}
                             <select name="customer_invoice_id" class="form-select form-select-solid"
                                     x-model="invoiceId" @change="selectInvoice()" required>
                                 <option value="">-- Pilih Invoice yang Belum Lunas --</option>
@@ -84,7 +84,7 @@
                         @enderror
                     </div>
 
-                    {{-- Payment Type Toggle --}}
+                    {{-- 2. Payment Type Toggle --}}
                     <div class="mb-8" x-show="invoiceId !== ''">
                         <label class="required form-label fw-bold">Jenis Pembayaran</label>
                         <div class="d-flex gap-3">
@@ -111,24 +111,6 @@
                                         <span class="text-muted fs-7">Cicil sebagian tagihan</span>
                                     </span>
                                 </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Outstanding Info Banner --}}
-                    <div class="mb-6 rounded p-4 bg-light-primary border border-primary border-dashed"
-                         x-show="invoiceId !== ''" x-cloak>
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                            <div>
-                                <div class="text-muted fs-7 mb-1">Total Tagihan Tersisa</div>
-                                <div class="fs-4 fw-bolder text-primary"
-                                     x-text="'Rp ' + outstanding.toLocaleString('id-ID')"></div>
-                            </div>
-                            <div class="text-end">
-                                <div class="text-muted fs-7 mb-1">Jumlah yang Akan Dibayar</div>
-                                <div class="fs-4 fw-bolder"
-                                     :class="paymentType === 'full' ? 'text-success' : (isPartialValid ? 'text-warning' : 'text-danger')"
-                                     x-text="amountFormatted"></div>
                             </div>
                         </div>
                     </div>
@@ -161,94 +143,151 @@
                     <input type="hidden" name="amount" :value="amount">
                     <input type="hidden" name="payment_type" :value="paymentType">
 
-                    {{-- Date & Bank Reference --}}
-                    <div class="row mb-8">
-                        <div class="col-md-6">
-                            <label class="required form-label fw-bold">Tanggal Pembayaran</label>
-                            <input type="date" name="payment_date" class="form-control form-control-solid"
-                                   value="{{ old('payment_date', date('Y-m-d')) }}" required>
-                            @error('payment_date')
-                                <div class="text-danger fs-7 mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label class="required form-label fw-bold">Metode Pembayaran</label>
-                            <select name="payment_method" class="form-select form-select-solid"
-                                    x-model="paymentMethod" @change="onMethodChange()" required>
-                                <option value="">— Pilih Metode —</option>
-                                <option value="Bank Transfer">🏦 Bank Transfer</option>
-                                <option value="Virtual Account">💳 Virtual Account</option>
-                                <option value="QRIS">📱 QRIS</option>
-                                <option value="Giro">📄 Giro</option>
-                                <option value="Cek">📝 Cek</option>
-                                <option value="Cash">💵 Cash (Tunai)</option>
+                    {{-- 3. Tanggal Pembayaran --}}
+                    <div class="mb-8">
+                        <label class="required form-label fw-bold">Tanggal Pembayaran</label>
+                        <input type="date" name="payment_date" class="form-control form-control-solid"
+                               value="{{ old('payment_date', date('Y-m-d')) }}" required>
+                        @error('payment_date')
+                            <div class="text-danger fs-7 mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- 4. Metode Pembayaran --}}
+                    <div class="mb-8">
+                        <label class="required form-label fw-bold">Metode Pembayaran</label>
+                        <select name="payment_method" class="form-select form-select-solid"
+                                x-model="paymentMethod" required>
+                            <option value="">— Pilih Metode Pembayaran —</option>
+                            <option value="Bank Transfer" @selected(old('payment_method') === 'Bank Transfer')>🏦 Bank Transfer</option>
+                            <option value="Virtual Account" @selected(old('payment_method') === 'Virtual Account')>💳 Virtual Account</option>
+                            <option value="Giro/Cek" @selected(old('payment_method') === 'Giro/Cek')>📄 Giro/Cek</option>
+                            <option value="Cash" @selected(old('payment_method') === 'Cash')>💵 Cash (Tunai)</option>
+                        </select>
+                        @error('payment_method')
+                            <div class="text-danger fs-7 mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- 5. Detail Rekening (Conditional) --}}
+                    
+                    {{-- 5a. Bank Transfer / Virtual Account → Pilih Bank + No. Rekening --}}
+                    {{-- ALWAYS RENDER, just hide visually but keep in DOM --}}
+                    <div :style="!showBankDropdown ? 'display: none;' : ''">
+                        <div class="mb-8">
+                            <label class="form-label fw-bold" :class="showBankDropdown ? 'required' : ''">Nama Bank</label>
+                            <select name="sender_bank_name" class="form-select form-select-solid" 
+                                    :disabled="!showBankDropdown">
+                                <option value="">— Pilih Bank —</option>
+                                @foreach(\Database\Seeders\IndonesianBankSeeder::$BANKS as $bank)
+                                    <option value="{{ $bank['name'] }}" @selected(old('sender_bank_name') === $bank['name'])>
+                                        {{ $bank['name'] }} ({{ $bank['code'] }})
+                                    </option>
+                                @endforeach
                             </select>
-                            @error('payment_method')
+                            <div class="form-text text-muted">
+                                <i class="ki-outline ki-information-4 fs-7"></i>
+                                Pilih bank yang Anda gunakan untuk transfer
+                            </div>
+                            @error('sender_bank_name')
+                                <div class="text-danger fs-7 mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-8">
+                            <label class="form-label fw-bold" :class="showBankDropdown ? 'required' : ''">Nomor Rekening Pengirim</label>
+                            <input type="text" name="sender_account_number" class="form-control form-control-solid"
+                                   placeholder="Contoh: 1234567890"
+                                   value="{{ old('sender_account_number') }}"
+                                   :disabled="!showBankDropdown">
+                            <div class="form-text text-muted">
+                                <i class="ki-outline ki-information-4 fs-7"></i>
+                                Nomor rekening RS/Klinik yang digunakan untuk transfer
+                            </div>
+                            @error('sender_account_number')
                                 <div class="text-danger fs-7 mt-1">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
 
-                    {{-- Bank Details (shown when method requires bank) --}}
-                    <div class="row mb-8" x-show="showBankFields" x-cloak>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Bank Tujuan Transfer (Medikindo)</label>
-                            @if($invoice && $invoice->bankAccount)
-                                {{-- Pre-filled from invoice --}}
-                                <input type="hidden" name="bank_account_id" value="{{ $invoice->bankAccount->id }}">
-                                <div class="form-control form-control-solid bg-light-success text-success fw-bold">
-                                    {{ $invoice->bankAccount->bank_name }} — {{ $invoice->bankAccount->account_number }}
-                                </div>
-                                <div class="form-text text-success">
-                                    <i class="ki-outline ki-check-circle fs-7"></i>
-                                    Otomatis dari invoice
-                                </div>
-                            @else
-                                <select name="bank_account_id" class="form-select form-select-solid">
-                                    <option value="">— Pilih Rekening Medikindo —</option>
-                                    @foreach(\App\Models\BankAccount::active()->orderBy('is_default','desc')->get() as $bank)
-                                        <option value="{{ $bank->id }}" {{ $bank->is_default ? 'selected' : '' }}>
-                                            {{ $bank->bank_name }} — {{ $bank->account_number }}
-                                            @if($bank->is_default) ★ @endif
-                                        </option>
-                                    @endforeach
-                                </select>
-                            @endif
+                    {{-- 5b. Giro/Cek → Nomor Giro/Cek + Tanggal Jatuh Tempo --}}
+                    {{-- ALWAYS RENDER, just hide visually but keep in DOM --}}
+                    <div :style="!showGiroFields ? 'display: none;' : ''">
+                        <div class="row mb-8">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold" :class="showGiroFields ? 'required' : ''">Nomor Giro/Cek</label>
+                                <input type="text" name="giro_number" class="form-control form-control-solid"
+                                       placeholder="Contoh: GR-12345678"
+                                       value="{{ old('giro_number') }}"
+                                       :disabled="!showGiroFields">
+                                <div class="form-text text-muted">Nomor seri giro atau cek</div>
+                                @error('giro_number')
+                                    <div class="text-danger fs-7 mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold" :class="showGiroFields ? 'required' : ''">Tanggal Jatuh Tempo</label>
+                                <input type="date" name="giro_due_date" class="form-control form-control-solid"
+                                       value="{{ old('giro_due_date') }}"
+                                       :disabled="!showGiroFields">
+                                <div class="form-text text-muted">Tanggal giro/cek dapat dicairkan</div>
+                                @error('giro_due_date')
+                                    <div class="text-danger fs-7 mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Bank Pengirim (RS/Klinik)</label>
-                            <input type="text" name="sender_bank_name" class="form-control form-control-solid"
-                                   placeholder="Mis. BCA, Mandiri, BNI..."
-                                   value="{{ old('sender_bank_name') }}">
-                            <div class="form-text text-muted">Bank yang digunakan untuk transfer</div>
-                        </div>
-                    </div>
-
-                    {{-- Reference Number --}}
-                    <div class="row mb-8">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">No. Referensi / No. Bukti Transfer</label>
-                            <input type="text" name="bank_reference" class="form-control form-control-solid"
-                                   placeholder="Contoh: TRX-12345678"
-                                   value="{{ old('bank_reference') }}">
-                            <div class="form-text text-muted">Nomor dari slip transfer / bukti pembayaran</div>
-                        </div>
-                        <div class="col-md-6">
-                            {{-- placeholder for layout --}}
+                        <div class="mb-8">
+                            <label class="form-label fw-bold" :class="showGiroFields ? 'required' : ''">Nama Bank Penerbit Giro/Cek</label>
+                            <select name="sender_bank_name" class="form-select form-select-solid"
+                                    :disabled="!showGiroFields">
+                                <option value="">— Pilih Bank —</option>
+                                @foreach(\Database\Seeders\IndonesianBankSeeder::$BANKS as $bank)
+                                    <option value="{{ $bank['name'] }}" @selected(old('sender_bank_name') === $bank['name'])>
+                                        {{ $bank['name'] }} ({{ $bank['code'] }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('sender_bank_name')
+                                <div class="text-danger fs-7 mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
-                    {{-- Notes --}}
+                    {{-- 6. No. Referensi --}}
+                    <div class="mb-8">
+                        <label class="form-label fw-bold">
+                            <span x-show="paymentMethod === 'Bank Transfer' || paymentMethod === 'Virtual Account'">No. Referensi Transfer</span>
+                            <span x-show="paymentMethod === 'Cash'">No. Kwitansi</span>
+                            <span x-show="paymentMethod === 'Giro/Cek'">No. Referensi</span>
+                            <span x-show="paymentMethod === ''">No. Referensi</span>
+                        </label>
+                        <input type="text" name="bank_reference" class="form-control form-control-solid"
+                               placeholder="Contoh: TRX-12345678"
+                               value="{{ old('bank_reference') }}">
+                        <div class="form-text text-muted">
+                            <span x-show="paymentMethod === 'Bank Transfer' || paymentMethod === 'Virtual Account'">Nomor referensi dari slip transfer bank</span>
+                            <span x-show="paymentMethod === 'Cash'">Nomor kwitansi pembayaran tunai</span>
+                            <span x-show="paymentMethod === 'Giro/Cek'">Nomor referensi transaksi (opsional)</span>
+                        </div>
+                        @error('bank_reference')
+                            <div class="text-danger fs-7 mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- 7. Catatan --}}
                     <div class="mb-8">
                         <label class="form-label fw-bold">Catatan Tambahan <span class="text-muted fs-7">(Opsional)</span></label>
                         <textarea name="notes" class="form-control form-control-solid" rows="3"
                                   placeholder="Informasi tambahan untuk tim Finance...">{{ old('notes') }}</textarea>
                     </div>
 
-                    {{-- Upload Bukti Transfer --}}
+                    {{-- 8. Upload Bukti (WAJIB) --}}
                     <div class="mb-10">
                         <label class="required form-label fw-bold">
-                            Upload Bukti Transfer
+                            <span x-show="paymentMethod === 'Bank Transfer' || paymentMethod === 'Virtual Account'">Upload Bukti Transfer</span>
+                            <span x-show="paymentMethod === 'Cash'">Upload Kwitansi</span>
+                            <span x-show="paymentMethod === 'Giro/Cek'">Upload Foto Giro/Cek</span>
+                            <span x-show="paymentMethod === ''">Upload Bukti Pembayaran</span>
                             <span class="badge badge-light-danger ms-2">Wajib</span>
                         </label>
                         <input type="file" name="file" class="form-control form-control-solid"
@@ -258,7 +297,10 @@
                         @enderror
                         <div class="text-muted fs-7 mt-2">
                             <i class="ki-outline ki-information-4 fs-6"></i>
-                            Format: JPG, PNG, PDF. Maks 5MB. Upload screenshot/foto bukti transfer bank.
+                            Format: JPG, PNG, PDF. Maks 5MB.
+                            <span x-show="paymentMethod === 'Bank Transfer' || paymentMethod === 'Virtual Account'">Upload screenshot/foto bukti transfer.</span>
+                            <span x-show="paymentMethod === 'Cash'">Upload foto kwitansi pembayaran tunai.</span>
+                            <span x-show="paymentMethod === 'Giro/Cek'">Upload foto giro/cek yang jelas dan terbaca.</span>
                         </div>
                     </div>
 
@@ -267,7 +309,7 @@
                             <i class="ki-outline ki-arrow-left fs-2"></i> Batal
                         </a>
                         <button type="submit" class="btn btn-primary"
-                                :disabled="invoiceId === '' || (paymentType === 'partial' && !isPartialValid)">
+                                :disabled="invoiceId === '' || (paymentType === 'partial' && !isPartialValid) || paymentMethod === ''">
                             <i class="ki-outline ki-check fs-2"></i>
                             Submit Bukti Pembayaran
                         </button>
@@ -280,7 +322,7 @@
         <div class="col-lg-4">
             {{-- Bank Account Info (if invoice selected) --}}
             @if($invoice && $invoice->bankAccount)
-                <div class="card card-flush border border-success shadow-sm mb-5">
+                <div class="card card-flush mb-5">
                     <div class="card-header pt-5 bg-light-success">
                         <h3 class="card-title fw-bold text-success">
                             <i class="ki-outline ki-bank fs-2 me-2"></i>
@@ -313,17 +355,10 @@
                         </div>
                     </div>
                 </div>
-            @elseif($invoice && !$invoice->bankAccount)
-                <div class="card card-flush border border-warning shadow-sm mb-5">
-                    <div class="card-body py-5 text-center">
-                        <i class="ki-outline ki-bank fs-3x text-warning mb-3"></i>
-                        <div class="fw-bold text-gray-800 fs-6 mb-2">Rekening Belum Ditentukan</div>
-                        <div class="text-muted fs-7">Hubungi Medikindo untuk informasi rekening tujuan transfer.</div>
-                    </div>
-                </div>
             @endif
 
-            <div class="card card-flush shadow-sm mb-5">
+            {{-- Panduan Pembayaran --}}
+            <div class="card card-flush mb-5">
                 <div class="card-header pt-5">
                     <h3 class="card-title fw-bold text-gray-800">
                         <i class="ki-outline ki-information-5 fs-2 text-primary me-2"></i>
@@ -357,37 +392,44 @@
                 </div>
             </div>
 
-            {{-- Live Summary Card --}}
-            <div class="card card-flush border border-primary shadow-sm" x-show="invoiceId !== ''" x-cloak>
-                <div class="card-header pt-4 pb-2">
-                    <h3 class="card-title fw-bold fs-6 text-gray-700">Ringkasan Pembayaran</h3>
+            {{-- Ringkasan Pembayaran --}}
+            <div class="card card-flush">
+                <div class="card-header pt-4 pb-2 bg-light-primary">
+                    <h3 class="card-title fw-bold fs-6 text-primary">Ringkasan Pembayaran</h3>
                 </div>
                 <div class="card-body pt-2 pb-4">
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted fs-7">Jenis</span>
-                        <span class="fw-bold fs-7">
-                            <span x-show="paymentType === 'full'" class="badge badge-light-success">Bayar Penuh</span>
-                            <span x-show="paymentType === 'partial'" class="badge badge-light-warning">Bayar Sebagian</span>
-                        </span>
+                    <div x-show="invoiceId === ''" class="text-center py-5">
+                        <i class="ki-outline ki-file-down fs-3x text-gray-400 mb-3"></i>
+                        <div class="text-muted fs-6">Pilih invoice untuk melihat ringkasan</div>
                     </div>
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted fs-7">Tagihan Tersisa</span>
-                        <span class="fw-bold fs-7 text-primary"
-                              x-text="'Rp ' + outstanding.toLocaleString('id-ID')"></span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted fs-7">Jumlah Dibayar</span>
-                        <span class="fw-bolder fs-6"
-                              :class="paymentType === 'full' ? 'text-success' : (isPartialValid ? 'text-warning' : 'text-danger')"
-                              x-text="amountFormatted"></span>
-                    </div>
-                    <div class="separator separator-dashed my-3"></div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted fs-7">Sisa Setelah Bayar</span>
-                        <span class="fw-bold fs-7"
-                              :class="paymentType === 'full' ? 'text-success' : 'text-muted'"
-                              x-text="paymentType === 'full' ? 'Rp 0 (Lunas)' : (isPartialValid ? 'Rp ' + (outstanding - parseFloat(partialAmount || 0)).toLocaleString('id-ID') : '-')">
-                        </span>
+                    
+                    <div x-show="invoiceId !== ''" x-cloak>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted fs-7">Jenis</span>
+                            <span class="fw-bold fs-7">
+                                <span x-show="paymentType === 'full'" class="badge badge-light-success">Bayar Penuh</span>
+                                <span x-show="paymentType === 'partial'" class="badge badge-light-warning">Bayar Sebagian</span>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted fs-7">Tagihan Tersisa</span>
+                            <span class="fw-bold fs-7 text-primary"
+                                  x-text="'Rp ' + outstanding.toLocaleString('id-ID')"></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted fs-7">Jumlah Dibayar</span>
+                            <span class="fw-bolder fs-6"
+                                  :class="paymentType === 'full' ? 'text-success' : (isPartialValid ? 'text-warning' : 'text-danger')"
+                                  x-text="amountFormatted"></span>
+                        </div>
+                        <div class="separator separator-dashed my-3"></div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted fs-7">Sisa Setelah Bayar</span>
+                            <span class="fw-bold fs-7"
+                                  :class="paymentType === 'full' ? 'text-success' : 'text-muted'"
+                                  x-text="paymentType === 'full' ? 'Rp 0 (Lunas)' : (isPartialValid ? 'Rp ' + (outstanding - parseFloat(partialAmount || 0)).toLocaleString('id-ID') : '-')">
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

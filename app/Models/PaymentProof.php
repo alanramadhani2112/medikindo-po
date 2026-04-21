@@ -19,6 +19,9 @@ class PaymentProof extends Model
         'payment_method',
         'bank_account_id',
         'sender_bank_name',
+        'sender_account_number',
+        'giro_number',
+        'giro_due_date',
         'bank_reference',
         'notes',
         'status',
@@ -33,12 +36,13 @@ class PaymentProof extends Model
     ];
 
     protected $casts = [
-        'amount'       => 'decimal:2',
-        'payment_date' => 'date',
-        'status'       => PaymentProofStatus::class,
-        'verified_at'  => 'datetime',
-        'approved_at'  => 'datetime',
-        'recalled_at'  => 'datetime',
+        'amount'           => 'decimal:2',
+        'payment_date'     => 'date',
+        'giro_due_date'    => 'date',
+        'status'           => PaymentProofStatus::class,
+        'verified_at'      => 'datetime',
+        'approved_at'      => 'datetime',
+        'recalled_at'      => 'datetime',
     ];
 
     /**

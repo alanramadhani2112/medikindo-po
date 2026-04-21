@@ -57,17 +57,20 @@ class PaymentProofService
 
         $proof = DB::transaction(function () use ($invoice, $actor, $data, $file, $amount, $paymentType) {
             $proof = PaymentProof::create([
-                'customer_invoice_id' => $invoice->id,
-                'submitted_by'        => $actor->id,
-                'amount'              => $amount,
-                'payment_type'        => $paymentType,
-                'payment_date'        => $data['payment_date'],
-                'payment_method'      => $data['payment_method'] ?? 'Bank Transfer',
-                'bank_account_id'     => $data['bank_account_id'] ?? null,
-                'sender_bank_name'    => $data['sender_bank_name'] ?? null,
-                'bank_reference'      => $data['bank_reference'] ?? null,
-                'notes'               => $data['notes'] ?? null,
-                'status'              => PaymentProofStatus::SUBMITTED,
+                'customer_invoice_id'    => $invoice->id,
+                'submitted_by'           => $actor->id,
+                'amount'                 => $amount,
+                'payment_type'           => $paymentType,
+                'payment_date'           => $data['payment_date'],
+                'payment_method'         => $data['payment_method'] ?? 'Bank Transfer',
+                'bank_account_id'        => $invoice->bank_account_id ?? null, // Auto from invoice
+                'sender_bank_name'       => $data['sender_bank_name'] ?? null,
+                'sender_account_number'  => $data['sender_account_number'] ?? null,
+                'giro_number'            => $data['giro_number'] ?? null,
+                'giro_due_date'          => $data['giro_due_date'] ?? null,
+                'bank_reference'         => $data['bank_reference'] ?? null,
+                'notes'                  => $data['notes'] ?? null,
+                'status'                 => PaymentProofStatus::SUBMITTED,
             ]);
 
             if ($file) {

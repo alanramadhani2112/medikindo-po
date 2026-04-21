@@ -2,32 +2,133 @@
     <x-page-header title="Persetujuan Bukti Pembayaran" :breadcrumbs="$breadcrumbs" />
 
     <div class="row g-5 g-xl-10" x-data="{ checkBank: false, checkAmount: false, checkCustomer: false, checkDoc: false }">
-        {{-- Left: Verification Form & Checklist --}}
+        {{-- Left: Document & Verification Form --}}
         <div class="col-lg-7">
-            <x-card title="Verifikasi Pembayaran" icon="shield-search" class="mb-5">
+            {{-- 1. DOKUMEN BUKTI TRANSFER (PRIORITAS UTAMA - DI ATAS) --}}
+            <x-card title="Dokumen Bukti Transfer" icon="file-up" class="mb-5">
+                <div class="row g-3">
+                    @forelse($paymentProof->paymentDocuments as $doc)
+                        <div class="col-md-12">
+                            <div class="border border-dashed border-primary rounded px-7 py-5 mb-3 d-flex flex-stack bg-light-primary">
+                                <div class="d-flex align-items-center">
+                                    <i class="ki-outline ki-picture fs-3x text-primary me-4"></i>
+                                    <div>
+                                        <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#docPreview{{ $doc->id }}" class="fs-5 text-gray-900 text-hover-primary fw-bold">{{ $doc->original_filename }}</a>
+                                        <div class="fs-7 text-muted fw-semibold mt-1">
+                                            <i class="ki-outline ki-file fs-7 me-1"></i>
+                                            Ukuran: {{ number_format($doc->file_size / 1024, 2) }} KB
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#docPreview{{ $doc->id }}">
+                                        <i class="ki-outline ki-eye fs-3 me-1"></i> Lihat Bukti Bayar
+                                    </button>
+                                    <a href="{{ route('web.payment-proofs.download-document', [$paymentProof, $doc->id]) }}" class="btn btn-light-primary">
+                                        <i class="ki-outline ki-cloud-download fs-3 me-1"></i> Download Bukti Bayar
+                                    </a>
+                                </div>
+                            </div>
+
+                            {{-- Modal Lightbox untuk Preview Dokumen --}}
+                            <div class="modal fade" id="docPreview{{ $doc->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header border-0 pb-0">
+                                            <h5 class="modal-title fw-bold">
+                                                <i class="ki-outline ki-picture text-primary fs-2 me-2"></i>
+                                                {{ $doc->original_filename }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center p-5">
+                                            @if (in_array($doc->mime_type, ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp']))
+                                                {{-- Preview untuk gambar --}}
+                                                <img src="{{ route('web.payment-proofs.view-document', [$paymentProof, $doc->id]) }}"
+                                                     alt="{{ $doc->original_filename }}"
+                                                     class="img-fluid rounded shadow" 
+                                                     style="max-height: 75vh; object-fit: contain;">
+                                            @elseif ($doc->mime_type === 'application/pdf')
+                                                {{-- Preview untuk PDF --}}
+                                                <iframe src="{{ route('web.payment-proofs.view-document', [$paymentProof, $doc->id]) }}"
+                                                        class="w-100 rounded shadow"
+                                                        style="height: 75vh; border: none;">
+                                                </iframe>
+                                            @else
+                                                {{-- Untuk file lain, tampilkan info dan tombol download --}}
+                                                <div class="py-10">
+                                                    <i class="ki-outline ki-file fs-5x text-muted mb-5"></i>
+                                                    <p class="text-gray-600 fs-5 mb-5">
+                                                        Preview tidak tersedia untuk tipe file ini.
+                                                    </p>
+                                                    <a href="{{ route('web.payment-proofs.download-document', [$paymentProof, $doc->id]) }}" 
+                                                       class="btn btn-primary">
+                                                        <i class="ki-outline ki-cloud-download fs-3 me-1"></i> Download untuk Melihat
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="modal-footer border-0 pt-0 justify-content-center">
+                                            <a href="{{ route('web.payment-proofs.download-document', [$paymentProof, $doc->id]) }}"
+                                               class="btn btn-light-success">
+                                                <i class="ki-outline ki-cloud-download fs-3 me-1"></i> Download Bukti Bayar
+                                            </a>
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-12 py-5 text-center text-muted">
+                            <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
+                            <div>Tidak ada lampiran dokumen.</div>
+                        </div>
+                    @endforelse
+                </div>
+            </x-card>
+
+            {{-- 2. DETAIL PEMBAYARAN --}}
+            <x-card title="Detail Pembayaran" icon="wallet" class="mb-5">
+                <div class="row g-5">
+                    <div class="col-md-6">
+                        <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block mb-2">Jumlah yang Disubmit</label>
+                        <span class="fs-2 fw-bolder text-primary">Rp {{ number_format($paymentProof->amount, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block mb-2">Tanggal Transfer</label>
+                        <span class="fs-4 fw-bold text-gray-800">{{ $paymentProof->payment_date->format('d M Y') }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block mb-2">Referensi Bank / No. Reff</label>
+                        <span class="fs-6 fw-bold text-gray-800">{{ $paymentProof->bank_reference ?? '—' }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block mb-2">Metode Pembayaran</label>
+                        <span class="fs-6 fw-bold text-gray-800">{{ $paymentProof->payment_method ?? 'Bank Transfer' }}</span>
+                    </div>
+                    @if($paymentProof->sender_bank_name)
+                    <div class="col-md-6">
+                        <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block mb-2">Bank Pengirim</label>
+                        <span class="fs-6 fw-bold text-gray-800">{{ $paymentProof->sender_bank_name }}</span>
+                    </div>
+                    @endif
+                    @if($paymentProof->sender_account_number)
+                    <div class="col-md-6">
+                        <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block mb-2">No. Rekening Pengirim</label>
+                        <span class="fs-6 fw-bold text-gray-800 font-monospace">{{ $paymentProof->sender_account_number }}</span>
+                    </div>
+                    @endif
+                </div>
+            </x-card>
+
+            {{-- 3. VERIFIKASI & ACTION --}}
+            <x-card title="Verifikasi Pembayaran" icon="shield-search">
                 <div class="alert alert-info d-flex align-items-center mb-8">
                     <i class="ki-outline ki-information-5 fs-2x text-info me-4"></i>
                     <div class="d-flex flex-column">
                         <span class="fw-bold fs-6">Instruksi Finance</span>
                         <span>Silakan periksa dokumen bukti transfer dan pastikan dana sudah masuk ke rekening real sebelum menyetujui.</span>
-                    </div>
-                </div>
-
-                {{-- Submission Details --}}
-                <div class="bg-light-primary rounded p-5 mb-8 border border-primary border-dashed">
-                    <div class="row g-5">
-                        <div class="col-md-6">
-                            <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block">Jumlah yang Disubmit</label>
-                            <span class="fs-2 fw-bolder text-primary">Rp {{ number_format($paymentProof->amount, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block">Tanggal Transfer</label>
-                            <span class="fs-4 fw-bold text-gray-800">{{ $paymentProof->payment_date->format('d M Y') }}</span>
-                        </div>
-                        <div class="col-12">
-                            <label class="fs-8 fw-bold text-gray-600 text-uppercase d-block">Referensi Bank / No. Reff</label>
-                            <span class="fs-6 fw-bold text-gray-800">{{ $paymentProof->bank_reference ?? 'Tidak ada referensi' }}</span>
-                        </div>
                     </div>
                 </div>
 
@@ -75,38 +176,14 @@
 
                     <div class="d-flex justify-content-end gap-3 border-top pt-5">
                         <a href="{{ route('web.payment-proofs.show', $paymentProof) }}" class="btn btn-light">Batal</a>
-                        <a href="{{ route('web.payment-proofs.reject', $paymentProof) }}" class="btn btn-light-danger">
+                        <a href="{{ route('web.payment-proofs.reject', $paymentProof) }}" class="btn btn-danger">
                             <i class="ki-outline ki-cross-circle fs-2"></i> Tolak
                         </a>
                         <button type="submit" class="btn btn-success" :disabled="!(checkBank && checkAmount && checkCustomer && checkDoc)">
-                            <i class="ki-outline ki-verify fs-2"></i> Setujui & Lunasi Tagihan
+                            <i class="ki-outline ki-verify fs-2"></i> Setujui & Terima Pembayaran
                         </button>
                     </div>
                 </form>
-            </x-card>
-
-            {{-- Evidence Documents --}}
-            <x-card title="Dokumen Bukti Transfer" icon="file-up">
-                <div class="row g-3">
-                    @forelse($paymentProof->paymentDocuments as $doc)
-                        <div class="col-md-12">
-                            <div class="border border-dashed border-gray-300 rounded px-7 py-4 mb-3 d-flex flex-stack bg-light">
-                                <div class="d-flex align-items-center">
-                                    <i class="ki-outline ki-picture fs-2x text-primary me-4"></i>
-                                    <div>
-                                        <a href="{{ route('web.payment-proofs.download-document', [$paymentProof, $doc->id]) }}" target="_blank" class="fs-6 text-gray-800 text-hover-primary fw-bold">{{ $doc->original_filename }}</a>
-                                        <div class="fs-7 text-muted fw-semibold">Ukuran: {{ number_format($doc->file_size / 1024, 2) }} KB</div>
-                                    </div>
-                                </div>
-                                <a href="{{ route('web.payment-proofs.download-document', [$paymentProof, $doc->id]) }}" target="_blank" class="btn btn-sm btn-primary">
-                                    <i class="ki-outline ki-eye fs-3 me-1"></i> Lihat
-                                </a>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-12 py-5 text-center text-muted">Tidak ada lampiran dokumen.</div>
-                    @endforelse
-                </div>
             </x-card>
         </div>
 

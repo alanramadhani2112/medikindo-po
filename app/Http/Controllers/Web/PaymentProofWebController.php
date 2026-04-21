@@ -509,6 +509,36 @@ class PaymentProofWebController extends Controller
     }
 
     /**
+     * View payment document inline (for preview).
+     */
+    public function viewDocument(PaymentProof $paymentProof, $documentId)
+    {
+        $document = $paymentProof->paymentDocuments()->findOrFail($documentId);
+        
+        // Check if user can view this payment proof (which includes document access)
+        $this->authorize('view', $paymentProof);
+
+        try {
+            // Get the file path from storage
+            $filePath = storage_path('app/private/' . $document->file_path);
+            
+            // Check if file exists
+            if (!file_exists($filePath)) {
+                return back()->with('error', 'File tidak ditemukan.');
+            }
+            
+            // Return file with inline disposition (view in browser)
+            return response()->file($filePath, [
+                'Content-Type' => $document->mime_type ?? 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="' . $document->original_filename . '"'
+            ]);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menampilkan dokumen: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Download payment document.
      */
     public function downloadDocument(PaymentProof $paymentProof, $documentId)
@@ -527,6 +557,7 @@ class PaymentProofWebController extends Controller
                 return back()->with('error', 'File tidak ditemukan.');
             }
             
+            // Force download
             return response()->download($filePath, $document->original_filename);
 
         } catch (\Exception $e) {

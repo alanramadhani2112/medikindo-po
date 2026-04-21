@@ -206,6 +206,9 @@ Route::middleware('auth')->group(function () {
             Route::post('/{paymentProof}/documents', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'uploadDocument'])->name('upload-document');
         });
 
+        Route::get('/{paymentProof}/documents/{document}/view', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'viewDocument'])
+            ->name('view-document');
+        
         Route::get('/{paymentProof}/documents/{document}', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'downloadDocument'])
             ->name('download-document');
     });

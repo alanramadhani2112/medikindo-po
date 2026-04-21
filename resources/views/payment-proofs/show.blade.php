@@ -154,18 +154,18 @@
                                                 @if (in_array($doc->mime_type, ['image/jpeg', 'image/png', 'image/jpg']))
                                                     <button type="button" class="btn btn-sm btn-icon btn-light-primary"
                                                             data-bs-toggle="modal" data-bs-target="#imgPreview{{ $doc->id }}"
-                                                            title="Lihat Bukti">
+                                                            title="Lihat Bukti Bayar">
                                                         <i class="ki-outline ki-eye fs-4"></i>
                                                     </button>
                                                 @else
-                                                    <a href="{{ route('web.payment-proofs.download-document', [$proof, $doc->id]) }}"
-                                                       target="_blank" class="btn btn-sm btn-icon btn-light-primary" title="Lihat File">
+                                                    <a href="{{ route('web.payment-proofs.view-document', [$proof, $doc->id]) }}"
+                                                       target="_blank" class="btn btn-sm btn-icon btn-light-primary" title="Lihat Bukti Bayar">
                                                         <i class="ki-outline ki-eye fs-4"></i>
                                                     </a>
                                                 @endif
                                                 {{-- DOWNLOAD --}}
                                                 <a href="{{ route('web.payment-proofs.download-document', [$proof, $doc->id]) }}"
-                                                   class="btn btn-sm btn-icon btn-light-success" title="Download" download>
+                                                   class="btn btn-sm btn-icon btn-light-success" title="Download Bukti Bayar" download>
                                                     <i class="ki-outline ki-cloud-download fs-4"></i>
                                                 </a>
                                             </div>
@@ -183,14 +183,14 @@
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         </div>
                                                         <div class="modal-body text-center p-5">
-                                                            <img src="{{ route('web.payment-proofs.download-document', [$proof, $doc->id]) }}"
+                                                            <img src="{{ route('web.payment-proofs.view-document', [$proof, $doc->id]) }}"
                                                                  alt="{{ $doc->original_filename }}"
                                                                  class="img-fluid rounded shadow" style="max-height: 70vh; object-fit: contain;">
                                                         </div>
                                                         <div class="modal-footer border-0 pt-0 justify-content-center">
                                                             <a href="{{ route('web.payment-proofs.download-document', [$proof, $doc->id]) }}"
                                                                class="btn btn-sm btn-light-success" download>
-                                                                <i class="ki-outline ki-cloud-download fs-4 me-1"></i> Download
+                                                                <i class="ki-outline ki-cloud-download fs-4 me-1"></i> Download Bukti Bayar
                                                             </a>
                                                         </div>
                                                     </div>

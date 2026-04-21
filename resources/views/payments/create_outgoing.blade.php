@@ -131,10 +131,8 @@
                                     <option value="">— Pilih Metode —</option>
                                     <option value="Bank Transfer" @selected(old('payment_method') === 'Bank Transfer')>🏦 Bank Transfer</option>
                                     <option value="Virtual Account" @selected(old('payment_method') === 'Virtual Account')>💳 Virtual Account</option>
-                                    <option value="QRIS"          @selected(old('payment_method') === 'QRIS')>📱 QRIS</option>
-                                    <option value="Giro"          @selected(old('payment_method') === 'Giro')>📄 Giro</option>
-                                    <option value="Cek"           @selected(old('payment_method') === 'Cek')>📝 Cek</option>
-                                    <option value="Cash"          @selected(old('payment_method') === 'Cash')>💵 Cash (Tunai)</option>
+                                    <option value="Giro/Cek" @selected(old('payment_method') === 'Giro/Cek')>📄 Giro/Cek</option>
+                                    <option value="Cash" @selected(old('payment_method') === 'Cash')>💵 Cash (Tunai)</option>
                                 </select>
                                 @error('payment_method')
                                     <div class="invalid-feedback">{{ $message }}</div>
