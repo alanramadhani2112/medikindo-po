@@ -402,6 +402,7 @@
     $subtotal  = (float)($invoice->subtotal_amount ?? 0);
     $discount  = (float)($invoice->discount_amount ?? 0);
     $surcharge = (float)($invoice->surcharge ?? 0);
+    $surchargePercentage = (float)($invoice->surcharge_percentage ?? 0);
     $tax       = (float)($invoice->tax_amount ?? 0);
     $ematerai  = (float)($invoice->ematerai_fee ?? 0);
     $grandTotal = (float)($invoice->total_amount ?? 0);
@@ -434,13 +435,24 @@
                         @if($discount > 0)
                             (Rp {{ number_format($discount, 0, ',', '.') }})
                         @else
-                            Rp 0
+                            —
                         @endif
                     </td>
                 </tr>
                 <tr>
-                    <td>Surcharge</td>
-                    <td class="text-right">Rp {{ number_format($surcharge, 0, ',', '.') }}</td>
+                    <td>
+                        Surcharge
+                        @if($surchargePercentage > 0)
+                            ({{ number_format($surchargePercentage, 2) }}%)
+                        @endif
+                    </td>
+                    <td class="text-right" style="{{ $surcharge > 0 ? 'color: #1B4B7F; font-weight: bold;' : 'color: #999;' }}">
+                        @if($surcharge > 0)
+                            Rp {{ number_format($surcharge, 0, ',', '.') }}
+                        @else
+                            —
+                        @endif
+                    </td>
                 </tr>
                 <tr>
                     <td><strong>Nett</strong></td>

@@ -473,23 +473,25 @@
                                 <span class="text-gray-900 fw-semibold">Rp {{ number_format($invoice->tax_amount, 0, ',', '.') }}</span>
                             </div>
                         @endif
-                        @if(($invoice->surcharge ?? 0) > 0)
-                            <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
-                                <span class="text-gray-600 fs-6">
-                                    Surcharge
-                                    @if(($invoice->surcharge_percentage ?? 0) > 0)
-                                        <span class="badge badge-light-primary ms-1 fs-9">
-                                            {{ number_format($invoice->surcharge_percentage, 2) }}%
-                                        </span>
-                                    @endif
-                                    <span class="ms-1" data-bs-toggle="tooltip"
-                                        title="Biaya tambahan atas metode pembayaran tertentu">
-                                        <i class="ki-outline ki-information-5 fs-8 text-muted"></i>
-                                    </span>
+                        {{-- SURCHARGE — selalu tampil --}}
+                        @php $surchargeVal = (float)($invoice->surcharge ?? 0); $surchargePercentVal = (float)($invoice->surcharge_percentage ?? 0); @endphp
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-gray-600 fs-6">
+                                Surcharge
+                                @if($surchargePercentVal > 0)
+                                    <span class="badge badge-light-primary ms-1 fs-9">{{ number_format($surchargePercentVal, 2) }}%</span>
+                                @endif
+                                <span class="ms-1" data-bs-toggle="tooltip"
+                                    title="Biaya tambahan atas metode pembayaran tertentu. Contoh: 5% × Rp 300.000 = Rp 15.000">
+                                    <i class="ki-outline ki-information-5 fs-8 text-muted"></i>
                                 </span>
-                                <span class="text-primary fw-semibold">Rp {{ number_format($invoice->surcharge, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
+                            </span>
+                            @if($surchargeVal > 0)
+                                <span class="text-primary fw-semibold">Rp {{ number_format($surchargeVal, 0, ',', '.') }}</span>
+                            @else
+                                <span class="text-muted fs-7">—</span>
+                            @endif
+                        </div>
                         @if(($invoice->ematerai_fee ?? 0) > 0)
                             <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
                                 <span class="text-gray-600 fs-6">e-Meterai</span>
