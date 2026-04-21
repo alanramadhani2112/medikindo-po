@@ -20,22 +20,8 @@
                 Tagihan kepada: <span class="text-gray-900 fw-semibold">{{ $invoice->organization?->name ?? '—' }}</span>
             </p>
         </div>
+        {{-- Header: hanya PDF & Kembali --}}
         <div class="d-flex gap-2">
-            @if($invoice->isDraft())
-                @can('create_invoices')
-                    {{-- Tombol Terbitkan → buka modal surcharge --}}
-                    <button type="button" class="btn btn-primary btn-sm"
-                            data-bs-toggle="modal" data-bs-target="#modalTerbitkan">
-                        <i class="ki-outline ki-send fs-4 me-1"></i>Terbitkan
-                    </button>
-                @endcan
-            @endif
-            @if($invoice->status->canAcceptPayment())
-                <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
-                   class="btn btn-success btn-sm">
-                    <i class="ki-outline ki-dollar fs-4 me-1"></i>Tambah Pembayaran
-                </a>
-            @endif
             <button onclick="window.open('{{ route('web.invoices.customer.pdf', $invoice) }}', '_blank')"
                 class="btn btn-light-primary btn-sm">
                 <i class="ki-outline ki-document fs-4 me-1"></i>PDF
@@ -210,6 +196,13 @@
                     <h3 class="card-title text-success fw-bold">
                         <i class="ki-outline ki-bank fs-2 me-2"></i>REKENING TUJUAN TRANSFER
                     </h3>
+                    @if($invoice->isDraft() && isset($receiveBanks) && $receiveBanks->count() > 1)
+                        @can('create_invoices')
+                        <div class="card-toolbar">
+                            <span class="badge badge-light-success fs-9">Dapat diubah sebelum diterbitkan</span>
+                        </div>
+                        @endcan
+                    @endif
                 </div>
                 <div class="card-body">
                     @if($invoice->bankAccount)
@@ -221,21 +214,49 @@
                             </div>
                             <div>
                                 <div class="fw-bold text-gray-900 fs-5">{{ $invoice->bankAccount->bank_name }}</div>
-                                <div class="text-muted fs-7">Bank Tujuan</div>
+                                <div class="text-muted fs-7">
+                                    Bank Penerima Medikindo
+                                    @if($invoice->bankAccount->default_for_receive)
+                                        <span class="badge badge-light-success ms-1 fs-9">Default</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                         <div class="p-3 rounded bg-light-success mb-2">
                             <div class="text-gray-500 fs-8 fw-bold text-uppercase mb-1">Nomor Rekening</div>
                             <div class="fw-bold text-gray-900 fs-4 font-monospace">{{ $invoice->bankAccount->account_number }}</div>
                         </div>
-                        <div class="text-gray-600 fs-7">
+                        <div class="text-gray-600 fs-7 mb-3">
                             <i class="ki-outline ki-profile-user fs-7 me-1"></i>
                             Atas nama: <span class="fw-semibold text-gray-800">{{ $invoice->bankAccount->account_holder_name }}</span>
                         </div>
+                        {{-- Ganti bank (hanya saat Draft) --}}
+                        @if($invoice->isDraft() && isset($receiveBanks) && $receiveBanks->count() > 1)
+                            @can('create_invoices')
+                            <form method="POST" action="{{ route('web.invoices.customer.set-bank', $invoice) }}">
+                                @csrf @method('PATCH')
+                                <select name="bank_account_id" class="form-select form-select-sm form-select-solid mb-2"
+                                    onchange="this.form.submit()">
+                                    @foreach($receiveBanks as $bank)
+                                        <option value="{{ $bank->id }}" {{ $invoice->bank_account_id == $bank->id ? 'selected' : '' }}>
+                                            {{ $bank->bank_name }} — {{ $bank->account_number }}
+                                            @if($bank->default_for_receive) ★ @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                            @endcan
+                        @endif
                     @else
+                        {{-- Tidak ada bank sama sekali di sistem --}}
                         <div class="d-flex flex-column align-items-center justify-content-center h-100 py-5">
                             <i class="ki-outline ki-bank fs-3x text-gray-300 mb-3"></i>
-                            <span class="text-gray-500 fs-7 text-center">Rekening belum ditentukan.<br>Hubungi Medikindo untuk informasi transfer.</span>
+                            <span class="text-gray-500 fs-7 text-center">
+                                Belum ada rekening default.<br>
+                                <a href="{{ route('web.bank-accounts.create') }}" class="text-primary">
+                                    Tambah rekening bank
+                                </a>
+                            </span>
                         </div>
                     @endif
                 </div>
@@ -528,6 +549,43 @@
             @endif
         </div>
     </div>
+
+    {{-- ═══════════════════════════════════════════════════════════
+         ACTION BAR BAWAH
+    ═══════════════════════════════════════════════════════════ --}}
+    @if($invoice->isDraft() || $invoice->status->canAcceptPayment())
+    <div class="card mt-5">
+        <div class="card-body py-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="text-gray-600 fs-7">
+                    @if($invoice->isDraft())
+                        <i class="ki-outline ki-information-5 fs-6 text-warning me-1"></i>
+                        Invoice masih <strong>Draft</strong> — belum dikirim ke RS/Klinik. Terbitkan untuk mulai penagihan.
+                    @elseif($invoice->status->canAcceptPayment())
+                        <i class="ki-outline ki-information-5 fs-6 text-success me-1"></i>
+                        Invoice sudah diterbitkan. Tambah pembayaran saat RS/Klinik melakukan transfer.
+                    @endif
+                </div>
+                <div class="d-flex gap-3">
+                    @if($invoice->status->canAcceptPayment())
+                        <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
+                           class="btn btn-success">
+                            <i class="ki-outline ki-dollar fs-4 me-1"></i>Tambah Pembayaran
+                        </a>
+                    @endif
+                    @if($invoice->isDraft())
+                        @can('create_invoices')
+                            <button type="button" class="btn btn-primary"
+                                    data-bs-toggle="modal" data-bs-target="#modalTerbitkan">
+                                <i class="ki-outline ki-send fs-4 me-1"></i>Terbitkan ke RS/Klinik
+                            </button>
+                        @endcan
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
 </div>
 @endsection
