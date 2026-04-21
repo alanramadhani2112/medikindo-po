@@ -249,10 +249,11 @@ class InvoiceService
             throw new DomainException('Only Finance staff or Super Admin can approve invoice discrepancies.');
         }
 
-        // Status gate
-        if ($invoice->status !== 'pending_approval') {
+        // Status gate - safely extract enum value for comparison and string interpolation
+        $statusValue = $invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status;
+        if ($statusValue !== 'pending_approval') {
             throw new DomainException(
-                "Invoice must be in 'pending_approval' status. Current status: [{$invoice->status}]."
+                "Invoice must be in 'pending_approval' status. Current status: [{$statusValue}]."
             );
         }
 
@@ -333,10 +334,11 @@ class InvoiceService
             throw new DomainException('Only Finance staff or Super Admin can reject invoice discrepancies.');
         }
 
-        // Status gate
-        if ($invoice->status !== 'pending_approval') {
+        // Status gate - safely extract enum value for comparison and string interpolation
+        $statusValue = $invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status;
+        if ($statusValue !== 'pending_approval') {
             throw new DomainException(
-                "Invoice must be in 'pending_approval' status. Current status: [{$invoice->status}]."
+                "Invoice must be in 'pending_approval' status. Current status: [{$statusValue}]."
             );
         }
 
