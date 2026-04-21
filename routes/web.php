@@ -270,14 +270,17 @@ Route::middleware('auth')->group(function () {
 
     // ── Bank Accounts ──────────────────────────────────────────
     Route::prefix('bank-accounts')->name('web.bank-accounts.')->middleware('can:manage_bank_accounts')->group(function () {
-        Route::get('/',                              [\App\Http\Controllers\Web\BankAccountWebController::class, 'index'])->name('index');
-        Route::get('/create',                        [\App\Http\Controllers\Web\BankAccountWebController::class, 'create'])->name('create');
-        Route::post('/',                             [\App\Http\Controllers\Web\BankAccountWebController::class, 'store'])->name('store');
-        Route::get('/{bankAccount}/edit',            [\App\Http\Controllers\Web\BankAccountWebController::class, 'edit'])->name('edit');
-        Route::put('/{bankAccount}',                 [\App\Http\Controllers\Web\BankAccountWebController::class, 'update'])->name('update');
-        Route::delete('/{bankAccount}',              [\App\Http\Controllers\Web\BankAccountWebController::class, 'destroy'])->name('destroy');
-        Route::patch('/{bankAccount}/set-default',   [\App\Http\Controllers\Web\BankAccountWebController::class, 'setDefault'])->name('set-default');
-        Route::patch('/{bankAccount}/toggle-active', [\App\Http\Controllers\Web\BankAccountWebController::class, 'toggleActive'])->name('toggle-active');
+        Route::get('/',                                  [\App\Http\Controllers\Web\BankAccountWebController::class, 'index'])->name('index');
+        Route::get('/create',                            [\App\Http\Controllers\Web\BankAccountWebController::class, 'create'])->name('create');
+        Route::post('/',                                 [\App\Http\Controllers\Web\BankAccountWebController::class, 'store'])->name('store');
+        Route::get('/{bankAccount}/edit',                [\App\Http\Controllers\Web\BankAccountWebController::class, 'edit'])->name('edit');
+        Route::put('/{bankAccount}',                     [\App\Http\Controllers\Web\BankAccountWebController::class, 'update'])->name('update');
+        Route::delete('/{bankAccount}',                  [\App\Http\Controllers\Web\BankAccountWebController::class, 'destroy'])->name('destroy');
+        Route::patch('/{bankAccount}/set-default',       [\App\Http\Controllers\Web\BankAccountWebController::class, 'setDefault'])->name('set-default');
+        Route::patch('/{bankAccount}/set-default-receive', [\App\Http\Controllers\Web\BankAccountWebController::class, 'setDefaultReceive'])->name('set-default-receive');
+        Route::patch('/{bankAccount}/set-default-send',  [\App\Http\Controllers\Web\BankAccountWebController::class, 'setDefaultSend'])->name('set-default-send');
+        Route::patch('/{bankAccount}/toggle-active',     [\App\Http\Controllers\Web\BankAccountWebController::class, 'toggleActive'])->name('toggle-active');
+        Route::get('/{bankAccount}/cashflow',            [\App\Http\Controllers\Web\BankAccountWebController::class, 'cashflow'])->name('cashflow');
     });
 
     // ── Inventory ──────────────────────────────────────────────

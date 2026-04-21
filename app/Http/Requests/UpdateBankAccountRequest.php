@@ -20,6 +20,7 @@ class UpdateBankAccountRequest extends FormRequest
             'bank_code'           => 'nullable|string|max:10',
             'account_number'      => "required|string|max:30|unique:bank_accounts,account_number,{$id}",
             'account_holder_name' => 'required|string|max:100',
+            'account_type'        => 'required|in:receive,send,both',
             'notes'               => 'nullable|string',
         ];
     }

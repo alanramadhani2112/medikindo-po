@@ -150,11 +150,10 @@
                                     <select name="bank_account_id"
                                         class="form-select form-select-solid @error('bank_account_id') is-invalid @enderror">
                                         <option value="">— Pilih Rekening Medikindo —</option>
-                                        @foreach($bankAccounts as $bank)
-                                            <option value="{{ $bank->id }}" @selected(old('bank_account_id') == $bank->id || $bank->is_default)>
+                                        @foreach(\App\Models\BankAccount::forSend()->orderBy('default_for_send','desc')->get() as $bank)
+                                            <option value="{{ $bank->id }}" @selected(old('bank_account_id') == $bank->id || $bank->default_for_send)>
                                                 {{ $bank->bank_name }} — {{ $bank->account_number }}
-                                                ({{ $bank->account_holder_name }})
-                                                @if($bank->is_default) ★ Default @endif
+                                                @if($bank->default_for_send) ★ Default Kirim @endif
                                             </option>
                                         @endforeach
                                     </select>

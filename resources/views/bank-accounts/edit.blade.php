@@ -79,6 +79,26 @@
                             @enderror
                         </div>
 
+                        <div class="mb-5">
+                            <label class="form-label required fw-bold">Tipe Rekening</label>
+                            <select name="account_type"
+                                class="form-select form-select-solid @error('account_type') is-invalid @enderror"
+                                required>
+                                <option value="both"    {{ old('account_type', $bankAccount->account_type) === 'both'    ? 'selected' : '' }}>
+                                    🔄 Masuk & Keluar — bisa terima dari RS dan kirim ke Supplier
+                                </option>
+                                <option value="receive" {{ old('account_type', $bankAccount->account_type) === 'receive' ? 'selected' : '' }}>
+                                    ⬇️ Terima Masuk saja — khusus menerima pembayaran dari RS/Klinik
+                                </option>
+                                <option value="send"    {{ old('account_type', $bankAccount->account_type) === 'send'    ? 'selected' : '' }}>
+                                    ⬆️ Kirim Keluar saja — khusus mengirim pembayaran ke Supplier
+                                </option>
+                            </select>
+                            @error('account_type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="mb-8">
                             <label class="form-label fw-bold">Catatan <span class="text-muted">(Opsional)</span></label>
                             <textarea name="notes" rows="3"
