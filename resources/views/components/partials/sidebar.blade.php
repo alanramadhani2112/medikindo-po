@@ -133,7 +133,7 @@
                     {{-- Payment Out - Coming Soon --}}
                     @can('process_payments')
                         <div class="menu-item">
-                            <span class="menu-link disabled" style="opacity: 0.65; cursor: not-allowed;">
+                            <a class="menu-link {{ request()->routeIs('web.payments.outgoing.soon') ? 'active' : '' }}" href="{{ route('web.payments.outgoing.soon') }}">
                                 <span class="menu-icon">
                                     <i class="ki-outline ki-exit-right fs-2"></i>
                                 </span>
@@ -141,7 +141,7 @@
                                 <span class="menu-badge">
                                     <span class="badge badge-light-primary fw-bold fs-9 px-2 py-1">Soon</span>
                                 </span>
-                            </span>
+                            </a>
                         </div>
                     @endcan
                 @endcan
@@ -267,7 +267,7 @@
                     {{-- Cash Flow - Coming Soon --}}
                     @can('view_payments')
                         <div class="menu-item">
-                            <span class="menu-link disabled" style="opacity: 0.65; cursor: not-allowed;">
+                            <a class="menu-link {{ request()->routeIs('web.cash-flow.*') ? 'active' : '' }}" href="{{ route('web.cash-flow.index') }}">
                                 <span class="menu-icon">
                                     <i class="ki-outline ki-chart-line-up fs-2"></i>
                                 </span>
@@ -275,7 +275,7 @@
                                 <span class="menu-badge">
                                     <span class="badge badge-light-primary fw-bold fs-9 px-2 py-1">Soon</span>
                                 </span>
-                            </span>
+                            </a>
                         </div>
                     @endcan
                 @endcanany

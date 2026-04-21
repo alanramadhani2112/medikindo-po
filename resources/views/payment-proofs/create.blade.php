@@ -6,7 +6,7 @@
         paymentType: '{{ old('payment_type', 'full') }}',
         paymentMethod: '{{ old('payment_method', '') }}',
         outstanding: {{ $invoice ? ($invoice->total_amount - $invoice->paid_amount) : 0 }},
-        partialAmount: '{{ old('amount', '') }}',
+        partialAmount: '',
         invoices: @js($invoices->map(fn($i) => ['id' => $i->id, 'invoice_number' => $i->invoice_number, 'organization_name' => $i->organization->name, 'total_amount' => $i->total_amount, 'paid_amount' => $i->paid_amount, 'outstanding' => $i->total_amount - $i->paid_amount])),
 
         get showBankDropdown() {
@@ -29,6 +29,15 @@
         get isPartialValid() {
             const v = parseFloat(this.partialAmount);
             return v > 0 && v < this.outstanding;
+        },
+
+        init() {
+            if (this.invoiceId && !{{ $invoice ? 'true' : 'false' }}) {
+                const inv = this.invoices.find(i => i.id == this.invoiceId);
+                if (inv) {
+                    this.outstanding = inv.outstanding;
+                }
+            }
         },
 
         selectInvoice() {

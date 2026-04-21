@@ -162,6 +162,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/incoming', [\App\Http\Controllers\Web\PaymentWebController::class, 'storeIncoming'])->name('store.incoming')->middleware('can:process_payments');
         Route::get('/outgoing',  [\App\Http\Controllers\Web\PaymentWebController::class, 'createOutgoing'])->name('create.outgoing');
         Route::post('/outgoing', [\App\Http\Controllers\Web\PaymentWebController::class, 'storeOutgoing'])->name('store.outgoing')->middleware('can:process_payments');
+
+        // Standardized Coming Soon
+        Route::get('/outgoing/soon', fn() => view('payments.outgoing-soon'))->name('outgoing.soon');
     });
 
     // ── Payment Proofs ─────────────────────────────────────────
@@ -284,6 +287,11 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{bankAccount}/set-default-send',  [\App\Http\Controllers\Web\BankAccountWebController::class, 'setDefaultSend'])->name('set-default-send');
         Route::patch('/{bankAccount}/toggle-active',     [\App\Http\Controllers\Web\BankAccountWebController::class, 'toggleActive'])->name('toggle-active');
         Route::get('/{bankAccount}/cashflow',            [\App\Http\Controllers\Web\BankAccountWebController::class, 'cashflow'])->name('cashflow');
+    });
+
+    // ── Cash Flow (Coming Soon) ────────────────────────────────
+    Route::prefix('cash-flow')->name('web.cash-flow.')->middleware('can:view_payments')->group(function () {
+        Route::get('/', fn() => view('cash-flow.coming-soon'))->name('index');
     });
 
     // ── Inventory ──────────────────────────────────────────────

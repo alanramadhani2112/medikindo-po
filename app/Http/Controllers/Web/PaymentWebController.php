@@ -96,6 +96,13 @@ class PaymentWebController extends Controller
     {
         // Prevent seeing others' invoices if Organization User
         $user = $request->user();
+
+        $invoiceId = $request->get('invoice_id');
+        $invoice = null;
+
+        if ($invoiceId) {
+            $invoice = CustomerInvoice::findOrFail($invoiceId);
+        }
         
         $invoices = CustomerInvoice::with(['organization'])
             ->whereIn('status', [
@@ -114,7 +121,7 @@ class PaymentWebController extends Controller
             ['label' => 'Terima Pembayaran']
         ];
             
-        return view('payments.create_incoming', compact('invoices', 'bankAccounts', 'breadcrumbs'));
+        return view('payments.create_incoming', compact('invoice', 'invoices', 'bankAccounts', 'breadcrumbs'));
     }
 
     public function createOutgoing(Request $request)
