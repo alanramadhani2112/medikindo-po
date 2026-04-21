@@ -166,7 +166,7 @@
             <div class="card h-100">
                 <div class="card-header min-h-50px">
                     <h3 class="card-title fw-bold text-gray-800 fs-6">
-                        <i class="ki-outline ki-geolocation fs-4 me-2 text-primary"></i>TAGIHAN KEPADA
+                        <i class="ki-outline ki-geolocation fs-4 me-2 text-primary"></i>Tagihan Kepada
                     </h3>
                 </div>
                 <div class="card-body pt-4">
@@ -200,7 +200,7 @@
             <div class="card h-100">
                 <div class="card-header min-h-50px">
                     <h3 class="card-title fw-bold text-gray-800 fs-6">
-                        <i class="ki-outline ki-bank fs-4 me-2 text-success"></i>REKENING TUJUAN TRANSFER
+                        <i class="ki-outline ki-bank fs-4 me-2 text-success"></i>Rekening Tujuan Transfer
                     </h3>
                 </div>
                 <div class="card-body pt-4">
@@ -226,7 +226,7 @@
                         {{-- Account number --}}
                         <div class="separator mb-4"></div>
                         <div class="mb-1">
-                            <span class="text-gray-500 fs-8 fw-bold text-uppercase">Nomor Rekening</span>
+                            <span class="text-gray-500 fs-8 fw-semibold">Nomor Rekening</span>
                         </div>
                         <div class="fw-bold text-gray-900 fs-3 font-monospace mb-3">
                             {{ $invoice->bankAccount->account_number }}
@@ -325,8 +325,8 @@
             <div class="table-responsive">
                 <table class="table table-row-bordered table-row-gray-200 align-middle gs-0 gy-3 mb-0">
                     <thead class="bg-light">
-                        <tr class="fw-bold text-muted fs-7 text-uppercase">
-                            <th class="ps-5 w-40px">No</th>
+                        <tr class="fw-semibold text-muted fs-7">
+                            <th class="ps-5 w-40px">#</th>
                             <th>Nama Produk</th>
                             <th class="text-center">No. Batch</th>
                             <th class="text-center">Tgl. Kadaluarsa</th>
@@ -428,8 +428,8 @@
                     <div class="table-responsive">
                         <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
                             <thead>
-                                <tr class="fw-bold text-muted bg-light">
-                                    <th class="ps-4 rounded-start">Nomor Ref</th>
+                                <tr class="fw-semibold text-muted bg-light fs-7">
+                                    <th class="ps-4 rounded-start">No. Referensi</th>
                                     <th>Metode</th>
                                     <th class="text-end">Jumlah</th>
                                     <th class="text-end pe-4 rounded-end">Tanggal</th>
@@ -439,13 +439,13 @@
                                 @forelse($invoice->paymentAllocations as $alloc)
                                     <tr>
                                         <td class="ps-4">
-                                            <span class="text-gray-800 fw-bold">
+                                            <span class="text-gray-800 fw-bold fs-7">
                                                 {{ $alloc->payment?->payment_number ?? 'PAY-' . $alloc->id }}
                                             </span>
                                         </td>
                                         <td>
                                             <span class="badge badge-light-secondary">
-                                                {{ strtoupper($alloc->payment?->payment_method ?? '—') }}
+                                                {{ $alloc->payment?->payment_method ?? '—' }}
                                             </span>
                                         </td>
                                         <td class="text-end">
