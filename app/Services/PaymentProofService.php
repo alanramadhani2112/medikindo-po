@@ -34,7 +34,8 @@ class PaymentProofService
     {
         $invoice = CustomerInvoice::findOrFail($data['customer_invoice_id']);
 
-        if ($invoice->status === 'paid') {
+        $statusValue = $invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status;
+        if ($statusValue === 'paid') {
             throw new DomainException('Invoice ini sudah lunas.');
         }
 

@@ -93,9 +93,16 @@ class APVerificationController extends Controller
                 'verified_by' => null,
             ]);
 
+            $errorMessage = $e->getMessage();
+            \Log::error('APVerificationController: Verification failed', [
+                'invoice_id' => $invoice->id,
+                'error' => $errorMessage,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return redirect()
                 ->route('web.invoices.supplier.show', $invoice)
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan: ' . $errorMessage);
         }
     }
 }
