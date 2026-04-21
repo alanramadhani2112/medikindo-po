@@ -48,9 +48,13 @@ class PaymentService
                 'organization_id' => $invoice->organization_id,
                 'amount'          => $amount,
                 'payment_date'    => $data['payment_date'] ?? now(),
-                'payment_method'  => $data['payment_method'] ?? 'Transfer',
+                'payment_method'  => $data['payment_method'] ?? 'Bank Transfer',
+                'bank_account_id' => $data['bank_account_id'] ?? null,
+                'bank_name_manual'=> $data['bank_name_manual'] ?? null,
                 'reference'       => $data['reference'] ?? null,
                 'description'     => $data['description'] ?? "Pembayaran Invoice {$invoice->invoice_number}",
+                'surcharge_amount'    => $data['surcharge_amount'] ?? 0,
+                'surcharge_percentage'=> $data['surcharge_percentage'] ?? 0,
                 'status'          => 'completed',
             ]);
 
@@ -138,9 +142,13 @@ class PaymentService
                 'supplier_id'     => $invoice->supplier_id,
                 'amount'          => $amount,
                 'payment_date'    => $data['payment_date'] ?? now(),
-                'payment_method'  => $data['payment_method'] ?? 'Transfer',
+                'payment_method'  => $data['payment_method'] ?? 'Bank Transfer',
+                'bank_account_id' => $data['bank_account_id'] ?? null,
+                'bank_name_manual'=> $data['bank_name_manual'] ?? null,
                 'reference'       => $data['reference'] ?? null,
                 'description'     => $data['description'] ?? "Pembayaran ke Supplier Invoice {$invoice->invoice_number}",
+                'surcharge_amount'    => $data['surcharge_amount'] ?? 0,
+                'surcharge_percentage'=> $data['surcharge_percentage'] ?? 0,
                 'status'          => 'completed',
             ]);
 

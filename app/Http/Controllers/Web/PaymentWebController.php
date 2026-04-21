@@ -105,6 +105,8 @@ class PaymentWebController extends Controller
             ->whereRaw('paid_amount < total_amount')
             ->when(! $user->hasRole('Super Admin'), fn($q) => $q->where('organization_id', $user->organization_id))
             ->get();
+
+        $bankAccounts = \App\Models\BankAccount::active()->orderBy('is_default', 'desc')->get();
             
         $breadcrumbs = [
             ['label' => 'Finance', 'url' => 'javascript:void(0)'],
@@ -112,7 +114,7 @@ class PaymentWebController extends Controller
             ['label' => 'Terima Pembayaran']
         ];
             
-        return view('payments.create_incoming', compact('invoices', 'breadcrumbs'));
+        return view('payments.create_incoming', compact('invoices', 'bankAccounts', 'breadcrumbs'));
     }
 
     public function createOutgoing(Request $request)
@@ -125,6 +127,8 @@ class PaymentWebController extends Controller
             ])
             ->whereRaw('paid_amount < total_amount')
             ->get();
+
+        $bankAccounts = \App\Models\BankAccount::active()->orderBy('is_default', 'desc')->get();
             
         $breadcrumbs = [
             ['label' => 'Finance', 'url' => 'javascript:void(0)'],
@@ -132,7 +136,7 @@ class PaymentWebController extends Controller
             ['label' => 'Kirim Pembayaran']
         ];
             
-        return view('payments.create_outgoing', compact('invoices', 'breadcrumbs'));
+        return view('payments.create_outgoing', compact('invoices', 'bankAccounts', 'breadcrumbs'));
     }
 
     public function storeIncoming(StoreIncomingPaymentRequest $request)

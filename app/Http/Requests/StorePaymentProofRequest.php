@@ -20,6 +20,9 @@ class StorePaymentProofRequest extends FormRequest
             'payment_type'        => 'required|in:full,partial',
             'amount'              => 'required|numeric|min:0.01',
             'payment_date'        => 'required|date|before_or_equal:today',
+            'payment_method'      => 'required|string|in:Bank Transfer,Cash,Virtual Account,Giro,Cek,QRIS',
+            'bank_account_id'     => 'nullable|exists:bank_accounts,id',
+            'sender_bank_name'    => 'nullable|string|max:100',
             'bank_reference'      => 'nullable|string|max:100',
             'notes'               => 'nullable|string|max:500',
             'file'                => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB
@@ -78,6 +81,8 @@ class StorePaymentProofRequest extends FormRequest
             'amount.min'                   => 'Nominal pembayaran minimal Rp 1.',
             'payment_date.required'        => 'Tanggal pembayaran wajib diisi.',
             'payment_date.before_or_equal' => 'Tanggal pembayaran tidak boleh di masa depan.',
+            'payment_method.required'      => 'Metode pembayaran wajib dipilih.',
+            'payment_method.in'            => 'Metode pembayaran tidak valid.',
             'file.required'                => 'Bukti transfer wajib diunggah.',
             'file.mimes'                   => 'File bukti harus berformat JPG, PNG, atau PDF.',
             'file.max'                     => 'Ukuran file maksimal 5MB.',

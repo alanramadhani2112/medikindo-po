@@ -16,8 +16,10 @@ class Payment extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'payment_date' => 'date',
-        'amount'       => 'decimal:2',
+        'payment_date'         => 'date',
+        'amount'               => 'decimal:2',
+        'surcharge_amount'     => 'decimal:2',
+        'surcharge_percentage' => 'decimal:2',
     ];
 
     public function organization(): BelongsTo
@@ -30,8 +32,37 @@ class Payment extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function bankAccount(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\BankAccount::class);
+    }
+
     public function allocations(): HasMany
     {
         return $this->hasMany(PaymentAllocation::class);
+    }
+
+    /**
+     * Total amount including surcharge
+     */
+    public function getTotalWithSurchargeAttribute(): float
+    {
+        return (float) $this->amount + (float) $this->surcharge_amount;
+    }
+
+    /**
+     * Human-readable payment method label
+     */
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return match ($this->payment_method) {
+            'Bank Transfer'   => 'Transfer Bank',
+            'Cash'            => 'Tunai',
+            'Virtual Account' => 'Virtual Account',
+            'Giro'            => 'Giro',
+            'Cek'             => 'Cek',
+            'QRIS'            => 'QRIS',
+            default           => $this->payment_method ?? '-',
+        };
     }
 }

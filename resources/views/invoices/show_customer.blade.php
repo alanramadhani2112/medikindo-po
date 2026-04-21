@@ -387,7 +387,13 @@
                             @if (($invoice->surcharge ?? 0) > 0)
                                 <div
                                     class="d-flex justify-content-between align-items-center py-2 border-bottom border-gray-200">
-                                    <span class="text-gray-600 fs-6">Surcharge</span>
+                                    <span class="text-gray-600 fs-6">
+                                        Surcharge
+                                        <span class="ms-1" data-bs-toggle="tooltip"
+                                            title="Biaya tambahan atas metode pembayaran tertentu">
+                                            <i class="ki-outline ki-information-5 fs-8 text-muted"></i>
+                                        </span>
+                                    </span>
                                     <span class="text-primary fw-semibold">Rp
                                         {{ number_format($invoice->surcharge, 0, ',', '.') }}</span>
                                 </div>

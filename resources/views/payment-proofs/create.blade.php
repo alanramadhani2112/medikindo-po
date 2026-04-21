@@ -4,9 +4,18 @@
     <div class="row g-5 g-xl-10" x-data="{
         invoiceId: '{{ $invoice->id ?? '' }}',
         paymentType: 'full',
+        paymentMethod: 'Bank Transfer',
         outstanding: {{ $invoice ? ($invoice->total_amount - $invoice->paid_amount) : 0 }},
         partialAmount: '',
         invoices: @js($invoices->map(fn($i) => ['id' => $i->id, 'invoice_number' => $i->invoice_number, 'organization_name' => $i->organization->name, 'total_amount' => $i->total_amount, 'paid_amount' => $i->paid_amount, 'outstanding' => $i->total_amount - $i->paid_amount])),
+
+        get showBankFields() {
+            return ['Bank Transfer', 'Virtual Account', 'Giro', 'Cek'].includes(this.paymentMethod);
+        },
+
+        onMethodChange() {
+            // reactive — showBankFields computed automatically
+        },
 
         get amount() {
             if (this.paymentType === 'full') return this.outstanding;
@@ -163,10 +172,69 @@
                             @enderror
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Referensi Bank / No. Reff</label>
+                            <label class="required form-label fw-bold">Metode Pembayaran</label>
+                            <select name="payment_method" class="form-select form-select-solid"
+                                    x-model="paymentMethod" @change="onMethodChange()" required>
+                                <option value="">— Pilih Metode —</option>
+                                <option value="Bank Transfer">🏦 Bank Transfer</option>
+                                <option value="Virtual Account">💳 Virtual Account</option>
+                                <option value="QRIS">📱 QRIS</option>
+                                <option value="Giro">📄 Giro</option>
+                                <option value="Cek">📝 Cek</option>
+                                <option value="Cash">💵 Cash (Tunai)</option>
+                            </select>
+                            @error('payment_method')
+                                <div class="text-danger fs-7 mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Bank Details (shown when method requires bank) --}}
+                    <div class="row mb-8" x-show="showBankFields" x-cloak>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Bank Tujuan Transfer (Medikindo)</label>
+                            @if($invoice && $invoice->bankAccount)
+                                {{-- Pre-filled from invoice --}}
+                                <input type="hidden" name="bank_account_id" value="{{ $invoice->bankAccount->id }}">
+                                <div class="form-control form-control-solid bg-light-success text-success fw-bold">
+                                    {{ $invoice->bankAccount->bank_name }} — {{ $invoice->bankAccount->account_number }}
+                                </div>
+                                <div class="form-text text-success">
+                                    <i class="ki-outline ki-check-circle fs-7"></i>
+                                    Otomatis dari invoice
+                                </div>
+                            @else
+                                <select name="bank_account_id" class="form-select form-select-solid">
+                                    <option value="">— Pilih Rekening Medikindo —</option>
+                                    @foreach(\App\Models\BankAccount::active()->orderBy('is_default','desc')->get() as $bank)
+                                        <option value="{{ $bank->id }}" {{ $bank->is_default ? 'selected' : '' }}>
+                                            {{ $bank->bank_name }} — {{ $bank->account_number }}
+                                            @if($bank->is_default) ★ @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @endif
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Bank Pengirim (RS/Klinik)</label>
+                            <input type="text" name="sender_bank_name" class="form-control form-control-solid"
+                                   placeholder="Mis. BCA, Mandiri, BNI..."
+                                   value="{{ old('sender_bank_name') }}">
+                            <div class="form-text text-muted">Bank yang digunakan untuk transfer</div>
+                        </div>
+                    </div>
+
+                    {{-- Reference Number --}}
+                    <div class="row mb-8">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">No. Referensi / No. Bukti Transfer</label>
                             <input type="text" name="bank_reference" class="form-control form-control-solid"
                                    placeholder="Contoh: TRX-12345678"
                                    value="{{ old('bank_reference') }}">
+                            <div class="form-text text-muted">Nomor dari slip transfer / bukti pembayaran</div>
+                        </div>
+                        <div class="col-md-6">
+                            {{-- placeholder for layout --}}
                         </div>
                     </div>
 

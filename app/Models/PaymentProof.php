@@ -16,6 +16,9 @@ class PaymentProof extends Model
         'amount',
         'payment_type',
         'payment_date',
+        'payment_method',
+        'bank_account_id',
+        'sender_bank_name',
         'bank_reference',
         'notes',
         'status',
@@ -44,6 +47,11 @@ class PaymentProof extends Model
     public function customerInvoice(): BelongsTo
     {
         return $this->belongsTo(CustomerInvoice::class);
+    }
+
+    public function bankAccount(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\BankAccount::class);
     }
 
     public function submittedBy(): BelongsTo

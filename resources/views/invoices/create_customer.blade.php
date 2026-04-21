@@ -142,7 +142,13 @@
                             <input type="date" name="due_date" class="form-control form-control-solid" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold fs-6 mb-2">Surcharge (Biaya Tambahan)</label>
+                            <label class="form-label fw-semibold fs-6 mb-2">
+                                Surcharge
+                                <span class="ms-1" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="Surcharge adalah biaya tambahan di atas harga dasar, misalnya biaya metode pembayaran tertentu. Contoh: surcharge 5% pada transaksi Rp 300.000 = Rp 15.000 tambahan.">
+                                    <i class="ki-outline ki-information-5 fs-6 text-muted"></i>
+                                </span>
+                            </label>
                             <div class="input-group input-group-solid">
                                 <span class="input-group-text">Rp</span>
                                 <input type="number" 
@@ -155,7 +161,7 @@
                                        max="999999999999"
                                        step="1">
                             </div>
-                            <div class="form-text">Maksimal: Rp 999.999.999.999 (999 miliar)</div>
+                            <div class="form-text text-muted">Biaya tambahan atas metode pembayaran tertentu</div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold fs-6 mb-2">Nomor Invoice (Opsional)</label>

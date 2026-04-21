@@ -130,13 +130,16 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold required">Metode Pembayaran</label>
-                                <select name="payment_method"
-                                    class="form-select form-select-solid @error('payment_method') is-invalid @enderror" required>
-                                    <option value="Bank Transfer" @selected(old('payment_method') === 'Bank Transfer')>Bank Transfer</option>
-                                    <option value="Cash"          @selected(old('payment_method') === 'Cash')>Cash (Tunai)</option>
-                                    <option value="Virtual Account" @selected(old('payment_method') === 'Virtual Account')>Virtual Account</option>
-                                    <option value="Giro"          @selected(old('payment_method') === 'Giro')>Giro</option>
-                                    <option value="Cek"           @selected(old('payment_method') === 'Cek')>Cek</option>
+                                <select name="payment_method" id="paymentMethodSelect"
+                                    class="form-select form-select-solid @error('payment_method') is-invalid @enderror"
+                                    onchange="onMethodChange(this)" required>
+                                    <option value="">— Pilih Metode —</option>
+                                    <option value="Bank Transfer" @selected(old('payment_method') === 'Bank Transfer')>🏦 Bank Transfer</option>
+                                    <option value="Virtual Account" @selected(old('payment_method') === 'Virtual Account')>💳 Virtual Account</option>
+                                    <option value="QRIS"          @selected(old('payment_method') === 'QRIS')>📱 QRIS</option>
+                                    <option value="Giro"          @selected(old('payment_method') === 'Giro')>📄 Giro</option>
+                                    <option value="Cek"           @selected(old('payment_method') === 'Cek')>📝 Cek</option>
+                                    <option value="Cash"          @selected(old('payment_method') === 'Cash')>💵 Cash (Tunai)</option>
                                 </select>
                                 @error('payment_method')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -144,12 +147,42 @@
                             </div>
                         </div>
 
+                        {{-- Bank Selection (shown when method = Bank Transfer / VA / Giro / Cek) --}}
+                        <div id="bankSection" class="mb-6 d-none">
+                            <div class="row g-5">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Bank Penerima (Medikindo)</label>
+                                    <select name="bank_account_id"
+                                        class="form-select form-select-solid @error('bank_account_id') is-invalid @enderror">
+                                        <option value="">— Pilih Rekening Medikindo —</option>
+                                        @foreach($bankAccounts as $bank)
+                                            <option value="{{ $bank->id }}" @selected(old('bank_account_id') == $bank->id || $bank->is_default)>
+                                                {{ $bank->bank_name }} — {{ $bank->account_number }}
+                                                ({{ $bank->account_holder_name }})
+                                                @if($bank->is_default) ★ Default @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="form-text text-muted">Rekening Medikindo yang menerima transfer</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Bank Pengirim (RS/Klinik)</label>
+                                    <input type="text" name="bank_name_manual"
+                                        class="form-control form-control-solid"
+                                        placeholder="Mis. BCA, Mandiri, BNI..."
+                                        value="{{ old('bank_name_manual') }}">
+                                    <div class="form-text text-muted">Bank yang digunakan RS/Klinik untuk transfer</div>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Reference --}}
                         <div class="mb-6">
                             <label class="form-label fw-bold">Nomor Referensi <span class="text-muted">(Opsional)</span></label>
-                            <input type="text" name="reference" placeholder="Mis. TRF-20260421-001"
+                            <input type="text" name="reference" placeholder="Mis. TRF-20260421-001 / No. Bukti Transfer"
                                 class="form-control form-control-solid @error('reference') is-invalid @enderror"
                                 value="{{ old('reference') }}">
+                            <div class="form-text text-muted">Nomor referensi dari bukti transfer / slip pembayaran</div>
                             @error('reference')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -251,6 +284,16 @@
 
     function formatRupiah(amount) {
         return 'Rp ' + parseInt(amount).toLocaleString('id-ID');
+    }
+
+    function onMethodChange(select) {
+        const bankMethods = ['Bank Transfer', 'Virtual Account', 'Giro', 'Cek'];
+        const bankSection = document.getElementById('bankSection');
+        if (bankMethods.includes(select.value)) {
+            bankSection.classList.remove('d-none');
+        } else {
+            bankSection.classList.add('d-none');
+        }
     }
 
     function onInvoiceChange(select) {

@@ -138,7 +138,12 @@
                         </div>
                         @if($inv->surcharge > 0)
                         <div class="d-flex flex-stack mb-2 text-primary">
-                            <span class="fs-8 fw-bold">Surcharge:</span>
+                            <span class="fs-8 fw-bold">
+                                Surcharge
+                                <span data-bs-toggle="tooltip" title="Biaya tambahan atas metode pembayaran tertentu">
+                                    <i class="ki-outline ki-information-5 fs-9 text-muted"></i>
+                                </span>:
+                            </span>
                             <span class="fs-7 fw-bold">Rp {{ number_format($inv->surcharge, 0, ',', '.') }}</span>
                         </div>
                         @endif
