@@ -30,11 +30,12 @@ class PurchaseOrderWebController extends Controller
         // Tab filtering
         if ($tab !== 'all') {
             $statusMap = [
-                'draft' => PurchaseOrder::STATUS_DRAFT,
-                'submitted' => PurchaseOrder::STATUS_SUBMITTED,
-                'approved' => PurchaseOrder::STATUS_APPROVED,
-                'rejected' => PurchaseOrder::STATUS_REJECTED,
-                'completed' => PurchaseOrder::STATUS_COMPLETED,
+                'draft'              => PurchaseOrder::STATUS_DRAFT,
+                'submitted'          => PurchaseOrder::STATUS_SUBMITTED,
+                'approved'           => PurchaseOrder::STATUS_APPROVED,
+                'partially_received' => PurchaseOrder::STATUS_PARTIALLY_RECEIVED,
+                'rejected'           => PurchaseOrder::STATUS_REJECTED,
+                'completed'          => PurchaseOrder::STATUS_COMPLETED,
             ];
 
             if (isset($statusMap[$tab])) {
@@ -58,12 +59,13 @@ class PurchaseOrderWebController extends Controller
         }
 
         $counts = [
-            'all'       => (clone $countsQuery)->count(),
-            'draft'     => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_DRAFT)->count(),
-            'submitted' => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_SUBMITTED)->count(),
-            'approved'  => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_APPROVED)->count(),
-            'rejected'  => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_REJECTED)->count(),
-            'completed' => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_COMPLETED)->count(),
+            'all'                => (clone $countsQuery)->count(),
+            'draft'              => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_DRAFT)->count(),
+            'submitted'          => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_SUBMITTED)->count(),
+            'approved'           => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_APPROVED)->count(),
+            'partially_received' => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_PARTIALLY_RECEIVED)->count(),
+            'rejected'           => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_REJECTED)->count(),
+            'completed'          => (clone $countsQuery)->where('status', PurchaseOrder::STATUS_COMPLETED)->count(),
         ];
 
         $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();

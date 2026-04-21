@@ -38,7 +38,7 @@ class MirrorGenerationService
     public function draftExists(int $supplierInvoiceId): bool
     {
         return CustomerInvoice::where('supplier_invoice_id', $supplierInvoiceId)
-            ->whereNotIn('status', [\App\Enums\CustomerInvoiceStatus::VOID])
+            ->whereNotIn('status', [\App\Enums\CustomerInvoiceStatus::VOID->value])
             ->exists();
     }
 
@@ -55,7 +55,7 @@ class MirrorGenerationService
      *         - Get tax rate from TaxConfiguration
      *         - Calculate DPP = selling_price * qty
      *         - Calculate tax = floor(DPP * rate / 100)
-     *         - Copy batch_number, expiry_date, quantity, uom from AP
+     *         - Copy batch_no, expiry_date, quantity, uom from AP
      *         - Save supplier_invoice_item_id (Mirror Link) and cost_price
      *      c. Calculate grand total via InvoiceCalculationService::calculateGrandTotal()
      *      d. Update CustomerInvoice header with totals
@@ -144,7 +144,7 @@ class MirrorGenerationService
                     'tax_rate'                 => $taxRate,
                     'tax_amount'               => $taxAmount,
                     'line_total'               => $lineTotal,
-                    'batch_number'             => $apLine->batch_number,  // copy identically
+                    'batch_no'                 => $apLine->batch_no,  // copy identically
                     'expiry_date'              => $apLine->expiry_date,   // copy identically
                     'uom'                      => $apLine->uom ?? null,
                 ]);

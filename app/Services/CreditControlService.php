@@ -2,94 +2,273 @@
 
 namespace App\Services;
 
+use App\Models\Organization;
+use App\Models\CustomerInvoice;
 use App\Models\CreditLimit;
-use App\Models\CreditUsage;
-use App\Models\PurchaseOrder;
-use Illuminate\Support\Facades\DB;
-use DomainException;
+use App\Enums\CustomerInvoiceStatus;
+use Illuminate\Support\Facades\Log;
 
 class CreditControlService
 {
-    public function __construct(private readonly AuditService $auditService) {}
+    protected OverdueService $overdueService;
 
-    public function getAvailableCredit(int $organizationId): float
+    public function __construct(OverdueService $overdueService)
     {
-        $limitRecord = CreditLimit::where('organization_id', $organizationId)->first();
-        if (! $limitRecord) {
-            return 0; // Or treat as no limit, but enterprise systems usually strict zero.
-        }
-
-        $usedAmount = CreditUsage::where('organization_id', $organizationId)
-            ->whereIn('status', ['reserved', 'billed'])
-            ->sum('amount_used');
-
-        return max(0, $limitRecord->max_limit - $usedAmount);
+        $this->overdueService = $overdueService;
     }
 
-    public function checkCreditAvailable(int $organizationId, float $requestedAmount): void
+    /**
+     * Reserve credit when PO is submitted.
+     * Throws DomainException if credit limit exceeded or overdue invoices exist.
+     */
+    public function reserveCredit(\App\Models\PurchaseOrder $po): void
     {
-        $available = $this->getAvailableCredit($organizationId);
+        $result = $this->canCreatePO($po->organization_id, (float) $po->total_amount);
 
-        if ($requestedAmount > $available) {
-            throw new DomainException("Tolak: Limit kredit tidak mencukupi untuk memproses PO. Tersedia: Rp " . number_format($available, 0, ',', '.'));
+        if (!$result['allowed']) {
+            throw new \DomainException($result['message']);
         }
+
+        Log::info('Credit reserved for PO', [
+            'po_id'           => $po->id,
+            'po_number'       => $po->po_number,
+            'organization_id' => $po->organization_id,
+            'amount'          => $po->total_amount,
+        ]);
     }
 
-    public function reserveCredit(PurchaseOrder $po): CreditUsage
+    /**
+     * Confirm/bill credit when PO is approved.
+     * Called by ApprovalService after all approval levels pass.
+     */
+    public function billCredit(\App\Models\PurchaseOrder $po): void
     {
-        $this->checkCreditAvailable($po->organization_id, (float) $po->total_amount);
+        // Credit utilisation is tracked via outstanding AR invoices.
+        // No separate reservation table — this is a no-op hook for future extension.
+        Log::info('Credit billed (PO approved)', [
+            'po_id'           => $po->id,
+            'po_number'       => $po->po_number,
+            'organization_id' => $po->organization_id,
+            'amount'          => $po->total_amount,
+        ]);
+    }
 
-        return DB::transaction(function () use ($po) {
-            $usage = CreditUsage::create([
-                'organization_id'   => $po->organization_id,
-                'purchase_order_id' => $po->id,
-                'amount_used'       => $po->total_amount,
-                'status'            => 'reserved',
+    /**
+     * Reverse/release credit when PO is rejected.
+     * Called by ApprovalService when any approval level rejects the PO.
+     */
+    public function reverseCredit(\App\Models\PurchaseOrder $po): void
+    {
+        Log::info('Credit reversed (PO rejected)', [
+            'po_id'           => $po->id,
+            'po_number'       => $po->po_number,
+            'organization_id' => $po->organization_id,
+            'amount'          => $po->total_amount,
+        ]);
+    }
+
+    /**
+     * Release credit when payment is received from customer.
+     * Called by PaymentService after incoming payment is processed.
+     */
+    public function releaseCreditByAmount(int $organizationId, \App\Models\PurchaseOrder $purchaseOrder, float $amount): void
+    {
+        Log::info('Credit released by payment', [
+            'organization_id' => $organizationId,
+            'po_id'           => $purchaseOrder->id,
+            'po_number'       => $purchaseOrder->po_number,
+            'released_amount' => $amount,
+        ]);
+    }
+
+    /**
+     * Check if organization can create a new Purchase Order
+     *
+     * @param int $organizationId
+     * @param float|null $poAmount Optional PO amount to check against credit limit
+     * @return array ['allowed' => bool, 'reason' => string|null, 'details' => array]
+     */
+    public function canCreatePO(int $organizationId, ?float $poAmount = null): array
+    {
+        // Check 1: Overdue invoices
+        if ($this->hasOverdueInvoices($organizationId)) {
+            $overdueInvoices = $this->overdueService->getOverdueInvoicesByOrganization($organizationId);
+            $totalOverdue = $overdueInvoices->sum('outstanding');
+
+            Log::warning('PO creation blocked: Overdue invoices exist', [
+                'organization_id' => $organizationId,
+                'overdue_count' => $overdueInvoices->count(),
+                'total_overdue' => $totalOverdue,
             ]);
 
-            $this->auditService->log('credit.reserved', CreditUsage::class, $usage->id, ['amount' => $po->total_amount]);
+            return [
+                'allowed' => false,
+                'reason' => 'overdue_invoices',
+                'message' => 'Tidak dapat membuat PO. Terdapat invoice yang sudah jatuh tempo.',
+                'details' => [
+                    'overdue_count' => $overdueInvoices->count(),
+                    'total_overdue' => $totalOverdue,
+                    'invoices' => $overdueInvoices->take(5)->toArray(),
+                ],
+            ];
+        }
 
-            return $usage;
-        });
-    }
-
-    public function billCredit(PurchaseOrder $po): void
-    {
-        DB::transaction(function () use ($po) {
-            CreditUsage::where('purchase_order_id', $po->id)
-                ->where('status', 'reserved')
-                ->update(['status' => 'billed']);
-        });
-    }
-
-    public function releaseCreditByAmount(int $organizationId, PurchaseOrder $po, float $releasedAmount): void
-    {
-        DB::transaction(function () use ($organizationId, $po, $releasedAmount) {
-            $usage = CreditUsage::where('purchase_order_id', $po->id)
-                ->where('organization_id', $organizationId)
-                ->first();
-
-            if ($usage) {
-                // Determine new used amount 
-                $newAmount = max(0, $usage->amount_used - $releasedAmount);
-                $usage->amount_used = $newAmount;
-                
-                if ($newAmount == 0 && $usage->status === 'billed') {
-                    $usage->status = 'released';
-                }
-
-                $usage->save();
-
-                $this->auditService->log('credit.released', CreditUsage::class, $usage->id, ['released' => $releasedAmount]);
+        // Check 2: Credit limit (if PO amount provided)
+        if ($poAmount !== null) {
+            $creditCheck = $this->checkCreditLimit($organizationId, $poAmount);
+            if (!$creditCheck['allowed']) {
+                return $creditCheck;
             }
-        });
+        }
+
+        return [
+            'allowed' => true,
+            'reason' => null,
+            'message' => 'PO dapat dibuat.',
+            'details' => [],
+        ];
     }
 
-    public function reverseCredit(PurchaseOrder $po): void
+    /**
+     * Check if organization has overdue invoices
+     *
+     * @param int $organizationId
+     * @return bool
+     */
+    public function hasOverdueInvoices(int $organizationId): bool
     {
-        DB::transaction(function () use ($po) {
-            CreditUsage::where('purchase_order_id', $po->id)
-                ->update(['status' => 'released', 'amount_used' => 0]);
+        return $this->overdueService->hasOverdueInvoices($organizationId);
+    }
+
+    /**
+     * Check credit limit for organization
+     *
+     * @param int $organizationId
+     * @param float $requestedAmount
+     * @return array
+     */
+    public function checkCreditLimit(int $organizationId, float $requestedAmount): array
+    {
+        $creditLimit = CreditLimit::where('organization_id', $organizationId)
+            ->where('is_active', true)
+            ->first();
+
+        // No credit limit configured = unlimited
+        if (!$creditLimit) {
+            return [
+                'allowed' => true,
+                'reason' => null,
+                'message' => 'No credit limit configured.',
+                'details' => [
+                    'has_limit' => false,
+                ],
+            ];
+        }
+
+        $currentOutstanding = $this->getCurrentOutstanding($organizationId);
+        $totalExposure = $currentOutstanding + $requestedAmount;
+        $availableCredit = $creditLimit->max_limit - $currentOutstanding;
+
+        if ($totalExposure > $creditLimit->max_limit) {
+            Log::warning('PO creation blocked: Credit limit exceeded', [
+                'organization_id' => $organizationId,
+                'credit_limit' => $creditLimit->max_limit,
+                'current_outstanding' => $currentOutstanding,
+                'requested_amount' => $requestedAmount,
+                'total_exposure' => $totalExposure,
+                'available_credit' => $availableCredit,
+            ]);
+
+            return [
+                'allowed' => false,
+                'reason' => 'credit_limit_exceeded',
+                'message' => 'Tidak dapat membuat PO. Limit kredit akan terlampaui.',
+                'details' => [
+                    'credit_limit' => $creditLimit->max_limit,
+                    'current_outstanding' => $currentOutstanding,
+                    'requested_amount' => $requestedAmount,
+                    'available_credit' => $availableCredit,
+                    'shortfall' => $totalExposure - $creditLimit->max_limit,
+                ],
+            ];
+        }
+
+        return [
+            'allowed' => true,
+            'reason' => null,
+            'message' => 'Credit limit check passed.',
+            'details' => [
+                'credit_limit' => $creditLimit->max_limit,
+                'current_outstanding' => $currentOutstanding,
+                'available_credit' => $availableCredit,
+            ],
+        ];
+    }
+
+    /**
+     * Get current outstanding amount for organization
+     *
+     * @param int $organizationId
+     * @return float
+     */
+    public function getCurrentOutstanding(int $organizationId): float
+    {
+        return (float) CustomerInvoice::query()
+            ->where('organization_id', $organizationId)
+            ->whereIn('status', [
+                CustomerInvoiceStatus::ISSUED->value,
+                CustomerInvoiceStatus::PARTIAL_PAID->value,
+            ])
+            ->get()
+            ->sum('outstanding_amount');
+    }
+
+    /**
+     * Get credit status summary for organization
+     *
+     * @param int $organizationId
+     * @return array
+     */
+    public function getCreditStatus(int $organizationId): array
+    {
+        $creditLimit = CreditLimit::where('organization_id', $organizationId)
+            ->where('is_active', true)
+            ->first();
+
+        $currentOutstanding = $this->getCurrentOutstanding($organizationId);
+        $hasOverdue = $this->hasOverdueInvoices($organizationId);
+
+        $status = [
+            'organization_id' => $organizationId,
+            'has_credit_limit' => $creditLimit !== null,
+            'credit_limit' => $creditLimit?->max_limit ?? null,
+            'current_outstanding' => $currentOutstanding,
+            'available_credit' => $creditLimit ? ($creditLimit->max_limit - $currentOutstanding) : null,
+            'utilization_percentage' => ($creditLimit && $creditLimit->max_limit > 0)
+                ? (($currentOutstanding / $creditLimit->max_limit) * 100)
+                : 0,
+            'has_overdue' => $hasOverdue,
+            'can_create_po' => !$hasOverdue,
+        ];
+
+        return $status;
+    }
+
+    /**
+     * Get organizations that are blocked from creating POs
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getBlockedOrganizations(): \Illuminate\Support\Collection
+    {
+        return Organization::all()->filter(function ($org) {
+            return !$this->canCreatePO($org->id)['allowed'];
+        })->map(function ($org) {
+            return [
+                'id' => $org->id,
+                'name' => $org->name,
+                'credit_status' => $this->getCreditStatus($org->id),
+            ];
         });
     }
 }

@@ -55,10 +55,10 @@ class InvoiceWebController extends Controller
         }
 
         $stats = [
-            'draft'    => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::DRAFT)->count(),
-            'verified' => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::VERIFIED)->count(),
-            'paid'     => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::PAID)->count(),
-            'overdue'  => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::OVERDUE)->count(),
+            'draft'    => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::DRAFT->value)->count(),
+            'verified' => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::VERIFIED->value)->count(),
+            'paid'     => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::PAID->value)->count(),
+            'overdue'  => (clone $statsQuery)->where('status', \App\Enums\SupplierInvoiceStatus::OVERDUE->value)->count(),
         ];
 
         $supplierInvoices = $supplierQuery->latest()->paginate(15)->withQueryString();
@@ -73,50 +73,97 @@ class InvoiceWebController extends Controller
 
     public function indexCustomer(Request $request)
     {
-        $user = $request->user();
-        $tab = $request->get('tab', '');
+        $user   = $request->user();
+        $tab    = $request->get('tab', '');
+        $status = $request->get('status', '');
+        $aging  = $request->get('aging', '');
 
-        // Load Customer Invoices
-        $customerQuery = CustomerInvoice::with(['organization', 'purchaseOrder', 'goodsReceipt'])
+        // Base query
+        $customerQuery = CustomerInvoice::with(['organization', 'purchaseOrder', 'goodsReceipt', 'supplierInvoice'])
             ->filter($request, [
                 'search_column' => function ($q, $s) {
                     $q->where('invoice_number', 'like', "%{$s}%")
                         ->orWhereHas('organization', fn($c) => $c->where('name', 'like', "%{$s}%"));
                 },
-                'status' => 'status',
             ]);
 
         if (! $user->hasRole('Super Admin')) {
             $customerQuery->where('organization_id', $user->organization_id);
         }
 
-        // Apply tab filter if exists
-        if ($tab !== '') {
-            $customerQuery->where('status', $tab);
+        // Status filter (from tab or dropdown)
+        $activeStatus = $status ?: $tab;
+        if ($activeStatus === 'overdue') {
+            $customerQuery->whereIn('status', [
+                \App\Enums\CustomerInvoiceStatus::ISSUED->value,
+                \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value,
+            ])->whereNotNull('due_date')->where('due_date', '<', now()->startOfDay());
+        } elseif ($activeStatus !== '' && $activeStatus !== 'all') {
+            $customerQuery->where('status', $activeStatus);
         }
 
-        // Clone for stats
+        // Aging filter
+        if ($aging) {
+            $customerQuery->whereIn('status', [
+                \App\Enums\CustomerInvoiceStatus::ISSUED->value,
+                \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value,
+            ])->whereNotNull('due_date');
+
+            if ($aging === 'current') {
+                $customerQuery->where('due_date', '>=', now()->startOfDay());
+            } elseif ($aging === '1-30') {
+                $customerQuery->whereBetween('due_date', [now()->subDays(30)->startOfDay(), now()->subDay()->endOfDay()]);
+            } elseif ($aging === '31-60') {
+                $customerQuery->whereBetween('due_date', [now()->subDays(60)->startOfDay(), now()->subDays(31)->endOfDay()]);
+            } elseif ($aging === '61-90') {
+                $customerQuery->whereBetween('due_date', [now()->subDays(90)->startOfDay(), now()->subDays(61)->endOfDay()]);
+            } elseif ($aging === '90+') {
+                $customerQuery->where('due_date', '<', now()->subDays(90)->startOfDay());
+            }
+        }
+
+        // Stats query (unfiltered)
         $statsQuery = CustomerInvoice::query();
         if (! $user->hasRole('Super Admin')) {
             $statsQuery->where('organization_id', $user->organization_id);
         }
 
-        $stats = [
-            'draft'        => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::DRAFT)->count(),
+        $tabCounts = [
+            'all'          => (clone $statsQuery)->count(),
             'issued'       => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::ISSUED)->count(),
             'partial_paid' => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID)->count(),
             'paid'         => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::PAID)->count(),
-            'void'         => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::VOID)->count(),
+            'overdue'      => (clone $statsQuery)->whereIn('status', [
+                \App\Enums\CustomerInvoiceStatus::ISSUED->value,
+                \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value,
+            ])->whereNotNull('due_date')->where('due_date', '<', now()->startOfDay())->count(),
+            'draft'        => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::DRAFT)->count(),
         ];
 
-        $customerInvoices = $customerQuery->latest()->paginate(15)->withQueryString();
+        // Financial summary stats
+        $activeInvoices = (clone $statsQuery)->whereIn('status', [
+            \App\Enums\CustomerInvoiceStatus::ISSUED->value,
+            \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value,
+        ])->get();
+
+        $stats = [
+            'total_outstanding' => $activeInvoices->sum('outstanding_amount'),
+            'issued_amount'     => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::ISSUED)->get()->sum('outstanding_amount'),
+            'partial_amount'    => (clone $statsQuery)->where('status', \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID)->get()->sum('outstanding_amount'),
+            'overdue_amount'    => (clone $statsQuery)->whereIn('status', [
+                \App\Enums\CustomerInvoiceStatus::ISSUED->value,
+                \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value,
+            ])->whereNotNull('due_date')->where('due_date', '<', now()->startOfDay())->get()->sum('outstanding_amount'),
+        ];
+
+        $invoices = $customerQuery->latest()->paginate(15)->withQueryString();
 
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
-            ['label' => 'Tagihan ke RS/Klinik']
+            ['label' => 'Tagihan ke RS/Klinik'],
         ];
 
-        return view('invoices.index_customer', compact('customerInvoices', 'breadcrumbs', 'stats', 'tab'));
+        return view('invoices.customer.index', compact('invoices', 'breadcrumbs', 'stats', 'tabCounts'));
     }
 
     public function index(Request $request)
@@ -190,29 +237,30 @@ class InvoiceWebController extends Controller
             'purchaseOrder.items.product',
             'goodsReceipt.items.purchaseOrderItem.product',
             'paymentAllocations.payment',
-            'lineItems' // Load line items
+            'lineItems',
+            'supplierInvoice.supplier',
         ]);
 
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
             ['label' => 'Tagihan ke RS/Klinik', 'url' => route('web.invoices.customer.index')],
-            ['label' => $invoice->invoice_number]
+            ['label' => $invoice->invoice_number],
         ];
 
-        return view('invoices.show_customer', compact('invoice', 'breadcrumbs'));
+        return view('invoices.customer.show', compact('invoice', 'breadcrumbs'));
     }
 
     public function exportSupplierPdf(SupplierInvoice $invoice)
     {
-        $invoice->load(['supplier', 'purchaseOrder', 'goodsReceipt', 'lineItems.product']);
-        $pdf = Pdf::loadView('pdf.invoice', ['invoice' => $invoice, 'type' => 'supplier'])->setPaper('a4', 'portrait');
+        $invoice->load(['supplier', 'purchaseOrder', 'goodsReceipt', 'lineItems.product', 'issuedBy']);
+        $pdf = Pdf::loadView('pdf.invoice_supplier', ['invoice' => $invoice])->setPaper('a4', 'portrait');
         return $pdf->stream('AP_INV_' . $invoice->invoice_number . '.pdf');
     }
 
     public function exportCustomerPdf(CustomerInvoice $invoice)
     {
-        $invoice->load(['organization', 'purchaseOrder', 'goodsReceipt', 'lineItems.product']);
-        $pdf = Pdf::loadView('pdf.invoice', ['invoice' => $invoice, 'type' => 'customer'])->setPaper('a4', 'portrait');
+        $invoice->load(['organization', 'purchaseOrder', 'goodsReceipt', 'lineItems.product', 'issuedBy']);
+        $pdf = Pdf::loadView('pdf.invoice_customer_FIXED', ['invoice' => $invoice])->setPaper('a4', 'portrait');
         return $pdf->stream('AR_INV_' . $invoice->invoice_number . '.pdf');
     }
 
@@ -230,7 +278,10 @@ class InvoiceWebController extends Controller
         $user = $request->user();
 
         // Load GRs with status 'completed' AND has remaining quantity
-        $query = GoodsReceipt::with(['purchaseOrder.supplier', 'items.product', 'items.purchaseOrderItem'])
+        $query = GoodsReceipt::with([
+                'purchaseOrder.supplier',
+                'items.purchaseOrderItem.product',  // path yang benar untuk nama produk
+            ])
             ->where('status', 'completed')
             ->whereHas('purchaseOrder', function ($q) {
                 $q->whereNotNull('supplier_id');
@@ -299,85 +350,52 @@ class InvoiceWebController extends Controller
     }
 
     // -----------------------------------------------------------------------
-    // Create Customer Invoice Form (Admin Pusat / Finance)
+    // Create Customer Invoice Form
     // GET /invoices/customer/create
+    // BLOCKED: AR hanya bisa dibuat via verifikasi AP (MirrorGenerationService)
     // -----------------------------------------------------------------------
 
     public function createCustomer(Request $request)
     {
-        if (! $request->user()->can('create_invoices')) {
-            abort(403, 'Akses Ditolak. Anda tidak memiliki izin untuk membuat invoice.');
-        }
-
-        $user = $request->user();
-
-        // Load GRs with status 'completed' AND has remaining quantity
-        $query = GoodsReceipt::with(['purchaseOrder.organization', 'items.purchaseOrderItem.product', 'items.product'])
-            ->where('status', 'completed')
-            ->whereHas('purchaseOrder', function ($q) {
-                $q->whereNotNull('organization_id');
-            });
-
-        // Filter by organization for non-Super Admin
-        if (! $user->hasRole('Super Admin')) {
-            $query->whereHas('purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id));
-        }
-
-        // Only show GRs that have remaining quantity to invoice (AR) AND have an associated Supplier Invoice
-        $goodsReceipts = $query->get()->filter(function ($gr) {
-            $hasSupplierInvoice = \App\Models\SupplierInvoice::where('goods_receipt_id', $gr->id)->exists();
-            return $hasSupplierInvoice && $gr->hasRemainingArQuantity();
-        })->values();
-
-        $breadcrumbs = [
-            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
-            ['label' => 'Tagihan ke RS/Klinik', 'url' => route('web.invoices.customer.index')],
-            ['label' => 'Buat Tagihan ke RS/Klinik']
-        ];
-
-        return view('invoices.create_customer', compact('goodsReceipts', 'breadcrumbs'));
+        // AR tidak lagi dibuat manual — harus melalui verifikasi AP
+        return redirect()
+            ->route('web.invoices.supplier.index')
+            ->with('info', 'Tagihan ke RS/Klinik dibuat otomatis saat Invoice Pemasok diverifikasi. Silakan verifikasi Invoice Pemasok terlebih dahulu.');
     }
 
     // -----------------------------------------------------------------------
     // Store Customer Invoice from Goods Receipt
     // POST /invoices/customer
+    // BLOCKED: AR hanya bisa dibuat via verifikasi AP
     // -----------------------------------------------------------------------
 
     public function storeCustomer(StoreInvoiceFromGRRequest $request)
     {
-        try {
-            $validated = $request->validated();
+        return redirect()
+            ->route('web.invoices.supplier.index')
+            ->with('info', 'Tagihan ke RS/Klinik dibuat otomatis saat Invoice Pemasok diverifikasi.');
+    }
 
-            // Get GoodsReceipt object
-            $gr = GoodsReceipt::findOrFail($validated['goods_receipt_id']);
+    // -----------------------------------------------------------------------
+    // Issue Customer Invoice (Draft → Issued)
+    // POST /invoices/customer/{invoice}/issue
+    // -----------------------------------------------------------------------
 
-            // Prepare metadata
-            $metadata = [
-                'custom_invoice_number' => $validated['custom_invoice_number'] ?? null,
-                'due_date' => $validated['due_date'] ?? now()->addDays(30),
-                'notes' => $validated['notes'] ?? null,
-                'surcharge' => $request->input('surcharge', 0),
-            ];
-
-            $invoice = $this->invoiceFromGRService->createCustomerInvoiceFromGR(
-                $gr,
-                $request->user(),
-                $validated['items'],
-                $metadata
-            );
-
-            return redirect()
-                ->route('web.invoices.customer.show', $invoice)
-                ->with('success', "Tagihan ke RS/Klinik {$invoice->invoice_number} berhasil diterbitkan.");
-        } catch (\DomainException $e) {
-            return back()
-                ->withInput()
-                ->with('error', $e->getMessage());
-        } catch (\Exception $e) {
-            return back()
-                ->withInput()
-                ->with('error', 'Terjadi kesalahan saat membuat tagihan: ' . $e->getMessage());
+    public function issueCustomer(Request $request, CustomerInvoice $invoice): \Illuminate\Http\RedirectResponse
+    {
+        if (! $request->user()->can('create_invoices')) {
+            abort(403, 'Akses Ditolak.');
         }
+
+        if (! $invoice->isDraft()) {
+            return back()->with('error', "Invoice hanya bisa diterbitkan dari status Draft. Status saat ini: {$invoice->status->getLabel()}.");
+        }
+
+        $invoice->transitionTo(\App\Enums\CustomerInvoiceStatus::ISSUED);
+
+        return redirect()
+            ->route('web.invoices.customer.show', $invoice)
+            ->with('success', "Tagihan {$invoice->invoice_number} berhasil diterbitkan ke RS/Klinik.");
     }
 
     // -----------------------------------------------------------------------

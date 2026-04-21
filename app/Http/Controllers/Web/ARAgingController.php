@@ -13,48 +13,63 @@ class ARAgingController extends Controller
     /**
      * GET /ar-aging
      *
-     * Classify outstanding invoices into aging buckets:
-     *   0-30 days  → current  (green)
-     *   31-60 days → warning  (yellow)
-     *   >60 days   → overdue  (red)
-     *
-     * Excludes PAID and VOID invoices.
+     * Classify outstanding AR invoices into 4 aging buckets:
+     *   current  → not yet overdue (green)
+     *   1-30     → 1–30 days overdue (yellow)
+     *   31-60    → 31–60 days overdue (orange)
+     *   61-90    → 61–90 days overdue (red)
+     *   90+      → >90 days overdue (dark red)
      */
     public function index(Request $request): View
     {
-        $today = now()->startOfDay();
+        $user   = $request->user();
+        $today  = now()->startOfDay();
+        $search = $request->get('search');
+        $bucket = $request->get('bucket');
 
-        $invoices = CustomerInvoice::with(['organization'])
-            ->whereNotIn('status', [CustomerInvoiceStatus::PAID->value, CustomerInvoiceStatus::VOID->value])
-            ->whereNotNull('due_date')
-            ->get();
+        $query = CustomerInvoice::with(['organization'])
+            ->whereIn('status', [
+                CustomerInvoiceStatus::ISSUED->value,
+                CustomerInvoiceStatus::PARTIAL_PAID->value,
+            ])
+            ->whereNotNull('due_date');
+
+        if (! $user->hasRole('Super Admin')) {
+            $query->where('organization_id', $user->organization_id);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                  ->orWhereHas('organization', fn($o) => $o->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $invoices = $query->get();
 
         $buckets = [
             'current' => collect(),
-            'warning' => collect(),
-            'overdue' => collect(),
+            '1-30'    => collect(),
+            '31-60'   => collect(),
+            '61-90'   => collect(),
+            '90+'     => collect(),
         ];
 
         foreach ($invoices as $invoice) {
-            $daysDiff = $today->diffInDays($invoice->due_date, false);
-            // diffInDays with false: positive = due_date is in the future, negative = past due
-            $daysOverdue = -$daysDiff; // positive means overdue
-
-            if ($daysOverdue <= 30) {
-                $buckets['current']->push($invoice);
-            } elseif ($daysOverdue <= 60) {
-                $buckets['warning']->push($invoice);
-            } else {
-                $buckets['overdue']->push($invoice);
-            }
+            $buckets[$invoice->aging_bucket]->push($invoice);
         }
 
-        $totals = [
-            'current' => $buckets['current']->sum(fn($i) => (float) $i->total_amount - (float) $i->paid_amount),
-            'warning' => $buckets['warning']->sum(fn($i) => (float) $i->total_amount - (float) $i->paid_amount),
-            'overdue' => $buckets['overdue']->sum(fn($i) => (float) $i->total_amount - (float) $i->paid_amount),
+        $totals = collect($buckets)->map(
+            fn($group) => $group->sum(fn($i) => $i->outstanding_amount)
+        )->toArray();
+
+        $grandTotal = array_sum($totals);
+
+        $breadcrumbs = [
+            ['label' => 'Finance', 'url' => 'javascript:void(0)'],
+            ['label' => 'AR Aging Report'],
         ];
 
-        return view('ar-aging.index', compact('buckets', 'totals'));
+        return view('ar-aging.index', compact('buckets', 'totals', 'grandTotal', 'breadcrumbs'));
     }
 }

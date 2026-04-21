@@ -19,25 +19,29 @@ class PurchaseOrder extends Model
     // Status Constants — Simplified Workflow (Delivery Outside System)
     // -----------------------------------------------------------------------
 
-    public const STATUS_DRAFT     = 'draft';
-    public const STATUS_SUBMITTED = 'submitted';
-    public const STATUS_APPROVED  = 'approved';
-    public const STATUS_REJECTED  = 'rejected';
-    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_DRAFT               = 'draft';
+    public const STATUS_SUBMITTED           = 'submitted';
+    public const STATUS_APPROVED            = 'approved';
+    public const STATUS_PARTIALLY_RECEIVED  = 'partially_received';
+    public const STATUS_REJECTED            = 'rejected';
+    public const STATUS_COMPLETED           = 'completed';
 
     /**
      * Valid transitions: current_status => [allowed_next_statuses]
      * Enforces strict, no-skip state machine.
-     * 
+     *
      * NOTE: Delivery (shipped/delivered) happens OUTSIDE the system.
-     * PO transitions directly from 'approved' to 'completed' via Goods Receipt confirmation.
+     * PO transitions: approved → partially_received (first partial GR)
+     *                 partially_received → completed (all items received)
+     *                 approved → completed (all items received in one GR)
      */
     public const TRANSITIONS = [
-        self::STATUS_DRAFT     => [self::STATUS_SUBMITTED],
-        self::STATUS_SUBMITTED => [self::STATUS_APPROVED, self::STATUS_REJECTED],
-        self::STATUS_APPROVED  => [self::STATUS_COMPLETED], // Via GR confirmation
-        self::STATUS_REJECTED  => [self::STATUS_DRAFT],
-        self::STATUS_COMPLETED => [], // Terminal state
+        self::STATUS_DRAFT              => [self::STATUS_SUBMITTED],
+        self::STATUS_SUBMITTED          => [self::STATUS_APPROVED, self::STATUS_REJECTED],
+        self::STATUS_APPROVED           => [self::STATUS_PARTIALLY_RECEIVED, self::STATUS_COMPLETED],
+        self::STATUS_PARTIALLY_RECEIVED => [self::STATUS_COMPLETED],
+        self::STATUS_REJECTED           => [self::STATUS_DRAFT],
+        self::STATUS_COMPLETED          => [], // Terminal state
     ];
 
     protected $fillable = [
@@ -130,11 +134,18 @@ class PurchaseOrder extends Model
         return in_array($status, self::TRANSITIONS[$this->status] ?? [], true);
     }
 
-    public function isDraft(): bool     { return $this->status === self::STATUS_DRAFT; }
-    public function isSubmitted(): bool { return $this->status === self::STATUS_SUBMITTED; }
-    public function isApproved(): bool  { return $this->status === self::STATUS_APPROVED; }
-    public function isRejected(): bool  { return $this->status === self::STATUS_REJECTED; }
-    public function isCompleted(): bool { return $this->status === self::STATUS_COMPLETED; }
+    public function isDraft(): bool              { return $this->status === self::STATUS_DRAFT; }
+    public function isSubmitted(): bool          { return $this->status === self::STATUS_SUBMITTED; }
+    public function isApproved(): bool           { return $this->status === self::STATUS_APPROVED; }
+    public function isPartiallyReceived(): bool  { return $this->status === self::STATUS_PARTIALLY_RECEIVED; }
+    public function isRejected(): bool           { return $this->status === self::STATUS_REJECTED; }
+    public function isCompleted(): bool          { return $this->status === self::STATUS_COMPLETED; }
+
+    /** PO is "in delivery" when approved or partially received */
+    public function isInDelivery(): bool
+    {
+        return in_array($this->status, [self::STATUS_APPROVED, self::STATUS_PARTIALLY_RECEIVED], true);
+    }
 
     public function isEditable(): bool
     {

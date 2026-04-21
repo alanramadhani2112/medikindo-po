@@ -57,6 +57,122 @@
 </div>
 @endif
 
+{{-- Partial Delivery Monitor --}}
+@php
+    $partialPOs = \App\Models\PurchaseOrder::with(['organization', 'supplier', 'goodsReceipts.items'])
+        ->where('status', \App\Models\PurchaseOrder::STATUS_PARTIALLY_RECEIVED)
+        ->when(!auth()->user()->hasRole('Super Admin'), fn($q) => $q->where('organization_id', auth()->user()->organization_id))
+        ->orderBy('approved_at')
+        ->limit(5)
+        ->get();
+@endphp
+
+@if($partialPOs->isNotEmpty())
+<div class="row g-5 g-xl-8 mb-7">
+    <div class="col-12">
+        <div class="card card-flush border border-warning border-dashed">
+            <div class="card-header pt-5">
+                <h3 class="card-title align-items-start flex-column">
+                    <span class="card-label fw-bold text-gray-900 fs-3 d-flex align-items-center gap-2">
+                        <i class="ki-outline ki-delivery fs-2 text-warning"></i>
+                        Pengiriman Sebagian — Menunggu Sisa Barang
+                    </span>
+                    <span class="text-muted mt-1 fw-semibold fs-7">
+                        {{ $partialPOs->count() }} PO masih menunggu pengiriman sisa dari supplier
+                    </span>
+                </h3>
+                <div class="card-toolbar">
+                    <a href="{{ route('web.goods-receipts.index', ['tab' => 'partial']) }}"
+                       class="btn btn-sm btn-light-warning">
+                        Lihat Semua
+                        <i class="ki-outline ki-right fs-5 ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body pt-3">
+                <div class="table-responsive">
+                    <table class="table table-row-bordered table-row-gray-200 align-middle gs-0 gy-3 mb-0">
+                        <thead>
+                            <tr class="fw-bold text-muted bg-light fs-7 text-uppercase">
+                                <th class="ps-4 rounded-start">PO / Supplier</th>
+                                <th>Organisasi</th>
+                                <th>Progress Penerimaan</th>
+                                <th class="text-center">Pengiriman ke-</th>
+                                <th class="text-center">Sejak Disetujui</th>
+                                <th class="text-end pe-4 rounded-end">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($partialPOs as $po)
+                                @php
+                                    $gr = $po->goodsReceipts->first();
+                                    $totalOrdered  = $po->items->sum('quantity');
+                                    $totalReceived = $gr ? $gr->items->sum('quantity_received') : 0;
+                                    $remaining     = max(0, $totalOrdered - $totalReceived);
+                                    $pct           = $totalOrdered > 0 ? ($totalReceived / $totalOrdered) * 100 : 0;
+                                    $deliveryCount = $gr ? $gr->deliveries()->count() : 0;
+                                    $daysSince     = $po->approved_at ? (int) $po->approved_at->diffInDays(now()) : 0;
+                                    $urgencyColor  = $daysSince > 14 ? 'danger' : ($daysSince > 7 ? 'warning' : 'success');
+                                @endphp
+                                <tr>
+                                    <td class="ps-4">
+                                        <a href="{{ route('web.po.show', $po) }}"
+                                           class="fw-bold text-gray-900 text-hover-primary fs-6">
+                                            {{ $po->po_number }}
+                                        </a>
+                                        <div class="text-muted fs-7 mt-1">{{ $po->supplier?->name }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="text-gray-700 fw-semibold fs-7">{{ $po->organization?->name }}</span>
+                                    </td>
+                                    <td style="min-width: 180px;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="flex-grow-1">
+                                                <div class="progress h-6px">
+                                                    <div class="progress-bar bg-warning" style="width: {{ $pct }}%"></div>
+                                                </div>
+                                            </div>
+                                            <span class="text-warning fw-bold fs-7 text-nowrap">
+                                                {{ $totalReceived }}/{{ $totalOrdered }}
+                                            </span>
+                                        </div>
+                                        <div class="text-muted fs-9 mt-1">
+                                            Sisa <span class="text-danger fw-bold">{{ $remaining }}</span> unit belum diterima
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-light-primary fw-bold">
+                                            ke-{{ $deliveryCount }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-light-{{ $urgencyColor }} fw-bold">
+                                            {{ $daysSince }} hari
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        @if($gr)
+                                            <x-table-action>
+                                                <x-table-action.item :href="route('web.goods-receipts.show', $gr)" icon="eye" label="Lihat GR" />
+                                                @can('create_invoices')
+                                                    <x-table-action.item :href="route('web.invoices.supplier.create')" icon="bill" label="Buat Invoice Sebagian" color="primary" />
+                                                @endcan
+                                                <x-table-action.divider />
+                                                <x-table-action.item :href="route('web.goods-receipts.create', ['purchase_order_id' => $po->id])" icon="plus" label="Input Sisa Pengiriman" color="success" />
+                                            </x-table-action>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 {{-- Main Content Row --}}
 <div class="row g-5 g-xl-8 mb-7">
     {{-- Outstanding Invoices Table --}}

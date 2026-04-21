@@ -58,13 +58,32 @@ class ProductWebController extends Controller
     {
         $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
         $categories = Product::CATEGORIES;
-        $units = Product::UNITS;
+        $units = \App\Models\Unit::where('is_active', true)->orderBy('name')->get();
+        $productTypes = Product::PRODUCT_TYPES;
+        $riskClassAlkes = Product::RISK_CLASS_ALKES;
+        $riskClassPkrt = Product::RISK_CLASS_PKRT;
+        $usageMethods = Product::USAGE_METHODS;
+        $targetUsers = Product::TARGET_USERS;
+        $sterilizationMethods = Product::STERILIZATION_METHODS;
+        
         $breadcrumbs = [
             ['label' => 'Master Data', 'url' => 'javascript:void(0)'],
             ['label' => 'Katalog Produk', 'url' => route('web.products.index')],
             ['label' => 'Tambah Baru']
         ];
-        return view('products.create', compact('suppliers', 'categories', 'units', 'breadcrumbs'));
+        
+        return view('products.create', compact(
+            'suppliers', 
+            'categories', 
+            'units',
+            'productTypes',
+            'riskClassAlkes',
+            'riskClassPkrt',
+            'usageMethods',
+            'targetUsers',
+            'sterilizationMethods',
+            'breadcrumbs'
+        ));
     }
 
     public function store(Request $request)
@@ -74,6 +93,7 @@ class ProductWebController extends Controller
             'name'                => ['required', 'string', 'max:255'],
             'sku'                 => ['required', 'string', 'max:50', 'unique:products,sku'],
             'unit'                => ['required', 'string', 'max:30'],
+            'base_unit_id'        => ['nullable', 'exists:units,id'],
             'price'               => ['nullable', 'numeric', 'min:0'],
             'cost_price'          => ['required', 'numeric', 'min:0'],
             'selling_price'       => ['required', 'numeric', 'min:0'],
@@ -84,16 +104,50 @@ class ProductWebController extends Controller
             'is_narcotic'         => ['nullable', 'boolean'],
             'expiry_date'         => ['nullable', 'date', 'after:today'],
             'batch_no'            => ['nullable', 'string', 'max:100'],
+            
+            // Compliance fields
+            'product_type'        => ['nullable', 'in:ALKES,ALKES_DIV,PKRT'],
+            'risk_class'          => ['nullable', 'string', 'max:10'],
+            'intended_use'        => ['nullable', 'string'],
+            'usage_method'        => ['nullable', 'in:single_use,reusable,sterilizable'],
+            'target_user'         => ['nullable', 'string', 'max:50'],
+            
+            // Regulatory fields
+            'registration_number' => ['nullable', 'string', 'max:50', 'unique:products,registration_number'],
+            'registration_date'   => ['nullable', 'date'],
+            'registration_expiry' => ['nullable', 'date', 'after:registration_date'],
+            'manufacturer'        => ['nullable', 'string', 'max:255'],
+            'country_of_origin'   => ['nullable', 'string', 'max:100'],
+            'is_sterile'          => ['nullable', 'boolean'],
+            'sterilization_method' => ['nullable', 'in:ETO,Steam,Radiation,Other,None'],
+            
+            // Stock management
+            'min_stock_level'     => ['nullable', 'numeric', 'min:0'],
+            'max_stock_level'     => ['nullable', 'numeric', 'min:0'],
+            'reorder_quantity'    => ['nullable', 'numeric', 'min:0'],
+            'storage_temperature' => ['nullable', 'string', 'max:50'],
+            'storage_condition'   => ['nullable', 'string'],
+            'special_handling'    => ['nullable', 'string'],
         ];
 
         // Conditional validation: if is_narcotic = true, narcotic_group is REQUIRED
         if ($request->boolean('is_narcotic')) {
             $rules['narcotic_group'] = ['required', 'in:I,II,III'];
         }
+        
+        // Conditional validation: risk_class based on product_type
+        if ($request->filled('product_type')) {
+            if (in_array($request->product_type, ['ALKES', 'ALKES_DIV'])) {
+                $rules['risk_class'] = ['nullable', 'in:A,B,C,D'];
+            } elseif ($request->product_type === 'PKRT') {
+                $rules['risk_class'] = ['nullable', 'in:1,2,3'];
+            }
+        }
 
         $data = $request->validate($rules);
         
         $data['is_narcotic'] = $request->boolean('is_narcotic');
+        $data['is_sterile'] = $request->boolean('is_sterile');
         $data['discount_percentage'] = $data['discount_percentage'] ?? 0;
         $data['discount_amount'] = $data['discount_amount'] ?? 0;
         
@@ -118,14 +172,34 @@ class ProductWebController extends Controller
     {
         $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
         $categories = Product::CATEGORIES;
-        $units = Product::UNITS;
+        $units = \App\Models\Unit::where('is_active', true)->orderBy('name')->get();
+        $productTypes = Product::PRODUCT_TYPES;
+        $riskClassAlkes = Product::RISK_CLASS_ALKES;
+        $riskClassPkrt = Product::RISK_CLASS_PKRT;
+        $usageMethods = Product::USAGE_METHODS;
+        $targetUsers = Product::TARGET_USERS;
+        $sterilizationMethods = Product::STERILIZATION_METHODS;
+        
         $breadcrumbs = [
             ['label' => 'Master Data', 'url' => 'javascript:void(0)'],
             ['label' => 'Katalog Produk', 'url' => route('web.products.index')],
             ['label' => 'Edit Produk', 'url' => 'javascript:void(0)'],
             ['label' => $product->name]
         ];
-        return view('products.edit', compact('product', 'suppliers', 'categories', 'units', 'breadcrumbs'));
+        
+        return view('products.edit', compact(
+            'product', 
+            'suppliers', 
+            'categories', 
+            'units',
+            'productTypes',
+            'riskClassAlkes',
+            'riskClassPkrt',
+            'usageMethods',
+            'targetUsers',
+            'sterilizationMethods',
+            'breadcrumbs'
+        ));
     }
 
     public function update(Request $request, Product $product)
@@ -135,6 +209,7 @@ class ProductWebController extends Controller
             'name'                => ['required', 'string', 'max:255'],
             'sku'                 => ['required', 'string', 'max:50', 'unique:products,sku,' . $product->id],
             'unit'                => ['required', 'string', 'max:30'],
+            'base_unit_id'        => ['nullable', 'exists:units,id'],
             'price'               => ['nullable', 'numeric', 'min:0'],
             'cost_price'          => ['required', 'numeric', 'min:0'],
             'selling_price'       => ['required', 'numeric', 'min:0'],
@@ -145,16 +220,50 @@ class ProductWebController extends Controller
             'is_narcotic'         => ['nullable', 'boolean'],
             'expiry_date'         => ['nullable', 'date', 'after:today'],
             'batch_no'            => ['nullable', 'string', 'max:100'],
+            
+            // Compliance fields
+            'product_type'        => ['nullable', 'in:ALKES,ALKES_DIV,PKRT'],
+            'risk_class'          => ['nullable', 'string', 'max:10'],
+            'intended_use'        => ['nullable', 'string'],
+            'usage_method'        => ['nullable', 'in:single_use,reusable,sterilizable'],
+            'target_user'         => ['nullable', 'string', 'max:50'],
+            
+            // Regulatory fields
+            'registration_number' => ['nullable', 'string', 'max:50', 'unique:products,registration_number,' . $product->id],
+            'registration_date'   => ['nullable', 'date'],
+            'registration_expiry' => ['nullable', 'date', 'after:registration_date'],
+            'manufacturer'        => ['nullable', 'string', 'max:255'],
+            'country_of_origin'   => ['nullable', 'string', 'max:100'],
+            'is_sterile'          => ['nullable', 'boolean'],
+            'sterilization_method' => ['nullable', 'in:ETO,Steam,Radiation,Other,None'],
+            
+            // Stock management
+            'min_stock_level'     => ['nullable', 'numeric', 'min:0'],
+            'max_stock_level'     => ['nullable', 'numeric', 'min:0'],
+            'reorder_quantity'    => ['nullable', 'numeric', 'min:0'],
+            'storage_temperature' => ['nullable', 'string', 'max:50'],
+            'storage_condition'   => ['nullable', 'string'],
+            'special_handling'    => ['nullable', 'string'],
         ];
 
         // Conditional validation: if is_narcotic = true, narcotic_group is REQUIRED
         if ($request->boolean('is_narcotic')) {
             $rules['narcotic_group'] = ['required', 'in:I,II,III'];
         }
+        
+        // Conditional validation: risk_class based on product_type
+        if ($request->filled('product_type')) {
+            if (in_array($request->product_type, ['ALKES', 'ALKES_DIV'])) {
+                $rules['risk_class'] = ['nullable', 'in:A,B,C,D'];
+            } elseif ($request->product_type === 'PKRT') {
+                $rules['risk_class'] = ['nullable', 'in:1,2,3'];
+            }
+        }
 
         $data = $request->validate($rules);
 
         $data['is_narcotic'] = $request->boolean('is_narcotic');
+        $data['is_sterile'] = $request->boolean('is_sterile');
         $data['discount_percentage'] = $data['discount_percentage'] ?? 0;
         $data['discount_amount'] = $data['discount_amount'] ?? 0;
         

@@ -105,9 +105,9 @@
                         <span class="badge badge-light-{{ $statusColor }} fw-bold">{{ strtoupper($cn->status) }}</span>
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('web.credit-notes.show', $cn) }}" class="btn btn-icon btn-light-primary btn-sm" title="Lihat Detail">
-                            <i class="ki-outline ki-eye fs-2"></i>
-                        </a>
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.credit-notes.show', $cn)" icon="eye" label="Lihat Detail" />
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

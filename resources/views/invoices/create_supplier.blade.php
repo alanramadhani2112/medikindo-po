@@ -48,20 +48,22 @@
 
     @php
         $grData = $goodsReceipts->map(fn($gr) => [
-            'id' => $gr->id,
-            'gr_number' => $gr->gr_number,
-            'po_number' => $gr->purchaseOrder?->po_number ?? '—',
+            'id'            => $gr->id,
+            'gr_number'     => $gr->gr_number,
+            'po_number'     => $gr->purchaseOrder?->po_number ?? '—',
             'supplier_name' => $gr->purchaseOrder?->supplier?->name ?? '—',
-            'items' => $gr->items->map(fn($item) => [
-                'id' => $item->id,
-                'product_name' => $item->product?->name ?? '—',
-                'product_unit' => $item->product?->unit ?? 'unit',
-                'batch_no' => $item->batch_no,
-                'expiry_date' => $item->expiry_date?->format('Y-m-d'),
-                'quantity_received' => $item->quantity_received,
-                'remaining_quantity' => $item->remaining_quantity,
-                'unit_price' => $item->purchaseOrderItem?->unit_price ?? 0,
-                'discount_percent' => $item->purchaseOrderItem?->discount_percent ?? 0,
+            'items'         => $gr->items->map(fn($item) => [
+                'id'                 => $item->id,
+                // Nama produk diambil dari purchaseOrderItem->product (bukan item->product langsung)
+                'product_name'       => $item->purchaseOrderItem?->product?->name ?? $item->product?->name ?? '—',
+                'product_unit'       => $item->purchaseOrderItem?->product?->unit ?? $item->product?->unit ?? 'unit',
+                'batch_no'           => $item->batch_no,
+                'expiry_date'        => $item->expiry_date?->format('Y-m-d'),
+                'quantity_received'  => $item->quantity_received,
+                'remaining_quantity' => $item->remaining_ap_quantity,
+                // Harga dari PO (cost price) — tidak boleh diubah user
+                'unit_price'         => (float) ($item->purchaseOrderItem?->unit_price ?? 0),
+                'discount_percent'   => (float) ($item->purchaseOrderItem?->discount_percent ?? 0),
             ])->toArray()
         ])->toArray();
     @endphp
@@ -125,25 +127,20 @@
             <div x-show="selectedGrId" x-transition>
                 <x-card title="Detail Invoice Distributor" class="mb-5">
                     <div class="row g-5">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label required fw-semibold fs-6 mb-2">Nomor Invoice Distributor</label>
                             <input type="text" name="distributor_invoice_number"
                                 class="form-control form-control-solid" placeholder="Contoh: INV-DIST-2024-001"
                                 required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label required fw-semibold fs-6 mb-2">Tanggal Invoice Distributor</label>
                             <input type="date" name="distributor_invoice_date"
                                 class="form-control form-control-solid" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label required fw-semibold fs-6 mb-2">Tanggal Jatuh Tempo</label>
                             <input type="date" name="due_date" class="form-control form-control-solid" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold fs-6 mb-2">Nomor Invoice Internal (Opsional)</label>
-                            <input type="text" name="internal_invoice_number" class="form-control form-control-solid"
-                                placeholder="Nomor invoice internal Medikindo (opsional)">
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold fs-6 mb-2">Catatan (Opsional)</label>
@@ -162,8 +159,8 @@
                                     <th class="ps-4">Produk</th>
                                     <th>Batch</th>
                                     <th>Kadaluarsa</th>
-                                    <th class="text-end">Diterima</th>
-                                    <th class="text-end">Sisa</th>
+                                    <th class="text-end">Diterima (GR)</th>
+                                    <th class="text-end">Sisa Belum Diinvoice</th>
                                     <th class="text-end">Harga Distributor</th>
                                     <th class="text-end">Diskon %</th>
                                     <th class="text-end">Qty Invoice</th>
@@ -173,45 +170,48 @@
                                 <template x-for="(item, index) in items" :key="item.id">
                                     <tr>
                                         <td class="ps-4">
-                                            <input type="hidden" :name="`items[${index}][goods_receipt_item_id]`"
-                                                :value="item.id">
+                                            <input type="hidden" :name="`items[${index}][goods_receipt_item_id]`" :value="item.id">
+                                            {{-- Harga dikirim dari server-side (read-only, tidak bisa dimanipulasi) --}}
+                                            <input type="hidden" :name="`items[${index}][unit_price]`" :value="item.unit_price">
                                             <div class="d-flex flex-column">
                                                 <span class="text-gray-900 fw-bold" x-text="item.product_name"></span>
                                                 <span class="text-gray-500 fs-7" x-text="item.product_unit"></span>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge badge-light-primary"
-                                                x-text="item.batch_no || '—'"></span>
+                                            <span class="badge badge-light-primary" x-text="item.batch_no || '—'"></span>
                                         </td>
                                         <td>
-                                            <span class="text-gray-800"
-                                                x-text="item.expiry_date ? formatDate(item.expiry_date) : '—'"></span>
+                                            <span class="text-gray-800" x-text="item.expiry_date ? formatDate(item.expiry_date) : '—'"></span>
                                         </td>
                                         <td class="text-end">
-                                            <span class="text-gray-800 fw-semibold"
-                                                x-text="item.quantity_received"></span>
+                                            <span class="text-gray-700 fw-semibold" x-text="item.quantity_received"></span>
+                                            <span class="text-muted fs-8"> unit</span>
                                         </td>
                                         <td class="text-end">
-                                            <span class="text-success fw-bold"
-                                                x-text="item.remaining_quantity"></span>
+                                            <span class="text-success fw-bold" x-text="item.remaining_quantity"></span>
+                                            <span class="text-muted fs-8"> unit</span>
                                         </td>
                                         <td class="text-end">
-                                            <input type="number" class="form-control bg-light text-end"
-                                                :name="`items[${index}][unit_price]`" x-model.number="item.unit_price"
-                                                readonly style="width: 150px;">
+                                            {{-- Harga dari master data PO — tidak bisa diubah --}}
+                                            <span class="fw-bold text-gray-800" x-text="'Rp ' + item.unit_price.toLocaleString('id-ID')"></span>
                                         </td>
                                         <td class="text-end">
                                             <input type="number" class="form-control text-end bg-white"
                                                 :name="`items[${index}][discount_percent]`"
-                                                x-model.number="item.discount_percent" placeholder="0"
-                                                style="width: 100px;">
+                                                x-model.number="item.discount_percent"
+                                                placeholder="0" min="0" max="100"
+                                                style="width: 90px;">
                                         </td>
                                         <td class="text-end">
                                             <input type="number" class="form-control text-end bg-white"
-                                                :name="`items[${index}][quantity]`" required :min="1"
-                                                :max="item.remaining_quantity" x-model.number="item.invoice_quantity"
-                                                style="width: 120px;">
+                                                :name="`items[${index}][quantity]`"
+                                                required :min="1" :max="item.remaining_quantity"
+                                                x-model.number="item.invoice_quantity"
+                                                style="width: 110px;">
+                                            <div class="text-muted fs-9 mt-1" x-show="item.invoice_quantity < item.remaining_quantity">
+                                                Sisa: <span x-text="item.remaining_quantity - item.invoice_quantity"></span>
+                                            </div>
                                         </td>
                                     </tr>
                                 </template>

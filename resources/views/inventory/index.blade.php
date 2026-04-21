@@ -136,12 +136,10 @@
                         </span>
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('web.inventory.show', $item->product_id) }}" class="btn btn-icon btn-light-primary btn-sm" title="Lihat History">
-                            <i class="ki-outline ki-eye fs-2"></i>
-                        </a>
-                        <a href="{{ route('web.inventory.adjust.form', $item) }}" class="btn btn-icon btn-light-warning btn-sm" title="Adjust Stok">
-                            <i class="ki-outline ki-pencil fs-2"></i>
-                        </a>
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.inventory.show', $item->product_id)" icon="eye" label="Lihat History" />
+                            <x-table-action.item :href="route('web.inventory.adjust.form', $item)" icon="pencil" label="Adjust Stok" color="warning" />
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

@@ -186,13 +186,19 @@ class PaymentProofWebController extends Controller
             'paymentDocuments'
         ]);
 
+        // All payment proofs for the same invoice (for history timeline)
+        $relatedProofs = PaymentProof::where('customer_invoice_id', $paymentProof->customer_invoice_id)
+            ->with(['submittedBy', 'paymentDocuments'])
+            ->orderBy('created_at', 'asc')
+            ->get();
+
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
             ['label' => 'Payment Proofs', 'url' => route('web.payment-proofs.index')],
             ['label' => 'Detail #' . $paymentProof->id]
         ];
 
-        return view('payment-proofs.show', compact('paymentProof', 'breadcrumbs'));
+        return view('payment-proofs.show', compact('paymentProof', 'relatedProofs', 'breadcrumbs'));
     }
 
     /**
@@ -392,9 +398,98 @@ class PaymentProofWebController extends Controller
         }
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // Recall
+    // ─────────────────────────────────────────────────────────────────────
+
     /**
-     * Upload payment document.
+     * Process recall (withdrawal) of a submitted payment proof.
      */
+    public function recall(Request $request, PaymentProof $paymentProof)
+    {
+        $this->authorize('recall', $paymentProof);
+
+        $request->validate([
+            'recall_reason' => 'required|string|min:10|max:500',
+        ], [
+            'recall_reason.required' => 'Alasan penarikan wajib diisi.',
+            'recall_reason.min'      => 'Alasan minimal 10 karakter.',
+        ]);
+
+        try {
+            $this->paymentProofService->recallPaymentProof(
+                $paymentProof,
+                Auth::user(),
+                $request->recall_reason
+            );
+
+            return redirect()
+                ->route('web.payment-proofs.show', $paymentProof)
+                ->with('success', 'Bukti pembayaran berhasil ditarik kembali. Anda dapat mengajukan bukti baru jika diperlukan.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menarik bukti pembayaran: ' . $e->getMessage());
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Correction (Super Admin only)
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Show correction form for an approved payment proof (Super Admin only).
+     */
+    public function correct(PaymentProof $paymentProof)
+    {
+        $this->authorize('correct', $paymentProof);
+
+        $paymentProof->load(['customerInvoice.organization', 'submittedBy', 'paymentDocuments']);
+
+        $breadcrumbs = [
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
+            ['label' => 'Payment Proofs', 'url' => route('web.payment-proofs.index')],
+            ['label' => 'Koreksi #' . $paymentProof->id],
+        ];
+
+        return view('payment-proofs.correct', compact('paymentProof', 'breadcrumbs'));
+    }
+
+    /**
+     * Process correction of an approved payment proof (Super Admin only).
+     */
+    public function processCorrection(Request $request, PaymentProof $paymentProof)
+    {
+        $this->authorize('correct', $paymentProof);
+
+        $data = $request->validate([
+            'correction_reason'      => 'required|string|min:20|max:500',
+            'corrected_amount'       => 'required|numeric|min:0.01',
+            'corrected_payment_type' => 'required|in:full,partial',
+            'corrected_payment_date' => 'required|date|before_or_equal:today',
+            'bank_reference'         => 'nullable|string|max:100',
+            'notes'                  => 'nullable|string|max:500',
+        ], [
+            'correction_reason.required' => 'Alasan koreksi wajib diisi (minimal 20 karakter).',
+            'correction_reason.min'      => 'Alasan koreksi harus minimal 20 karakter untuk keperluan audit.',
+            'corrected_amount.required'  => 'Nominal koreksi wajib diisi.',
+        ]);
+
+        try {
+            $newProof = $this->paymentProofService->correctPaymentProof(
+                $paymentProof,
+                Auth::user(),
+                $data
+            );
+
+            return redirect()
+                ->route('web.payment-proofs.show', $newProof)
+                ->with('success', 'Koreksi berhasil. Bukti pembayaran baru #' . $newProof->id . ' telah dibuat dan menunggu approval ulang.');
+
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal melakukan koreksi: ' . $e->getMessage());
+        }
+    }
+
     public function uploadDocument(UploadPaymentDocumentRequest $request, PaymentProof $paymentProof)
     {
         $this->authorize('uploadDocument', $paymentProof);

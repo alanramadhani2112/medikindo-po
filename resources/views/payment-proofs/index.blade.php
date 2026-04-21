@@ -68,16 +68,15 @@
                         <x-badge :variant="$item->status->color()">{{ $item->status->label() }}</x-badge>
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('web.payment-proofs.show', $item) }}" class="btn btn-icon btn-light-primary btn-sm">
-                            <i class="ki-outline ki-eye fs-2"></i>
-                        </a>
-                        @can('verify', $item)
-                            @if($item->canBeVerified())
-                                <a href="{{ route('web.payment-proofs.verify', $item) }}" class="btn btn-icon btn-light-info btn-sm">
-                                    <i class="ki-outline ki-shield-search fs-2"></i>
-                                </a>
-                            @endif
-                        @endcan
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.payment-proofs.show', $item)" icon="eye" label="Lihat Detail" />
+                            @can('verify', $item)
+                                @if($item->canBeVerified())
+                                    <x-table-action.divider />
+                                    <x-table-action.item :href="route('web.payment-proofs.verify', $item)" icon="shield-search" label="Verifikasi & Setujui" color="success" />
+                                @endif
+                            @endcan
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

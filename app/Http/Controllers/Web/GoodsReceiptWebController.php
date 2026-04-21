@@ -42,9 +42,12 @@ class GoodsReceiptWebController extends Controller
 
         $receipts = $query->latest()->paginate(15)->withQueryString();
 
-        // Pending POs (Approved but not completed)
+        // Pending POs (Approved or Partially Received — still awaiting full delivery)
         $pendingPOsQuery = PurchaseOrder::with(['organization', 'supplier'])
-            ->where('status', PurchaseOrder::STATUS_APPROVED);
+            ->whereIn('status', [
+                PurchaseOrder::STATUS_APPROVED,
+                PurchaseOrder::STATUS_PARTIALLY_RECEIVED,
+            ]);
         
         if (! $user->hasRole('Super Admin')) {
             $pendingPOsQuery->where('organization_id', $user->organization_id);
@@ -79,15 +82,36 @@ class GoodsReceiptWebController extends Controller
         
         $user = $request->user();
 
-        // Load POs available to receive — status must be 'approved' only
+        // Load POs available to receive — approved or partially received
         // NOTE: Delivery (shipped/delivered) happens OUTSIDE the system
-        $pos = PurchaseOrder::with(['items.product', 'organization', 'supplier'])
-            ->where('status', PurchaseOrder::STATUS_APPROVED)
+        $pos = PurchaseOrder::with(['items.product', 'organization', 'supplier', 'goodsReceipts.items'])
+            ->whereIn('status', [
+                PurchaseOrder::STATUS_APPROVED,
+                PurchaseOrder::STATUS_PARTIALLY_RECEIVED,
+            ])
             ->when(! $user->hasRole('Super Admin'), function ($q) use ($user) {
                 $q->where('organization_id', $user->organization_id);
             })
             ->latest()
             ->get();
+
+        // Calculate already_received and remaining for each item
+        $pos->each(function ($po) {
+            $po->items->each(function ($item) use ($po) {
+                $alreadyReceived = $po->goodsReceipts->flatMap(function ($gr) {
+                    return $gr->items;
+                })->where('purchase_order_item_id', $item->id)->sum('quantity_received');
+                
+                $item->already_received = $alreadyReceived;
+                $item->remaining = max(0, $item->quantity - $alreadyReceived);
+            });
+            
+            // Filter out items that are already fully received
+            $po->setRelation('items', $po->items->filter(fn($item) => $item->remaining > 0)->values());
+        });
+        
+        // Filter out POs that have no remaining items to receive
+        $pos = $pos->filter(fn($po) => $po->items->isNotEmpty())->values();
 
         $breadcrumbs = [
             ['label' => 'Logistics & Operations', 'url' => 'javascript:void(0)'],
@@ -101,20 +125,29 @@ class GoodsReceiptWebController extends Controller
     public function store(StoreGoodsReceiptRequest $request)
     {
         $data = $request->validated();
-        $po   = PurchaseOrder::findOrFail($data['purchase_order_id']);
-        
+
+        // Resolve PO — either from new GR flow or from adding delivery to existing GR
+        if (! empty($data['goods_receipt_id'])) {
+            $gr = \App\Models\GoodsReceipt::findOrFail($data['goods_receipt_id']);
+            $po = $gr->purchaseOrder;
+        } else {
+            $po = PurchaseOrder::findOrFail($data['purchase_order_id']);
+        }
+
         $this->authorize('create', GoodsReceipt::class);
         $this->authorize('confirmReceipt', $po);
 
         try {
-            $receipt = $this->goodsReceiptService->confirmReceipt(
-                $po,
-                $request->user(),
-                $data['items'],
-                $data['notes'] ?? null,
+            $gr = $this->goodsReceiptService->addDelivery(
+                po: $po,
+                actor: $request->user(),
+                items: $data['items'],
+                deliveryOrderNumber: $data['delivery_order_number'],
+                photo: $request->file('delivery_photo'),
+                notes: $data['notes'] ?? null,
             );
-            return redirect()->route('web.goods-receipts.show', $receipt)
-                ->with('success', "Penerimaan barang {$receipt->gr_number} berhasil dikonfirmasi.");
+            return redirect()->route('web.goods-receipts.show', $gr)
+                ->with('success', "Pengiriman ke-{$gr->deliveries()->count()} untuk {$gr->gr_number} berhasil dikonfirmasi.");
         } catch (\DomainException $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }
@@ -123,8 +156,18 @@ class GoodsReceiptWebController extends Controller
     public function show(GoodsReceipt $goodsReceipt)
     {
         $this->authorize('view', $goodsReceipt);
-        
-        $goodsReceipt->load(['purchaseOrder.supplier', 'purchaseOrder.organization', 'receivedBy', 'items.purchaseOrderItem.product']);
+
+        $goodsReceipt->load([
+            'purchaseOrder.supplier',
+            'purchaseOrder.organization',
+            'purchaseOrder.items.product',
+            'receivedBy',
+            'items.purchaseOrderItem.product',
+            'deliveries' => fn($q) => $q->orderBy('delivery_sequence'),
+            'deliveries.receivedBy',
+            'deliveries.items.purchaseOrderItem.product',
+        ]);
+
         $breadcrumbs = [
             ['label' => 'Logistics & Operations', 'url' => 'javascript:void(0)'],
             ['label' => 'Goods Receipts', 'url' => route('web.goods-receipts.index')],

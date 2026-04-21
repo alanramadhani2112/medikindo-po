@@ -8,6 +8,13 @@
                 <div class="d-flex align-items-center gap-3 mb-2">
                     <h1 class="fs-2 fw-bold text-gray-900 mb-0">{{ $invoice->invoice_number }}</h1>
                     <span class="badge {{ $invoice->status->getBadgeClass() }}">{{ $invoice->status->getLabel() }}</span>
+                    {{-- Overdue badge --}}
+                    @if($invoice->isOverdueByDate())
+                        <span class="badge badge-danger">
+                            <i class="ki-outline ki-time fs-8 me-1"></i>
+                            Lewat {{ $invoice->days_overdue }} hari
+                        </span>
+                    @endif
                     {{-- GR Compliance Badge --}}
                     @if ($invoice->goods_receipt_id)
                         <span class="badge badge-light-success">
@@ -20,13 +27,26 @@
                         class="text-gray-900 fw-semibold">{{ $invoice->organization?->name ?? '—' }}</span></p>
             </div>
             <div class="d-flex gap-3">
+                {{-- Issue button for draft AR --}}
+                @if($invoice->isDraft())
+                    @can('create_invoices')
+                        <form method="POST" action="{{ route('web.invoices.customer.issue', $invoice) }}"
+                              onsubmit="return confirm('Terbitkan tagihan ini ke RS/Klinik? Status akan berubah menjadi Menunggu Pembayaran.')">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ki-outline ki-send fs-3 me-2"></i>
+                                Terbitkan ke RS/Klinik
+                            </button>
+                        </form>
+                    @endcan
+                @endif
                 <button onclick="window.open('{{ route('web.invoices.customer.pdf', $invoice) }}', '_blank')"
                     class="btn btn-light-primary">
                     <i class="ki-outline ki-document fs-2"></i>
                     Cetak PDF
                 </button>
                 <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light">
-                    <i class="ki-outline ki-arrow-down fs-2"></i>
+                    <i class="ki-outline ki-arrow-left fs-2"></i>
                     Kembali
                 </a>
             </div>
@@ -35,13 +55,13 @@
         {{-- Summary Cards --}}
         <div class="row mb-7">
             <div class="col-md-4">
-                <div class="card bg-dark">
+                <div class="card" style="background: linear-gradient(135deg, #1b4b7f 0%, #153a63 100%);">
                     <div class="card-body">
-                        <span class="text-gray-400 fs-8 fw-bold text-uppercase">Total Penagihan</span>
+                        <span class="text-white opacity-75 fs-8 fw-bold text-uppercase">Total Penagihan</span>
                         <div class="text-white fs-2x fw-bold mt-2">Rp
                             {{ number_format($invoice->total_amount, 0, ',', '.') }}</div>
                         <div class="mt-4 d-flex justify-content-between align-items-center">
-                            <span class="text-gray-500 fs-8 fw-bold">JATUH TEMPO</span>
+                            <span class="text-white opacity-60 fs-8 fw-bold">JATUH TEMPO</span>
                             <span class="badge badge-light-danger">{{ $invoice->due_date?->format('d M Y') ?? '—' }}</span>
                         </div>
                     </div>

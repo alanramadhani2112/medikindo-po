@@ -116,6 +116,7 @@
                                     @php
                                         $badge = match ($order->status) {
                                             'approved', 'shipped', 'delivered', 'completed' => 'success',
+                                            'partially_received' => 'primary',
                                             'submitted' => 'warning',
                                             'rejected' => 'danger',
                                             default => 'primary',

@@ -45,7 +45,7 @@
                     <strong>Nomor Invoice:</strong> {{ $invoice->invoice_number }}<br>
                     <strong>Tanggal Terbit:</strong> {{ $invoice->created_at->format('d F Y') }}<br>
                     <strong>Jatuh Tempo:</strong> <span style="color: #dc2626; font-weight: bold;">{{ $invoice->due_date?->format('d F Y') ?? '—' }}</span><br>
-                    <strong>Status:</strong> <span style="text-transform: uppercase; font-weight: bold;">{{ $invoice->status }}</span>
+                    <strong>Status:</strong> <span style="text-transform: uppercase; font-weight: bold;">{{ $invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status }}</span>
                 </div>
             </td>
             <td style="width: 50%;">

@@ -94,6 +94,12 @@
                                     <i class="ki-outline ki-courier-express fs-2"></i>
                                 </span>
                                 <span class="menu-title">Goods Receipt</span>
+                                @if(isset($partialGRCount) && $partialGRCount > 0)
+                                    <span class="badge badge-sm badge-circle badge-warning ms-auto"
+                                          title="{{ $partialGRCount }} PO menunggu pengiriman sisa">
+                                        {{ $partialGRCount }}
+                                    </span>
+                                @endif
                             </a>
                         </div>
                     @endcan
@@ -118,6 +124,12 @@
                             <span class="menu-badge">
                                 <span class="badge badge-light-danger badge-circle fw-bold fs-8">AP</span>
                             </span>
+                            @if(isset($grReadyToInvoiceCount) && $grReadyToInvoiceCount > 0)
+                                <span class="badge badge-sm badge-circle badge-danger ms-1"
+                                      title="{{ $grReadyToInvoiceCount }} GR siap diinvoice">
+                                    {{ $grReadyToInvoiceCount }}
+                                </span>
+                            @endif
                         </a>
                     </div>
 
@@ -202,6 +214,24 @@
                         </div>
                     @endcan
                 @endcanany
+
+                {{-- BANK ACCOUNTS SECTION --}}
+                @can('manage_bank_accounts')
+                    <div class="menu-item pt-5">
+                        <div class="menu-content">
+                            <span class="menu-heading fw-bold text-uppercase fs-7">Akun Bank</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs('web.bank-accounts.*') ? 'active' : '' }}"
+                            href="{{ route('web.bank-accounts.index') }}">
+                            <span class="menu-icon">
+                                <i class="ki-outline ki-bank fs-2"></i>
+                            </span>
+                            <span class="menu-title">Bank Accounts</span>
+                        </a>
+                    </div>
+                @endcan
 
                 {{-- INVENTORY SECTION --}}
                 @can('view_inventory')

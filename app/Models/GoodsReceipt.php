@@ -59,6 +59,11 @@ class GoodsReceipt extends Model
         return $this->hasMany(GoodsReceiptItem::class);
     }
 
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(GoodsReceiptDelivery::class)->orderBy('delivery_sequence');
+    }
+
     public function supplierInvoices(): HasMany
     {
         return $this->hasMany(SupplierInvoice::class);

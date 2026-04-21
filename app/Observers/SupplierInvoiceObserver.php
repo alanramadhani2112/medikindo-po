@@ -29,9 +29,13 @@ class SupplierInvoiceObserver
      */
     public function updating(SupplierInvoice $invoice): void
     {
+        $statusValue = $invoice->status instanceof \BackedEnum
+            ? $invoice->status->value
+            : (string) $invoice->status;
+
         \Log::info('SupplierInvoiceObserver::updating called', [
             'invoice_id' => $invoice->id,
-            'status' => $invoice->status,
+            'status' => $statusValue,
             'dirty' => $invoice->getDirty(),
         ]);
 

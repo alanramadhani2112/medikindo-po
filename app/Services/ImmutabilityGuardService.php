@@ -112,26 +112,36 @@ class ImmutabilityGuardService
 
         $isValid = empty($violations);
 
+        $statusValue = $invoice->status instanceof \BackedEnum
+            ? $invoice->status->value
+            : (string) $invoice->status;
+
         return [
             'is_valid' => $isValid,
             'violations' => $violations,
             'message' => $isValid 
                 ? 'All changes are allowed.' 
                 : 'Attempted to modify immutable fields: ' . implode(', ', array_keys($violations)),
-            'invoice_status' => $invoice->status,
+            'invoice_status' => $statusValue,
             'attempted_changes' => $attemptedChanges,
         ];
     }
 
     /**
-     * Enforce immutability rules and throw exception if violated
-     * 
+     * Enforce immutability rules and throw exception if violated.
+     * Super Admin bypasses all immutability checks.
+     *
      * @param Model $invoice Invoice model
      * @param array $attemptedChanges Changed attributes
      * @throws ImmutabilityViolationException If immutability is violated
      */
     public function enforce(Model $invoice, array $attemptedChanges): void
     {
+        // Super Admin God Mode — bypass immutability
+        if (auth()->check() && auth()->user()->isSuperAdmin()) {
+            return;
+        }
+
         $result = $this->checkImmutability($invoice, $attemptedChanges);
 
         if (!$result['is_valid']) {
@@ -147,13 +157,15 @@ class ImmutabilityGuardService
 
     /**
      * Check if invoice is in immutable state
-     * 
-     * @param Model $invoice Invoice model
-     * @return bool True if invoice is immutable
      */
     public function isImmutable(Model $invoice): bool
     {
-        return in_array($invoice->status, self::IMMUTABLE_STATUSES, true);
+        // $invoice->status may be an enum object (cast) or a raw string
+        $statusValue = $invoice->status instanceof \BackedEnum
+            ? $invoice->status->value
+            : (string) $invoice->status;
+
+        return in_array($statusValue, self::IMMUTABLE_STATUSES, true);
     }
 
     /**
@@ -252,18 +264,25 @@ class ImmutabilityGuardService
             // Determine invoice type
             $invoiceType = $invoice instanceof SupplierInvoice ? 'supplier' : 'customer';
 
+            // Convert enums to strings in attempted changes
+            $sanitizedChanges = $this->sanitizeEnumsInArray($attemptedChanges);
+
             // Create modification attempt record
             InvoiceModificationAttempt::create([
                 'invoice_type' => $invoiceType,
                 'invoice_id' => $invoice->id,
                 'user_id' => $userId,
                 'attempted_at' => now(),
-                'attempted_changes' => $attemptedChanges,
+                'attempted_changes' => $sanitizedChanges,
                 'rejection_reason' => 'Immutability violation: ' . implode(', ', array_keys($violations)),
                 'ip_address' => $ipAddress,
             ]);
 
             // Log to audit trail
+            $statusValue = $invoice->status instanceof \BackedEnum
+                ? $invoice->status->value
+                : (string) $invoice->status;
+
             $this->auditService->log(
                 action: 'invoice.immutability_violation',
                 entityType: $invoiceType . '_invoice',
@@ -271,8 +290,8 @@ class ImmutabilityGuardService
                 metadata: [
                     'operation' => 'immutability_check',
                     'invoice_number' => $invoice->invoice_number ?? 'N/A',
-                    'invoice_status' => $invoice->status,
-                    'attempted_changes' => $attemptedChanges,
+                    'invoice_status' => $statusValue,
+                    'attempted_changes' => $sanitizedChanges,
                     'violations' => $violations,
                     'ip_address' => $ipAddress,
                 ],
@@ -353,5 +372,30 @@ class ImmutabilityGuardService
         $fieldList = implode(', ', $fieldNames) . ' dan ' . $lastField;
 
         return "Fields {$fieldList} tidak dapat diubah setelah invoice diterbitkan.";
+    }
+
+    /**
+     * Sanitize enums in array by converting them to their string values
+     * 
+     * @param array $data Array that may contain enum values
+     * @return array Array with enums converted to strings
+     */
+    private function sanitizeEnumsInArray(array $data): array
+    {
+        $sanitized = [];
+
+        foreach ($data as $key => $value) {
+            if ($value instanceof \BackedEnum) {
+                $sanitized[$key] = $value->value;
+            } elseif ($value instanceof \UnitEnum) {
+                $sanitized[$key] = $value->name;
+            } elseif (is_array($value)) {
+                $sanitized[$key] = $this->sanitizeEnumsInArray($value);
+            } else {
+                $sanitized[$key] = $value;
+            }
+        }
+
+        return $sanitized;
     }
 }

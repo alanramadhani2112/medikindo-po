@@ -98,6 +98,7 @@ class RolePermissionSeeder extends Seeder
             'manage_suppliers',
             'manage_products',
             'manage_users',
+            'manage_bank_accounts',
         ];
 
         foreach ($permissions as $perm) {

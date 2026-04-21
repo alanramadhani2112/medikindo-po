@@ -22,10 +22,13 @@ class FinancialControlWebController extends Controller
             ->orderBy('is_active', 'desc')
             ->get()
             ->each(function ($limit) {
-                // Calculate outstanding AR for each organization safely
+                // Outstanding AR = sum of (total - paid) for issued/partial_paid invoices
                 $limit->total_active_ar = $limit->organization?->customerInvoices
-                    ->whereIn('status', ['unpaid', 'partial'])
-                    ->sum(fn($inv) => $inv->total_amount - $inv->paid_amount) ?? 0;
+                    ->whereIn('status', [
+                        \App\Enums\CustomerInvoiceStatus::ISSUED->value,
+                        \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value,
+                    ])
+                    ->sum(fn($inv) => $inv->outstanding_amount) ?? 0;
             });
             
         return view('financial-controls.index', compact('organizations', 'limits'));

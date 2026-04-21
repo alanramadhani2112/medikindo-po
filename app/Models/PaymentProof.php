@@ -14,6 +14,7 @@ class PaymentProof extends Model
         'customer_invoice_id',
         'submitted_by',
         'amount',
+        'payment_type',
         'payment_date',
         'bank_reference',
         'notes',
@@ -23,6 +24,9 @@ class PaymentProof extends Model
         'approved_by',
         'approved_at',
         'rejection_reason',
+        'recall_reason',
+        'recalled_at',
+        'correction_of_id',
     ];
 
     protected $casts = [
@@ -31,6 +35,7 @@ class PaymentProof extends Model
         'status'       => PaymentProofStatus::class,
         'verified_at'  => 'datetime',
         'approved_at'  => 'datetime',
+        'recalled_at'  => 'datetime',
     ];
 
     /**
@@ -90,5 +95,33 @@ class PaymentProof extends Model
     public function isSubmitted(): bool
     {
         return $this->status === PaymentProofStatus::SUBMITTED;
+    }
+
+    public function canBeRecalled(): bool
+    {
+        return $this->status === PaymentProofStatus::SUBMITTED;
+    }
+
+    public function isRecalled(): bool
+    {
+        return $this->status === PaymentProofStatus::RECALLED;
+    }
+
+    public function canBeCorrected(): bool
+    {
+        return $this->status === PaymentProofStatus::APPROVED;
+    }
+
+    /**
+     * The corrected proof this record replaces (for Super Admin corrections).
+     */
+    public function correctionOf(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PaymentProof::class, 'correction_of_id');
+    }
+
+    public function corrections(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PaymentProof::class, 'correction_of_id');
     }
 }

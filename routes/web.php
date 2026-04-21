@@ -117,6 +117,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/customer',                           [\App\Http\Controllers\Web\InvoiceWebController::class, 'storeCustomer'])->name('customer.store')->middleware('can:create_invoices');
         Route::get('/customer/{invoice}',                  [\App\Http\Controllers\Web\InvoiceWebController::class, 'showCustomer'])->name('customer.show');
         Route::get('/customer/{invoice}/pdf',              [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportCustomerPdf'])->name('customer.pdf');
+        Route::post('/customer/{invoice}/issue',           [\App\Http\Controllers\Web\InvoiceWebController::class, 'issueCustomer'])->name('customer.issue')->middleware('can:create_invoices');
 
         Route::post('/customer/{invoice}/confirm-payment', [\App\Http\Controllers\Web\InvoiceWebController::class, 'confirmPayment'])->name('customer.confirm_payment')->middleware('can:confirm_payment');
         Route::post('/customer/{invoice}/verify-payment',  [\App\Http\Controllers\Web\InvoiceWebController::class, 'verifyPayment'])->name('customer.verify_payment')->middleware('can:verify_payment');
@@ -190,6 +191,16 @@ Route::middleware('auth')->group(function () {
             Route::post('/{paymentProof}/reject', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'processRejection'])->name('process-rejection');
         });
 
+        // Recall (Healthcare withdraws their own submitted proof)
+        Route::post('/{paymentProof}/recall', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'recall'])
+            ->name('recall');
+
+        // Correction (Super Admin only — reverses an approved proof and creates a replacement)
+        Route::get('/{paymentProof}/correct', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'correct'])
+            ->name('correct');
+        Route::post('/{paymentProof}/correct', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'processCorrection'])
+            ->name('process-correction');
+
         // Document management
         Route::middleware('can:upload_payment_document')->group(function () {
             Route::post('/{paymentProof}/documents', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'uploadDocument'])->name('upload-document');
@@ -257,15 +268,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/read',      [\App\Http\Controllers\Web\NotificationWebController::class, 'markAsRead'])->name('markAsRead');
     });
 
+    // ── Bank Accounts ──────────────────────────────────────────
+    Route::prefix('bank-accounts')->name('web.bank-accounts.')->middleware('can:manage_bank_accounts')->group(function () {
+        Route::get('/',                              [\App\Http\Controllers\Web\BankAccountWebController::class, 'index'])->name('index');
+        Route::get('/create',                        [\App\Http\Controllers\Web\BankAccountWebController::class, 'create'])->name('create');
+        Route::post('/',                             [\App\Http\Controllers\Web\BankAccountWebController::class, 'store'])->name('store');
+        Route::get('/{bankAccount}/edit',            [\App\Http\Controllers\Web\BankAccountWebController::class, 'edit'])->name('edit');
+        Route::put('/{bankAccount}',                 [\App\Http\Controllers\Web\BankAccountWebController::class, 'update'])->name('update');
+        Route::delete('/{bankAccount}',              [\App\Http\Controllers\Web\BankAccountWebController::class, 'destroy'])->name('destroy');
+        Route::patch('/{bankAccount}/set-default',   [\App\Http\Controllers\Web\BankAccountWebController::class, 'setDefault'])->name('set-default');
+        Route::patch('/{bankAccount}/toggle-active', [\App\Http\Controllers\Web\BankAccountWebController::class, 'toggleActive'])->name('toggle-active');
+    });
+
     // ── Inventory ──────────────────────────────────────────────
     Route::prefix('inventory')->name('web.inventory.')->middleware('can:view_inventory')->group(function () {
-        Route::get('/',                              [\App\Http\Controllers\Web\InventoryWebController::class, 'index'])->name('index');
-        Route::get('/movements',                     [\App\Http\Controllers\Web\InventoryWebController::class, 'movements'])->name('movements');
-        Route::get('/low-stock',                     [\App\Http\Controllers\Web\InventoryWebController::class, 'lowStock'])->name('low_stock');
-        Route::get('/expiring',                      [\App\Http\Controllers\Web\InventoryWebController::class, 'expiring'])->name('expiring');
-        Route::get('/product/{product}',             [\App\Http\Controllers\Web\InventoryWebController::class, 'show'])->name('show');
-        Route::get('/adjust/{inventoryItem}',        [\App\Http\Controllers\Web\InventoryWebController::class, 'adjustForm'])->name('adjust.form');
-        Route::post('/adjust/{inventoryItem}',       [\App\Http\Controllers\Web\InventoryWebController::class, 'adjust'])->name('adjust');
+        Route::get('/{any?}', fn() => view('inventory.coming-soon'))->where('any', '.*')->name('index');
     });
 
     // ── Examples/Tests ────────────────────────────────────────

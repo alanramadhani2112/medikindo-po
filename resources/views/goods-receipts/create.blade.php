@@ -33,7 +33,7 @@
     @endpush
 
     <div x-data="grForm()" x-init='initData(@json($pos))'>
-        <form method="POST" action="{{ route('web.goods-receipts.store') }}" id="gr-form">
+        <form method="POST" action="{{ route('web.goods-receipts.store') }}" id="gr-form" enctype="multipart/form-data">
             @csrf
 
             {{-- PO Selection --}}
@@ -100,7 +100,11 @@
                                 <div class="row g-5 align-items-end">
                                     <div class="col-lg-12">
                                         <h6 class="fs-6 fw-bold text-primary mb-1" x-text="item.product.name"></h6>
-                                        <span class="fs-7 text-muted" x-text="`Jumlah Dipesan: ${item.quantity} ${item.product.unit || 'unit'}`"></span>
+                                        <div class="d-flex flex-wrap gap-4 mt-2">
+                                            <span class="fs-7 text-muted" x-html="`<strong>Total Pesanan:</strong> ${item.quantity} ${item.product.unit || 'unit'}`"></span>
+                                            <span class="fs-7 text-warning" x-show="item.already_received > 0" x-html="`<strong>Sudah Diterima:</strong> ${item.already_received} ${item.product.unit || 'unit'}`"></span>
+                                            <span class="fs-7 text-success" x-html="`<strong>Sisa untuk Diterima:</strong> ${item.remaining} ${item.product.unit || 'unit'}`"></span>
+                                        </div>
                                     </div>
                                     <div class="col-lg-3 col-md-6">
                                         <label class="form-label required fw-semibold fs-7 mb-2">Jumlah Diterima</label>
@@ -108,7 +112,7 @@
                                                :name="'items[' + index + '][quantity_received]'" 
                                                required 
                                                :min="1" 
-                                               :max="item.quantity" 
+                                               :max="item.remaining" 
                                                x-model.number="item.quantity_received">
                                     </div>
                                     <div class="col-lg-3 col-md-6">
@@ -141,6 +145,39 @@
                     </div>
                 </x-card>
 
+                {{-- Foto Bukti Penerimaan --}}
+                <x-card title="Bukti Foto Penerimaan" class="mb-5">
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <label class="form-label required fw-semibold fs-6 mb-2">
+                                <i class="ki-outline ki-picture fs-4 me-1 text-primary"></i>
+                                Foto Barang yang Diterima
+                            </label>
+                            <input type="file"
+                                   name="delivery_photo"
+                                   id="delivery_photo"
+                                   class="form-control form-control-solid @error('delivery_photo') is-invalid @enderror"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   required
+                                   onchange="previewPhoto(this)">
+                            @error('delivery_photo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text text-muted">
+                                Format: JPG, PNG, WebP. Maks 5MB. Foto harus menampilkan barang yang diterima beserta surat jalan.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="photo-preview-wrapper" class="d-none">
+                                <label class="form-label fw-semibold fs-7 mb-2 text-muted">Preview</label>
+                                <img id="photo-preview" src="" alt="Preview foto" 
+                                     class="rounded border border-gray-300" 
+                                     style="max-height: 200px; max-width: 100%; object-fit: contain;">
+                            </div>
+                        </div>
+                    </div>
+                </x-card>
+
                 {{-- Submit --}}
                 <div class="d-flex justify-content-end gap-3 pt-5">
                     <a href="{{ route('web.goods-receipts.index') }}" class="btn btn-light">
@@ -164,9 +201,24 @@
             searchQuery: '',
             showDropdown: false,
             items: [],
+            oldItems: [],
 
             initData(pos) {
                 this.pos = pos;
+                
+                // Ambil old() input data jika ada validasi gagal
+                const oldItemsRaw = {!! json_encode(old('items', [])) !!};
+                this.oldItems = Array.isArray(oldItemsRaw) ? oldItemsRaw : Object.values(oldItemsRaw);
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const preselectedId = urlParams.get('purchase_order_id') || '{{ old('purchase_order_id') }}';
+                
+                if (preselectedId) {
+                    const po = this.pos.find(p => p.id == preselectedId);
+                    if (po) {
+                        this.selectPo(po);
+                    }
+                }
             },
 
             filteredPos() {
@@ -183,11 +235,18 @@
                 this.searchQuery = po.po_number;
                 this.showDropdown = false;
                 
-                // Map items with default received qty
-                this.items = po.items.map(item => ({
-                    ...item,
-                    quantity_received: item.quantity
-                }));
+                // Map items with default received qty or old inputs if validation failed
+                this.items = po.items.map((item, index) => {
+                    const oldData = this.oldItems ? this.oldItems[index] : null;
+                    return {
+                        ...item,
+                        quantity_received: oldData ? oldData.quantity_received : item.remaining,
+                        batch_no: oldData ? oldData.batch_no : '',
+                        expiry_date: oldData ? oldData.expiry_date : '',
+                        condition: oldData ? oldData.condition : 'Baik',
+                        notes: oldData ? oldData.notes : ''
+                    };
+                });
             }
         };
     }
@@ -198,30 +257,39 @@
         if (form) {
             form.addEventListener('submit', function(e) {
                 const deliveryOrderNumber = document.getElementById('delivery_order_number');
-                
+                const photo = document.getElementById('delivery_photo');
+
                 if (!deliveryOrderNumber || !deliveryOrderNumber.value.trim()) {
                     e.preventDefault();
-                    
-                    // Show error message
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validasi Gagal',
-                        text: 'Nomor Surat Jalan (DO) wajib diisi!',
-                        confirmButtonText: 'OK'
-                    });
-                    
-                    // Focus on the field
-                    if (deliveryOrderNumber) {
-                        deliveryOrderNumber.focus();
-                        deliveryOrderNumber.classList.add('is-invalid');
-                    }
-                    
+                    Swal.fire({ icon: 'error', title: 'Validasi Gagal', text: 'Nomor Surat Jalan (DO) wajib diisi!', confirmButtonText: 'OK' });
+                    deliveryOrderNumber && deliveryOrderNumber.focus();
+                    return false;
+                }
+
+                if (!photo || !photo.files || photo.files.length === 0) {
+                    e.preventDefault();
+                    Swal.fire({ icon: 'error', title: 'Validasi Gagal', text: 'Foto bukti penerimaan barang wajib diupload!', confirmButtonText: 'OK' });
+                    photo && photo.focus();
                     return false;
                 }
             });
         }
     });
-    
+
+    function previewPhoto(input) {
+        const wrapper = document.getElementById('photo-preview-wrapper');
+        const preview = document.getElementById('photo-preview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                wrapper.classList.remove('d-none');
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            wrapper.classList.add('d-none');
+        }
+    }
     </script>
     @endpush
 </x-layout>

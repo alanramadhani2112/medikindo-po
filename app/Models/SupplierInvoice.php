@@ -90,4 +90,56 @@ class SupplierInvoice extends Model
     public function isVerified(): bool  { return $this->status === SupplierInvoiceStatus::VERIFIED; }
     public function isPaid(): bool      { return $this->status === SupplierInvoiceStatus::PAID; }
     public function isOverdue(): bool   { return $this->status === SupplierInvoiceStatus::OVERDUE; }
+
+    // -----------------------------------------------------------------------
+    // Finance Engine Helpers
+    // -----------------------------------------------------------------------
+
+    public function getOutstandingAmountAttribute(): float
+    {
+        return max(0, (float) $this->total_amount - (float) $this->paid_amount);
+    }
+
+    public function isOverdueByDate(): bool
+    {
+        return $this->due_date && $this->due_date->isPast() && ! $this->isPaid();
+    }
+
+    public function getDaysOverdueAttribute(): int
+    {
+        if (! $this->due_date || $this->isPaid()) return 0;
+        return max(0, (int) now()->startOfDay()->diffInDays($this->due_date, false) * -1);
+    }
+
+    public function getAgingBucketAttribute(): string
+    {
+        $days = $this->days_overdue;
+        if ($days <= 0)  return 'current';
+        if ($days <= 30) return '1-30';
+        if ($days <= 60) return '31-60';
+        if ($days <= 90) return '61-90';
+        return '90+';
+    }
+
+    /**
+     * Apply credit note to reduce AP balance.
+     */
+    public function applyCreditNote(\App\Models\CreditNote $creditNote): void
+    {
+        if ($creditNote->supplier_invoice_id !== $this->id) {
+            throw new \DomainException('Credit note does not belong to this supplier invoice.');
+        }
+
+        $creditAmount    = (float) $creditNote->total_amount;
+        $remainingBalance = $this->outstanding_amount;
+
+        if ($creditAmount >= $remainingBalance) {
+            $this->update([
+                'paid_amount' => $this->total_amount,
+                'status'      => SupplierInvoiceStatus::PAID,
+            ]);
+        } else {
+            $this->increment('paid_amount', $creditAmount);
+        }
+    }
 }

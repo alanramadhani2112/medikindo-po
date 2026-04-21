@@ -30,12 +30,67 @@ class Product extends Model
         'PCS'
     ];
 
+    // Product Type (Compliance)
+    public const PRODUCT_TYPES = [
+        'ALKES' => 'Alat Kesehatan',
+        'ALKES_DIV' => 'Alat Kesehatan Diagnostik In Vitro',
+        'PKRT' => 'Perbekalan Kesehatan Rumah Tangga',
+    ];
+
+    // Risk Class (Compliance)
+    public const RISK_CLASS_ALKES = [
+        'A' => 'Class A - Risiko Rendah',
+        'B' => 'Class B - Risiko Sedang-Rendah',
+        'C' => 'Class C - Risiko Sedang-Tinggi',
+        'D' => 'Class D - Risiko Tinggi',
+    ];
+
+    public const RISK_CLASS_PKRT = [
+        '1' => 'Class 1 - Risiko Rendah',
+        '2' => 'Class 2 - Risiko Sedang',
+        '3' => 'Class 3 - Risiko Tinggi',
+    ];
+
+    // Usage Method
+    public const USAGE_METHODS = [
+        'single_use' => 'Single Use (Sekali Pakai)',
+        'reusable' => 'Reusable (Dapat Digunakan Ulang)',
+        'sterilizable' => 'Sterilizable (Dapat Disterilkan)',
+    ];
+
+    // Target User
+    public const TARGET_USERS = [
+        'healthcare_professional' => 'Tenaga Kesehatan Profesional',
+        'consumer' => 'Konsumen/Pasien',
+        'both' => 'Keduanya',
+    ];
+
+    // Sterilization Method
+    public const STERILIZATION_METHODS = [
+        'ETO' => 'Ethylene Oxide (ETO)',
+        'Steam' => 'Steam/Autoclave',
+        'Radiation' => 'Radiation',
+        'Other' => 'Lainnya',
+        'None' => 'Tidak Steril',
+    ];
+
     protected $fillable = [
         'supplier_id',
+        'manufacturer',
+        'country_of_origin',
         'name',
         'sku',
+        'registration_number',
+        'registration_date',
+        'registration_expiry',
         'category',
+        'product_type',
+        'risk_class',
+        'intended_use',
+        'usage_method',
+        'target_user',
         'unit',
+        'base_unit_id',
         'price',
         'cost_price',
         'selling_price',
@@ -45,10 +100,18 @@ class Product extends Model
         'narcotic_group',
         'requires_sp',
         'requires_prescription',
+        'is_sterile',
+        'sterilization_method',
         'description',
         'is_active',
         'expiry_date',
         'batch_no',
+        'min_stock_level',
+        'max_stock_level',
+        'reorder_quantity',
+        'storage_temperature',
+        'storage_condition',
+        'special_handling',
     ];
 
     protected function casts(): array
@@ -59,11 +122,17 @@ class Product extends Model
             'selling_price'          => 'decimal:2',
             'discount_percentage'    => 'decimal:2',
             'discount_amount'        => 'decimal:2',
+            'min_stock_level'        => 'decimal:2',
+            'max_stock_level'        => 'decimal:2',
+            'reorder_quantity'       => 'decimal:2',
             'is_narcotic'            => 'boolean',
             'requires_sp'            => 'boolean',
             'requires_prescription'  => 'boolean',
+            'is_sterile'             => 'boolean',
             'is_active'              => 'boolean',
             'expiry_date'            => 'date',
+            'registration_date'      => 'date',
+            'registration_expiry'    => 'date',
         ];
     }
 
@@ -244,6 +313,10 @@ class Product extends Model
         }
     }
 
+    /**
+     * RELATIONSHIPS
+     */
+    
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
@@ -252,5 +325,132 @@ class Product extends Model
     public function purchaseOrderItems(): HasMany
     {
         return $this->hasMany(PurchaseOrderItem::class);
+    }
+
+    /**
+     * Get base unit (direct relationship)
+     */
+    public function baseUnit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class, 'base_unit_id');
+    }
+
+    /**
+     * Get all units for this product (many-to-many)
+     */
+    public function units(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Unit::class, 'product_units')
+                    ->withPivot([
+                        'conversion_to_base',
+                        'is_base_unit',
+                        'is_default_purchase',
+                        'is_default_sales',
+                        'barcode',
+                    ])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get product_units records
+     */
+    public function productUnits(): HasMany
+    {
+        return $this->hasMany(ProductUnit::class);
+    }
+
+    /**
+     * UNIT CONVERSION HELPERS
+     */
+
+    /**
+     * Get default purchase unit
+     */
+    public function getDefaultPurchaseUnitAttribute(): ?ProductUnit
+    {
+        return $this->productUnits()->where('is_default_purchase', true)->first();
+    }
+
+    /**
+     * Get default sales unit
+     */
+    public function getDefaultSalesUnitAttribute(): ?ProductUnit
+    {
+        return $this->productUnits()->where('is_default_sales', true)->first();
+    }
+
+    /**
+     * Convert quantity from one unit to another
+     */
+    public function convertUnit(float $quantity, int $fromUnitId, int $toUnitId): float
+    {
+        if ($fromUnitId === $toUnitId) {
+            return $quantity;
+        }
+
+        $fromUnit = $this->productUnits()->where('unit_id', $fromUnitId)->first();
+        $toUnit = $this->productUnits()->where('unit_id', $toUnitId)->first();
+
+        if (!$fromUnit || !$toUnit) {
+            throw new \Exception("Unit not found for this product");
+        }
+
+        // Convert to base unit first, then to target unit
+        $baseQuantity = $quantity * $fromUnit->conversion_to_base;
+        return $baseQuantity / $toUnit->conversion_to_base;
+    }
+
+    /**
+     * Convert quantity to base unit
+     */
+    public function toBaseUnit(float $quantity, int $unitId): float
+    {
+        if ($this->base_unit_id === $unitId) {
+            return $quantity;
+        }
+
+        $unit = $this->productUnits()->where('unit_id', $unitId)->first();
+        
+        if (!$unit) {
+            throw new \Exception("Unit not found for this product");
+        }
+
+        return $quantity * $unit->conversion_to_base;
+    }
+
+    /**
+     * COMPLIANCE HELPERS
+     */
+
+    /**
+     * Check if product requires special approval (high risk)
+     */
+    public function requiresSpecialApproval(): bool
+    {
+        // Risk class C, D (ALKES) atau 3 (PKRT) = high risk
+        return in_array($this->risk_class, ['C', 'D', '3']);
+    }
+
+    /**
+     * Check if registration is expired
+     */
+    public function isRegistrationExpired(): bool
+    {
+        if (!$this->registration_expiry) {
+            return false;
+        }
+        return $this->registration_expiry->isPast();
+    }
+
+    /**
+     * Check if registration is expiring soon (within 90 days)
+     */
+    public function isRegistrationExpiringSoon(int $days = 90): bool
+    {
+        if (!$this->registration_expiry) {
+            return false;
+        }
+        return $this->registration_expiry->isFuture() 
+               && $this->registration_expiry->diffInDays(now()) <= $days;
     }
 }

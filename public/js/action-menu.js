@@ -1,45 +1,23 @@
-// Action Menu Handler - uses fixed positioning to avoid overflow:hidden clipping
-document.addEventListener('DOMContentLoaded', function () {
+/**
+ * Action Dropdown Menu Handler
+ * Uses fixed positioning to avoid overflow:hidden clipping inside tables/cards.
+ */
+(function () {
+    'use strict';
 
-    // Track currently open menu
-    let activeMenu = null;
+    var activeMenu = null;
 
-    document.addEventListener('click', function (e) {
-        const button = e.target.closest('[data-action-menu]');
-
-        // Clicked outside - close
-        if (!button) {
-            if (!e.target.closest('.action-dropdown-menu')) {
-                closeAll();
-            }
-            return;
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        const wrapper = button.closest('.action-menu-wrapper');
-        const menu = wrapper ? wrapper.querySelector('.action-dropdown-menu') : null;
-        if (!menu) return;
-
-        const isOpen = menu.classList.contains('show');
-        closeAll();
-
-        if (!isOpen) {
-            openMenu(button, menu);
-        }
-    });
+    // ── Open / close helpers ──────────────────────────────────────────────
 
     function openMenu(button, menu) {
-        const rect = button.getBoundingClientRect();
+        closeAll();
 
-        // Use fixed positioning so overflow:hidden on table/card doesn't clip it
+        var rect = button.getBoundingClientRect();
         menu.style.position = 'fixed';
-        menu.style.top = (rect.bottom + 4) + 'px';
-        menu.style.left = 'auto';
-        menu.style.right = (window.innerWidth - rect.right) + 'px';
-        menu.style.zIndex = '9999';
-
+        menu.style.top      = (rect.bottom + 4) + 'px';
+        menu.style.left     = 'auto';
+        menu.style.right    = (window.innerWidth - rect.right) + 'px';
+        menu.style.zIndex   = '9999';
         menu.classList.add('show');
         activeMenu = menu;
     }
@@ -47,14 +25,81 @@ document.addEventListener('DOMContentLoaded', function () {
     function closeAll() {
         document.querySelectorAll('.action-dropdown-menu.show').forEach(function (m) {
             m.classList.remove('show');
-            m.style.display = 'none';
             m.style.position = '';
-            m.style.top = '';
-            m.style.right = '';
+            m.style.top      = '';
+            m.style.right    = '';
         });
         activeMenu = null;
     }
 
-    // Also close on scroll (since fixed position won't follow scroll)
+    // ── Main click handler ────────────────────────────────────────────────
+
+    document.addEventListener('click', function (e) {
+
+        // 1. Toggle button clicked → open/close menu
+        var toggleBtn = e.target.closest('[data-action-toggle]');
+        if (toggleBtn) {
+            e.preventDefault();
+            var menuId = toggleBtn.dataset.actionToggle;
+            var menu   = document.getElementById(menuId);
+            if (!menu) return;
+
+            if (menu.classList.contains('show')) {
+                closeAll();
+            } else {
+                openMenu(toggleBtn, menu);
+            }
+            return; // stop here, don't fall through
+        }
+
+        // 2. Confirm button inside dropdown → SweetAlert then submit
+        var confirmBtn = e.target.closest('.action-confirm');
+        if (confirmBtn) {
+            var form    = confirmBtn.closest('form');
+            var message = confirmBtn.dataset.confirm || 'Apakah Anda yakin?';
+            if (!form) return;
+
+            e.preventDefault();
+            closeAll();
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, lanjutkan',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#f1416c',
+                    cancelButtonColor: '#e4e6ef',
+                }).then(function (result) {
+                    if (result.isConfirmed) form.submit();
+                });
+            } else {
+                if (window.confirm(message)) form.submit();
+            }
+            return;
+        }
+
+        // 3. Click on a link/button inside dropdown → let it work naturally, then close
+        var insideMenu = e.target.closest('.action-dropdown-menu');
+        if (insideMenu) {
+            // Don't close immediately — let the browser follow the link/submit the form.
+            // Close after a tiny delay so the action fires first.
+            setTimeout(closeAll, 50);
+            return;
+        }
+
+        // 4. Click outside → close
+        closeAll();
+    });
+
+    // ── Close on scroll & Escape ──────────────────────────────────────────
+
     window.addEventListener('scroll', closeAll, true);
-});
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeAll();
+    });
+
+}());

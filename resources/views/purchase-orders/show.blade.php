@@ -15,11 +15,12 @@ Conversion Metadata:
                 <h1 class="fs-2 fw-bold text-gray-900 mb-0">{{ $po->po_number }}</h1>
                 @php
                     $statusMap = [
-                        'draft'     => ['label' => 'Draft',     'class' => 'badge-light-secondary'],
-                        'submitted' => ['label' => 'Diajukan',  'class' => 'badge-light-warning'],
-                        'approved'  => ['label' => 'Disetujui', 'class' => 'badge-light-info'],
-                        'rejected'  => ['label' => 'Ditolak',   'class' => 'badge-light-danger'],
-                        'completed' => ['label' => 'Selesai',   'class' => 'badge-light-success'],
+                        'draft'              => ['label' => 'Draft',             'class' => 'badge-light-secondary'],
+                        'submitted'          => ['label' => 'Diajukan',          'class' => 'badge-light-warning'],
+                        'approved'           => ['label' => 'Disetujui',         'class' => 'badge-light-info'],
+                        'partially_received' => ['label' => 'Diterima Sebagian', 'class' => 'badge-light-primary'],
+                        'rejected'           => ['label' => 'Ditolak',           'class' => 'badge-light-danger'],
+                        'completed'          => ['label' => 'Selesai',           'class' => 'badge-light-success'],
                     ];
                     $st = $statusMap[$po->status] ?? ['label' => strtoupper($po->status), 'class' => 'badge-light-secondary'];
                 @endphp
@@ -102,6 +103,32 @@ Conversion Metadata:
             <div>
                 <strong>PO telah disetujui.</strong>
                 Disetujui pada {{ $po->approved_at?->format('d M Y, H:i') ?? '-' }}.
+                Menunggu pengiriman dari supplier.
+            </div>
+        </div>
+    @elseif($po->isPartiallyReceived())
+        @php
+            $grCount    = $po->goodsReceipts()->count();
+            $totalOrdered  = $po->items->sum('quantity');
+            $totalReceived = $po->goodsReceipts()
+                ->join('goods_receipt_items', 'goods_receipts.id', '=', 'goods_receipt_items.goods_receipt_id')
+                ->sum('goods_receipt_items.quantity_received');
+            $pct = $totalOrdered > 0 ? round(($totalReceived / $totalOrdered) * 100) : 0;
+        @endphp
+        <div class="alert alert-primary d-flex align-items-start mb-7">
+            <i class="ki-outline ki-delivery fs-2 me-3 text-primary mt-1"></i>
+            <div class="flex-grow-1">
+                <strong>Barang diterima sebagian.</strong>
+                Sudah ada {{ $grCount }} pengiriman masuk. Stok sudah diperbarui untuk barang yang diterima.
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fs-7 text-gray-700">Progress Penerimaan</span>
+                        <span class="fs-7 fw-bold text-primary">{{ $totalReceived }} / {{ $totalOrdered }} unit ({{ $pct }}%)</span>
+                    </div>
+                    <div class="progress h-8px">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $pct }}%"></div>
+                    </div>
+                </div>
             </div>
         </div>
     @elseif($po->isCompleted())

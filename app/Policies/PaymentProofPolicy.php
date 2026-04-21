@@ -12,6 +12,17 @@ class PaymentProofPolicy
     use HandlesAuthorization;
 
     /**
+     * Super Admin God Mode — bypass all checks.
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
@@ -84,7 +95,29 @@ class PaymentProofPolicy
      */
     public function uploadDocument(User $user, PaymentProof $paymentProof): bool
     {
-        return $paymentProof->submitted_by === $user->id || 
+        return $paymentProof->submitted_by === $user->id ||
                $user->hasRole(['Super Admin', 'Finance']);
+    }
+
+    /**
+     * Determine whether the user can recall (withdraw) the payment proof.
+     * Only allowed if SUBMITTED and by the submitter OR Super Admin.
+     */
+    public function recall(User $user, PaymentProof $paymentProof): bool
+    {
+        if (!$paymentProof->canBeRecalled()) {
+            return false;
+        }
+
+        return $paymentProof->submitted_by === $user->id
+            || $user->isSuperAdmin();
+    }
+
+    /**
+     * Correct an already-approved payment proof (Super Admin only).
+     */
+    public function correct(User $user, PaymentProof $paymentProof): bool
+    {
+        return $user->isSuperAdmin() && $paymentProof->canBeCorrected();
     }
 }

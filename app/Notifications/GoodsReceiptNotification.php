@@ -36,17 +36,20 @@ class GoodsReceiptNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
-        $poNumber = $this->gr->purchaseOrder?->po_number ?? 'Unknown-PO';
+        $poNumber  = $this->gr->purchaseOrder?->po_number ?? 'Unknown-PO';
+        $isPartial = $this->gr->status === \App\Models\GoodsReceipt::STATUS_PARTIAL;
 
         return [
             'gr_id'     => $this->gr->id,
             'gr_number' => $this->gr->gr_number,
             'po_number' => $poNumber,
-            'title'     => 'Barang Telah Diterima',
-            'message'   => "Penerimaan barang #{$this->gr->gr_number} untuk PO #{$poNumber} telah selesai diproses.",
+            'title'     => $isPartial ? 'Barang Diterima Sebagian' : 'Barang Telah Diterima Penuh',
+            'message'   => $isPartial
+                ? "GR #{$this->gr->gr_number} untuk PO #{$poNumber}: pengiriman sebagian telah dikonfirmasi. Masih ada sisa yang belum dikirim."
+                : "GR #{$this->gr->gr_number} untuk PO #{$poNumber}: semua barang telah diterima lengkap.",
             'url'       => route('web.goods-receipts.show', $this->gr),
-            'icon'      => 'success',
-            'type'      => 'success'
+            'icon'      => $isPartial ? 'warning' : 'success',
+            'type'      => $isPartial ? 'warning' : 'success',
         ];
     }
 }

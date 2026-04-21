@@ -2,9 +2,11 @@
     :breadcrumbs="[['label' => 'Account Receivable']]">
 
     <x-slot name="actions">
-        @can('create_invoices')
-            <x-button :href="route('web.invoices.customer.create')" icon="plus" label="Buat Tagihan Baru" />
-        @endcan
+        {{-- AR tidak dibuat manual — dibuat otomatis saat AP diverifikasi --}}
+        <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-primary btn-sm">
+            <i class="ki-outline ki-arrow-right fs-4 me-1"></i>
+            Verifikasi Invoice Pemasok
+        </a>
     </x-slot>
 
     <x-slot name="tabs">
@@ -87,20 +89,30 @@
                     <td class="text-end">
                         <span class="fw-bold text-gray-900 fs-6">Rp
                             {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
+                        @if($invoice->outstanding_amount > 0)
+                            <div class="text-danger fs-8 mt-1">
+                                Sisa: Rp {{ number_format($invoice->outstanding_amount, 0, ',', '.') }}
+                            </div>
+                        @endif
                     </td>
                     <td class="text-center">
                         <span
                             class="badge {{ $invoice->status->getBadgeClass() }} fw-bold">{{ $invoice->status->getLabel() }}</span>
+                        @if($invoice->isOverdueByDate())
+                            <div class="mt-1">
+                                <span class="badge badge-danger fs-9">+{{ $invoice->days_overdue }}h lewat</span>
+                            </div>
+                        @endif
                     </td>
                     <td class="text-end pe-4">
-                        <a href="{{ route('web.invoices.customer.show', $invoice) }}"
-                            class="btn btn-icon btn-light-primary btn-sm" title="Lihat Detail">
-                            <i class="ki-outline ki-eye fs-2"></i>
-                        </a>
-                        <a href="{{ route('web.invoices.customer.pdf', $invoice) }}" target="_blank"
-                            class="btn btn-icon btn-light-info btn-sm" title="Cetak PDF">
-                            <i class="ki-outline ki-file-down fs-2"></i>
-                        </a>
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.invoices.customer.show', $invoice)" icon="eye" label="Lihat Detail" />
+                            @if($invoice->status->canAcceptPayment())
+                                <x-table-action.item :href="route('web.payments.create.incoming', ['invoice_id' => $invoice->id])" icon="dollar" label="Tambah Pembayaran" color="success" />
+                            @endif
+                            <x-table-action.divider />
+                            <x-table-action.item :href="route('web.invoices.customer.pdf', $invoice)" icon="file-down" label="Cetak PDF" color="info" target="_blank" />
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

@@ -76,14 +76,23 @@
 
                     filteredProducts(index) {
                         const q = (this.searchQuery[index] || '').toLowerCase();
-                        if (!q) return this.products.slice(0, 50);
-                        return this.products.filter(p =>
+                        // Filter out narcotic products
+                        const nonNarcoticProducts = this.products.filter(p => !p.is_narcotic);
+                        
+                        if (!q) return nonNarcoticProducts.slice(0, 50);
+                        return nonNarcoticProducts.filter(p =>
                             p.name.toLowerCase().includes(q) ||
                             (p.sku && p.sku.toLowerCase().includes(q))
                         ).slice(0, 50);
                     },
 
                     selectProduct(index, product) {
+                        // Extra safety: prevent narcotic products
+                        if (product.is_narcotic) {
+                            alert('⚠️ Produk narkotika/psikotropika tidak dapat dipesan melalui sistem ini untuk sementara waktu.\n\nSilakan hubungi tim procurement untuk pemesanan produk narkotika.');
+                            return;
+                        }
+                        
                         const item = this.items[index];
                         item.product_id = product.id;
                         item.product_name = product.name;
@@ -182,6 +191,19 @@
             <h1 class="fs-2 fw-bold text-gray-900 mb-2">Buat Purchase Order Baru</h1>
             <p class="text-gray-600 fs-6 mb-0">Mohon lengkapi informasi organisasi, pemasok, dan item produk secara
                 cermat.</p>
+        </div>
+    </div>
+
+    {{-- Warning: Narcotic Products Disabled --}}
+    <div class="alert alert-warning d-flex align-items-center p-5 mb-7">
+        <i class="ki-outline ki-information-5 fs-2hx text-warning me-4"></i>
+        <div class="d-flex flex-column">
+            <h4 class="mb-1 text-warning fw-bold">Pemberitahuan Penting</h4>
+            <span class="fs-6 text-gray-700">
+                Fitur pemesanan <strong>produk narkotika/psikotropika</strong> saat ini <strong>dinonaktifkan</strong> untuk sementara waktu. 
+                Produk narkotika tidak akan muncul dalam daftar produk yang tersedia. 
+                Untuk pemesanan produk narkotika, silakan hubungi tim procurement secara langsung.
+            </span>
         </div>
     </div>
 

@@ -107,19 +107,16 @@
                         @endif
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('web.organizations.edit', $org) }}" class="btn btn-icon btn-light-warning btn-sm" title="Edit">
-                            <i class="ki-outline ki-pencil fs-2"></i>
-                        </a>
-                        <form method="POST" action="{{ route('web.organizations.toggle_status', $org) }}" class="d-inline">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="btn btn-icon btn-light-{{ $org->is_active ? 'danger' : 'success' }} btn-sm toggle-status-confirm" 
-                                    data-name="{{ $org->name }}" 
-                                    data-status="{{ $org->is_active ? 'active' : 'inactive' }}"
-                                    title="{{ $org->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
-                                <i class="ki-outline ki-{{ $org->is_active ? 'cross-square' : 'check-circle' }} fs-2"></i>
-                            </button>
-                        </form>
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.organizations.edit', $org)" icon="pencil" label="Edit Organisasi" color="warning" />
+                            <x-table-action.divider />
+                            <x-table-action.item
+                                icon="{{ $org->is_active ? 'cross-square' : 'check-circle' }}"
+                                label="{{ $org->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
+                                color="{{ $org->is_active ? 'danger' : 'success' }}"
+                                :form="['method' => 'PATCH', 'action' => route('web.organizations.toggle_status', $org)]"
+                                :confirm="$org->is_active ? 'Nonaktifkan organisasi ' . $org->name . '?' : 'Aktifkan organisasi ' . $org->name . '?'" />
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

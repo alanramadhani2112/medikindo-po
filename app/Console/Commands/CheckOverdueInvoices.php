@@ -2,70 +2,91 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\CustomerInvoiceStatus;
+use App\Enums\SupplierInvoiceStatus;
 use App\Models\CustomerInvoice;
 use App\Models\SupplierInvoice;
 use App\Models\User;
 use App\Notifications\InvoiceOverdueNotification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CheckOverdueInvoices extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:check-overdue-invoices';
+    protected $description = 'Update status overdue dan kirim notifikasi untuk invoice AP/AR yang melewati jatuh tempo.';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Pemeriksaan otomatis faktur (AP/AR) yang belum lunas dan telah melewati batas jatuh tempo (overdue).';
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): int
     {
-        $this->info('Starting overdue check...');
+        $this->info('Checking overdue invoices — ' . now()->toDateTimeString());
         $today = now()->startOfDay();
 
-        // Cari Admin Keuangan / Super Admin untuk dikirimi notifikasi
-        // Misalnya kita kirim ke semua user yang punya role 'Super Admin' 
-        // atau role khusus 'Finance Admin'. Di Medikindo kita fallback ke Super Admin/Medikindo Admin
+        // ── AR: Customer Invoices ──────────────────────────────────────────
+        $arUpdated = CustomerInvoice::whereIn('status', [
+                CustomerInvoiceStatus::ISSUED->value,
+                CustomerInvoiceStatus::PARTIAL_PAID->value,
+            ])
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', $today)
+            ->get();
+
+        $arCount = 0;
+        foreach ($arUpdated as $inv) {
+            // CustomerInvoiceStatus tidak punya OVERDUE — tandai dengan flag overdue_at
+            // Status tetap issued/partial_paid, tapi kita set overdue_notified_at
+            DB::table('customer_invoices')
+                ->where('id', $inv->id)
+                ->whereNull('overdue_notified_at')
+                ->update(['overdue_notified_at' => now()]);
+            $arCount++;
+        }
+
+        // ── AP: Supplier Invoices ──────────────────────────────────────────
+        $apToOverdue = SupplierInvoice::whereIn('status', [
+                SupplierInvoiceStatus::DRAFT->value,
+                SupplierInvoiceStatus::VERIFIED->value,
+            ])
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', $today)
+            ->get();
+
+        $apCount = 0;
+        foreach ($apToOverdue as $inv) {
+            $inv->update(['status' => SupplierInvoiceStatus::OVERDUE->value]);
+            $apCount++;
+        }
+
+        // ── Notify Finance / Super Admin ───────────────────────────────────
         $financeUsers = User::role(['Super Admin'])->get();
-        if ($financeUsers->isEmpty()) {
-            $this->warn('No finance users found to notify.');
-            return 1;
-        }
 
-        // Cek Supplier Invoices (AP)
-        $apOverdue = SupplierInvoice::whereIn('status', ['unpaid', 'partial'])
-            ->whereDate('due_date', '<', $today)
-            ->get();
+        if ($financeUsers->isNotEmpty()) {
+            $allOverdue = collect();
 
-        foreach ($apOverdue as $inv) {
-            foreach ($financeUsers as $user) {
-                // To avoid duplicate spam every minute, we could track if notified recently,
-                // but for MVP we just send. Standard Laravel Notifications appends a row.
-                $user->notify(new InvoiceOverdueNotification($inv));
+            // AR overdue (issued/partial_paid past due)
+            CustomerInvoice::whereIn('status', [
+                    CustomerInvoiceStatus::ISSUED->value,
+                    CustomerInvoiceStatus::PARTIAL_PAID->value,
+                ])
+                ->whereNotNull('due_date')
+                ->whereDate('due_date', '<', $today)
+                ->get()
+                ->each(fn($inv) => $allOverdue->push($inv));
+
+            // AP overdue
+            SupplierInvoice::where('status', SupplierInvoiceStatus::OVERDUE->value)
+                ->get()
+                ->each(fn($inv) => $allOverdue->push($inv));
+
+            foreach ($allOverdue as $inv) {
+                foreach ($financeUsers as $user) {
+                    $user->notify(new InvoiceOverdueNotification($inv));
+                }
             }
         }
-        $this->info('Checked AP Invoices: ' . $apOverdue->count() . ' overdue.');
 
-        // Cek Customer Invoices (AR)
-        $arOverdue = CustomerInvoice::whereIn('status', ['unpaid', 'partial'])
-            ->whereDate('due_date', '<', $today)
-            ->get();
-
-        foreach ($arOverdue as $inv) {
-            foreach ($financeUsers as $user) {
-                $user->notify(new InvoiceOverdueNotification($inv));
-            }
-        }
-        $this->info('Checked AR Invoices: ' . $arOverdue->count() . ' overdue.');
+        $this->info("AR overdue flagged: {$arCount}");
+        $this->info("AP status → overdue: {$apCount}");
+        $this->info('Done.');
 
         return 0;
     }

@@ -94,12 +94,21 @@
                         <span class="badge {{ $invoice->status->getBadgeClass() }} fw-bold">{{ $invoice->status->getLabel() }}</span>
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('web.invoices.supplier.show', $invoice) }}" class="btn btn-icon btn-light-primary btn-sm" title="Lihat Detail">
-                            <i class="ki-outline ki-eye fs-2"></i>
-                        </a>
-                        <a href="{{ route('web.invoices.supplier.pdf', $invoice) }}" target="_blank" class="btn btn-icon btn-light-info btn-sm" title="Cetak PDF">
-                            <i class="ki-outline ki-file-down fs-2"></i>
-                        </a>
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.invoices.supplier.show', $invoice)" icon="eye" label="Lihat Detail" />
+                            @if($invoice->isDraft())
+                                @can('create_invoices')
+                                    <x-table-action.item
+                                        icon="shield-search"
+                                        label="Verifikasi Invoice"
+                                        color="success"
+                                        :form="['method' => 'POST', 'action' => route('web.invoices.supplier.verify', $invoice)]"
+                                        confirm="Verifikasi invoice ini? Sistem akan otomatis membuat draft tagihan ke RS/Klinik." />
+                                @endcan
+                            @endif
+                            <x-table-action.divider />
+                            <x-table-action.item :href="route('web.invoices.supplier.pdf', $invoice)" icon="file-down" label="Cetak PDF" color="info" target="_blank" />
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

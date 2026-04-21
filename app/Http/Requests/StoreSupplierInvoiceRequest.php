@@ -26,7 +26,7 @@ class StoreSupplierInvoiceRequest extends FormRequest
             'items'                         => 'required|array|min:1',
             'items.*.goods_receipt_item_id' => 'required|exists:goods_receipt_items,id',
             'items.*.quantity'              => 'required|numeric|min:0.01',
-            'items.*.unit_price'            => 'required|numeric|min:0',
+            // unit_price dihapus — diambil otomatis dari PO di service layer
             'items.*.discount_percent'      => 'nullable|numeric|min:0|max:100',
         ];
     }
@@ -73,7 +73,7 @@ class StoreSupplierInvoiceRequest extends FormRequest
         }
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'distributor_invoice_number.required' => 'Nomor invoice distributor wajib diisi.',
@@ -81,7 +81,6 @@ class StoreSupplierInvoiceRequest extends FormRequest
             'due_date.after_or_equal'             => 'Tanggal jatuh tempo harus sama atau setelah tanggal invoice.',
             'items.required'                      => 'Minimal harus ada 1 item.',
             'items.*.quantity.required'           => 'Quantity wajib diisi untuk setiap item.',
-            'items.*.unit_price.required'         => 'Harga satuan wajib diisi untuk setiap item.',
         ];
     }
 }

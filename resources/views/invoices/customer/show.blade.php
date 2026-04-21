@@ -1,299 +1,522 @@
-<x-layout :title="'Invoice ' . $invoice->invoice_number" :pageTitle="$invoice->invoice_number" breadcrumb="Tagihan ke RS/Klinik">
+@extends('layouts.app')
 
-    <x-page-header :title="$invoice->invoice_number" description="Detail tagihan piutang (AR)">
-        <x-slot name="actions">
-            <span class="badge {{ $invoice->status->getBadgeClass() }} fs-7 me-2">{{ $invoice->status->getLabel() }}</span>
-            @if($invoice->supplierInvoice)
-                <span class="badge badge-light-primary fs-8 me-2">
-                    <i class="ki-outline ki-verify fs-8 me-1"></i>
-                    AP: {{ $invoice->supplierInvoice->invoice_number }}
-                </span>
-            @endif
-            
-            <a href="{{ route('web.invoices.customer.pdf', $invoice) }}" target="_blank" class="btn btn-light-info btn-sm">
-                <i class="ki-outline ki-document fs-3"></i> Cetak PDF
-            </a>
+@section('content')
+<div class="container-fluid">
 
-            {{-- Verification Button (Finance/Admin) --}}
-            @if(!$invoice->isPaid() && $invoice->payment_submitted_at)
-                @can('verify_payment')
-                    <form method="POST" action="{{ route('web.invoices.customer.verify_payment', $invoice) }}" class="d-inline">
+    {{-- Page Header --}}
+    <div class="d-flex justify-content-between align-items-start mb-7">
+        <div>
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <h1 class="fs-2 fw-bold text-gray-900 mb-0">{{ $invoice->invoice_number }}</h1>
+                <span class="badge {{ $invoice->status->getBadgeClass() }} fs-7">{{ $invoice->status->getLabel() }}</span>
+                @if($invoice->isOverdueByDate())
+                    <span class="badge badge-danger fs-8">
+                        <i class="ki-outline ki-time fs-9 me-1"></i>
+                        Lewat {{ $invoice->days_overdue }} hari
+                    </span>
+                @endif
+            </div>
+            <p class="text-gray-600 fs-6 mb-0">
+                Tagihan kepada: <span class="text-gray-900 fw-semibold">{{ $invoice->organization?->name ?? '—' }}</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            @if($invoice->isDraft())
+                @can('create_invoices')
+                    <form method="POST" action="{{ route('web.invoices.customer.issue', $invoice) }}"
+                          onsubmit="return confirm('Terbitkan tagihan ini ke RS/Klinik?')">
                         @csrf
-                        <button type="submit" class="btn btn-success btn-sm submit-confirm" data-title="Verifikasi Pembayaran?" data-text="Pastikan dana sudah masuk ke rekening real sebelum verifikasi.">
-                            <i class="ki-outline ki-verify fs-3"></i> Verifikasi Pembayaran
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="ki-outline ki-send fs-4 me-1"></i>Terbitkan
                         </button>
                     </form>
                 @endcan
             @endif
-
-            {{-- Payment Confirmation Button (Clinic/RS) --}}
-            @if($invoice->status->canAcceptPayment() && !$invoice->payment_submitted_at)
-                @can('confirm_payment')
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#confirmPaymentModal">
-                        <i class="ki-outline ki-wallet fs-3"></i> Bayar Tagihan (Konfirmasi)
-                    </button>
-                @endcan
+            @if($invoice->status->canAcceptPayment())
+                <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
+                   class="btn btn-success btn-sm">
+                    <i class="ki-outline ki-dollar fs-4 me-1"></i>Tambah Pembayaran
+                </a>
             @endif
-
+            <button onclick="window.open('{{ route('web.invoices.customer.pdf', $invoice) }}', '_blank')"
+                class="btn btn-light-primary btn-sm">
+                <i class="ki-outline ki-document fs-4 me-1"></i>PDF
+            </button>
             <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light btn-sm">
-                <i class="ki-outline ki-arrow-left fs-3"></i> Kembali
+                <i class="ki-outline ki-arrow-left fs-4 me-1"></i>Kembali
             </a>
-        </x-slot>
-    </x-page-header>
-
-    {{-- Modals --}}
-    @if($invoice->status->canAcceptPayment() && !$invoice->payment_submitted_at)
-    <div class="modal fade" id="confirmPaymentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form method="POST" action="{{ route('web.invoices.customer.confirm_payment', $invoice) }}">
-                    @csrf
-                    <div class="modal-header">
-                        <h2 class="fw-bold">Konfirmasi Pembayaran</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                            <i class="ki-outline ki-cross fs-1"></i>
-                        </div>
-                    </div>
-                    <div class="modal-body py-10 px-lg-17">
-                        <div class="mb-5">
-                            <label class="form-label required fw-semibold">Tanggal Pembayaran</label>
-                            <input type="date" name="payment_date" class="form-control form-control-solid" value="{{ date('Y-m-d') }}" required>
-                        </div>
-                        <div class="mb-5">
-                            <label class="form-label required fw-semibold">Metode Pembayaran</label>
-                            <select name="payment_method" class="form-select form-select-solid" required>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="Cash">Tunai</option>
-                                <option value="VA">Virtual Account</option>
-                            </select>
-                        </div>
-                        <div class="mb-5">
-                            <label class="form-label required fw-semibold">Referensi / No. Transaksi</label>
-                            <input type="text" name="payment_reference" class="form-control form-control-solid" placeholder="Contoh: TRF-12345" required>
-                        </div>
-                        <div class="mb-5">
-                            <label class="form-label required fw-semibold">Jumlah yang Dibayar</label>
-                            <div class="input-group input-group-solid">
-                                <span class="input-group-text">Rp</span>
-                                <input type="number" name="paid_amount" class="form-control form-control-solid" value="{{ (int)$invoice->total_amount }}" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer flex-center">
-                        <button type="reset" class="btn btn-light me-3" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">
-                            <span class="indicator-label">Kirim Konfirmasi</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
-    @endif
 
-    {{-- Summary Row --}}
+    {{-- ═══════════════════════════════════════════════════════════
+         PAYMENT SUMMARY SECTION (Finance Engine)
+    ═══════════════════════════════════════════════════════════ --}}
     <div class="row g-5 mb-7">
-        <div class="col-md-4">
-            <div class="card bg-gray-900">
-                <div class="card-body p-7">
-                    <span class="text-gray-500 fs-7 fw-bold text-uppercase">Total Tagihan (Nett)</span>
-                    <h2 class="text-white fs-2hx fw-bold mt-2 mb-0">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</h2>
+        {{-- Total --}}
+        <div class="col-md-3">
+            <div class="card h-100" style="background: linear-gradient(135deg, #1b4b7f 0%, #153a63 100%);">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <span class="text-white opacity-75 fs-8 fw-bold text-uppercase">Total Tagihan</span>
+                    <div class="text-white fs-2x fw-bold mt-2">
+                        Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="text-white opacity-60 fs-8 fw-bold">JATUH TEMPO</span>
+                        <span class="badge {{ $invoice->isOverdueByDate() ? 'badge-danger' : 'badge-light-warning' }}">
+                            {{ $invoice->due_date?->format('d M Y') ?? '—' }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-light-success border border-success border-dashed">
-                <div class="card-body p-7">
-                    <span class="text-success fs-7 fw-bold text-uppercase">Telah Terbayar</span>
-                    <h2 class="text-success fs-2hx fw-bold mt-2 mb-0">Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-light-danger border border-danger border-dashed">
-                <div class="card-body p-7">
-                    <span class="text-danger fs-7 fw-bold text-uppercase">Sisa Piutang (AR)</span>
-                    <h2 class="text-danger fs-2hx fw-bold mt-2 mb-0">Rp {{ number_format($invoice->total_amount - $invoice->paid_amount, 0, ',', '.') }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row g-5">
-        {{-- Left: Details --}}
-        <div class="col-lg-4">
-            <x-card title="Informasi Tagihan" icon="information">
-                <div class="d-flex flex-column gap-5">
-                    <div>
-                        <span class="text-gray-600 fs-7 fw-bold d-block">RS/Klinik:</span>
-                        <span class="text-gray-900 fw-bold fs-6">{{ $invoice->organization?->name ?? '—' }}</span>
+        {{-- Paid --}}
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <span class="text-gray-600 fs-8 fw-bold text-uppercase">Sudah Dibayar</span>
+                    <div class="text-success fs-2x fw-bold mt-2">
+                        Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}
                     </div>
-                    <div class="separator separator-dashed"></div>
-                    <div class="row">
-                        <div class="col-6">
-                            <span class="text-gray-600 fs-7 fw-bold d-block">Tgl Terbit:</span>
-                            <span class="text-gray-800 fs-7">{{ $invoice->issued_at?->format('d M Y') ?? '—' }}</span>
+                    @php $pct = $invoice->total_amount > 0 ? ($invoice->paid_amount / $invoice->total_amount) * 100 : 0; @endphp
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-gray-500 fs-9">Progress</span>
+                            <span class="text-success fs-9 fw-bold">{{ number_format($pct, 0) }}%</span>
                         </div>
-                        <div class="col-6">
-                            <span class="text-gray-600 fs-7 fw-bold d-block">Jatuh Tempo:</span>
-                            <span class="text-danger fw-bold fs-7">{{ $invoice->due_date?->format('d M Y') ?? '—' }}</span>
+                        <div class="progress h-6px">
+                            <div class="progress-bar bg-success" style="width: {{ $pct }}%"></div>
                         </div>
                     </div>
-                    <div class="separator separator-dashed"></div>
-                    <div>
-                        <span class="text-gray-600 fs-7 fw-bold d-block mb-3">Dokumen Referensi:</span>
-                        <div class="d-flex flex-column gap-2">
-                            @if($invoice->goodsReceipt)
-                                <a href="{{ route('web.goods-receipts.show', $invoice->goodsReceipt) }}" class="btn btn-sm btn-light-primary text-start">
-                                    <i class="ki-outline ki-package fs-4 me-1"></i> GR: {{ $invoice->goodsReceipt->gr_number }}
-                                </a>
-                            @endif
-                            @if($invoice->purchaseOrder)
-                                <a href="{{ route('web.po.show', $invoice->purchaseOrder) }}" class="btn btn-sm btn-light-info text-start">
-                                    <i class="ki-outline ki-document fs-4 me-1"></i> PO: {{ $invoice->purchaseOrder->po_number }}
-                                </a>
-                            @endif
-                        </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Outstanding --}}
+        <div class="col-md-3">
+            <div class="card h-100 {{ $invoice->outstanding_amount > 0 ? 'border border-danger' : '' }}">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <span class="text-gray-600 fs-8 fw-bold text-uppercase">Sisa Tagihan</span>
+                    <div class="fs-2x fw-bold mt-2 {{ $invoice->outstanding_amount > 0 ? 'text-danger' : 'text-success' }}">
+                        Rp {{ number_format($invoice->outstanding_amount, 0, ',', '.') }}
                     </div>
-                    @if($invoice->surcharge > 0 || $invoice->ematerai_fee > 0)
-                        <div class="separator separator-dashed"></div>
-                        <div class="bg-light-warning p-4 rounded border border-warning border-dashed">
-                            <h6 class="text-gray-800 fw-bold fs-7 mb-3 text-uppercase">Penyesuaian Biaya</h6>
-                            @if($invoice->surcharge > 0)
-                                <div class="d-flex flex-stack mb-2">
-                                    <span class="text-gray-600 fs-8 fw-bold">Surcharge:</span>
-                                    <span class="text-gray-800 fs-7 fw-bolder">Rp {{ number_format($invoice->surcharge, 0, ',', '.') }}</span>
-                                </div>
-                            @endif
-                            @if($invoice->ematerai_fee > 0)
-                                <div class="d-flex flex-stack">
-                                    <span class="text-gray-600 fs-8 fw-bold">e-Meterai:</span>
-                                    <span class="text-gray-800 fs-7 fw-bolder">Rp {{ number_format($invoice->ematerai_fee, 0, ',', '.') }}</span>
-                                </div>
-                            @endif
+                    @if($invoice->outstanding_amount > 0)
+                        <div class="mt-3 p-2 rounded bg-light-danger">
+                            <span class="text-danger fs-9 fw-semibold">
+                                <i class="ki-outline ki-information-5 fs-9 me-1"></i>
+                                Belum lunas
+                            </span>
+                        </div>
+                    @else
+                        <div class="mt-3 p-2 rounded bg-light-success">
+                            <span class="text-success fs-9 fw-semibold">
+                                <i class="ki-outline ki-check-circle fs-9 me-1"></i>
+                                Sudah lunas
+                            </span>
                         </div>
                     @endif
                 </div>
-            </x-card>
+            </div>
         </div>
 
-        {{-- Right: Items & Payments --}}
-        <div class="col-lg-8">
-            <ul class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-6 fw-semibold mb-8">
-                <li class="nav-item">
-                    <a class="nav-link text-active-primary pb-4 active" data-bs-toggle="tab" href="#kt_items">Item Tagihan</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-active-primary pb-4" data-bs-toggle="tab" href="#kt_payments">Riwayat Bayar</a>
-                </li>
-            </ul>
-
-            <div class="tab-content">
-                {{-- Items Tab --}}
-                <div class="tab-pane fade show active" id="kt_items">
-                    <x-card title="Rincian Barang" class="mb-5">
-                        <div class="table-responsive">
-                            <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
-                                <thead>
-                                    <tr class="fw-bold text-muted bg-light">
-                                        <th class="ps-4">Produk</th>
-                                        <th class="text-end">Qty</th>
-                                        <th class="text-end">Harga Satuan</th>
-                                        <th class="text-end pe-4">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($invoice->lineItems as $item)
-                                        <tr>
-                                            <td class="ps-4">
-                                                <div class="d-flex flex-column">
-                                                    <span class="text-gray-900 fw-bold fs-6">{{ $item->product_name }}</span>
-                                                    <span class="text-gray-500 fs-7">Batch: {{ $item->batch_no ?? '—' }} | Exp: {{ $item->expiry_date?->format('d/m/Y') ?? '—' }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="text-end fw-bold">{{ $item->quantity }} {{ $item->unit }}</td>
-                                            <td class="text-end">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
-                                            <td class="text-end pe-4 fw-bold text-gray-900">Rp {{ number_format($item->line_total, 0, ',', '.') }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+        {{-- Aging --}}
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <span class="text-gray-600 fs-8 fw-bold text-uppercase">Aging Status</span>
+                    @php
+                        $agingBucket = $invoice->aging_bucket;
+                        $agingConfig = [
+                            'current' => ['label' => 'Belum Jatuh Tempo', 'color' => 'success', 'icon' => 'check-circle'],
+                            '1-30'    => ['label' => '1–30 Hari Lewat',   'color' => 'warning', 'icon' => 'time'],
+                            '31-60'   => ['label' => '31–60 Hari Lewat',  'color' => 'danger',  'icon' => 'information-5'],
+                            '61-90'   => ['label' => '61–90 Hari Lewat',  'color' => 'danger',  'icon' => 'cross-circle'],
+                            '90+'     => ['label' => '>90 Hari Lewat',    'color' => 'dark',    'icon' => 'skull'],
+                        ];
+                        $aging = $agingConfig[$agingBucket] ?? $agingConfig['current'];
+                    @endphp
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="ki-outline ki-{{ $aging['icon'] }} fs-2 text-{{ $aging['color'] }}"></i>
+                            <span class="fs-5 fw-bold text-{{ $aging['color'] }}">{{ $aging['label'] }}</span>
                         </div>
-
-                        {{-- Calculation Footer --}}
-                        <div class="d-flex justify-content-end mt-5">
-                            <div class="w-100 w-md-300px">
-                                <div class="d-flex flex-stack mb-3">
-                                    <div class="fw-semibold text-gray-600 fs-7">Subtotal:</div>
-                                    <div class="fw-bold text-gray-800 fs-7">Rp {{ number_format($invoice->subtotal_amount, 0, ',', '.') }}</div>
-                                </div>
-                                <div class="d-flex flex-stack mb-3">
-                                    <div class="fw-semibold text-gray-600 fs-7">PPN (11%):</div>
-                                    <div class="fw-bold text-gray-800 fs-7">Rp {{ number_format($invoice->tax_amount, 0, ',', '.') }}</div>
-                                </div>
-                                @if($invoice->surcharge > 0)
-                                    <div class="d-flex flex-stack mb-3">
-                                        <div class="fw-semibold text-gray-600 fs-7">Surcharge:</div>
-                                        <div class="fw-bold text-primary fs-7">Rp {{ number_format($invoice->surcharge, 0, ',', '.') }}</div>
-                                    </div>
-                                @endif
-                                @if($invoice->ematerai_fee > 0)
-                                    <div class="d-flex flex-stack mb-3">
-                                        <div class="fw-semibold text-gray-600 fs-7">e-Meterai:</div>
-                                        <div class="fw-bold text-gray-800 fs-7">Rp {{ number_format($invoice->ematerai_fee, 0, ',', '.') }}</div>
-                                    </div>
-                                @endif
-                                <div class="separator separator-dashed my-3"></div>
-                                <div class="d-flex flex-stack">
-                                    <div class="fw-bold text-gray-800 fs-6">Grand Total:</div>
-                                    <div class="fw-bolder text-gray-900 fs-5">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </x-card>
-                </div>
-
-                {{-- Payments Tab --}}
-                <div class="tab-pane fade" id="kt_payments">
-                    <x-card title="Riwayat Pembayaran Real" icon="entrance-right">
-                        @if($invoice->status->canAcceptPayment())
-                            <x-slot name="actions">
-                                <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}" class="btn btn-sm btn-success">
-                                    <i class="ki-outline ki-plus fs-4"></i> Catat Pembayaran
-                                </a>
-                            </x-slot>
+                        @if($invoice->days_overdue > 0)
+                            <span class="badge badge-light-{{ $aging['color'] }} fs-7 px-3 py-2">
+                                {{ $invoice->days_overdue }} hari terlambat
+                            </span>
+                        @else
+                            <span class="badge badge-light-success fs-7 px-3 py-2">On Time</span>
                         @endif
-
-                        <div class="table-responsive">
-                            <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
-                                <thead>
-                                    <tr class="fw-bold text-muted bg-light">
-                                        <th class="ps-4">No. Pembayaran</th>
-                                        <th>Metode</th>
-                                        <th class="text-end">Jumlah</th>
-                                        <th class="text-end pe-4">Tanggal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($invoice->paymentAllocations as $alloc)
-                                        <tr>
-                                            <td class="ps-4 fw-bold text-gray-800">{{ $alloc->payment?->payment_number }}</td>
-                                            <td><span class="badge badge-light-secondary">{{ strtoupper($alloc->payment?->payment_method ?? '—') }}</span></td>
-                                            <td class="text-end text-success fw-bold">+ Rp {{ number_format($alloc->allocated_amount, 0, ',', '.') }}</td>
-                                            <td class="text-end pe-4 text-gray-600">{{ $alloc->created_at->format('d/m/Y') }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center py-8 text-gray-500 fs-7">Belum ada pembayaran riil yang dicatat.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                    </div>
+                    <div class="mt-3">
+                        {{-- Aging bar visual --}}
+                        @php
+                            $agingPct = match($agingBucket) {
+                                'current' => 10,
+                                '1-30'    => 35,
+                                '31-60'   => 60,
+                                '61-90'   => 80,
+                                '90+'     => 100,
+                                default   => 0,
+                            };
+                        @endphp
+                        <div class="progress h-6px">
+                            <div class="progress-bar bg-{{ $aging['color'] }}" style="width: {{ $agingPct }}%"></div>
                         </div>
-                    </x-card>
+                        <div class="d-flex justify-content-between mt-1">
+                            <span class="text-gray-400 fs-9">0</span>
+                            <span class="text-gray-400 fs-9">30</span>
+                            <span class="text-gray-400 fs-9">60</span>
+                            <span class="text-gray-400 fs-9">90+</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-</x-layout>
+    {{-- Bill To & References --}}
+    <div class="row mb-7">
+        <div class="col-lg-4 mb-5 mb-lg-0">
+            <div class="card border-primary h-100">
+                <div class="card-header bg-light-primary">
+                    <h3 class="card-title text-primary fw-bold">
+                        <i class="ki-outline ki-geolocation fs-2 me-2"></i>TAGIHAN KEPADA
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="fs-4 fw-bold text-gray-900 mb-2">{{ $invoice->organization?->name ?? '—' }}</div>
+                    @if($invoice->organization?->address)
+                        <div class="text-gray-600 fs-6 mb-1">
+                            <i class="ki-outline ki-geolocation fs-6 me-1"></i>{{ $invoice->organization->address }}
+                        </div>
+                    @endif
+                    @if($invoice->organization?->phone)
+                        <div class="text-gray-600 fs-6 mb-1">
+                            <i class="ki-outline ki-phone fs-6 me-1"></i>{{ $invoice->organization->phone }}
+                        </div>
+                    @endif
+                    @if($invoice->organization?->email)
+                        <div class="text-gray-600 fs-6">
+                            <i class="ki-outline ki-sms fs-6 me-1"></i>{{ $invoice->organization->email }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Bank Account --}}
+        <div class="col-lg-4 mb-5 mb-lg-0">
+            <div class="card border-success h-100">
+                <div class="card-header bg-light-success">
+                    <h3 class="card-title text-success fw-bold">
+                        <i class="ki-outline ki-bank fs-2 me-2"></i>REKENING TUJUAN TRANSFER
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @if($invoice->bankAccount)
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="symbol symbol-45px">
+                                <div class="symbol-label bg-light-success text-success fw-bold fs-5">
+                                    {{ strtoupper(substr($invoice->bankAccount->bank_name, 0, 2)) }}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-gray-900 fs-5">{{ $invoice->bankAccount->bank_name }}</div>
+                                <div class="text-muted fs-7">Bank Tujuan</div>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded bg-light-success mb-2">
+                            <div class="text-gray-500 fs-8 fw-bold text-uppercase mb-1">Nomor Rekening</div>
+                            <div class="fw-bold text-gray-900 fs-4 font-monospace">{{ $invoice->bankAccount->account_number }}</div>
+                        </div>
+                        <div class="text-gray-600 fs-7">
+                            <i class="ki-outline ki-profile-user fs-7 me-1"></i>
+                            Atas nama: <span class="fw-semibold text-gray-800">{{ $invoice->bankAccount->account_holder_name }}</span>
+                        </div>
+                    @else
+                        <div class="d-flex flex-column align-items-center justify-content-center h-100 py-5">
+                            <i class="ki-outline ki-bank fs-3x text-gray-300 mb-3"></i>
+                            <span class="text-gray-500 fs-7 text-center">Rekening belum ditentukan.<br>Hubungi Medikindo untuk informasi transfer.</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="ki-outline ki-document fs-2 me-2"></i>Dokumen Referensi</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-column gap-3">
+                        @if($invoice->goods_receipt_id)
+                            <a href="{{ route('web.goods-receipts.show', $invoice->goods_receipt_id) }}"
+                                class="d-flex align-items-center justify-content-between p-3 rounded bg-light-success">
+                                <div class="d-flex flex-column">
+                                    <span class="text-gray-600 fs-7">Nomor GR</span>
+                                    <span class="text-gray-900 fw-bold">{{ $invoice->goodsReceipt?->gr_number ?? '—' }}</span>
+                                </div>
+                                <i class="ki-outline ki-arrow-right fs-4 text-success"></i>
+                            </a>
+                        @endif
+                        <a href="{{ route('web.po.show', $invoice->purchase_order_id) }}"
+                            class="d-flex align-items-center justify-content-between p-3 rounded bg-light-primary">
+                            <div class="d-flex flex-column">
+                                <span class="text-gray-600 fs-7">Nomor PO Internal</span>
+                                <span class="text-gray-900 fw-bold">{{ $invoice->purchaseOrder?->po_number ?? '—' }}</span>
+                            </div>
+                            <i class="ki-outline ki-arrow-right fs-4 text-primary"></i>
+                        </a>
+                        <div class="d-flex align-items-center justify-content-between p-3 rounded bg-light">
+                            <div class="d-flex flex-column">
+                                <span class="text-gray-600 fs-7">Tanggal Invoice</span>
+                                <span class="text-gray-900 fw-bold">{{ $invoice->created_at->format('d M Y') }}</span>
+                            </div>
+                            <i class="ki-outline ki-calendar fs-4 text-gray-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Line Items --}}
+    <div class="card mb-7">
+        <div class="card-header">
+            <h3 class="card-title"><i class="ki-outline ki-package fs-2 me-2"></i>Rincian Barang</h3>
+            <div class="card-toolbar">
+                <span class="badge badge-light-success fs-7">
+                    <i class="ki-outline ki-verify fs-7 me-1"></i>Data dari GR
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-row-bordered table-row-gray-200 align-middle gs-0 gy-3 mb-0">
+                    <thead class="bg-light">
+                        <tr class="fw-bold text-muted fs-7 text-uppercase">
+                            <th class="ps-5 w-40px">No</th>
+                            <th>Nama Produk</th>
+                            <th class="text-center">No. Batch</th>
+                            <th class="text-center">Tgl. Kadaluarsa</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-center">Satuan</th>
+                            <th class="text-end">Harga Satuan</th>
+                            <th class="text-center">Diskon</th>
+                            <th class="text-end pe-5">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($invoice->lineItems as $index => $item)
+                            <tr>
+                                <td class="ps-5 text-gray-600">{{ $index + 1 }}</td>
+                                <td><span class="text-gray-900 fw-bold">{{ $item->product_name }}</span></td>
+                                <td class="text-center">
+                                    <span class="badge badge-light-primary">{{ $item->batch_no ?? '—' }}</span>
+                                </td>
+                                <td class="text-center">
+                                    @if($item->expiry_date)
+                                        @php
+                                            $isExpired = $item->expiry_date->isPast();
+                                            $isSoon = !$isExpired && $item->expiry_date->diffInDays(now()) <= 90;
+                                        @endphp
+                                        <span class="badge badge-light-{{ $isExpired ? 'danger' : ($isSoon ? 'warning' : 'success') }}">
+                                            {{ $item->expiry_date->format('d M Y') }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                                <td class="text-center fw-bold">{{ number_format($item->quantity, 0, ',', '.') }}</td>
+                                <td class="text-center text-gray-600">{{ $item->unit ?? 'pcs' }}</td>
+                                <td class="text-end">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                                <td class="text-center">
+                                    @if($item->discount_percentage > 0)
+                                        <span class="badge badge-light-warning">{{ number_format($item->discount_percentage, 1) }}%</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                                <td class="text-end pe-5 fw-bold text-gray-900">
+                                    Rp {{ number_format($item->line_total, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center py-10">
+                                    <x-empty-state icon="package" title="Tidak Ada Item" message="Tidak ada rincian barang." />
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Bottom Row: Payment History + Pricing Summary --}}
+    <div class="row">
+        {{-- Payment History --}}
+        <div class="col-lg-7 mb-7">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ki-outline ki-entrance-right fs-2 me-2"></i>Riwayat Pembayaran
+                    </h3>
+                    @if($invoice->status->canAcceptPayment())
+                        <div class="card-toolbar">
+                            <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
+                                class="btn btn-sm btn-primary">
+                                <i class="ki-outline ki-dollar fs-4 me-1"></i>Tambah Pembayaran
+                            </a>
+                        </div>
+                    @endif
+                </div>
+                <div class="card-body">
+                    {{-- Payment progress bar --}}
+                    @if($invoice->total_amount > 0)
+                        @php $pct = ($invoice->paid_amount / $invoice->total_amount) * 100; @endphp
+                        <div class="mb-5">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-gray-600 fs-7">Progress Pembayaran</span>
+                                <span class="fw-bold fs-7 {{ $pct >= 100 ? 'text-success' : 'text-primary' }}">
+                                    {{ number_format($pct, 0) }}%
+                                </span>
+                            </div>
+                            <div class="progress h-8px rounded">
+                                <div class="progress-bar {{ $pct >= 100 ? 'bg-success' : 'bg-primary' }}"
+                                     style="width: {{ min($pct, 100) }}%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <span class="text-gray-500 fs-9">Rp 0</span>
+                                <span class="text-gray-500 fs-9">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="table-responsive">
+                        <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
+                            <thead>
+                                <tr class="fw-bold text-muted bg-light">
+                                    <th class="ps-4 rounded-start">Nomor Ref</th>
+                                    <th>Metode</th>
+                                    <th class="text-end">Jumlah</th>
+                                    <th class="text-end pe-4 rounded-end">Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($invoice->paymentAllocations as $alloc)
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="text-gray-800 fw-bold">
+                                                {{ $alloc->payment?->payment_number ?? 'PAY-' . $alloc->id }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light-secondary">
+                                                {{ strtoupper($alloc->payment?->payment_method ?? '—') }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-success fw-bold">
+                                                + Rp {{ number_format($alloc->allocated_amount, 0, ',', '.') }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <span class="text-gray-600">{{ $alloc->created_at->format('d/m/Y') }}</span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-8">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="ki-outline ki-entrance-right fs-3x text-gray-300 mb-3"></i>
+                                                <span class="text-gray-600 fw-semibold">Belum Ada Pembayaran</span>
+                                                @if($invoice->status->canAcceptPayment())
+                                                    <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
+                                                        class="btn btn-sm btn-light-primary mt-3">
+                                                        <i class="ki-outline ki-dollar fs-4 me-1"></i>Input Pembayaran
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Pricing Summary --}}
+        <div class="col-lg-5 mb-7">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="ki-outline ki-calculator fs-2 me-2"></i>Ringkasan Harga</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                            <span class="text-gray-600 fs-6">Subtotal</span>
+                            <span class="text-gray-900 fw-semibold">Rp {{ number_format($invoice->subtotal_amount ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        @if(($invoice->discount_amount ?? 0) > 0)
+                            <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                                <span class="text-gray-600 fs-6">Diskon</span>
+                                <span class="text-danger fw-semibold">- Rp {{ number_format($invoice->discount_amount, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+                        @if(($invoice->tax_amount ?? 0) > 0)
+                            <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                                <span class="text-gray-600 fs-6">PPN (11%)</span>
+                                <span class="text-gray-900 fw-semibold">Rp {{ number_format($invoice->tax_amount, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+                        @if(($invoice->surcharge ?? 0) > 0)
+                            <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                                <span class="text-gray-600 fs-6">Surcharge</span>
+                                <span class="text-primary fw-semibold">Rp {{ number_format($invoice->surcharge, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+                        @if(($invoice->ematerai_fee ?? 0) > 0)
+                            <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
+                                <span class="text-gray-600 fs-6">e-Meterai</span>
+                                <span class="text-gray-900 fw-semibold">Rp {{ number_format($invoice->ematerai_fee, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+                        <div class="d-flex justify-content-between py-3 px-4 rounded bg-light-primary">
+                            <span class="text-primary fw-bold fs-5">TOTAL TAGIHAN</span>
+                            <span class="text-primary fw-bold fs-4">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="separator my-1"></div>
+                        <div class="d-flex justify-content-between py-2">
+                            <span class="text-gray-600 fs-6">Sudah Dibayar</span>
+                            <span class="text-success fw-semibold">Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}</span>
+                        </div>
+                        @php $outstanding = $invoice->outstanding_amount; @endphp
+                        <div class="d-flex justify-content-between py-3 px-4 rounded {{ $outstanding > 0 ? 'bg-light-danger' : 'bg-light-success' }}">
+                            <span class="fw-bold fs-6 {{ $outstanding > 0 ? 'text-danger' : 'text-success' }}">Sisa Tagihan</span>
+                            <span class="fw-bold fs-5 {{ $outstanding > 0 ? 'text-danger' : 'text-success' }}">
+                                Rp {{ number_format($outstanding, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if($invoice->notes)
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <span class="text-gray-600 fs-7 fw-bold">Catatan Invoice</span>
+                        <p class="text-gray-700 fs-6 mt-2 fst-italic">"{{ $invoice->notes }}"</p>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
+</div>
+@endsection

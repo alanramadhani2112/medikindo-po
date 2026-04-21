@@ -153,12 +153,16 @@
                             </div>
                         </td>
                         <td class="text-end">
-                            <a href="{{ route('web.goods-receipts.show', $receipt) }}" class="btn btn-icon btn-light-primary btn-sm" title="Lihat Detail">
-                                <i class="ki-outline ki-eye fs-2"></i>
-                            </a>
-                            <a href="{{ route('web.goods-receipts.pdf', $receipt) }}" class="btn btn-icon btn-light-info btn-sm" target="_blank" title="Download PDF">
-                                <i class="ki-outline ki-file-down fs-2"></i>
-                            </a>
+                            <x-table-action>
+                                <x-table-action.item :href="route('web.goods-receipts.show', $receipt)" icon="eye" label="Lihat Detail" />
+                                @if($receipt->status === 'partial')
+                                    @can('create', \App\Models\GoodsReceipt::class)
+                                        <x-table-action.item :href="route('web.goods-receipts.create', ['purchase_order_id' => $receipt->purchase_order_id])" icon="plus" label="Tambah Pengiriman" color="success" />
+                                    @endcan
+                                @endif
+                                <x-table-action.divider />
+                                <x-table-action.item :href="route('web.goods-receipts.pdf', $receipt)" icon="file-down" label="Download PDF" color="info" target="_blank" />
+                            </x-table-action>
                         </td>
                     </tr>
                 @empty

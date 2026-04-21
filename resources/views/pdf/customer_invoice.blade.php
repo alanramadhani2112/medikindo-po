@@ -374,7 +374,7 @@
                     @endif
                 </td>
                 <td class="text-center">
-                    {{ $item->batch_number ?? '—' }}
+                    {{ $item->batch_no ?? '—' }}
                     @if($item->expiry_date)
                         <br><span style="font-size: 8px;">{{ $item->expiry_date->format('d/m/Y') }}</span>
                     @endif

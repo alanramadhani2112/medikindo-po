@@ -387,6 +387,13 @@ a.text-primary:hover {
     white-space: nowrap;
 }
 
+/* Form wrapper inside dropdown must not add spacing */
+.action-dropdown-menu form {
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
 .action-dropdown-menu a:hover,
 .action-dropdown-menu button[type="submit"]:hover {
     background-color: #f1f3f8;
@@ -403,6 +410,11 @@ a.text-primary:hover {
     color: #ffc700 !important;
 }
 
+.action-dropdown-menu button.text-success:hover {
+    background-color: #e8fff3;
+    color: #17c653 !important;
+}
+
 .action-dropdown-menu .separator {
     border-top: 1px solid #e4e6ef;
     margin: 0.25rem 0;
@@ -410,4 +422,54 @@ a.text-primary:hover {
 
 .action-dropdown-menu .menu-item {
     padding: 0;
+}
+
+/* ============================================
+   DARK COLOR OVERRIDES
+   Replace black/dark with Medikindo brand colors
+   ============================================ */
+
+/* badge-dark → Medikindo Deep Red (for 90+ aging) */
+.badge-dark,
+.badge.badge-dark {
+    background-color: #b5001e !important;
+    color: #ffffff !important;
+}
+
+.badge-light-dark {
+    background-color: #fde8ec !important;
+    color: #b5001e !important;
+}
+
+/* bg-dark cards → Medikindo Navy gradient */
+.card.bg-dark,
+.bg-dark {
+    background: linear-gradient(135deg, #1b4b7f 0%, #153a63 100%) !important;
+    color: #ffffff !important;
+}
+
+/* bg-gray-900 → Medikindo Navy */
+.bg-gray-900 {
+    background-color: #1b4b7f !important;
+}
+
+/* text-dark → Medikindo Navy (for headings) */
+.text-dark {
+    color: #1b4b7f !important;
+}
+
+/* Aging bucket: 90+ days — deep red */
+.aging-critical {
+    background-color: #b5001e !important;
+    color: #ffffff !important;
+}
+
+/* Invoice total card — navy gradient */
+.card-invoice-total {
+    background: linear-gradient(135deg, #1b4b7f 0%, #153a63 100%) !important;
+}
+
+/* AR Aging grand total bar */
+.ar-aging-total-bar {
+    background: linear-gradient(135deg, #1b4b7f 0%, #153a63 100%) !important;
 }

@@ -96,19 +96,16 @@
                         @endif
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('web.suppliers.edit', $supplier) }}" class="btn btn-icon btn-light-warning btn-sm" title="Edit Supplier">
-                            <i class="ki-outline ki-pencil fs-2"></i>
-                        </a>
-                        <form method="POST" action="{{ route('web.suppliers.toggle_status', $supplier) }}" class="d-inline">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="btn btn-icon btn-light-{{ $supplier->is_active ? 'danger' : 'success' }} btn-sm toggle-status-confirm" 
-                                    data-name="{{ $supplier->name }}" 
-                                    data-status="{{ $supplier->is_active ? 'active' : 'inactive' }}"
-                                    title="{{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Supplier">
-                                <i class="ki-outline ki-{{ $supplier->is_active ? 'cross-square' : 'check-circle' }} fs-2"></i>
-                            </button>
-                        </form>
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.suppliers.edit', $supplier)" icon="pencil" label="Edit Supplier" color="warning" />
+                            <x-table-action.divider />
+                            <x-table-action.item
+                                icon="{{ $supplier->is_active ? 'cross-square' : 'check-circle' }}"
+                                label="{{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
+                                color="{{ $supplier->is_active ? 'danger' : 'success' }}"
+                                :form="['method' => 'PATCH', 'action' => route('web.suppliers.toggle_status', $supplier)]"
+                                :confirm="$supplier->is_active ? 'Nonaktifkan supplier ' . $supplier->name . '?' : 'Aktifkan supplier ' . $supplier->name . '?'" />
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

@@ -31,7 +31,7 @@
                     <strong>Klasifikasi: {{ $typeLabel }}</strong><br>
                     Tanggal Invoice: <strong>{{ $invoice->created_at->format('d F Y') }}</strong><br>
                     Jatuh Tempo: <strong style="color: red;">{{ $invoice->due_date?->format('d F Y') ?? '—' }}</strong><br>
-                    Status: <strong style="text-transform: uppercase;">{{ $invoice->status }}</strong>
+                    Status: <strong style="text-transform: uppercase;">{{ $invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status }}</strong>
                     @if($isAR && $invoice->goods_receipt_id)
                         <br><span style="color: green; font-size: 10px;">✓ Berdasarkan Penerimaan Barang (GR)</span>
                     @endif

@@ -36,18 +36,19 @@ class CustomerInvoice extends Model
         'last_printed_at'      => 'datetime',
     ];
 
-    // -----------------------------------------------------------------------
-    // Relationships
-    // -----------------------------------------------------------------------
+    public function purchaseOrder(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrder::class);
+    }
 
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
     }
 
-    public function purchaseOrder(): BelongsTo
+    public function bankAccount(): BelongsTo
     {
-        return $this->belongsTo(PurchaseOrder::class);
+        return $this->belongsTo(BankAccount::class);
     }
 
     public function goodsReceipt(): BelongsTo
@@ -139,20 +140,40 @@ class CustomerInvoice extends Model
     public function isPaid(): bool         { return $this->status === CustomerInvoiceStatus::PAID; }
     public function isVoid(): bool         { return $this->status === CustomerInvoiceStatus::VOID; }
 
-    /**
-     * Check if the invoice is in an immutable state (cannot be directly modified).
-     */
     public function isImmutable(): bool
     {
         return $this->status->isImmutable();
     }
 
-    /**
-     * Check if the invoice can accept payments.
-     */
     public function canConfirmPayment(): bool
     {
         return $this->status->canAcceptPayment();
+    }
+
+    public function isOverdueByDate(): bool
+    {
+        return $this->due_date && $this->due_date->isPast() && $this->status->canAcceptPayment();
+    }
+
+    public function getOutstandingAmountAttribute(): float
+    {
+        return max(0, (float) $this->total_amount - (float) $this->paid_amount);
+    }
+
+    public function getDaysOverdueAttribute(): int
+    {
+        if (! $this->due_date || $this->isPaid() || $this->isVoid()) return 0;
+        return max(0, (int) now()->startOfDay()->diffInDays($this->due_date, false) * -1);
+    }
+
+    public function getAgingBucketAttribute(): string
+    {
+        $days = $this->days_overdue;
+        if ($days <= 0)  return 'current';
+        if ($days <= 30) return '1-30';
+        if ($days <= 60) return '31-60';
+        if ($days <= 90) return '61-90';
+        return '90+';
     }
 
     // -----------------------------------------------------------------------

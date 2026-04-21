@@ -41,12 +41,13 @@
     <x-slot name="tabs">
         @php
             $tabOptions = [
-                'all'       => ['label' => 'Semua',    'icon' => 'ki-home'],
-                'draft'     => ['label' => 'Draft',    'icon' => 'ki-document'],
-                'submitted' => ['label' => 'Diajukan', 'icon' => 'ki-send'],
-                'approved'  => ['label' => 'Disetujui','icon' => 'ki-check-circle'],
-                'rejected'  => ['label' => 'Ditolak',  'icon' => 'ki-cross-circle'],
-                'completed' => ['label' => 'Selesai',  'icon' => 'ki-verify'],
+                'all'                => ['label' => 'Semua',             'icon' => 'ki-home'],
+                'draft'              => ['label' => 'Draft',             'icon' => 'ki-document'],
+                'submitted'          => ['label' => 'Diajukan',          'icon' => 'ki-send'],
+                'approved'           => ['label' => 'Disetujui',         'icon' => 'ki-check-circle'],
+                'partially_received' => ['label' => 'Diterima Sebagian', 'icon' => 'ki-delivery'],
+                'rejected'           => ['label' => 'Ditolak',           'icon' => 'ki-cross-circle'],
+                'completed'          => ['label' => 'Selesai',           'icon' => 'ki-verify'],
             ];
         @endphp
         @foreach($tabOptions as $val => $tabData)
@@ -103,11 +104,12 @@
                     <td>
                         @php
                             $statusMap = [
-                                'draft'     => ['label' => 'Draft',    'color' => 'secondary'],
-                                'submitted' => ['label' => 'Diajukan', 'color' => 'warning'],
-                                'approved'  => ['label' => 'Disetujui','color' => 'info'],
-                                'rejected'  => ['label' => 'Ditolak',  'color' => 'danger'],
-                                'completed' => ['label' => 'Selesai',  'color' => 'success'],
+                                'draft'              => ['label' => 'Draft',             'color' => 'secondary'],
+                                'submitted'          => ['label' => 'Diajukan',          'color' => 'warning'],
+                                'approved'           => ['label' => 'Disetujui',         'color' => 'info'],
+                                'partially_received' => ['label' => 'Diterima Sebagian', 'color' => 'primary'],
+                                'rejected'           => ['label' => 'Ditolak',           'color' => 'danger'],
+                                'completed'          => ['label' => 'Selesai',           'color' => 'success'],
                             ];
                             $st = $statusMap[$order->status] ?? ['label' => strtoupper($order->status), 'color' => 'primary'];
                         @endphp
@@ -121,19 +123,16 @@
                         <div class="text-muted fs-8 mt-1">{{ $order->created_at->format('d/m/Y') }}</div>
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('web.po.show', $order) }}" class="btn btn-icon btn-light-primary btn-sm" title="Lihat Detail">
-                            <i class="ki-outline ki-eye fs-2"></i>
-                        </a>
-                        @if($order->status === 'draft')
-                            @can('update_purchase_orders')
-                            <a href="{{ route('web.po.edit', $order) }}" class="btn btn-icon btn-light-warning btn-sm" title="Edit PO">
-                                <i class="ki-outline ki-pencil fs-2"></i>
-                            </a>
-                            @endcan
-                        @endif
-                        <a href="{{ route('web.po.pdf', $order) }}" class="btn btn-icon btn-light-info btn-sm" target="_blank" title="Download PDF">
-                            <i class="ki-outline ki-file-down fs-2"></i>
-                        </a>
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.po.show', $order)" icon="eye" label="Lihat Detail" />
+                            @if($order->status === 'draft')
+                                @can('update_purchase_orders')
+                                    <x-table-action.item :href="route('web.po.edit', $order)" icon="pencil" label="Edit PO" color="warning" />
+                                @endcan
+                            @endif
+                            <x-table-action.divider />
+                            <x-table-action.item :href="route('web.po.pdf', $order)" icon="file-down" label="Download PDF" color="info" target="_blank" />
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

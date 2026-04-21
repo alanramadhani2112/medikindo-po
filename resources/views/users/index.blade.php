@@ -123,22 +123,18 @@
                         <span class="text-gray-700 fw-semibold fs-7">{{ $user->created_at->format('d M Y') }}</span>
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('web.users.edit', $user) }}" class="btn btn-icon btn-light-warning btn-sm" title="Edit Pengguna">
-                            <i class="ki-outline ki-pencil fs-2"></i>
-                        </a>
-                        @if($user->id !== auth()->id())
-                            <form method="POST" action="{{ route('web.users.destroy', $user) }}" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="btn btn-icon btn-light-{{ $user->is_active ? 'danger' : 'success' }} btn-sm toggle-status-confirm"
-                                        data-name="{{ $user->name }}"
-                                        data-status="{{ $user->is_active ? 'active' : 'inactive' }}"
-                                        title="{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Pengguna">
-                                    <i class="ki-outline ki-{{ $user->is_active ? 'cross-square' : 'check-circle' }} fs-2"></i>
-                                </button>
-                            </form>
-                        @endif
+                        <x-table-action>
+                            <x-table-action.item :href="route('web.users.edit', $user)" icon="pencil" label="Edit Pengguna" color="warning" />
+                            @if($user->id !== auth()->id())
+                                <x-table-action.divider />
+                                <x-table-action.item
+                                    icon="{{ $user->is_active ? 'cross-square' : 'check-circle' }}"
+                                    label="{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
+                                    color="{{ $user->is_active ? 'danger' : 'success' }}"
+                                    :form="['method' => 'DELETE', 'action' => route('web.users.destroy', $user)]"
+                                    :confirm="$user->is_active ? 'Nonaktifkan pengguna ' . $user->name . '?' : 'Aktifkan pengguna ' . $user->name . '?'" />
+                            @endif
+                        </x-table-action>
                     </td>
                 </tr>
             @empty

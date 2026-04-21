@@ -220,10 +220,12 @@ class InvoiceFromGRService
             $poItem = $grItem->purchaseOrderItem;
             $product = $poItem->product;
 
-            // Determine which price to use based on invoice type
-            $unitPrice = $invoiceType === 'customer' 
-                ? ($product->selling_price ?? $product->price)  // Customer: use selling_price
-                : $poItem->unit_price;                          // Supplier: use cost_price from PO
+            // Price is ALWAYS from master data — never from user input
+            // Supplier Invoice: cost_price from PO line item
+            // Customer Invoice: selling_price from Product master
+            $unitPrice = $invoiceType === 'customer'
+                ? ($product->selling_price ?? $product->price)
+                : $poItem->unit_price;  // cost_price from PO — immutable
 
             $lineItems[] = [
                 'goods_receipt_item_id' => $grItem->id,
@@ -231,11 +233,8 @@ class InvoiceFromGRService
                 'product_name'          => $product->name,
                 'product_sku'           => $product->sku,
                 'quantity'              => $item['quantity'],
-                // CRITICAL: Price depends on invoice type
-                // Supplier Invoice: use PO unit_price (cost_price)
-                // Customer Invoice: use product selling_price
                 'unit_price'            => $unitPrice,
-                'discount_percentage'   => $poItem->discount_percent ?? 0,
+                'discount_percentage'   => $item['discount_percent'] ?? $poItem->discount_percent ?? 0,
                 'tax_rate'              => $poItem->tax_percent ?? 0,
             ];
         }
@@ -288,13 +287,11 @@ class InvoiceFromGRService
 
     /**
      * Create Customer Invoice from Goods Receipt
-     * 
-     * @param GoodsReceipt $gr
-     * @param User $actor
-     * @param array $items Format: [['goods_receipt_item_id' => int, 'quantity' => int, 'unit_price' => float, 'discount_percentage' => float]]
-     * @param array $metadata Additional invoice data (notes, due_date, etc)
-     * @return CustomerInvoice
-     * @throws DomainException
+     *
+     * BLOCKED: Customer Invoice (AR) harus dibuat melalui verifikasi Supplier Invoice (AP).
+     * Flow yang benar: GR → Supplier Invoice → Verify AP → Auto-generate AR (MirrorGenerationService)
+     *
+     * Method ini dipertahankan untuk backward-compat tapi akan throw DomainException.
      */
     public function createCustomerInvoiceFromGR(
         GoodsReceipt $gr,
@@ -302,132 +299,10 @@ class InvoiceFromGRService
         array $items,
         array $metadata = []
     ): CustomerInvoice {
-        // Gate: GR must be completed
-        if (!$gr->isCompleted()) {
-            throw new DomainException(
-                "Cannot create invoice from GR with status [{$gr->status}]. GR must be 'completed'."
-            );
-        }
-
-        // Gate: GR must belong to an organization (RS/Klinik)
-        $po = $gr->purchaseOrder;
-        if (!$po || !$po->organization_id) {
-            throw new DomainException("Goods Receipt must have a valid Purchase Order with organization.");
-        }
-
-        // Validate quantities for AR (Customer)
-        $this->validateQuantities($gr, $items, 'ar');
-
-        // Validate batch & expiry consistency
-        $this->validateBatchExpiry($gr, $items);
-
-        return DB::transaction(function () use ($gr, $po, $actor, $items, $metadata) {
-            // Prepare line items with GR data (CUSTOMER invoice - use selling_price from Product)
-            $lineItemsData = $this->prepareLineItems($gr, $items, 'customer');
-
-            // Validate stock availability BEFORE creating invoice
-            foreach ($lineItemsData as $itemData) {
-                $availableStock = $this->inventoryService->getAvailableStock(
-                    $po->organization_id,
-                    $itemData['product_id']
-                );
-
-                if ($availableStock < $itemData['quantity']) {
-                    throw new DomainException(
-                        "Insufficient stock for product [{$itemData['product_name']}]. Available: {$availableStock}, Required: {$itemData['quantity']}"
-                    );
-                }
-            }
-
-            // Calculate invoice totals using existing pricing engine
-            $calculation = $this->calculationService->calculateCompleteInvoice($lineItemsData);
-
-            // Get final totals including surcharge and e-meterai using the dedicated method
-            $surchargeStr = (string)($metadata['surcharge'] ?? '0');
-            $finalTotals = $this->calculationService->calculateGrandTotal($calculation['line_items'], $surchargeStr);
-
-            // Detect discrepancies (GR vs Invoice, PO vs Invoice)
-            $discrepancies = $this->detectDiscrepancies($gr, $po, $lineItemsData, $calculation);
-
-            // Create customer invoice
-            $invoice = CustomerInvoice::create([
-                'invoice_number'       => $metadata['custom_invoice_number'] ?? $this->generateCustomerInvoiceNumber(),
-                'organization_id'      => $po->organization_id,
-                'purchase_order_id'    => $po->id,
-                'goods_receipt_id'     => $gr->id,
-                'status'               => \App\Enums\CustomerInvoiceStatus::ISSUED,
-                'total_amount'         => $finalTotals['grand_total'],
-                'subtotal_amount'      => $finalTotals['subtotal'],
-                'discount_amount'      => $finalTotals['discount'],
-                'tax_amount'           => $finalTotals['tax_total'],
-                'surcharge'            => $surchargeStr,
-                'ematerai_fee'         => $finalTotals['ematerai_fee'],
-                'paid_amount'          => 0,
-                'discrepancy_detected' => $discrepancies['has_discrepancy'],
-                'expected_total'       => $discrepancies['expected_total'] ?? null,
-                'variance_amount'      => $discrepancies['variance_amount'] ?? null,
-                'variance_percentage'  => $discrepancies['variance_percentage'] ?? null,
-                'due_date'             => $metadata['due_date'] ?? now()->addDays(30),
-                'issued_by'            => $actor->id,
-                'issued_at'            => now(),
-                'notes'                => $metadata['notes'] ?? null,
-                'version'              => 1,
-            ]);
-
-            // Create line items with GR references AND reduce inventory (Stock OUT)
-            foreach ($calculation['line_items'] as $index => $lineCalc) {
-                $itemData = $lineItemsData[$index];
-                $grItem = GoodsReceiptItem::find($itemData['goods_receipt_item_id']);
-
-                $lineItem = $invoice->lineItems()->create([
-                    'goods_receipt_item_id' => $grItem->id,
-                    'product_id'            => $grItem->purchaseOrderItem->product_id,
-                    'product_name'          => $itemData['product_name'],
-                    'product_sku'           => $itemData['product_sku'],
-                    'batch_no'              => $grItem->batch_no, // READ-ONLY from GR
-                    'expiry_date'           => $grItem->expiry_date, // READ-ONLY from GR
-                    'quantity'              => $itemData['quantity'],
-                    'unit'                  => $grItem->purchaseOrderItem->product->unit ?? 'pcs',
-                    'unit_price'            => $itemData['unit_price'],
-                    'discount_percentage'   => $itemData['discount_percentage'] ?? 0,
-                    'discount_amount'       => $lineCalc['discount_amount'],
-                    'tax_rate'              => $itemData['tax_rate'] ?? 0,
-                    'tax_amount'            => $lineCalc['tax_amount'],
-                    'line_total'            => $lineCalc['line_total'],
-                ]);
-
-                // --- Reduce Inventory (Stock OUT) ---
-                $this->inventoryService->reduceStock(
-                    organizationId: $po->organization_id,
-                    productId: $itemData['product_id'],
-                    quantity: $itemData['quantity'],
-                    referenceType: 'App\Models\CustomerInvoiceLineItem',
-                    referenceId: $lineItem->id,
-                    createdBy: $actor->id
-                );
-            }
-
-            // Audit log
-            $this->auditService->log(
-                action:     'customer_invoice.created_from_gr',
-                entityType: CustomerInvoice::class,
-                entityId:   $invoice->id,
-                metadata:   [
-                    'invoice_number'      => $invoice->invoice_number,
-                    'goods_receipt_id'    => $gr->id,
-                    'gr_number'           => $gr->gr_number,
-                    'purchase_order_id'   => $po->id,
-                    'po_number'           => $po->po_number,
-                    'organization_id'     => $po->organization_id,
-                    'total_amount'        => $invoice->total_amount,
-                    'discrepancy_detected' => $discrepancies['has_discrepancy'],
-                    'item_count'          => count($items),
-                ],
-                userId: $actor->id,
-            );
-
-            return $invoice->load(['lineItems', 'goodsReceipt', 'purchaseOrder', 'organization']);
-        });
+        throw new DomainException(
+            'Invoice ke RS/Klinik hanya dapat diterbitkan setelah Invoice Pemasok (AP) diverifikasi. ' .
+            'Silakan verifikasi Invoice Pemasok terlebih dahulu, sistem akan otomatis membuat draft tagihan ke RS/Klinik.'
+        );
     }
 
     /**

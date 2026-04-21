@@ -98,7 +98,10 @@ class PaymentWebController extends Controller
         $user = $request->user();
         
         $invoices = CustomerInvoice::with(['organization'])
-            ->where('status', '!=', 'paid')
+            ->whereIn('status', [
+                \App\Enums\CustomerInvoiceStatus::ISSUED->value,
+                \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value,
+            ])
             ->whereRaw('paid_amount < total_amount')
             ->when(! $user->hasRole('Super Admin'), fn($q) => $q->where('organization_id', $user->organization_id))
             ->get();
@@ -115,7 +118,11 @@ class PaymentWebController extends Controller
     public function createOutgoing(Request $request)
     {
         $invoices = SupplierInvoice::with(['supplier'])
-            ->where('status', '!=', 'paid')
+            ->whereIn('status', [
+                \App\Enums\SupplierInvoiceStatus::DRAFT->value,
+                \App\Enums\SupplierInvoiceStatus::VERIFIED->value,
+                \App\Enums\SupplierInvoiceStatus::OVERDUE->value,
+            ])
             ->whereRaw('paid_amount < total_amount')
             ->get();
             
