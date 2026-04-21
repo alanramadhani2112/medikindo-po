@@ -23,13 +23,11 @@
         <div class="d-flex gap-2">
             @if($invoice->isDraft())
                 @can('create_invoices')
-                    <form method="POST" action="{{ route('web.invoices.customer.issue', $invoice) }}"
-                          onsubmit="return confirm('Terbitkan tagihan ini ke RS/Klinik?')">
-                        @csrf
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="ki-outline ki-send fs-4 me-1"></i>Terbitkan
-                        </button>
-                    </form>
+                    {{-- Tombol Terbitkan → buka modal surcharge --}}
+                    <button type="button" class="btn btn-primary btn-sm"
+                            data-bs-toggle="modal" data-bs-target="#modalTerbitkan">
+                        <i class="ki-outline ki-send fs-4 me-1"></i>Terbitkan
+                    </button>
                 @endcan
             @endif
             @if($invoice->status->canAcceptPayment())
@@ -526,3 +524,125 @@
 
 </div>
 @endsection
+
+@if($invoice->isDraft())
+@can('create_invoices')
+{{-- ═══════════════════════════════════════════════════════════
+     MODAL TERBITKAN — Input Surcharge sebelum diterbitkan
+═══════════════════════════════════════════════════════════ --}}
+<div class="modal fade" id="modalTerbitkan" tabindex="-1" aria-labelledby="modalTerbitkanLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('web.invoices.customer.issue', $invoice) }}">
+                @csrf
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-gray-900" id="modalTerbitkanLabel">
+                        <i class="ki-outline ki-send fs-3 me-2 text-primary"></i>
+                        Terbitkan Tagihan ke RS/Klinik
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body pt-4">
+                    {{-- Invoice summary --}}
+                    <div class="p-4 rounded bg-light-primary mb-6">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-600 fs-7">Invoice</span>
+                            <span class="fw-bold text-gray-800 fs-7">{{ $invoice->invoice_number }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-600 fs-7">Kepada</span>
+                            <span class="fw-bold text-gray-800 fs-7">{{ $invoice->organization?->name }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-600 fs-7">Subtotal</span>
+                            <span class="fw-semibold text-gray-800 fs-7">Rp {{ number_format($invoice->subtotal_amount, 0, ',', '.') }}</span>
+                        </div>
+                        @if($invoice->tax_amount > 0)
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-gray-600 fs-7">PPN (11%)</span>
+                            <span class="fw-semibold text-gray-800 fs-7">Rp {{ number_format($invoice->tax_amount, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
+                        <div class="separator my-2"></div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-primary fw-bold fs-6">Total Sebelum Surcharge</span>
+                            <span class="text-primary fw-bold fs-6" id="baseTotal">
+                                Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    {{-- Surcharge Input --}}
+                    <div class="mb-5">
+                        <label class="form-label fw-bold fs-6">
+                            Surcharge
+                            <span class="ms-1" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Biaya tambahan di atas harga dasar, misalnya untuk metode pembayaran tertentu. Contoh: surcharge 5% pada Rp 300.000 = Rp 15.000 tambahan.">
+                                <i class="ki-outline ki-information-5 fs-6 text-muted"></i>
+                            </span>
+                            <span class="badge badge-light-secondary ms-2 fs-9">Opsional</span>
+                        </label>
+                        <div class="input-group input-group-solid">
+                            <span class="input-group-text fw-bold">Rp</span>
+                            <input type="number"
+                                   name="surcharge"
+                                   id="surchargeInput"
+                                   class="form-control form-control-solid"
+                                   value="{{ old('surcharge', $invoice->surcharge ?? 0) }}"
+                                   min="0"
+                                   step="1"
+                                   placeholder="0"
+                                   oninput="updateTotal(this.value)">
+                        </div>
+                        <div class="form-text text-muted mt-1">
+                            Biaya tambahan atas metode pembayaran tertentu (kartu kredit, EDC, dll)
+                        </div>
+                    </div>
+
+                    {{-- Live Total --}}
+                    <div class="p-4 rounded bg-light-success border border-success border-dashed">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-success fw-bold fs-5">Total Tagihan Final</span>
+                            <span class="text-success fw-bold fs-3" id="finalTotal">
+                                Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
+                            </span>
+                        </div>
+                        <div class="text-muted fs-8 mt-1">
+                            Jumlah ini yang akan diterima RS/Klinik setelah tagihan diterbitkan
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ki-outline ki-send fs-4 me-1"></i>
+                        Terbitkan Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    const baseAmount = {{ (float) $invoice->total_amount - (float) ($invoice->surcharge ?? 0) }};
+
+    function updateTotal(surchargeVal) {
+        const surcharge = parseFloat(surchargeVal) || 0;
+        const total = baseAmount + surcharge;
+        document.getElementById('finalTotal').textContent =
+            'Rp ' + Math.round(total).toLocaleString('id-ID');
+    }
+
+    // Init tooltips inside modal
+    document.addEventListener('DOMContentLoaded', function () {
+        const tooltipEls = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltipEls.forEach(el => new bootstrap.Tooltip(el));
+    });
+</script>
+@endpush
+@endcan
+@endif

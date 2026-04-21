@@ -391,6 +391,28 @@ class InvoiceWebController extends Controller
             return back()->with('error', "Invoice hanya bisa diterbitkan dari status Draft. Status saat ini: {$invoice->status->getLabel()}.");
         }
 
+        $request->validate([
+            'surcharge' => 'nullable|numeric|min:0|max:999999999999',
+        ]);
+
+        // Update surcharge jika diisi, lalu recalculate total
+        $surcharge = (float) ($request->input('surcharge', 0) ?? 0);
+
+        if ($surcharge > 0) {
+            // Recalculate total: subtotal - discount + tax + surcharge + ematerai
+            $base = (float) $invoice->subtotal_amount
+                  - (float) $invoice->discount_amount
+                  + (float) $invoice->tax_amount
+                  + (float) $invoice->ematerai_fee;
+
+            $newTotal = $base + $surcharge;
+
+            $invoice->update([
+                'surcharge'    => $surcharge,
+                'total_amount' => $newTotal,
+            ]);
+        }
+
         $invoice->transitionTo(\App\Enums\CustomerInvoiceStatus::ISSUED);
 
         return redirect()
