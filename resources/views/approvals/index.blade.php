@@ -90,7 +90,7 @@
                             @endif
                         </td>
                         <td>
-                            @php $pendingApproval = $po->approvals->filter(fn($a) => $a->status === 'pending')->first(); @endphp
+                            @php $pendingApproval = $po->approvals->filter(fn($a) => ($a->status instanceof \BackedEnum ? $a->status->value : $a->status) === 'pending')->first(); @endphp
                             @if($pendingApproval)
                                 <div class="badge badge-light-warning fs-7 fw-semibold">
                                     <span class="bullet bullet-dot bg-warning me-2"></span>

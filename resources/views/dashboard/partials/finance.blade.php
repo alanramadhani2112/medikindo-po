@@ -226,8 +226,8 @@
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
-                                    <span class="badge badge-light-{{ $invoice->status === 'paid' ? 'success' : 'warning' }} fs-7 fw-semibold">
-                                        {{ strtoupper($invoice->status) }}
+                                    <span class="badge badge-light-{{ ($invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status) === 'paid' ? 'success' : 'warning' }} fs-7 fw-semibold">
+                                        {{ strtoupper($invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status) }}
                                     </span>
                                 </td>
                             </tr>

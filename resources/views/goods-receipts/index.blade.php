@@ -155,7 +155,7 @@
                         <td class="text-end">
                             <x-table-action>
                                 <x-table-action.item :href="route('web.goods-receipts.show', $receipt)" icon="eye" label="Lihat Detail" />
-                                @if($receipt->status === 'partial')
+                                @if(($receipt->status instanceof \BackedEnum ? $receipt->status->value : $receipt->status) === 'partial')
                                     @can('create', \App\Models\GoodsReceipt::class)
                                         <x-table-action.item :href="route('web.goods-receipts.create', ['purchase_order_id' => $receipt->purchase_order_id])" icon="plus" label="Tambah Pengiriman" color="success" />
                                     @endcan

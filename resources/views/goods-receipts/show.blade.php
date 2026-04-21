@@ -8,7 +8,7 @@
         <div>
             <div class="d-flex align-items-center gap-3 mb-2">
                 <h1 class="fs-2 fw-bold text-gray-900 mb-0">{{ $goodsReceipt->gr_number }}</h1>
-                @if($goodsReceipt->status === 'completed')
+                @if(($goodsReceipt->status instanceof \BackedEnum ? $goodsReceipt->status->value : $goodsReceipt->status) === 'completed')
                     <span class="badge badge-light-success fs-7">
                         <i class="ki-outline ki-check-circle fs-7 me-1"></i>Selesai
                     </span>
@@ -29,7 +29,7 @@
         </div>
         <div class="d-flex gap-2">
             {{-- Tombol tambah pengiriman hanya jika masih partial --}}
-            @if($goodsReceipt->status === 'partial')
+            @if(($goodsReceipt->status instanceof \BackedEnum ? $goodsReceipt->status->value : $goodsReceipt->status) === 'partial')
                 @can('create', \App\Models\GoodsReceipt::class)
                     <a href="{{ route('web.goods-receipts.create', ['purchase_order_id' => $goodsReceipt->purchase_order_id]) }}"
                        class="btn btn-primary btn-sm">
@@ -107,7 +107,7 @@
                 <div class="progress-bar {{ $pct >= 100 ? 'bg-success' : 'bg-warning' }}"
                      style="width: {{ min($pct, 100) }}%"></div>
             </div>
-            @if($goodsReceipt->status === 'partial')
+            @if(($goodsReceipt->status instanceof \BackedEnum ? $goodsReceipt->status->value : $goodsReceipt->status) === 'partial')
                 <div class="mt-2 text-warning fs-7 fw-semibold">
                     <i class="ki-outline ki-information-5 fs-7 me-1"></i>
                     Masih ada {{ $totalPoQty - $totalReceivedQty }} unit yang belum diterima.

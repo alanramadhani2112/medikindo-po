@@ -211,8 +211,8 @@
                                     <span class="text-gray-800 fw-semibold fs-6">{{ $approval->user->name }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge badge-light-{{ $approval->status === 'approved' ? 'success' : 'danger' }} fs-7 fw-semibold">
-                                        {{ strtoupper($approval->status) }}
+                                    <span class="badge badge-light-{{ ($approval->status instanceof \BackedEnum ? $approval->status->value : $approval->status) === 'approved' ? 'success' : 'danger' }} fs-7 fw-semibold">
+                                        {{ strtoupper($approval->status instanceof \BackedEnum ? $approval->status->value : $approval->status) }}
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">

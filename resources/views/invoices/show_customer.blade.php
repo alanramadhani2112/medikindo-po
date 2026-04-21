@@ -90,7 +90,7 @@
                             {{ number_format($invoice->total_amount - $invoice->paid_amount, 0, ',', '.') }}</div>
                         <div class="mt-4">
                             <div class="progress h-6px">
-                                <div class="progress-bar @if ($invoice->status === 'overdue') bg-danger @else bg-gray-300 @endif"
+                                <div class="progress-bar @if (($invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status) === 'overdue') bg-danger @else bg-gray-300 @endif"
                                     style="width: {{ 100 - $percent }}%"></div>
                             </div>
                         </div>
@@ -290,7 +290,7 @@
                             <i class="ki-outline ki-entrance-right fs-2 me-2"></i>
                             Riwayat Alokasi Pembayaran
                         </h3>
-                        @if ($invoice->status !== 'paid')
+                        @if (($invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status) !== 'paid')
                             <div class="card-toolbar">
                                 <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
                                     class="btn btn-sm btn-primary">

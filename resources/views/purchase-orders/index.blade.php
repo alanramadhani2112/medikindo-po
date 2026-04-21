@@ -125,7 +125,7 @@
                     <td class="text-end">
                         <x-table-action>
                             <x-table-action.item :href="route('web.po.show', $order)" icon="eye" label="Lihat Detail" />
-                            @if($order->status === 'draft')
+                            @if(($order->status instanceof \BackedEnum ? $order->status->value : $order->status) === 'draft')
                                 @can('update_purchase_orders')
                                     <x-table-action.item :href="route('web.po.edit', $order)" icon="pencil" label="Edit PO" color="warning" />
                                 @endcan
