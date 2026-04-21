@@ -118,7 +118,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/customer/{invoice}',                  [\App\Http\Controllers\Web\InvoiceWebController::class, 'showCustomer'])->name('customer.show');
         Route::get('/customer/{invoice}/pdf',              [\App\Http\Controllers\Web\InvoiceWebController::class, 'exportCustomerPdf'])->name('customer.pdf');
         Route::post('/customer/{invoice}/issue',           [\App\Http\Controllers\Web\InvoiceWebController::class, 'issueCustomer'])->name('customer.issue')->middleware('can:create_invoices');
-        Route::patch('/customer/{invoice}/set-bank',        [\App\Http\Controllers\Web\InvoiceWebController::class, 'setCustomerBank'])->name('customer.set-bank')->middleware('can:create_invoices');
 
         Route::post('/customer/{invoice}/confirm-payment', [\App\Http\Controllers\Web\InvoiceWebController::class, 'confirmPayment'])->name('customer.confirm_payment')->middleware('can:confirm_payment');
         Route::post('/customer/{invoice}/verify-payment',  [\App\Http\Controllers\Web\InvoiceWebController::class, 'verifyPayment'])->name('customer.verify_payment')->middleware('can:verify_payment');

@@ -202,13 +202,6 @@
                     <h3 class="card-title fw-bold text-gray-800 fs-6">
                         <i class="ki-outline ki-bank fs-4 me-2 text-success"></i>REKENING TUJUAN TRANSFER
                     </h3>
-                    @if($invoice->isDraft() && isset($receiveBanks) && $receiveBanks->count() > 1)
-                        @can('create_invoices')
-                        <div class="card-toolbar">
-                            <span class="badge badge-light-warning fs-9 fw-semibold">Draft — dapat diubah</span>
-                        </div>
-                        @endcan
-                    @endif
                 </div>
                 <div class="card-body pt-4">
                     @if($invoice->bankAccount)

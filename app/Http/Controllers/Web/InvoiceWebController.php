@@ -251,19 +251,13 @@ class InvoiceWebController extends Controller
             }
         }
 
-        // Pass all active receive banks for potential override
-        $receiveBanks = \App\Models\BankAccount::forReceive()
-            ->orderBy('default_for_receive', 'desc')
-            ->orderBy('default_priority')
-            ->get();
-
         $breadcrumbs = [
             ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
             ['label' => 'Tagihan ke RS/Klinik', 'url' => route('web.invoices.customer.index')],
             ['label' => $invoice->invoice_number],
         ];
 
-        return view('invoices.customer.show', compact('invoice', 'receiveBanks', 'breadcrumbs'));
+        return view('invoices.customer.show', compact('invoice', 'breadcrumbs'));
     }
 
     public function exportSupplierPdf(SupplierInvoice $invoice)
@@ -390,24 +384,6 @@ class InvoiceWebController extends Controller
         return redirect()
             ->route('web.invoices.supplier.index')
             ->with('info', 'Tagihan ke RS/Klinik dibuat otomatis saat Invoice Pemasok diverifikasi.');
-    }
-
-    // -----------------------------------------------------------------------
-    // Set Bank Account for Customer Invoice (Draft only)
-    // PATCH /invoices/customer/{invoice}/set-bank
-    // -----------------------------------------------------------------------
-
-    public function setCustomerBank(Request $request, CustomerInvoice $invoice): \Illuminate\Http\RedirectResponse
-    {
-        if (! $invoice->isDraft()) {
-            return back()->with('error', 'Bank hanya bisa diubah saat invoice masih Draft.');
-        }
-
-        $request->validate(['bank_account_id' => 'required|exists:bank_accounts,id']);
-
-        $invoice->update(['bank_account_id' => $request->bank_account_id]);
-
-        return back()->with('success', 'Rekening tujuan transfer berhasil diperbarui.');
     }
 
     // -----------------------------------------------------------------------
