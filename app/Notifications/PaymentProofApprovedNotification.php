@@ -38,7 +38,7 @@ class PaymentProofApprovedNotification extends Notification
         $invoiceStatus = match ($invoice?->status?->value ?? '') {
             'paid'         => 'LUNAS ✅',
             'partial_paid' => 'Sebagian Terbayar 🔄',
-            default        => $invoice?->status?->label() ?? '-',
+            default        => $invoice?->status?->getLabel() ?? '-',
         };
 
         if ($this->recipientType === 'healthcare') {

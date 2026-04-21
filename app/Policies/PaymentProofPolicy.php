@@ -65,11 +65,24 @@ class PaymentProofPolicy
 
     /**
      * Determine whether the user can verify the model.
+     * Accepts SUBMITTED and RESUBMITTED.
      */
     public function verify(User $user, PaymentProof $paymentProof): bool
     {
         return $user->hasPermissionTo('verify_payment_proof') || 
                $user->hasRole(['Finance', 'Super Admin']);
+    }
+
+    /**
+     * Determine whether the user can resubmit a rejected proof.
+     */
+    public function resubmit(User $user, PaymentProof $paymentProof): bool
+    {
+        if (!$paymentProof->canBeResubmitted()) {
+            return false;
+        }
+
+        return $paymentProof->submitted_by === $user->id || $user->isSuperAdmin();
     }
 
     /**

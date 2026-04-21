@@ -153,15 +153,8 @@
                     <a href="{{ route('web.approvals.index') }}" class="btn btn-light-primary justify-content-start">
                         <i class="ki-outline ki-check-circle fs-3 me-3"></i>
                         <div class="text-start">
-                            <div class="fw-bold fs-6">Approve PO</div>
-                            <div class="text-muted fs-7">Setujui purchase order</div>
-                        </div>
-                    </a>
-                    <a href="{{ route('web.approvals.index') }}" class="btn btn-light-danger justify-content-start">
-                        <i class="ki-outline ki-arrow-zigzag-circle fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Reject PO</div>
-                            <div class="text-muted fs-7">Tolak purchase order</div>
+                            <div class="fw-bold fs-6">Approve / Reject PO</div>
+                            <div class="text-muted fs-7">Proses antrean persetujuan</div>
                         </div>
                     </a>
                     <a href="{{ route('web.po.index') }}" class="btn btn-light-info justify-content-start">
@@ -171,6 +164,15 @@
                             <div class="text-muted fs-7">Riwayat purchase order</div>
                         </div>
                     </a>
+                    @can('view_goods_receipt')
+                    <a href="{{ route('web.goods-receipts.index') }}" class="btn btn-light-warning justify-content-start">
+                        <i class="ki-outline ki-courier-express fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">Goods Receipt</div>
+                            <div class="text-muted fs-7">Verifikasi penerimaan barang</div>
+                        </div>
+                    </a>
+                    @endcan
                 </div>
             </div>
         </div>

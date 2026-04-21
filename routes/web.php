@@ -177,6 +177,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/{paymentProof}/recall', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'recall'])
             ->name('recall');
 
+        // Resubmit (Healthcare re-submits after rejection)
+        Route::get('/{paymentProof}/resubmit', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'showResubmit'])
+            ->name('resubmit');
+        Route::post('/{paymentProof}/resubmit', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'processResubmit'])
+            ->name('process-resubmit');
+
         // Correction (Super Admin only — reverses an approved proof and creates a replacement)
         Route::get('/{paymentProof}/correct', [\App\Http\Controllers\Web\PaymentProofWebController::class, 'correct'])
             ->name('correct');

@@ -258,31 +258,60 @@
             </div>
             <div class="card-body pt-3">
                 <div class="d-flex flex-column gap-3">
-                    @can('create_invoice')
+                    @can('create_invoices')
                     <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light-primary justify-content-start">
                         <i class="ki-outline ki-bill fs-3 me-3"></i>
                         <div class="text-start">
-                            <div class="fw-bold fs-6">Generate Invoice</div>
-                            <div class="text-muted fs-7">Buat invoice baru</div>
+                            <div class="fw-bold fs-6">Customer Invoices</div>
+                            <div class="text-muted fs-7">Kelola tagihan ke RS/Klinik</div>
                         </div>
                     </a>
                     @endcan
-                    @can('verify_payment')
-                    <a href="{{ route('web.payments.index') }}" class="btn btn-light-success justify-content-start">
-                        <i class="ki-outline ki-check-circle fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Konfirmasi Pembayaran</div>
-                            <div class="text-muted fs-7">Verifikasi pembayaran masuk</div>
-                        </div>
-                    </a>
-                    @endcan
+                    @can('view_invoices')
                     <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-danger justify-content-start">
                         <i class="ki-outline ki-entrance-right fs-3 me-3"></i>
                         <div class="text-start">
-                            <div class="fw-bold fs-6">Bayar Distributor</div>
-                            <div class="text-muted fs-7">Catat pembayaran ke supplier</div>
+                            <div class="fw-bold fs-6">Supplier Invoices</div>
+                            <div class="text-muted fs-7">Tagihan dari distributor</div>
                         </div>
                     </a>
+                    @endcan
+                    @can('verify_payment_proof')
+                    <a href="{{ route('web.payment-proofs.index') }}" class="btn btn-light-success justify-content-start">
+                        <i class="ki-outline ki-shield-tick fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">Verifikasi Bukti Bayar</div>
+                            <div class="text-muted fs-7">Review & verifikasi payment proof</div>
+                        </div>
+                    </a>
+                    @endcan
+                    @can('process_payments')
+                    <a href="{{ route('web.payments.index') }}" class="btn btn-light-info justify-content-start">
+                        <i class="ki-outline ki-book fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">Payment Ledger</div>
+                            <div class="text-muted fs-7">Buku kas & pembayaran</div>
+                        </div>
+                    </a>
+                    @endcan
+                    @can('view_credit_control')
+                    <a href="{{ route('web.financial-controls.index') }}" class="btn btn-light-warning justify-content-start">
+                        <i class="ki-outline ki-shield-search fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">Credit Control</div>
+                            <div class="text-muted fs-7">Pantau limit kredit faskes</div>
+                        </div>
+                    </a>
+                    @endcan
+                    @can('view_reports')
+                    <a href="{{ route('web.ar-aging.index') }}" class="btn btn-light-dark justify-content-start">
+                        <i class="ki-outline ki-calendar-tick fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">AR Aging</div>
+                            <div class="text-muted fs-7">Analisis umur piutang</div>
+                        </div>
+                    </a>
+                    @endcan
                 </div>
             </div>
         </div>

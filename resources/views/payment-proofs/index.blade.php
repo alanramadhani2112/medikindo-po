@@ -18,7 +18,7 @@
     </x-slot>
 
     <x-slot name="tabs">
-        @foreach(['submitted', 'verified', 'approved', 'rejected'] as $statusKey)
+        @foreach(['submitted', 'resubmitted', 'verified', 'approved', 'rejected'] as $statusKey)
             @php 
                 $statusEnum = App\Enums\PaymentProofStatus::tryFrom($statusKey);
                 $isActive = ($tab === $statusKey);

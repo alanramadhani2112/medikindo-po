@@ -198,7 +198,13 @@
                         <x-table-action>
                             <x-table-action.item :href="route('web.invoices.customer.show', $invoice)" icon="eye" label="Lihat Detail" />
                             @if($invoice->status->canAcceptPayment())
-                                <x-table-action.item :href="route('web.payments.create.incoming', ['invoice_id' => $invoice->id])" icon="dollar" label="Tambah Pembayaran" color="success" />
+                                @can('process_payments')
+                                    <x-table-action.item :href="route('web.payments.create.incoming', ['invoice_id' => $invoice->id])" icon="dollar" label="Tambah Pembayaran" color="success" />
+                                @else
+                                    @can('submit_payment_proof')
+                                        <x-table-action.item :href="route('web.payment-proofs.create', ['invoice_id' => $invoice->id])" icon="shield-tick" label="Upload Bukti Bayar" color="success" />
+                                    @endcan
+                                @endcan
                             @endif
                             @if($invoice->status->value === 'draft')
                                 <x-table-action.divider />

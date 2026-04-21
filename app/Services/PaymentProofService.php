@@ -100,11 +100,12 @@ class PaymentProofService
 
     /**
      * Verify a payment proof (Finance step).
+     * Accepts both SUBMITTED and RESUBMITTED status.
      */
     public function verifyPaymentProof(PaymentProof $proof, User $actor, array $data = []): PaymentProof
     {
-        if ($proof->status !== PaymentProofStatus::SUBMITTED) {
-            throw new DomainException('Hanya bukti bayar berstatus "Submitted" yang dapat diverifikasi.');
+        if (!in_array($proof->status, [PaymentProofStatus::SUBMITTED, PaymentProofStatus::RESUBMITTED])) {
+            throw new DomainException('Hanya bukti bayar berstatus "Submitted" atau "Diajukan Ulang" yang dapat diverifikasi.');
         }
 
         $proof->update([
@@ -129,7 +130,13 @@ class PaymentProofService
      */
     public function approvePaymentProof(PaymentProof $proof, User $actor, array $data = []): PaymentProof
     {
-        if ($proof->status !== PaymentProofStatus::VERIFIED && $proof->status !== PaymentProofStatus::SUBMITTED) {
+        $allowedStatuses = [
+            PaymentProofStatus::VERIFIED,
+            PaymentProofStatus::SUBMITTED,
+            PaymentProofStatus::RESUBMITTED,
+        ];
+
+        if (!in_array($proof->status, $allowedStatuses)) {
             throw new DomainException('Bukti bayar tidak dalam status yang dapat disetujui.');
         }
 
@@ -289,6 +296,87 @@ class PaymentProofService
         }
 
         return $proof;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Resubmit (Healthcare re-submits after rejection)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Resubmit a rejected payment proof with corrections.
+     * Creates a new PaymentProof linked to the original rejected one.
+     */
+    public function resubmitPaymentProof(PaymentProof $original, User $actor, array $data, ?UploadedFile $file = null): PaymentProof
+    {
+        if (!$original->canBeResubmitted()) {
+            throw new DomainException('Hanya bukti bayar yang ditolak yang dapat diajukan ulang.');
+        }
+
+        // Only the original submitter or Super Admin can resubmit
+        if ($original->submitted_by !== $actor->id && !$actor->isSuperAdmin()) {
+            throw new DomainException('Hanya pengirim asli yang dapat mengajukan ulang bukti pembayaran ini.');
+        }
+
+        $invoice = $original->customerInvoice;
+        $outstanding = (float) $invoice->total_amount - (float) $invoice->paid_amount;
+
+        if ($outstanding <= 0) {
+            throw new DomainException('Invoice ini sudah lunas.');
+        }
+
+        $paymentType = $data['payment_type'] ?? $original->payment_type ?? 'full';
+        $amount = $paymentType === 'full'
+            ? $outstanding
+            : (float) ($data['amount'] ?? $original->amount);
+
+        if ($paymentType === 'partial' && $amount >= $outstanding) {
+            throw new DomainException('Bayar sebagian harus kurang dari total tagihan tersisa.');
+        }
+
+        $newProof = DB::transaction(function () use ($original, $actor, $data, $file, $amount, $paymentType, $invoice) {
+            $newProof = PaymentProof::create([
+                'customer_invoice_id'   => $invoice->id,
+                'submitted_by'          => $actor->id,
+                'amount'                => $amount,
+                'payment_type'          => $paymentType,
+                'payment_date'          => $data['payment_date'] ?? $original->payment_date,
+                'payment_method'        => $data['payment_method'] ?? $original->payment_method,
+                'bank_account_id'       => $data['bank_account_id'] ?? $original->bank_account_id,
+                'sender_bank_name'      => $data['sender_bank_name'] ?? $original->sender_bank_name,
+                'sender_account_number' => $data['sender_account_number'] ?? $original->sender_account_number,
+                'giro_number'           => $data['giro_number'] ?? $original->giro_number,
+                'giro_due_date'         => $data['giro_due_date'] ?? $original->giro_due_date,
+                'bank_reference'        => $data['bank_reference'] ?? $original->bank_reference,
+                'notes'                 => $data['notes'] ?? null,
+                'status'                => PaymentProofStatus::RESUBMITTED,
+                'resubmission_of_id'    => $original->id,
+                'resubmission_notes'    => $data['resubmission_notes'] ?? null,
+            ]);
+
+            if ($file) {
+                $this->uploadDocument($newProof, $file, $actor);
+            }
+
+            $this->auditService->log(
+                'payment_proof.resubmitted',
+                PaymentProof::class,
+                $newProof->id,
+                [
+                    'original_proof_id' => $original->id,
+                    'invoice_id'        => $invoice->id,
+                    'amount'            => $amount,
+                    'rejection_reason'  => $original->rejection_reason,
+                ],
+                $actor->id
+            );
+
+            return $newProof;
+        });
+
+        // Notify Finance about the resubmission
+        $this->notifyFinanceOnSubmit($newProof);
+
+        return $newProof;
     }
 
     // ─────────────────────────────────────────────────────────────────────────

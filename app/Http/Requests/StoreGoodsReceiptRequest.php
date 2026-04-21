@@ -32,7 +32,7 @@ class StoreGoodsReceiptRequest extends FormRequest
             'items.*.product_id'                     => 'required|exists:products,id',
             'items.*.quantity_received'              => 'required|integer|min:1',
             'items.*.batch_no'                       => 'required|string|max:100',
-            'items.*.expiry_date'                    => 'required|date',
+            'items.*.expiry_date'                    => 'required|date|after:today',
             'items.*.condition'                      => 'nullable|string',
             'items.*.notes'                          => 'nullable|string',
         ];
@@ -52,6 +52,7 @@ class StoreGoodsReceiptRequest extends FormRequest
             'items.*.quantity_received.min'          => 'Jumlah diterima minimal 1.',
             'items.*.batch_no.required'              => 'Nomor batch wajib diisi.',
             'items.*.expiry_date.required'           => 'Tanggal kadaluarsa wajib diisi.',
+            'items.*.expiry_date.after'              => 'Tidak dapat menerima barang kadaluarsa: tanggal expiry harus setelah hari ini.',
         ];
     }
 }

@@ -10,6 +10,7 @@ use App\Models\SupplierInvoice;
 use App\Models\TaxConfiguration;
 use App\Models\User;
 use App\Notifications\NewInvoiceNotification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -90,6 +91,9 @@ class MirrorGenerationService
                 "SupplierInvoice belum diverifikasi (status: {$statusValue})"
             );
         }
+
+        // Guard 3: block expired items from being invoiced
+        $this->validateNoExpiredItems($apInvoice);
 
         $customerInvoice = DB::transaction(function () use ($apInvoice, $customerId) {
             // Step 3a: Create CustomerInvoice header
@@ -178,6 +182,29 @@ class MirrorGenerationService
         $this->notifyFinanceStaff($customerInvoice);
 
         return $customerInvoice;
+    }
+
+    /**
+     * Validate that no line items in the AP invoice have expired batches.
+     *
+     * @param SupplierInvoice $apInvoice
+     * @throws AntiPhantomBillingException if any line item has an expired batch
+     */
+    private function validateNoExpiredItems(SupplierInvoice $apInvoice): void
+    {
+        $apInvoice->loadMissing('lineItems.product');
+
+        foreach ($apInvoice->lineItems as $line) {
+            if ($line->expiry_date !== null && now()->gte(Carbon::parse($line->expiry_date)->endOfDay())) {
+                $productName = $line->product?->name ?? "Product #{$line->product_id}";
+                $batchNo     = $line->batch_no ?? '-';
+                $expiryDate  = Carbon::parse($line->expiry_date)->format('d/m/Y');
+
+                throw new AntiPhantomBillingException(
+                    "Tidak dapat membuat invoice: batch '{$batchNo}' produk '{$productName}' sudah kadaluarsa pada {$expiryDate}"
+                );
+            }
+        }
     }
 
     /**

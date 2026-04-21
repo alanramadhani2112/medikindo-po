@@ -35,7 +35,7 @@ class APVerificationController extends Controller
         if (! $invoice->isDraft()) {
             return redirect()
                 ->route('web.invoices.supplier.show', $invoice)
-                ->with('error', "Invoice hanya bisa diverifikasi dari status Draft. Status saat ini: {$invoice->status->label()}.");
+                ->with('error', "Invoice hanya bisa diverifikasi dari status Draft. Status saat ini: {$invoice->status->getLabel()}.");
         }
 
         // Gate: must have a GR and PO with organization

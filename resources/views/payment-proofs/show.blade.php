@@ -16,6 +16,61 @@
 
     <div class="row g-5 g-xl-10">
         <div class="col-lg-8">
+
+            {{-- Alert: Bukti Ditolak (tampil di atas) --}}
+            @if ($paymentProof->status === App\Enums\PaymentProofStatus::REJECTED)
+                <div class="card card-flush border-danger border border-dashed mb-5">
+                    <div class="card-body">
+                        <h4 class="text-danger mb-3">
+                            <i class="ki-outline ki-cross-circle fs-3 text-danger me-2"></i>
+                            Bukti Pembayaran Ditolak
+                        </h4>
+                        <p class="text-gray-700 mb-4"><strong>Alasan:</strong> {{ $paymentProof->rejection_reason }}</p>
+
+                        @can('resubmit', $paymentProof)
+                            @if($paymentProof->resubmissions()->count() === 0)
+                                <a href="{{ route('web.payment-proofs.resubmit', $paymentProof) }}"
+                                   class="btn btn-warning">
+                                    <i class="ki-outline ki-arrows-circle fs-4 me-1"></i>
+                                    Ajukan Ulang Bukti Pembayaran
+                                </a>
+                            @else
+                                <div class="alert alert-info d-flex align-items-center p-4 mb-0">
+                                    <i class="ki-outline ki-information-5 fs-2 text-info me-3"></i>
+                                    <span>Bukti pembayaran ulang sudah diajukan.
+                                        <a href="{{ route('web.payment-proofs.show', $paymentProof->resubmissions()->latest()->first()) }}" class="fw-bold">
+                                            Lihat pengajuan ulang →
+                                        </a>
+                                    </span>
+                                </div>
+                            @endif
+                        @endcan
+                    </div>
+                </div>
+            @endif
+
+            {{-- Info: ini adalah resubmission dari proof yang ditolak --}}
+            @if ($paymentProof->resubmission_of_id)
+                <div class="card card-flush border-warning border border-dashed mb-5">
+                    <div class="card-body">
+                        <h4 class="text-warning mb-2">
+                            <i class="ki-outline ki-arrows-circle fs-3 text-warning me-2"></i>
+                            Pengajuan Ulang
+                        </h4>
+                        <p class="text-gray-700 mb-2">
+                            Ini adalah pengajuan ulang dari
+                            <a href="{{ route('web.payment-proofs.show', $paymentProof->resubmission_of_id) }}" class="fw-bold">
+                                Bukti #{{ $paymentProof->resubmission_of_id }}
+                            </a>
+                            yang sebelumnya ditolak.
+                        </p>
+                        @if($paymentProof->resubmission_notes)
+                            <p class="text-gray-700 mb-0"><strong>Keterangan perbaikan:</strong> {{ $paymentProof->resubmission_notes }}</p>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <x-card title="Informasi Pembayaran" icon="bill">
                 <div class="row mb-7">
                     <label class="col-lg-4 fw-semibold text-muted">Invoice Pelanggan</label>
@@ -206,15 +261,6 @@
                     @endforeach
                 </div>
             </x-card>
-
-            @if ($paymentProof->status === App\Enums\PaymentProofStatus::REJECTED)
-                <div class="card card-flush border-danger border border-dashed mt-5">
-                    <div class="card-body">
-                        <h4 class="text-danger mb-4">Alasan Penolakan</h4>
-                        <p class="mb-0">{{ $paymentProof->rejection_reason }}</p>
-                    </div>
-                </div>
-            @endif
 
             {{-- ═══ LANJUTKAN PELUNASAN ═══ --}}
             {{-- Shown when: proof is APPROVED, payment was partial, and invoice is not yet fully paid --}}

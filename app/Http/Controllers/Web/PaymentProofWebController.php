@@ -209,8 +209,9 @@ class PaymentProofWebController extends Controller
     {
         $this->authorize('verify', $paymentProof);
 
-        if (!$paymentProof->canBeVerified()) {
-            return back()->with('error', 'Bukti pembayaran ini tidak dapat disetujui pada status saat ini.');
+        if (!$paymentProof->canBeVerified() && !$paymentProof->isResubmitted()) {
+            return redirect()->route('web.payment-proofs.show', $paymentProof)
+                ->with('error', 'Bukti pembayaran ini tidak dapat diverifikasi pada status saat ini.');
         }
 
         $paymentProof->load([
@@ -282,7 +283,8 @@ class PaymentProofWebController extends Controller
         $this->authorize('approve', $paymentProof);
 
         if (!$paymentProof->canBeApproved()) {
-            return back()->with('error', 'Bukti pembayaran ini tidak dapat diverifikasi pada status saat ini.');
+            return redirect()->route('web.payment-proofs.show', $paymentProof)
+                ->with('error', 'Bukti pembayaran ini tidak dapat diapprove pada status saat ini.');
         }
 
         $paymentProof->load([
@@ -354,7 +356,8 @@ class PaymentProofWebController extends Controller
         $this->authorize('reject', $paymentProof);
 
         if (!$paymentProof->canBeApproved() && !$paymentProof->canBeVerified()) {
-            return back()->with('error', 'Bukti pembayaran ini tidak dapat ditolak pada status saat ini.');
+            return redirect()->route('web.payment-proofs.show', $paymentProof)
+                ->with('error', 'Bukti pembayaran ini tidak dapat ditolak pada status saat ini.');
         }
 
         $paymentProof->load([
@@ -429,6 +432,72 @@ class PaymentProofWebController extends Controller
 
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menarik bukti pembayaran: ' . $e->getMessage());
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Resubmit (Healthcare re-submits after rejection)
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Show resubmit form pre-filled with original rejected proof data.
+     */
+    public function showResubmit(PaymentProof $paymentProof)
+    {
+        $this->authorize('resubmit', $paymentProof);
+
+        $paymentProof->load([
+            'customerInvoice.organization',
+            'paymentDocuments',
+            'submittedBy',
+        ]);
+
+        $breadcrumbs = [
+            ['label' => 'Invoicing', 'url' => 'javascript:void(0)'],
+            ['label' => 'Payment Proofs', 'url' => route('web.payment-proofs.index')],
+            ['label' => 'Ajukan Ulang #' . $paymentProof->id],
+        ];
+
+        return view('payment-proofs.resubmit', compact('paymentProof', 'breadcrumbs'));
+    }
+
+    /**
+     * Process the resubmission.
+     */
+    public function processResubmit(Request $request, PaymentProof $paymentProof)
+    {
+        $this->authorize('resubmit', $paymentProof);
+
+        $request->validate([
+            'payment_date'       => 'required|date',
+            'payment_method'     => 'required|string',
+            'sender_bank_name'   => 'nullable|string|max:100',
+            'bank_reference'     => 'nullable|string|max:100',
+            'resubmission_notes' => 'required|string|min:10|max:1000',
+            'payment_proof_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'resubmission_notes.required' => 'Keterangan perbaikan wajib diisi.',
+            'resubmission_notes.min'      => 'Keterangan minimal 10 karakter.',
+        ]);
+
+        try {
+            $file = $request->hasFile('payment_proof_file')
+                ? $request->file('payment_proof_file')
+                : null;
+
+            $newProof = $this->paymentProofService->resubmitPaymentProof(
+                $paymentProof,
+                Auth::user(),
+                $request->all(),
+                $file
+            );
+
+            return redirect()
+                ->route('web.payment-proofs.show', $newProof)
+                ->with('success', 'Bukti pembayaran berhasil diajukan ulang. Tim Finance akan mereview kembali.');
+
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal mengajukan ulang: ' . $e->getMessage());
         }
     }
 

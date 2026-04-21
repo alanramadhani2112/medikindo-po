@@ -73,14 +73,18 @@
                     @can('view_approvals')
                         <div class="menu-item">
                             <a class="menu-link {{ request()->routeIs('web.approvals.*') ? 'active' : '' }}"
-                                href="{{ route('web.approvals.index') }}">
+                                href="{{ route('web.approvals.index') }}"
+                                @if(isset($pendingApprovalCount) && $pendingApprovalCount > 0)
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="right" 
+                                    title="{{ $pendingApprovalCount }} PO menunggu approval"
+                                @endif>
                                 <span class="menu-icon">
                                     <i class="ki-outline ki-briefcase fs-2"></i>
                                 </span>
                                 <span class="menu-title">Approvals</span>
                                 @if (isset($pendingApprovalCount) && $pendingApprovalCount > 0)
-                                    <span
-                                        class="badge badge-sm badge-circle badge-danger ms-auto">{{ $pendingApprovalCount }}</span>
+                                    <span class="badge badge-sm badge-circle badge-danger ms-auto">{{ $pendingApprovalCount }}</span>
                                 @endif
                             </a>
                         </div>
@@ -89,16 +93,18 @@
                     @can('view_goods_receipt')
                         <div class="menu-item">
                             <a class="menu-link {{ request()->routeIs('web.goods-receipts.*') ? 'active' : '' }}"
-                                href="{{ route('web.goods-receipts.index') }}">
+                                href="{{ route('web.goods-receipts.index') }}"
+                                @if(isset($partialGRCount) && $partialGRCount > 0)
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="right" 
+                                    title="{{ $partialGRCount }} PO menunggu pengiriman sisa"
+                                @endif>
                                 <span class="menu-icon">
                                     <i class="ki-outline ki-courier-express fs-2"></i>
                                 </span>
                                 <span class="menu-title">Goods Receipt</span>
                                 @if(isset($partialGRCount) && $partialGRCount > 0)
-                                    <span class="badge badge-sm badge-circle badge-warning ms-auto"
-                                          title="{{ $partialGRCount }} PO menunggu pengiriman sisa">
-                                        {{ $partialGRCount }}
-                                    </span>
+                                    <span class="badge badge-sm badge-circle badge-warning ms-auto">{{ $partialGRCount }}</span>
                                 @endif
                             </a>
                         </div>
@@ -106,7 +112,7 @@
                 @endcanany
 
                 {{-- HUTANG (AP - ACCOUNTS PAYABLE) SECTION --}}
-                @can('view_invoices')
+                @can('create_invoices')
                     <div class="menu-item pt-5">
                         <div class="menu-content">
                             <span class="menu-heading fw-bold text-uppercase fs-7">Hutang (AP)</span>
@@ -116,16 +122,18 @@
                     {{-- Supplier Invoice --}}
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs('web.invoices.supplier.*') ? 'active' : '' }}"
-                            href="{{ route('web.invoices.supplier.index') }}">
+                            href="{{ route('web.invoices.supplier.index') }}"
+                            @if(isset($grReadyToInvoiceCount) && $grReadyToInvoiceCount > 0)
+                                data-bs-toggle="tooltip" 
+                                data-bs-placement="right" 
+                                title="{{ $grReadyToInvoiceCount }} GR siap dibuatkan invoice"
+                            @endif>
                             <span class="menu-icon">
                                 <i class="ki-outline ki-bill fs-2"></i>
                             </span>
                             <span class="menu-title">Supplier Invoices</span>
                             @if(isset($grReadyToInvoiceCount) && $grReadyToInvoiceCount > 0)
-                                <span class="badge badge-sm badge-circle badge-danger ms-auto"
-                                      title="{{ $grReadyToInvoiceCount }} GR siap diinvoice">
-                                    {{ $grReadyToInvoiceCount }}
-                                </span>
+                                <span class="badge badge-sm badge-circle badge-danger ms-auto">{{ $grReadyToInvoiceCount }}</span>
                             @endif
                         </a>
                     </div>
@@ -133,14 +141,24 @@
                     {{-- Payment Out - Coming Soon --}}
                     @can('process_payments')
                         <div class="menu-item">
-                            <a class="menu-link {{ request()->routeIs('web.payments.outgoing.soon') ? 'active' : '' }}" href="{{ route('web.payments.outgoing.soon') }}">
+                            <a class="menu-link {{ request()->routeIs('web.payments.outgoing.soon') ? 'active' : '' }}" 
+                                href="{{ route('web.payments.outgoing.soon') }}"
+                                @if(isset($supplierInvoicesDueCount) && $supplierInvoicesDueCount > 0)
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="right" 
+                                    title="{{ $supplierInvoicesDueCount }} invoice supplier jatuh tempo perlu dibayar"
+                                @endif>
                                 <span class="menu-icon">
                                     <i class="ki-outline ki-exit-right fs-2"></i>
                                 </span>
                                 <span class="menu-title">Payment Out</span>
-                                <span class="menu-badge">
-                                    <span class="badge badge-light-primary fw-bold fs-9 px-2 py-1">Soon</span>
-                                </span>
+                                @if(isset($supplierInvoicesDueCount) && $supplierInvoicesDueCount > 0)
+                                    <span class="badge badge-sm badge-circle badge-danger ms-auto">{{ $supplierInvoicesDueCount }}</span>
+                                @else
+                                    <span class="menu-badge">
+                                        <span class="badge badge-light-primary fw-bold fs-9 px-2 py-1">Soon</span>
+                                    </span>
+                                @endif
                             </a>
                         </div>
                     @endcan
@@ -157,11 +175,19 @@
                     {{-- Customer Invoice --}}
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs('web.invoices.customer.*') ? 'active' : '' }}"
-                            href="{{ route('web.invoices.customer.index') }}">
+                            href="{{ route('web.invoices.customer.index') }}"
+                            @if(isset($customerInvoicesOverdueCount) && $customerInvoicesOverdueCount > 0)
+                                data-bs-toggle="tooltip" 
+                                data-bs-placement="right" 
+                                title="{{ $customerInvoicesOverdueCount }} invoice customer sudah jatuh tempo"
+                            @endif>
                             <span class="menu-icon">
                                 <i class="ki-outline ki-document fs-2"></i>
                             </span>
                             <span class="menu-title">Customer Invoices</span>
+                            @if(isset($customerInvoicesOverdueCount) && $customerInvoicesOverdueCount > 0)
+                                <span class="badge badge-sm badge-circle badge-danger ms-auto">{{ $customerInvoicesOverdueCount }}</span>
+                            @endif
                         </a>
                     </div>
 
@@ -169,11 +195,19 @@
                     @can('view_payment_status')
                         <div class="menu-item">
                             <a class="menu-link {{ request()->routeIs('web.payment-proofs.*') ? 'active' : '' }}"
-                                href="{{ route('web.payment-proofs.index') }}">
+                                href="{{ route('web.payment-proofs.index') }}"
+                                @if(isset($paymentProofsPendingCount) && $paymentProofsPendingCount > 0)
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="right" 
+                                    title="{{ $paymentProofsPendingCount }} bukti pembayaran perlu diverifikasi/approve"
+                                @endif>
                                 <span class="menu-icon">
                                     <i class="ki-outline ki-shield-tick fs-2"></i>
                                 </span>
                                 <span class="menu-title">Payment Proofs</span>
+                                @if(isset($paymentProofsPendingCount) && $paymentProofsPendingCount > 0)
+                                    <span class="badge badge-sm badge-circle badge-warning ms-auto">{{ $paymentProofsPendingCount }}</span>
+                                @endif
                             </a>
                         </div>
                     @endcan
@@ -195,25 +229,43 @@
                     @endcan
 
                     {{-- AR Aging --}}
-                    <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs('web.ar-aging.*') ? 'active' : '' }}"
-                            href="{{ route('web.ar-aging.index') }}">
-                            <span class="menu-icon">
-                                <i class="ki-outline ki-calendar-tick fs-2"></i>
-                            </span>
-                            <span class="menu-title">AR Aging</span>
-                        </a>
-                    </div>
+                    @can('view_reports')
+                        <div class="menu-item">
+                            <a class="menu-link {{ request()->routeIs('web.ar-aging.*') ? 'active' : '' }}"
+                                href="{{ route('web.ar-aging.index') }}"
+                                @if(isset($arAgingCriticalCount) && $arAgingCriticalCount > 0)
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="right" 
+                                    title="{{ $arAgingCriticalCount }} invoice overdue >30 hari perlu tindakan"
+                                @endif>
+                                <span class="menu-icon">
+                                    <i class="ki-outline ki-calendar-tick fs-2"></i>
+                                </span>
+                                <span class="menu-title">AR Aging</span>
+                                @if(isset($arAgingCriticalCount) && $arAgingCriticalCount > 0)
+                                    <span class="badge badge-sm badge-circle badge-danger ms-auto">{{ $arAgingCriticalCount }}</span>
+                                @endif
+                            </a>
+                        </div>
+                    @endcan
 
                     {{-- Credit Control --}}
                     @can('view_credit_control')
                         <div class="menu-item">
                             <a class="menu-link {{ request()->routeIs('web.financial-controls.*') ? 'active' : '' }}"
-                                href="{{ route('web.financial-controls.index') }}">
+                                href="{{ route('web.financial-controls.index') }}"
+                                @if(isset($creditLimitExceededCount) && $creditLimitExceededCount > 0)
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="right" 
+                                    title="{{ $creditLimitExceededCount }} customer melebihi credit limit"
+                                @endif>
                                 <span class="menu-icon">
                                     <i class="ki-outline ki-shield-search fs-2"></i>
                                 </span>
                                 <span class="menu-title">Credit Control</span>
+                                @if(isset($creditLimitExceededCount) && $creditLimitExceededCount > 0)
+                                    <span class="badge badge-sm badge-circle badge-danger ms-auto">{{ $creditLimitExceededCount }}</span>
+                                @endif
                             </a>
                         </div>
                     @endcan
@@ -355,3 +407,17 @@
     <!--end::sidebar menu-->
 </div>
 <!--end::Sidebar-->
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Bootstrap tooltips for sidebar badges
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, {
+        trigger: 'hover',
+        placement: 'right',
+        container: 'body'
+    }));
+});
+</script>
+@endpush

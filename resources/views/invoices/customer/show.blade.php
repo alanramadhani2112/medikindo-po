@@ -396,10 +396,19 @@
                     </h3>
                     @if($invoice->status->canAcceptPayment())
                         <div class="card-toolbar">
-                            <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
-                                class="btn btn-sm btn-primary">
-                                <i class="ki-outline ki-dollar fs-4 me-1"></i>Tambah Pembayaran
-                            </a>
+                            @can('process_payments')
+                                <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
+                                    class="btn btn-sm btn-primary">
+                                    <i class="ki-outline ki-dollar fs-4 me-1"></i>Tambah Pembayaran
+                                </a>
+                            @else
+                                @can('submit_payment_proof')
+                                    <a href="{{ route('web.payment-proofs.create', ['invoice_id' => $invoice->id]) }}"
+                                        class="btn btn-sm btn-primary">
+                                        <i class="ki-outline ki-shield-tick fs-4 me-1"></i>Upload Bukti Bayar
+                                    </a>
+                                @endcan
+                            @endcan
                         </div>
                     @endif
                 </div>
@@ -464,10 +473,19 @@
                                                 <i class="ki-outline ki-entrance-right fs-3x text-gray-300 mb-3"></i>
                                                 <span class="text-gray-600 fw-semibold">Belum Ada Pembayaran</span>
                                                 @if($invoice->status->canAcceptPayment())
-                                                    <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
-                                                        class="btn btn-sm btn-light-primary mt-3">
-                                                        <i class="ki-outline ki-dollar fs-4 me-1"></i>Input Pembayaran
-                                                    </a>
+                                                    @can('process_payments')
+                                                        <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
+                                                            class="btn btn-sm btn-light-primary mt-3">
+                                                            <i class="ki-outline ki-dollar fs-4 me-1"></i>Input Pembayaran
+                                                        </a>
+                                                    @else
+                                                        @can('submit_payment_proof')
+                                                            <a href="{{ route('web.payment-proofs.create', ['invoice_id' => $invoice->id]) }}"
+                                                                class="btn btn-sm btn-light-primary mt-3">
+                                                                <i class="ki-outline ki-shield-tick fs-4 me-1"></i>Upload Bukti Bayar
+                                                            </a>
+                                                        @endcan
+                                                    @endcan
                                                 @endif
                                             </div>
                                         </td>
@@ -578,10 +596,19 @@
                 </div>
                 <div class="d-flex gap-3">
                     @if($invoice->status->canAcceptPayment())
-                        <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
-                           class="btn btn-success">
-                            <i class="ki-outline ki-dollar fs-4 me-1"></i>Tambah Pembayaran
-                        </a>
+                        @can('process_payments')
+                            <a href="{{ route('web.payments.create.incoming', ['invoice_id' => $invoice->id]) }}"
+                               class="btn btn-success">
+                                <i class="ki-outline ki-dollar fs-4 me-1"></i>Tambah Pembayaran
+                            </a>
+                        @else
+                            @can('submit_payment_proof')
+                                <a href="{{ route('web.payment-proofs.create', ['invoice_id' => $invoice->id]) }}"
+                                   class="btn btn-success">
+                                    <i class="ki-outline ki-shield-tick fs-4 me-1"></i>Upload Bukti Bayar
+                                </a>
+                            @endcan
+                        @endcan
                     @endif
                     @if($invoice->isDraft())
                         @can('create_invoices')

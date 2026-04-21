@@ -13,11 +13,11 @@
 
     @php
         $bucketConfig = [
-            'current' => ['label' => 'Belum Jatuh Tempo', 'sublabel' => 'On Time',       'color' => 'success', 'icon' => 'check-circle'],
-            '1-30'    => ['label' => '1–30 Hari',         'sublabel' => 'Perhatian',      'color' => 'warning', 'icon' => 'time'],
-            '31-60'   => ['label' => '31–60 Hari',        'sublabel' => 'Waspada',        'color' => 'danger',  'icon' => 'information-5'],
-            '61-90'   => ['label' => '61–90 Hari',        'sublabel' => 'Kritis',         'color' => 'danger',  'icon' => 'cross-circle'],
-            '90+'     => ['label' => '>90 Hari',          'sublabel' => 'Sangat Kritis',  'color' => 'danger',  'icon' => 'skull'],
+            'current' => ['label' => 'Belum Jatuh Tempo', 'sublabel' => 'On Time',       'color' => 'success',  'icon' => 'check-circle',   'bg' => '#17c653', 'text' => '#ffffff'],
+            '1-30'    => ['label' => '1–30 Hari',         'sublabel' => 'Perhatian',      'color' => 'warning',  'icon' => 'time',           'bg' => '#f6c000', 'text' => '#ffffff'],
+            '31-60'   => ['label' => '31–60 Hari',        'sublabel' => 'Waspada',        'color' => 'orange',   'icon' => 'information-5',  'bg' => '#ff6b35', 'text' => '#ffffff'],
+            '61-90'   => ['label' => '61–90 Hari',        'sublabel' => 'Kritis',         'color' => 'danger',   'icon' => 'cross-circle',   'bg' => '#f1416c', 'text' => '#ffffff'],
+            '90+'     => ['label' => '>90 Hari',          'sublabel' => 'Sangat Kritis',  'color' => 'crimson',  'icon' => 'skull',          'bg' => '#9b1c3a', 'text' => '#ffffff'],
         ];
         $activeBucket = request('bucket', '');
         $overdueTotal = ($totals['1-30'] ?? 0) + ($totals['31-60'] ?? 0) + ($totals['61-90'] ?? 0) + ($totals['90+'] ?? 0);
@@ -37,26 +37,26 @@
                 ));
             @endphp
             <div class="col-12 col-md-6 col-xl">
-                <a href="{{ $href }}" class="card card-flush bg-{{ $cfg['color'] }} hoverable h-100 text-decoration-none {{ $isActive ? 'shadow-lg' : '' }}"
-                   style="{{ $isActive ? 'transform: scale(1.02); transition: all 0.3s ease;' : '' }}">
+                <a href="{{ $href }}" class="card card-flush hoverable h-100 text-decoration-none {{ $isActive ? 'shadow-lg' : '' }}"
+                   style="background-color: {{ $cfg['bg'] }}; {{ $isActive ? 'transform: scale(1.02); transition: all 0.3s ease; box-shadow: 0 0 0 3px rgba(255,255,255,0.5) !important;' : 'transition: all 0.2s ease;' }}">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div class="d-flex align-items-center justify-content-between mb-5">
                             <div class="d-flex flex-column">
-                                <span class="text-white opacity-75 fw-semibold fs-7 mb-1">{{ $cfg['label'] }}</span>
-                                <span class="text-white opacity-75 fs-8">{{ $cfg['sublabel'] }}</span>
+                                <span class="fw-semibold fs-7 mb-1" style="color: {{ $cfg['text'] }}; opacity: 0.9;">{{ $cfg['label'] }}</span>
+                                <span class="fs-8" style="color: {{ $cfg['text'] }}; opacity: 0.75;">{{ $cfg['sublabel'] }}</span>
                             </div>
-                            <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-20 rounded" style="width:50px;height:50px;">
-                                <i class="ki-outline ki-{{ $cfg['icon'] }} fs-2x text-white"></i>
+                            <div class="d-flex align-items-center justify-content-center rounded" style="width:50px;height:50px; background: rgba(255,255,255,0.2);">
+                                <i class="ki-outline ki-{{ $cfg['icon'] }} fs-2x" style="color: {{ $cfg['text'] }};"></i>
                             </div>
                         </div>
                         <div class="d-flex flex-column">
-                            <span class="text-white fw-bold fs-2x mb-1">
+                            <span class="fw-bold fs-2x mb-1" style="color: {{ $cfg['text'] }};">
                                 Rp {{ number_format($amount, 0, ',', '.') }}
                             </span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <span class="text-white opacity-75 fs-7">{{ $count }} invoice</span>
+                                <span class="fs-7" style="color: {{ $cfg['text'] }}; opacity: 0.75;">{{ $count }} invoice</span>
                                 @if($isActive)
-                                    <span class="badge bg-white text-{{ $cfg['color'] }} fs-8 fw-bold">
+                                    <span class="badge fs-8 fw-bold" style="background: rgba(255,255,255,0.9); color: {{ $cfg['bg'] }};">
                                         <i class="ki-outline ki-check fs-7 me-1"></i>Aktif
                                     </span>
                                 @endif
@@ -69,26 +69,26 @@
     </div>
 
     {{-- ── Summary Bar ──────────────────────────────────────────── --}}
-    <div class="card card-flush bg-primary mb-7">
+    <div class="card card-flush mb-7" style="background: #ffffff; border: 1px solid #17c653; box-shadow: 0 4px 20px rgba(23, 198, 83, 0.12);">
         <div class="card-body py-6">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-4">
                 <div class="d-flex align-items-center gap-4">
-                    <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-20 rounded" style="width:60px;height:60px;">
-                        <i class="ki-outline ki-bill fs-2x text-white"></i>
+                    <div class="d-flex align-items-center justify-content-center rounded" style="width:60px;height:60px; background: rgba(23,198,83,0.1);">
+                        <i class="ki-outline ki-bill fs-2x" style="color: #17c653;"></i>
                     </div>
                     <div>
-                        <span class="text-white opacity-75 fw-semibold fs-7 text-uppercase mb-1 d-block">Total Piutang Outstanding</span>
-                        <span class="text-white fw-bold fs-2x">Rp {{ number_format($grandTotal, 0, ',', '.') }}</span>
+                        <span class="text-muted fw-semibold fs-7 text-uppercase mb-1 d-block">Total Piutang Outstanding</span>
+                        <span class="fw-bold fs-2x text-gray-900">Rp {{ number_format($grandTotal, 0, ',', '.') }}</span>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-5">
                     <div class="text-center">
-                        <span class="text-white opacity-75 fs-8 mb-1 d-block">Invoice Aktif</span>
-                        <span class="text-white fw-bold fs-3">{{ collect($buckets)->sum(fn($b) => $b->count()) }}</span>
+                        <span class="text-muted fs-8 mb-1 d-block">Invoice Aktif</span>
+                        <span class="fw-bold fs-3 text-gray-900">{{ collect($buckets)->sum(fn($b) => $b->count()) }}</span>
                     </div>
-                    <div class="separator separator-vertical h-40px bg-white opacity-25"></div>
+                    <div class="separator separator-vertical h-40px" style="background: #e4e6ef;"></div>
                     <div class="text-center">
-                        <span class="text-white opacity-75 fs-8 mb-1 d-block">Overdue</span>
+                        <span class="text-muted fs-8 mb-1 d-block">Overdue</span>
                         <span class="badge {{ $overdueRatio > 50 ? 'badge-danger' : ($overdueRatio > 20 ? 'badge-warning' : 'badge-success') }} fs-6 px-3 py-2">
                             {{ number_format($overdueRatio, 0) }}%
                         </span>
@@ -97,18 +97,21 @@
             </div>
 
             @if($grandTotal > 0)
-                <div class="progress h-8px rounded mt-6 mb-3" style="background: rgba(255,255,255,.15);">
+                <div class="progress h-8px rounded mt-6 mb-3" style="background: #e8f5e9;">
                     @foreach($bucketConfig as $key => $cfg)
-                        @php $pct = $grandTotal > 0 ? (($totals[$key] ?? 0) / $grandTotal) * 100 : 0; @endphp
+                        @php 
+                            $pct = $grandTotal > 0 ? (($totals[$key] ?? 0) / $grandTotal) * 100 : 0;
+                            // Use green shades for all segments
+                            $greenShades = [
+                                'current' => '#17c653',  // bright green
+                                '1-30'    => '#10a142',  // medium green
+                                '31-60'   => '#0d8435',  // darker green
+                                '61-90'   => '#0a6629',  // very dark green
+                                '90+'     => '#074d1f',  // darkest green
+                            ];
+                            $barColor = $greenShades[$key] ?? '#17c653';
+                        @endphp
                         @if($pct > 0)
-                            @php
-                                $barColor = match($cfg['color']) {
-                                    'success' => '#17c653',
-                                    'warning' => '#f6c000',
-                                    'danger'  => '#f1416c',
-                                    default   => '#50cd89',
-                                };
-                            @endphp
                             <div class="progress-bar" style="width:{{ $pct }}%; background:{{ $barColor }};"
                                  title="{{ $cfg['label'] }}: {{ number_format($pct,1) }}%"
                                  data-bs-toggle="tooltip"></div>
@@ -120,14 +123,19 @@
                         @if(($totals[$key] ?? 0) > 0)
                             @php
                                 $pct = $grandTotal > 0 ? (($totals[$key] ?? 0) / $grandTotal) * 100 : 0;
-                                $dotColor = match($cfg['color']) {
-                                    'success' => '#17c653', 'warning' => '#f6c000',
-                                    'danger'  => '#f1416c', default   => '#50cd89',
-                                };
+                                // Use same green shades as progress bar
+                                $greenShades = [
+                                    'current' => '#17c653',
+                                    '1-30'    => '#10a142',
+                                    '31-60'   => '#0d8435',
+                                    '61-90'   => '#0a6629',
+                                    '90+'     => '#074d1f',
+                                ];
+                                $legendColor = $greenShades[$key] ?? '#17c653';
                             @endphp
                             <div class="d-flex align-items-center gap-2">
-                                <div class="w-8px h-8px rounded-circle" style="background:{{ $dotColor }};"></div>
-                                <span class="text-white opacity-75 fs-8">{{ $cfg['label'] }}: <strong class="text-white">{{ number_format($pct,0) }}%</strong></span>
+                                <div class="w-8px h-8px rounded-circle" style="background:{{ $legendColor }};"></div>
+                                <span class="text-muted fs-8">{{ $cfg['label'] }}: <strong class="text-gray-800">{{ number_format($pct,0) }}%</strong></span>
                             </div>
                         @endif
                     @endforeach

@@ -135,12 +135,48 @@
                         </div>
                     </a>
                     @endcan
-                    @can('create_payment')
-                    <a href="{{ route('web.payments.index') }}" class="btn btn-light-success justify-content-start">
-                        <i class="ki-outline ki-entrance-right fs-3 me-3"></i>
+                    @can('view_purchase_orders')
+                    <a href="{{ route('web.po.index') }}" class="btn btn-light-info justify-content-start">
+                        <i class="ki-outline ki-document fs-3 me-3"></i>
                         <div class="text-start">
-                            <div class="fw-bold fs-6">Konfirmasi Pembayaran</div>
-                            <div class="text-muted fs-7">Catat pembayaran ke supplier</div>
+                            <div class="fw-bold fs-6">Lihat Semua PO</div>
+                            <div class="text-muted fs-7">Riwayat purchase order</div>
+                        </div>
+                    </a>
+                    @endcan
+                    @can('view_goods_receipt')
+                    <a href="{{ route('web.goods-receipts.index') }}" class="btn btn-light-warning justify-content-start">
+                        <i class="ki-outline ki-courier-express fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">Goods Receipt</div>
+                            <div class="text-muted fs-7">Penerimaan barang dari supplier</div>
+                        </div>
+                    </a>
+                    @endcan
+                    @can('submit_payment_proof')
+                    <a href="{{ route('web.payment-proofs.create') }}" class="btn btn-light-success justify-content-start">
+                        <i class="ki-outline ki-shield-tick fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">Upload Bukti Bayar</div>
+                            <div class="text-muted fs-7">Submit bukti pembayaran</div>
+                        </div>
+                    </a>
+                    @endcan
+                    @can('view_payment_status')
+                    <a href="{{ route('web.payment-proofs.index') }}" class="btn btn-light-dark justify-content-start">
+                        <i class="ki-outline ki-eye fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">Status Pembayaran</div>
+                            <div class="text-muted fs-7">Pantau status bukti bayar</div>
+                        </div>
+                    </a>
+                    @endcan
+                    @can('view_inventory')
+                    <a href="{{ route('web.inventory.index') }}" class="btn btn-light-danger justify-content-start">
+                        <i class="ki-outline ki-package fs-3 me-3"></i>
+                        <div class="text-start">
+                            <div class="fw-bold fs-6">Inventory</div>
+                            <div class="text-muted fs-7">Stok & batch produk</div>
                         </div>
                     </a>
                     @endcan

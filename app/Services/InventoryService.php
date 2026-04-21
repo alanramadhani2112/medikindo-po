@@ -70,7 +70,7 @@ class InventoryService
     }
 
     /**
-     * Reduce stock (FIFO) for Customer Invoice
+     * Reduce stock (FEFO) for Customer Invoice
      */
     public function reduceStock(
         int $organizationId,
@@ -88,10 +88,15 @@ class InventoryService
             $referenceId,
             $createdBy
         ) {
-            // Get available inventory items (FIFO - oldest first)
+            // Get available inventory items (FEFO - earliest expiry first, NULL expiry last)
             $inventoryItems = InventoryItem::where('organization_id', $organizationId)
                 ->where('product_id', $productId)
                 ->whereRaw('(quantity_on_hand - quantity_reserved) > 0')
+                ->where(function ($query) {
+                    $query->whereNull('expiry_date')
+                          ->orWhereDate('expiry_date', '>', now());
+                })
+                ->orderBy('expiry_date', 'asc')
                 ->orderBy('created_at', 'asc')
                 ->get();
 

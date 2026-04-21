@@ -100,9 +100,106 @@ class AppServiceProvider extends ServiceProvider
                         ->count();
                 }
 
+                // Supplier invoices yang jatuh tempo dan belum lunas (untuk Payment Out)
+                $supplierInvoicesDueCount = 0;
+                if ($user->can('process_payments')) {
+                    $supplierInvoicesDueCount = SupplierInvoice::whereIn('status', [
+                            \App\Enums\SupplierInvoiceStatus::VERIFIED,
+                            \App\Enums\SupplierInvoiceStatus::OVERDUE
+                        ])
+                        ->where('due_date', '<=', now())
+                        ->whereColumn('paid_amount', '<', 'total_amount')
+                        ->when(! $isSuperAdmin, fn($q) => $q->whereHas('goodsReceipt.purchaseOrder', fn($po) => $po->where('organization_id', $user->organization_id)))
+                        ->count();
+                }
+
+                // Customer invoices yang overdue
+                $customerInvoicesOverdueCount = 0;
+                if ($user->can('view_invoices')) {
+                    $customerInvoicesOverdueCount = CustomerInvoice::whereIn('status', [
+                            \App\Enums\CustomerInvoiceStatus::ISSUED,
+                            \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID
+                        ])
+                        ->where('due_date', '<', now())
+                        ->whereColumn('paid_amount', '<', 'total_amount')
+                        ->when(! $isSuperAdmin, fn($q) => $q->where('organization_id', $user->organization_id))
+                        ->count();
+                }
+
+                // Payment proofs yang perlu diverifikasi atau diapprove
+                $paymentProofsPendingCount = 0;
+                if ($user->can('view_payment_status')) {
+                    $paymentProofsPendingCount = \App\Models\PaymentProof::whereIn('status', [
+                            \App\Enums\PaymentProofStatus::SUBMITTED,
+                            \App\Enums\PaymentProofStatus::VERIFIED,
+                            \App\Enums\PaymentProofStatus::RESUBMITTED
+                        ])
+                        ->when(! $isSuperAdmin, fn($q) => $q->whereHas('customerInvoice', fn($inv) => $inv->where('organization_id', $user->organization_id)))
+                        ->count();
+                }
+
+                // AR Aging - invoice overdue > 30 hari
+                $arAgingCriticalCount = 0;
+                if ($user->can('view_reports')) {
+                    $arAgingCriticalCount = CustomerInvoice::whereIn('status', [
+                            \App\Enums\CustomerInvoiceStatus::ISSUED,
+                            \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID
+                        ])
+                        ->where('due_date', '<', now()->subDays(30))
+                        ->whereColumn('paid_amount', '<', 'total_amount')
+                        ->when(! $isSuperAdmin, fn($q) => $q->where('organization_id', $user->organization_id))
+                        ->count();
+                }
+
+                // Credit Control - customer yang melebihi credit limit
+                $creditLimitExceededCount = 0;
+                if ($user->can('view_credit_control')) {
+                    // Get organizations with active credit limits
+                    $creditLimits = \App\Models\CreditLimit::where('is_active', true)
+                        ->with('organization')
+                        ->when(! $isSuperAdmin, fn($q) => $q->where('organization_id', $user->organization_id))
+                        ->get();
+                    
+                    // Count how many organizations exceed their credit limit
+                    foreach ($creditLimits as $limit) {
+                        if ($limit->organization) {
+                            // Calculate total outstanding AR for this organization
+                            $totalAR = $limit->organization->customerInvoices()
+                                ->whereIn('status', [
+                                    \App\Enums\CustomerInvoiceStatus::ISSUED,
+                                    \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID
+                                ])
+                                ->get()
+                                ->sum('outstanding_amount');
+                            
+                            // Check if exceeds limit
+                            if ($totalAR > $limit->max_limit) {
+                                $creditLimitExceededCount++;
+                            }
+                        }
+                    }
+                }
+
+                // Inventory - produk expired atau hampir expired (dalam 30 hari)
+                // DISABLED: Inventory feature is coming soon
+                $inventoryExpiringCount = 0;
+                // if ($user->can('view_inventory')) {
+                //     $inventoryExpiringCount = \App\Models\InventoryItem::where('quantity_on_hand', '>', 0)
+                //         ->whereNotNull('expiry_date')
+                //         ->where('expiry_date', '<=', now()->addDays(30))
+                //         ->when(! $isSuperAdmin, fn($q) => $q->where('organization_id', $user->organization_id))
+                //         ->count();
+                // }
+
                 $view->with('pendingApprovalCount', $pendingApprovalCount);
                 $view->with('partialGRCount', $partialGRCount);
                 $view->with('grReadyToInvoiceCount', $grReadyToInvoiceCount);
+                $view->with('supplierInvoicesDueCount', $supplierInvoicesDueCount);
+                $view->with('customerInvoicesOverdueCount', $customerInvoicesOverdueCount);
+                $view->with('paymentProofsPendingCount', $paymentProofsPendingCount);
+                $view->with('arAgingCriticalCount', $arAgingCriticalCount);
+                $view->with('creditLimitExceededCount', $creditLimitExceededCount);
+                // $view->with('inventoryExpiringCount', $inventoryExpiringCount); // DISABLED
             }
         });
     }

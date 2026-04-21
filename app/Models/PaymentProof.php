@@ -33,6 +33,8 @@ class PaymentProof extends Model
         'recall_reason',
         'recalled_at',
         'correction_of_id',
+        'resubmission_of_id',
+        'resubmission_notes',
     ];
 
     protected $casts = [
@@ -122,6 +124,32 @@ class PaymentProof extends Model
     public function canBeCorrected(): bool
     {
         return $this->status === PaymentProofStatus::APPROVED;
+    }
+
+    public function canBeResubmitted(): bool
+    {
+        return $this->status === PaymentProofStatus::REJECTED;
+    }
+
+    public function isResubmitted(): bool
+    {
+        return $this->status === PaymentProofStatus::RESUBMITTED;
+    }
+
+    /**
+     * The original rejected proof this is a resubmission of.
+     */
+    public function resubmissionOf(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PaymentProof::class, 'resubmission_of_id');
+    }
+
+    /**
+     * Resubmissions made from this proof.
+     */
+    public function resubmissions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PaymentProof::class, 'resubmission_of_id');
     }
 
     /**
