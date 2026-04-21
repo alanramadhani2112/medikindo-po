@@ -59,7 +59,7 @@ class TerbilangService
      * @param int|float $amount
      * @return string
      */
-    public function convert(int|float $amount): string
+    public static function convert(int|float $amount): string
     {
         $isNegative = $amount < 0;
         $amount     = abs($amount);
@@ -69,10 +69,10 @@ class TerbilangService
         $integerPart = (int) $parts[0];
         $decimalPart = isset($parts[1]) ? (int) $parts[1] : 0;
 
-        $result = $this->convertInteger($integerPart) . ' Rupiah';
+        $result = self::convertInteger($integerPart) . ' Rupiah';
 
         if ($decimalPart > 0) {
-            $result .= ' ' . $this->convertInteger($decimalPart) . ' Sen';
+            $result .= ' ' . self::convertInteger($decimalPart) . ' Sen';
         }
 
         $result = trim($result);
@@ -90,14 +90,14 @@ class TerbilangService
      * @param int $n
      * @return string
      */
-    private function convertInteger(int $n): string
+    private static function convertInteger(int $n): string
     {
         if ($n === 0) {
             return 'Nol';
         }
 
         if ($n < 0) {
-            return 'Minus ' . $this->convertInteger(-$n);
+            return 'Minus ' . self::convertInteger(-$n);
         }
 
         if ($n < 20) {
@@ -114,7 +114,7 @@ class TerbilangService
             // "Seratus ..." instead of "Satu Ratus ..."
             $remainder = $n - 100;
             return $remainder > 0
-                ? 'Seratus ' . $this->convertInteger($remainder)
+                ? 'Seratus ' . self::convertInteger($remainder)
                 : 'Seratus';
         }
 
@@ -122,35 +122,35 @@ class TerbilangService
             $hundreds  = (int) ($n / 100);
             $remainder = $n % 100;
             $text      = self::ONES[$hundreds] . ' Ratus';
-            return $remainder > 0 ? $text . ' ' . $this->convertInteger($remainder) : $text;
+            return $remainder > 0 ? $text . ' ' . self::convertInteger($remainder) : $text;
         }
 
         if ($n < 2_000) {
             // "Seribu ..." instead of "Satu Ribu ..."
             $remainder = $n - 1_000;
             return $remainder > 0
-                ? 'Seribu ' . $this->convertInteger($remainder)
+                ? 'Seribu ' . self::convertInteger($remainder)
                 : 'Seribu';
         }
 
         if ($n < 1_000_000) {
             $thousands = (int) ($n / 1_000);
             $remainder = $n % 1_000;
-            $text      = $this->convertInteger($thousands) . ' Ribu';
-            return $remainder > 0 ? $text . ' ' . $this->convertInteger($remainder) : $text;
+            $text      = self::convertInteger($thousands) . ' Ribu';
+            return $remainder > 0 ? $text . ' ' . self::convertInteger($remainder) : $text;
         }
 
         if ($n < 1_000_000_000) {
             $millions  = (int) ($n / 1_000_000);
             $remainder = $n % 1_000_000;
-            $text      = $this->convertInteger($millions) . ' Juta';
-            return $remainder > 0 ? $text . ' ' . $this->convertInteger($remainder) : $text;
+            $text      = self::convertInteger($millions) . ' Juta';
+            return $remainder > 0 ? $text . ' ' . self::convertInteger($remainder) : $text;
         }
 
         // Up to 999,999,999,999 (ratusan miliar)
         $billions  = (int) ($n / 1_000_000_000);
         $remainder = $n % 1_000_000_000;
-        $text      = $this->convertInteger($billions) . ' Miliar';
-        return $remainder > 0 ? $text . ' ' . $this->convertInteger($remainder) : $text;
+        $text      = self::convertInteger($billions) . ' Miliar';
+        return $remainder > 0 ? $text . ' ' . self::convertInteger($remainder) : $text;
     }
 }

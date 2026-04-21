@@ -65,7 +65,7 @@ class PaymentService
                 'receipt_number'        => $data['receipt_number'] ?? null,
                 'payment_proof_path'    => $paymentProofPath,
                 'bank_account_id'       => $data['bank_account_id'] ?? null,
-                'reference'             => $data['reference'] ?? null,
+                'reference'             => $data['reference'] ?? $data['giro_reference'] ?? null,
                 'notes'                 => $data['notes'] ?? "Pembayaran Invoice {$invoice->invoice_number}",
                 'status'                => 'completed',
             ]);
