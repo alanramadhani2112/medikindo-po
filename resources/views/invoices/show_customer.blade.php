@@ -389,6 +389,11 @@
                                     class="d-flex justify-content-between align-items-center py-2 border-bottom border-gray-200">
                                     <span class="text-gray-600 fs-6">
                                         Surcharge
+                                        @if(($invoice->surcharge_percentage ?? 0) > 0)
+                                            <span class="badge badge-light-primary ms-1 fs-9">
+                                                {{ number_format($invoice->surcharge_percentage, 2) }}%
+                                            </span>
+                                        @endif
                                         <span class="ms-1" data-bs-toggle="tooltip"
                                             title="Biaya tambahan atas metode pembayaran tertentu">
                                             <i class="ki-outline ki-information-5 fs-8 text-muted"></i>

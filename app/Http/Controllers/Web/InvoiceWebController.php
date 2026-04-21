@@ -392,11 +392,13 @@ class InvoiceWebController extends Controller
         }
 
         $request->validate([
-            'surcharge' => 'nullable|numeric|min:0|max:999999999999',
+            'surcharge'            => 'nullable|numeric|min:0|max:999999999999',
+            'surcharge_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
         // Update surcharge jika diisi, lalu recalculate total
         $surcharge = (float) ($request->input('surcharge', 0) ?? 0);
+        $surchargePercentage = (float) ($request->input('surcharge_percentage', 0) ?? 0);
 
         if ($surcharge > 0) {
             // Recalculate total: subtotal - discount + tax + surcharge + ematerai
@@ -408,8 +410,9 @@ class InvoiceWebController extends Controller
             $newTotal = $base + $surcharge;
 
             $invoice->update([
-                'surcharge'    => $surcharge,
-                'total_amount' => $newTotal,
+                'surcharge'            => $surcharge,
+                'surcharge_percentage' => $surchargePercentage,
+                'total_amount'         => $newTotal,
             ]);
         }
 

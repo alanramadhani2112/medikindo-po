@@ -477,6 +477,11 @@
                             <div class="d-flex justify-content-between py-2 border-bottom border-gray-200">
                                 <span class="text-gray-600 fs-6">
                                     Surcharge
+                                    @if(($invoice->surcharge_percentage ?? 0) > 0)
+                                        <span class="badge badge-light-primary ms-1 fs-9">
+                                            {{ number_format($invoice->surcharge_percentage, 2) }}%
+                                        </span>
+                                    @endif
                                     <span class="ms-1" data-bs-toggle="tooltip"
                                         title="Biaya tambahan atas metode pembayaran tertentu">
                                         <i class="ki-outline ki-information-5 fs-8 text-muted"></i>
@@ -578,25 +583,64 @@
                         <label class="form-label fw-bold fs-6">
                             Surcharge
                             <span class="ms-1" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Biaya tambahan di atas harga dasar, misalnya untuk metode pembayaran tertentu. Contoh: surcharge 5% pada Rp 300.000 = Rp 15.000 tambahan.">
+                                title="Biaya tambahan di atas harga dasar. Contoh: surcharge 5% pada Rp 300.000 = Rp 15.000 tambahan, total menjadi Rp 315.000.">
                                 <i class="ki-outline ki-information-5 fs-6 text-muted"></i>
                             </span>
                             <span class="badge badge-light-secondary ms-2 fs-9">Opsional</span>
                         </label>
-                        <div class="input-group input-group-solid">
-                            <span class="input-group-text fw-bold">Rp</span>
-                            <input type="number"
-                                   name="surcharge"
-                                   id="surchargeInput"
-                                   class="form-control form-control-solid"
-                                   value="{{ old('surcharge', $invoice->surcharge ?? 0) }}"
-                                   min="0"
-                                   step="1"
-                                   placeholder="0"
-                                   oninput="updateTotal(this.value)">
+
+                        {{-- Toggle: Persentase vs Nominal --}}
+                        <div class="d-flex gap-2 mb-3">
+                            <button type="button" id="btnPct" onclick="setMode('pct')"
+                                class="btn btn-sm btn-primary">% Persentase</button>
+                            <button type="button" id="btnFlat" onclick="setMode('flat')"
+                                class="btn btn-sm btn-light">Rp Nominal</button>
                         </div>
-                        <div class="form-text text-muted mt-1">
-                            Biaya tambahan atas metode pembayaran tertentu (kartu kredit, EDC, dll)
+
+                        {{-- Persentase input --}}
+                        <div id="inputPct">
+                            <div class="input-group input-group-solid mb-2">
+                                <input type="number" id="surchargePercent"
+                                       class="form-control form-control-solid"
+                                       min="0" max="100" step="0.01"
+                                       placeholder="Contoh: 5"
+                                       oninput="calcFromPct(this.value)">
+                                <span class="input-group-text fw-bold">%</span>
+                            </div>
+                            <div class="text-muted fs-8">
+                                Masukkan persentase → nominal otomatis dihitung dari total tagihan
+                            </div>
+                        </div>
+
+                        {{-- Nominal input --}}
+                        <div id="inputFlat" class="d-none">
+                            <div class="input-group input-group-solid mb-2">
+                                <span class="input-group-text fw-bold">Rp</span>
+                                <input type="number" id="surchargeFlat"
+                                       class="form-control form-control-solid"
+                                       min="0" step="1"
+                                       placeholder="0"
+                                       oninput="calcFromFlat(this.value)">
+                            </div>
+                            <div class="text-muted fs-8">
+                                Masukkan nominal langsung
+                            </div>
+                        </div>
+
+                        {{-- Hidden fields yang dikirim ke server --}}
+                        <input type="hidden" name="surcharge" id="surchargeHidden" value="{{ old('surcharge', $invoice->surcharge ?? 0) }}">
+                        <input type="hidden" name="surcharge_percentage" id="surchargePercentHidden" value="0">
+
+                        {{-- Breakdown --}}
+                        <div id="surchargeBreakdown" class="mt-3 p-3 rounded bg-light border border-dashed d-none">
+                            <div class="d-flex justify-content-between fs-7">
+                                <span class="text-gray-600">Persentase</span>
+                                <span class="fw-bold text-gray-800" id="breakdownPct">0%</span>
+                            </div>
+                            <div class="d-flex justify-content-between fs-7 mt-1">
+                                <span class="text-gray-600">Nominal Surcharge</span>
+                                <span class="fw-bold text-primary" id="breakdownNominal">Rp 0</span>
+                            </div>
                         </div>
                     </div>
 
@@ -629,12 +673,59 @@
 @push('scripts')
 <script>
     const baseAmount = {{ (float) $invoice->total_amount - (float) ($invoice->surcharge ?? 0) }};
+    let currentMode = 'pct';
 
-    function updateTotal(surchargeVal) {
-        const surcharge = parseFloat(surchargeVal) || 0;
-        const total = baseAmount + surcharge;
+    function setMode(mode) {
+        currentMode = mode;
+        if (mode === 'pct') {
+            document.getElementById('inputPct').classList.remove('d-none');
+            document.getElementById('inputFlat').classList.add('d-none');
+            document.getElementById('btnPct').classList.replace('btn-light', 'btn-primary');
+            document.getElementById('btnFlat').classList.replace('btn-primary', 'btn-light');
+            // Recalc from current pct value
+            calcFromPct(document.getElementById('surchargePercent').value);
+        } else {
+            document.getElementById('inputFlat').classList.remove('d-none');
+            document.getElementById('inputPct').classList.add('d-none');
+            document.getElementById('btnFlat').classList.replace('btn-light', 'btn-primary');
+            document.getElementById('btnPct').classList.replace('btn-primary', 'btn-light');
+            // Recalc from current flat value
+            calcFromFlat(document.getElementById('surchargeFlat').value);
+        }
+    }
+
+    function calcFromPct(pctVal) {
+        const pct = parseFloat(pctVal) || 0;
+        const nominal = Math.round(baseAmount * pct / 100);
+        updateFields(pct, nominal);
+    }
+
+    function calcFromFlat(flatVal) {
+        const nominal = parseFloat(flatVal) || 0;
+        const pct = baseAmount > 0 ? (nominal / baseAmount * 100) : 0;
+        updateFields(pct, nominal);
+    }
+
+    function updateFields(pct, nominal) {
+        // Update hidden fields
+        document.getElementById('surchargeHidden').value = nominal;
+        document.getElementById('surchargePercentHidden').value = pct.toFixed(2);
+
+        // Update final total
+        const total = baseAmount + nominal;
         document.getElementById('finalTotal').textContent =
             'Rp ' + Math.round(total).toLocaleString('id-ID');
+
+        // Show/hide breakdown
+        const breakdown = document.getElementById('surchargeBreakdown');
+        if (nominal > 0) {
+            breakdown.classList.remove('d-none');
+            document.getElementById('breakdownPct').textContent = pct.toFixed(2) + '%';
+            document.getElementById('breakdownNominal').textContent =
+                'Rp ' + Math.round(nominal).toLocaleString('id-ID');
+        } else {
+            breakdown.classList.add('d-none');
+        }
     }
 
     // Init tooltips inside modal

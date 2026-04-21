@@ -28,6 +28,7 @@ class CustomerInvoice extends Model
         'discount_amount'      => 'decimal:2',
         'tax_amount'           => 'decimal:2',
         'surcharge'            => 'decimal:2',
+        'surcharge_percentage' => 'decimal:2',
         'ematerai_fee'         => 'decimal:2',
         'print_count'          => 'integer',
         'issued_at'            => 'datetime',
