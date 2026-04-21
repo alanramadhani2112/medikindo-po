@@ -161,84 +161,101 @@
 
     {{-- Bill To & References --}}
     <div class="row mb-7">
+        {{-- Tagihan Kepada --}}
         <div class="col-lg-4 mb-5 mb-lg-0">
-            <div class="card border-primary h-100">
-                <div class="card-header bg-light-primary">
-                    <h3 class="card-title text-primary fw-bold">
-                        <i class="ki-outline ki-geolocation fs-2 me-2"></i>TAGIHAN KEPADA
+            <div class="card h-100">
+                <div class="card-header min-h-50px">
+                    <h3 class="card-title fw-bold text-gray-800 fs-6">
+                        <i class="ki-outline ki-geolocation fs-4 me-2 text-primary"></i>TAGIHAN KEPADA
                     </h3>
                 </div>
-                <div class="card-body">
-                    <div class="fs-4 fw-bold text-gray-900 mb-2">{{ $invoice->organization?->name ?? '—' }}</div>
-                    @if($invoice->organization?->address)
-                        <div class="text-gray-600 fs-6 mb-1">
-                            <i class="ki-outline ki-geolocation fs-6 me-1"></i>{{ $invoice->organization->address }}
-                        </div>
-                    @endif
-                    @if($invoice->organization?->phone)
-                        <div class="text-gray-600 fs-6 mb-1">
-                            <i class="ki-outline ki-phone fs-6 me-1"></i>{{ $invoice->organization->phone }}
-                        </div>
-                    @endif
-                    @if($invoice->organization?->email)
-                        <div class="text-gray-600 fs-6">
-                            <i class="ki-outline ki-sms fs-6 me-1"></i>{{ $invoice->organization->email }}
-                        </div>
-                    @endif
+                <div class="card-body pt-4">
+                    <div class="fs-5 fw-bold text-gray-900 mb-3">{{ $invoice->organization?->name ?? '—' }}</div>
+                    <div class="d-flex flex-column gap-2">
+                        @if($invoice->organization?->address)
+                            <div class="d-flex align-items-start gap-2 text-gray-600 fs-7">
+                                <i class="ki-outline ki-geolocation fs-6 text-gray-400 mt-1 flex-shrink-0"></i>
+                                <span>{{ $invoice->organization->address }}</span>
+                            </div>
+                        @endif
+                        @if($invoice->organization?->phone)
+                            <div class="d-flex align-items-center gap-2 text-gray-600 fs-7">
+                                <i class="ki-outline ki-phone fs-6 text-gray-400 flex-shrink-0"></i>
+                                <span>{{ $invoice->organization->phone }}</span>
+                            </div>
+                        @endif
+                        @if($invoice->organization?->email)
+                            <div class="d-flex align-items-center gap-2 text-gray-600 fs-7">
+                                <i class="ki-outline ki-sms fs-6 text-gray-400 flex-shrink-0"></i>
+                                <span>{{ $invoice->organization->email }}</span>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- Bank Account --}}
+        {{-- Rekening Tujuan Transfer --}}
         <div class="col-lg-4 mb-5 mb-lg-0">
-            <div class="card border-success h-100">
-                <div class="card-header bg-light-success">
-                    <h3 class="card-title text-success fw-bold">
-                        <i class="ki-outline ki-bank fs-2 me-2"></i>REKENING TUJUAN TRANSFER
+            <div class="card h-100">
+                <div class="card-header min-h-50px">
+                    <h3 class="card-title fw-bold text-gray-800 fs-6">
+                        <i class="ki-outline ki-bank fs-4 me-2 text-success"></i>REKENING TUJUAN TRANSFER
                     </h3>
                     @if($invoice->isDraft() && isset($receiveBanks) && $receiveBanks->count() > 1)
                         @can('create_invoices')
                         <div class="card-toolbar">
-                            <span class="badge badge-light-success fs-9">Dapat diubah sebelum diterbitkan</span>
+                            <span class="badge badge-light-warning fs-9 fw-semibold">Draft — dapat diubah</span>
                         </div>
                         @endcan
                     @endif
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-4">
                     @if($invoice->bankAccount)
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="symbol symbol-45px">
-                                <div class="symbol-label bg-light-success text-success fw-bold fs-5">
+                        {{-- Bank info row --}}
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="symbol symbol-40px">
+                                <div class="symbol-label bg-light-success fw-bold fs-6 text-success">
                                     {{ strtoupper(substr($invoice->bankAccount->bank_name, 0, 2)) }}
                                 </div>
                             </div>
-                            <div>
-                                <div class="fw-bold text-gray-900 fs-5">{{ $invoice->bankAccount->bank_name }}</div>
-                                <div class="text-muted fs-7">
-                                    Bank Penerima Medikindo
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-gray-900 fs-6 d-flex align-items-center gap-2">
+                                    {{ $invoice->bankAccount->bank_name }}
                                     @if($invoice->bankAccount->default_for_receive)
-                                        <span class="badge badge-light-success ms-1 fs-9">Default</span>
+                                        <span class="badge badge-light-success fs-9">Default</span>
                                     @endif
                                 </div>
+                                <div class="text-muted fs-8">Bank Penerima Medikindo</div>
                             </div>
                         </div>
-                        <div class="p-3 rounded bg-light-success mb-2">
-                            <div class="text-gray-500 fs-8 fw-bold text-uppercase mb-1">Nomor Rekening</div>
-                            <div class="fw-bold text-gray-900 fs-4 font-monospace">{{ $invoice->bankAccount->account_number }}</div>
+
+                        {{-- Account number --}}
+                        <div class="separator mb-4"></div>
+                        <div class="mb-1">
+                            <span class="text-gray-500 fs-8 fw-bold text-uppercase">Nomor Rekening</span>
                         </div>
-                        <div class="text-gray-600 fs-7 mb-3">
-                            <i class="ki-outline ki-profile-user fs-7 me-1"></i>
-                            Atas nama: <span class="fw-semibold text-gray-800">{{ $invoice->bankAccount->account_holder_name }}</span>
+                        <div class="fw-bold text-gray-900 fs-3 font-monospace mb-3">
+                            {{ $invoice->bankAccount->account_number }}
                         </div>
-                        {{-- Ganti bank (hanya saat Draft) --}}
+                        <div class="d-flex align-items-center gap-2 text-gray-600 fs-7 mb-4">
+                            <i class="ki-outline ki-profile-user fs-6 text-gray-400"></i>
+                            <span>a.n. <span class="fw-semibold text-gray-800">{{ $invoice->bankAccount->account_holder_name }}</span></span>
+                        </div>
+
+                        {{-- Ganti bank dropdown (Draft only, >1 bank) --}}
                         @if($invoice->isDraft() && isset($receiveBanks) && $receiveBanks->count() > 1)
                             @can('create_invoices')
+                            <div class="separator mb-3"></div>
+                            <div class="text-gray-500 fs-8 fw-semibold mb-2">Ganti rekening:</div>
                             <form method="POST" action="{{ route('web.invoices.customer.set-bank', $invoice) }}">
                                 @csrf @method('PATCH')
-                                <select name="bank_account_id" class="form-select form-select-sm form-select-solid mb-2"
+                                <select name="bank_account_id"
+                                    class="form-select form-select-sm form-select-solid"
                                     onchange="this.form.submit()">
                                     @foreach($receiveBanks as $bank)
-                                        <option value="{{ $bank->id }}" {{ $invoice->bank_account_id == $bank->id ? 'selected' : '' }}>
+                                        <option value="{{ $bank->id }}"
+                                            {{ $invoice->bank_account_id == $bank->id ? 'selected' : '' }}>
                                             {{ $bank->bank_name }} — {{ $bank->account_number }}
                                             @if($bank->default_for_receive) ★ @endif
                                         </option>
@@ -248,15 +265,15 @@
                             @endcan
                         @endif
                     @else
-                        {{-- Tidak ada bank sama sekali di sistem --}}
-                        <div class="d-flex flex-column align-items-center justify-content-center h-100 py-5">
+                        <div class="d-flex flex-column align-items-center justify-content-center py-8 text-center">
                             <i class="ki-outline ki-bank fs-3x text-gray-300 mb-3"></i>
-                            <span class="text-gray-500 fs-7 text-center">
-                                Belum ada rekening default.<br>
-                                <a href="{{ route('web.bank-accounts.create') }}" class="text-primary">
-                                    Tambah rekening bank
+                            <div class="text-gray-600 fw-semibold fs-6 mb-1">Rekening belum ditentukan</div>
+                            <div class="text-muted fs-7 mb-3">Tambahkan rekening bank Medikindo terlebih dahulu</div>
+                            @can('manage_bank_accounts')
+                                <a href="{{ route('web.bank-accounts.create') }}" class="btn btn-sm btn-light-primary">
+                                    <i class="ki-outline ki-plus fs-6 me-1"></i>Tambah Rekening
                                 </a>
-                            </span>
+                            @endcan
                         </div>
                     @endif
                 </div>
