@@ -213,6 +213,21 @@
                             </a>
                         </div>
                     @endcan
+
+                    {{-- Payment Out - Coming Soon --}}
+                    @canany(['view_payments', 'manage_invoice'])
+                        <div class="menu-item">
+                            <span class="menu-link disabled" style="opacity: 0.65; cursor: not-allowed;">
+                                <span class="menu-icon">
+                                    <i class="ki-outline ki-send fs-2 text-primary"></i>
+                                </span>
+                                <span class="menu-title">Payment Out</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-primary fw-bold fs-9 px-2 py-1">Soon</span>
+                                </span>
+                            </span>
+                        </div>
+                    @endcanany
                 @endcanany
 
                 {{-- BANK ACCOUNTS SECTION --}}
@@ -247,6 +262,9 @@
                                 <i class="ki-outline ki-package fs-2"></i>
                             </span>
                             <span class="menu-title">Inventory</span>
+                            <span class="menu-badge">
+                                <span class="badge badge-light-warning fw-bold fs-9 px-2 py-1">Soon</span>
+                            </span>
                         </a>
                     </div>
                 @endcan
