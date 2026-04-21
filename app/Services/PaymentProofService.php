@@ -348,7 +348,7 @@ class PaymentProofService
                 'giro_due_date'         => $data['giro_due_date'] ?? $original->giro_due_date,
                 'bank_reference'        => $data['bank_reference'] ?? $original->bank_reference,
                 'notes'                 => $data['notes'] ?? null,
-                'status'                => PaymentProofStatus::RESUBMITTED,
+                'status'                => PaymentProofStatus::RESUBMITTED->value,
                 'resubmission_of_id'    => $original->id,
                 'resubmission_notes'    => $data['resubmission_notes'] ?? null,
             ]);

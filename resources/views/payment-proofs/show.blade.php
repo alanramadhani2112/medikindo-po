@@ -2,12 +2,12 @@
     <x-page-header :title="'Detail Bukti Pembayaran #' . $paymentProof->id" :breadcrumbs="$breadcrumbs">
         <x-slot name="actions">
             @can('verify', $paymentProof)
-                @if ($paymentProof->canBeVerified())
+                @if ($paymentProof->canBeVerified() || $paymentProof->isResubmitted())
                     <x-button :href="route('web.payment-proofs.verify', $paymentProof)" icon="shield-search" label="Verifikasi Pembayaran" color="primary" />
                 @endif
             @endcan
             @can('reject', $paymentProof)
-                @if ($paymentProof->canBeApproved() || $paymentProof->canBeVerified())
+                @if ($paymentProof->canBeApproved() || $paymentProof->canBeVerified() || $paymentProof->isResubmitted())
                     <x-button :href="route('web.payment-proofs.reject', $paymentProof)" icon="cross-circle" label="Tolak Bukti Bayar" color="danger" />
                 @endif
             @endcan

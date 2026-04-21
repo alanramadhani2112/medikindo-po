@@ -469,20 +469,36 @@ class PaymentProofWebController extends Controller
         $this->authorize('resubmit', $paymentProof);
 
         $request->validate([
-            'payment_date'       => 'required|date',
-            'payment_method'     => 'required|string',
-            'sender_bank_name'   => 'nullable|string|max:100',
-            'bank_reference'     => 'nullable|string|max:100',
-            'resubmission_notes' => 'required|string|min:10|max:1000',
-            'payment_proof_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'payment_date'         => 'required|date',
+            'payment_method'       => 'required|string',
+            'sender_bank_name'     => 'nullable|string|max:100',
+            'sender_account_number'=> 'nullable|string|max:50',
+            'giro_number'          => 'nullable|string|max:50',
+            'giro_due_date'        => 'nullable|date',
+            'bank_reference'       => 'nullable|string|max:100',
+            'resubmission_notes'   => [
+                'required',
+                'string',
+                'max:1000',
+                function ($attribute, $value, $fail) {
+                    $wordCount = str_word_count(trim($value));
+                    if ($wordCount < 10) {
+                        $fail('Keterangan perbaikan minimal 10 kata. Saat ini: ' . $wordCount . ' kata.');
+                    }
+                },
+            ],
+            'file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'resubmission_notes.required' => 'Keterangan perbaikan wajib diisi.',
-            'resubmission_notes.min'      => 'Keterangan minimal 10 karakter.',
+            'resubmission_notes.max'      => 'Keterangan maksimal 1000 karakter.',
+            'payment_date.required'       => 'Tanggal pembayaran wajib diisi.',
+            'payment_method.required'     => 'Metode pembayaran wajib dipilih.',
+            'file.required'               => 'Upload bukti pembayaran baru wajib dilakukan.',
         ]);
 
         try {
-            $file = $request->hasFile('payment_proof_file')
-                ? $request->file('payment_proof_file')
+            $file = $request->hasFile('file')
+                ? $request->file('file')
                 : null;
 
             $newProof = $this->paymentProofService->resubmitPaymentProof(

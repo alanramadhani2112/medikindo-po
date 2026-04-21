@@ -213,10 +213,10 @@
                             <span class="text-gray-600 fs-8 fw-bold">PPN (11%):</span>
                             <span class="text-gray-800 fs-7 fw-bold">Rp {{ number_format($inv->tax_amount, 0, ',', '.') }}</span>
                         </div>
-                        @if($inv->surcharge > 0)
+                        @if((float)$inv->surcharge > 0)
                         <div class="d-flex flex-stack mb-2 text-primary">
                             <span class="fs-8 fw-bold">
-                                Surcharge
+                                Surcharge{{ $inv->surcharge_percentage > 0 ? ' (' . $inv->surcharge_percentage . '%)' : '' }}
                                 <span data-bs-toggle="tooltip" title="Biaya tambahan atas metode pembayaran tertentu">
                                     <i class="ki-outline ki-information-5 fs-9 text-muted"></i>
                                 </span>:
