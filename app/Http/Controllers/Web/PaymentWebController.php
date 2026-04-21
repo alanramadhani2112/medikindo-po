@@ -173,4 +173,27 @@ class PaymentWebController extends Controller
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
+
+    public function show(Payment $payment)
+    {
+        $payment->load([
+            'organization',
+            'supplier',
+            'bankAccount',
+            'allocations.supplierInvoice.purchaseOrder.supplier',
+            'allocations.supplierInvoice.goodsReceipt',
+            'allocations.customerInvoice.purchaseOrder.supplier',
+            'allocations.customerInvoice.goodsReceipt',
+            'allocations.customerInvoice.supplierInvoice',
+            'allocations.customerInvoice.organization'
+        ]);
+
+        $breadcrumbs = [
+            ['label' => 'Finance', 'url' => 'javascript:void(0)'],
+            ['label' => 'Buku Kas & Pembayaran', 'url' => route('web.payments.index')],
+            ['label' => 'Detail Transaksi']
+        ];
+
+        return view('payments.show', compact('payment', 'breadcrumbs'));
+    }
 }

@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Models\Approval;
 use App\Models\CustomerInvoice;
+use App\Models\Organization;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\SupplierInvoice;
 use App\Models\User;
 use App\Observers\CustomerInvoiceObserver;
+use App\Observers\OrganizationObserver;
 use App\Observers\PurchaseOrderItemObserver;
 use App\Observers\SupplierInvoiceObserver;
 use App\Policies\ApprovalPolicy;
@@ -61,6 +63,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Register observers
         PurchaseOrderItem::observe(PurchaseOrderItemObserver::class);
+        Organization::observe(OrganizationObserver::class);
         
         // Register invoice observers for immutability enforcement
         // Use app() to ensure proper dependency injection

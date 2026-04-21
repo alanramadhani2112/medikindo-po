@@ -205,17 +205,6 @@
                         </a>
                     </div>
 
-                    {{-- Credit Notes --}}
-                    <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs('web.credit-notes.*') ? 'active' : '' }}"
-                            href="{{ route('web.credit-notes.index') }}">
-                            <span class="menu-icon">
-                                <i class="ki-outline ki-file-down fs-2"></i>
-                            </span>
-                            <span class="menu-title">Credit Notes</span>
-                        </a>
-                    </div>
-
                     {{-- Credit Control --}}
                     @can('view_credit_control')
                         <div class="menu-item">
@@ -343,17 +332,6 @@
                                 <span class="menu-title">Products</span>
                             </a>
                         </div>
-                        @can('manage_products')
-                            <div class="menu-item">
-                                <a class="menu-link {{ request()->routeIs('web.price-lists.*') ? 'active' : '' }}"
-                                    href="{{ route('web.price-lists.index') }}">
-                                    <span class="menu-icon">
-                                        <i class="ki-outline ki-tag fs-2"></i>
-                                    </span>
-                                    <span class="menu-title">Price Lists</span>
-                                </a>
-                            </div>
-                        @endcan
                     @endcan
 
                     @can('manage_users')

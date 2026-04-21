@@ -849,3 +849,104 @@
         font-size: 0.875rem;
     }
 }
+
+
+/* ============================================
+   ACTION MENU DROPDOWN (Custom Component)
+   ============================================ */
+
+.action-menu-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.action-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 200px;
+    padding: 0.5rem 0;
+    margin-top: 0.25rem;
+    background-color: #ffffff;
+    border: 1px solid #e4e6ef;
+    border-radius: 0.475rem;
+    box-shadow: 0px 0px 20px 0px rgba(76, 87, 125, 0.1);
+    z-index: 1050;
+}
+
+.action-dropdown-menu.show {
+    display: block;
+}
+
+.action-dropdown-menu a,
+.action-dropdown-menu button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #7e8299;
+    text-decoration: none;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-dropdown-menu a:hover,
+.action-dropdown-menu button:hover {
+    background-color: #f5f8fa;
+    color: #009ef7;
+}
+
+.action-dropdown-menu a i,
+.action-dropdown-menu button i {
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+}
+
+/* Color variants */
+.action-dropdown-menu .text-primary {
+    color: #009ef7 !important;
+}
+
+.action-dropdown-menu .text-warning {
+    color: #ffc700 !important;
+}
+
+.action-dropdown-menu .text-warning:hover {
+    background-color: #fff8dd;
+}
+
+.action-dropdown-menu .text-danger {
+    color: #f1416c !important;
+}
+
+.action-dropdown-menu .text-danger:hover {
+    background-color: #fff5f8;
+}
+
+.action-dropdown-menu .text-success {
+    color: #50cd89 !important;
+}
+
+.action-dropdown-menu .text-success:hover {
+    background-color: #e8fff3;
+}
+
+/* Divider */
+.action-dropdown-menu hr,
+.action-dropdown-menu .separator {
+    margin: 0.5rem 0;
+    border: 0;
+    border-top: 1px solid #e4e6ef;
+    height: 0;
+}
+
+/* Form inside dropdown */
+.action-dropdown-menu form {
+    margin: 0;
+}

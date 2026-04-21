@@ -126,30 +126,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/customer/{invoice}/reject-discrepancy',  [\App\Http\Controllers\Web\InvoiceWebController::class, 'rejectDiscrepancy'])->name('customer.reject_discrepancy')->middleware('can:create_invoices');
     });
 
-    // ── Credit Notes ───────────────────────────────────────────
-    Route::prefix('credit-notes')->name('web.credit-notes.')->middleware('can:view_invoices')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'index'])->name('index');
-        Route::get('/{creditNote}', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'show'])->name('show');
-
-        Route::middleware('can:create_invoices')->group(function () {
-            // Create credit note for customer invoice
-            Route::get('/customer-invoice/{invoice}/create', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'createForCustomerInvoice'])
-                ->name('create-customer');
-            Route::post('/customer-invoice/{invoice}', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'storeForCustomerInvoice'])
-                ->name('store-customer');
-
-            // Credit note actions
-            Route::post('/{creditNote}/issue', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'issue'])->name('issue');
-            Route::post('/{creditNote}/apply', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'apply'])->name('apply');
-            Route::post('/{creditNote}/cancel', [\App\Http\Controllers\Web\CreditNoteWebController::class, 'cancel'])->name('cancel');
-        });
-    });
-
-    // Price List Management
-    Route::resource('/price-lists', PriceListWebController::class)
-        ->names('web.price-lists')
-        ->middleware('can:manage_products');
-
     // AR Aging Dashboard
     Route::get('/ar-aging', [ARAgingController::class, 'index'])
         ->name('web.ar-aging.index')
@@ -165,6 +141,9 @@ Route::middleware('auth')->group(function () {
 
         // Standardized Coming Soon
         Route::get('/outgoing/soon', fn() => view('payments.outgoing-soon'))->name('outgoing.soon');
+        
+        // Show payment detail (must be last to avoid conflicts)
+        Route::get('/{payment}', [\App\Http\Controllers\Web\PaymentWebController::class, 'show'])->name('show');
     });
 
     // ── Payment Proofs ─────────────────────────────────────────

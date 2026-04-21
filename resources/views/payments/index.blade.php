@@ -159,9 +159,9 @@
                         <span class="badge badge-light-{{ $statusColor }} fw-bold">{{ strtoupper($payment->status ?? 'CONFIRMED') }}</span>
                     </td>
                     <td class="text-end">
-                        <button class="btn btn-icon btn-light-primary btn-sm" data-bs-toggle="modal" data-bs-target="#paymentDetailModal{{ $payment->id }}">
+                        <a href="{{ route('web.payments.show', $payment) }}" class="btn btn-icon btn-light-primary btn-sm">
                             <i class="ki-outline ki-eye fs-2"></i>
-                        </button>
+                        </a>
                     </td>
                 </tr>
             @empty

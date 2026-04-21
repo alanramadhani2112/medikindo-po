@@ -23,12 +23,13 @@ class FinancialControlWebController extends Controller
             ->get()
             ->each(function ($limit) {
                 // Outstanding AR = sum of (total - paid) for issued/partial_paid invoices
+                // Check both enum values and string values for compatibility
                 $limit->total_active_ar = $limit->organization?->customerInvoices
-                    ->whereIn('status', [
-                        \App\Enums\CustomerInvoiceStatus::ISSUED->value,
-                        \App\Enums\CustomerInvoiceStatus::PARTIAL_PAID->value,
-                    ])
-                    ->sum(fn($inv) => $inv->outstanding_amount) ?? 0;
+                    ->filter(function($inv) {
+                        $status = $inv->status instanceof \BackedEnum ? $inv->status->value : $inv->status;
+                        return in_array($status, ['issued', 'partial_paid', 'overdue']);
+                    })
+                    ->sum(fn($inv) => $inv->outstanding_amount ?? ($inv->total_amount - $inv->paid_amount)) ?? 0;
             });
             
         return view('financial-controls.index', compact('organizations', 'limits'));
@@ -45,6 +46,27 @@ class FinancialControlWebController extends Controller
             'max_limit'       => 'required|numeric|min:0',
             'is_active'       => 'boolean'
         ]);
+
+        // Get organization to check type
+        $organization = Organization::findOrFail($data['organization_id']);
+        
+        // Define max limits based on organization type
+        $maxLimits = [
+            'hospital' => 20000000000,  // 20 Miliar
+            'rs' => 20000000000,         // 20 Miliar
+            'clinic' => 500000000,       // 500 Juta
+            'klinik' => 500000000,       // 500 Juta
+        ];
+        
+        $orgType = strtolower($organization->type);
+        $maxAllowed = $maxLimits[$orgType] ?? 500000000; // Default: 500 Juta
+        
+        // Validate max_limit doesn't exceed allowed maximum
+        if ($data['max_limit'] > $maxAllowed) {
+            return back()->withErrors([
+                'max_limit' => "Plafon tidak boleh melebihi Rp " . number_format($maxAllowed, 0, ',', '.') . " untuk tipe organisasi {$organization->type}."
+            ])->withInput();
+        }
 
         CreditLimit::create([
             'organization_id' => $data['organization_id'],
@@ -65,6 +87,27 @@ class FinancialControlWebController extends Controller
             'max_limit' => 'required|numeric|min:0',
             'is_active' => 'boolean'
         ]);
+
+        // Get organization to check type
+        $organization = $financial_control->organization;
+        
+        // Define max limits based on organization type
+        $maxLimits = [
+            'hospital' => 20000000000,  // 20 Miliar
+            'rs' => 20000000000,         // 20 Miliar
+            'clinic' => 500000000,       // 500 Juta
+            'klinik' => 500000000,       // 500 Juta
+        ];
+        
+        $orgType = strtolower($organization->type);
+        $maxAllowed = $maxLimits[$orgType] ?? 500000000; // Default: 500 Juta
+        
+        // Validate max_limit doesn't exceed allowed maximum
+        if ($data['max_limit'] > $maxAllowed) {
+            return back()->withErrors([
+                'max_limit' => "Plafon tidak boleh melebihi Rp " . number_format($maxAllowed, 0, ',', '.') . " untuk tipe organisasi {$organization->type}."
+            ])->withInput();
+        }
 
         $financial_control->update([
             'max_limit' => $data['max_limit'],
