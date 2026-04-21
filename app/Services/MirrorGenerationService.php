@@ -82,10 +82,12 @@ class MirrorGenerationService
         }
 
         // Guard 2: anti-phantom billing — AP must be verified or paid
+        // Safe enum extraction for comparison and string interpolation
+        $statusValue = $apInvoice->status instanceof \BackedEnum ? $apInvoice->status->value : $apInvoice->status;
         $allowedStatuses = ['verified', 'paid'];
-        if (!in_array($apInvoice->status, $allowedStatuses, true)) {
+        if (!in_array($statusValue, $allowedStatuses, true)) {
             throw new AntiPhantomBillingException(
-                "SupplierInvoice belum diverifikasi (status: {$apInvoice->status})"
+                "SupplierInvoice belum diverifikasi (status: {$statusValue})"
             );
         }
 
