@@ -205,18 +205,7 @@
                             </div>
 
                             {{-- Kategori --}}
-                            <div class="col-12 mb-5">
-                                <label class="form-label fs-6 fw-semibold">Kategori Produk</label>
-                                <select name="category" class="form-select form-select-solid @error('category') is-invalid @enderror">
-                                    <option value="">— Pilih Kategori —</option>
-                                    @foreach($categories as $c)
-                                        <option value="{{ $c }}" {{ old('category') == $c ? 'selected' : '' }}>{{ $c }}</option>
-                                    @endforeach
-                                </select>
-                                @error('category')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            @include('products.partials.category-classification')
 
                             <div class="col-12">
                                 <div class="separator separator-dashed my-7"></div>

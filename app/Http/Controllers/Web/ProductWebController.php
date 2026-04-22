@@ -61,6 +61,10 @@ class ProductWebController extends Controller
         $usageMethods = Product::USAGE_METHODS;
         $targetUsers = Product::TARGET_USERS;
         $sterilizationMethods = Product::STERILIZATION_METHODS;
+        $categoryRegulatory = Product::CATEGORY_REGULATORY;
+        $categoryClassObat = Product::CATEGORY_CLASS_OBAT;
+        $categoryClassAlkes = Product::CATEGORY_CLASS_ALKES;
+        $categoryOperational = Product::CATEGORY_OPERATIONAL;
         
         $breadcrumbs = [
             ['label' => 'Master Data', 'url' => 'javascript:void(0)'],
@@ -78,6 +82,10 @@ class ProductWebController extends Controller
             'usageMethods',
             'targetUsers',
             'sterilizationMethods',
+            'categoryRegulatory',
+            'categoryClassObat',
+            'categoryClassAlkes',
+            'categoryOperational',
             'breadcrumbs'
         ));
     }
@@ -96,6 +104,9 @@ class ProductWebController extends Controller
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'discount_amount'     => ['nullable', 'numeric', 'min:0'],
             'category'            => ['nullable', 'string', 'max:100'],
+            'category_regulatory' => ['nullable', 'in:OBAT,ALKES,PKRT,KOSMETIK,SUPLEMEN'],
+            'category_class'      => ['nullable', 'in:OBAT_KERAS,OBAT_BEBAS,OBAT_BEBAS_TERBATAS,NARKOTIKA,PSIKOTROPIKA,BIOLOGIS,KELAS_A,KELAS_B,KELAS_C,KELAS_D'],
+            'category_operational'=> ['nullable', 'in:CONSUMABLE,NON_CONSUMABLE,REAGENT,FARMASI,SERVICE'],
             'description'         => ['nullable', 'string'],
             'is_narcotic'         => ['nullable', 'boolean'],
             
@@ -173,6 +184,10 @@ class ProductWebController extends Controller
         $usageMethods = Product::USAGE_METHODS;
         $targetUsers = Product::TARGET_USERS;
         $sterilizationMethods = Product::STERILIZATION_METHODS;
+        $categoryRegulatory = Product::CATEGORY_REGULATORY;
+        $categoryClassObat = Product::CATEGORY_CLASS_OBAT;
+        $categoryClassAlkes = Product::CATEGORY_CLASS_ALKES;
+        $categoryOperational = Product::CATEGORY_OPERATIONAL;
         
         $breadcrumbs = [
             ['label' => 'Master Data', 'url' => 'javascript:void(0)'],
@@ -192,6 +207,10 @@ class ProductWebController extends Controller
             'usageMethods',
             'targetUsers',
             'sterilizationMethods',
+            'categoryRegulatory',
+            'categoryClassObat',
+            'categoryClassAlkes',
+            'categoryOperational',
             'breadcrumbs'
         ));
     }
@@ -210,6 +229,9 @@ class ProductWebController extends Controller
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'discount_amount'     => ['nullable', 'numeric', 'min:0'],
             'category'            => ['nullable', 'string', 'max:100'],
+            'category_regulatory' => ['nullable', 'in:OBAT,ALKES,PKRT,KOSMETIK,SUPLEMEN'],
+            'category_class'      => ['nullable', 'in:OBAT_KERAS,OBAT_BEBAS,OBAT_BEBAS_TERBATAS,NARKOTIKA,PSIKOTROPIKA,BIOLOGIS,KELAS_A,KELAS_B,KELAS_C,KELAS_D'],
+            'category_operational'=> ['nullable', 'in:CONSUMABLE,NON_CONSUMABLE,REAGENT,FARMASI,SERVICE'],
             'description'         => ['nullable', 'string'],
             'is_narcotic'         => ['nullable', 'boolean'],
             

@@ -20,6 +20,41 @@ class Product extends Model
         'BMHP'
     ];
 
+    // Regulatory Category
+    public const CATEGORY_REGULATORY = [
+        'OBAT'     => 'Obat',
+        'ALKES'    => 'Alat Kesehatan',
+        'PKRT'     => 'Perbekalan Kesehatan Rumah Tangga',
+        'KOSMETIK' => 'Kosmetik',
+        'SUPLEMEN' => 'Suplemen',
+    ];
+
+    // Class Category — per regulatory type
+    public const CATEGORY_CLASS_OBAT = [
+        'OBAT_KERAS'          => 'Obat Keras',
+        'OBAT_BEBAS'          => 'Obat Bebas',
+        'OBAT_BEBAS_TERBATAS' => 'Obat Bebas Terbatas',
+        'NARKOTIKA'           => 'Narkotika',
+        'PSIKOTROPIKA'        => 'Psikotropika',
+        'BIOLOGIS'            => 'Biologis',
+    ];
+
+    public const CATEGORY_CLASS_ALKES = [
+        'KELAS_A' => 'Kelas A - Risiko Rendah',
+        'KELAS_B' => 'Kelas B - Risiko Sedang-Rendah',
+        'KELAS_C' => 'Kelas C - Risiko Sedang-Tinggi',
+        'KELAS_D' => 'Kelas D - Risiko Tinggi',
+    ];
+
+    // Operational Category
+    public const CATEGORY_OPERATIONAL = [
+        'CONSUMABLE'     => 'Consumable (Habis Pakai)',
+        'NON_CONSUMABLE' => 'Non-Consumable (Tidak Habis Pakai)',
+        'REAGENT'        => 'Reagen',
+        'FARMASI'        => 'Farmasi',
+        'SERVICE'        => 'Jasa / Service',
+    ];
+
     public const UNITS = [
         'Box',
         'Botol',
@@ -84,6 +119,9 @@ class Product extends Model
         'registration_date',
         'registration_expiry',
         'category',
+        'category_regulatory',
+        'category_class',
+        'category_operational',
         'product_type',
         'risk_class',
         'intended_use',
@@ -349,6 +387,26 @@ class Product extends Model
         }
 
         return $quantity * $unit->conversion_to_base;
+    }
+
+    /**
+     * Get valid category_class options based on category_regulatory
+     */
+    public static function getCategoryClassOptions(string $regulatory): array
+    {
+        return match($regulatory) {
+            'OBAT'  => self::CATEGORY_CLASS_OBAT,
+            'ALKES' => self::CATEGORY_CLASS_ALKES,
+            default => [],
+        };
+    }
+
+    /**
+     * Check if category_class is required for given regulatory
+     */
+    public static function categoryClassRequired(string $regulatory): bool
+    {
+        return in_array($regulatory, ['OBAT', 'ALKES']);
     }
 
     /**
