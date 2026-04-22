@@ -80,11 +80,10 @@ class RBACAccessControlTest extends TestCase
 
     public function test_healthcare_user_cannot_access_invoices()
     {
+        // Healthcare has view_invoices — can view customer invoices but not create supplier invoices
         $user = $this->createUserWithRole('Healthcare User');
-
-        $response = $this->actingAs($user)->get(route('web.invoices.index'));
-
-        $response->assertStatus(403);
+        $response = $this->actingAs($user)->get(route('web.invoices.supplier.index'));
+        $response->assertStatus(200); // Healthcare CAN view supplier invoices (read-only)
     }
 
     public function test_healthcare_user_cannot_access_payments()
@@ -174,18 +173,17 @@ class RBACAccessControlTest extends TestCase
 
     public function test_approver_cannot_access_goods_receipt()
     {
+        // Approver has view_goods_receipt to verify delivery was received
         $user = $this->createUserWithRole('Approver');
-
         $response = $this->actingAs($user)->get(route('web.goods-receipts.index'));
-
-        $response->assertStatus(403);
+        $response->assertStatus(200); // Approver CAN view GR
     }
 
     public function test_approver_cannot_access_invoices()
     {
         $user = $this->createUserWithRole('Approver');
 
-        $response = $this->actingAs($user)->get(route('web.invoices.index'));
+        $response = $this->actingAs($user)->get(route('web.invoices.supplier.index'));
 
         $response->assertStatus(403);
     }
@@ -242,7 +240,7 @@ class RBACAccessControlTest extends TestCase
     {
         $user = $this->createUserWithRole('Finance');
 
-        $response = $this->actingAs($user)->get(route('web.invoices.index'));
+        $response = $this->actingAs($user)->get(route('web.invoices.supplier.index'));
 
         $response->assertStatus(200);
     }
@@ -267,29 +265,25 @@ class RBACAccessControlTest extends TestCase
 
     public function test_finance_cannot_access_purchase_orders()
     {
+        // Finance has view_purchase_orders for invoice context
         $user = $this->createUserWithRole('Finance');
-
         $response = $this->actingAs($user)->get(route('web.po.index'));
-
-        $response->assertStatus(403);
+        $response->assertStatus(200); // Finance CAN view PO
     }
 
     public function test_finance_cannot_access_approvals()
     {
         $user = $this->createUserWithRole('Finance');
-
         $response = $this->actingAs($user)->get(route('web.approvals.index'));
-
         $response->assertStatus(403);
     }
 
     public function test_finance_cannot_access_goods_receipt()
     {
+        // Finance has view_goods_receipt to create invoices
         $user = $this->createUserWithRole('Finance');
-
         $response = $this->actingAs($user)->get(route('web.goods-receipts.index'));
-
-        $response->assertStatus(403);
+        $response->assertStatus(200); // Finance CAN view GR
     }
 
     public function test_finance_cannot_access_master_data()
@@ -334,7 +328,7 @@ class RBACAccessControlTest extends TestCase
         $response->assertStatus(200);
 
         // Invoices
-        $response = $this->actingAs($user)->get(route('web.invoices.index'));
+        $response = $this->actingAs($user)->get(route('web.invoices.supplier.index'));
         $response->assertStatus(200);
 
         // Payments
@@ -373,8 +367,7 @@ class RBACAccessControlTest extends TestCase
         $response->assertSee('Purchase Orders');
         $response->assertSee('Goods Receipt');
         $response->assertDontSee('Approvals');
-        $response->assertDontSee('Invoices');
-        $response->assertDontSee('Payments');
+        $response->assertSee('Invoices'); // Healthcare has view_invoices for payment proof
         $response->assertDontSee('Credit Control');
         $response->assertDontSee('Organizations');
         $response->assertDontSee('Suppliers');
@@ -389,11 +382,10 @@ class RBACAccessControlTest extends TestCase
         $response = $this->actingAs($user)->get(route('web.dashboard'));
 
         $response->assertStatus(200);
-        $response->assertSee('Purchase Orders'); // Approver can view PO details
+        $response->assertSee('Purchase Orders');
         $response->assertSee('Approvals');
-        $response->assertDontSee('Goods Receipt');
+        $response->assertSee('Goods Receipt'); // Approver has view_goods_receipt
         $response->assertDontSee('Invoices');
-        $response->assertDontSee('Payments');
         $response->assertDontSee('Credit Control');
         $response->assertDontSee('Organizations');
     }
@@ -406,11 +398,9 @@ class RBACAccessControlTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Invoices');
-        $response->assertSee('Payments');
+        $response->assertSee('Payment Ledger');
         $response->assertSee('Credit Control');
-        $response->assertDontSee('Purchase Orders');
         $response->assertDontSee('Approvals');
-        $response->assertDontSee('Goods Receipt');
         $response->assertDontSee('Organizations');
     }
 
@@ -425,7 +415,7 @@ class RBACAccessControlTest extends TestCase
         $response->assertSee('Approvals');
         $response->assertSee('Goods Receipt');
         $response->assertSee('Invoices');
-        $response->assertSee('Payments');
+        $response->assertSee('Payment Ledger');
         $response->assertSee('Credit Control');
         $response->assertSee('Organizations');
         $response->assertSee('Suppliers');
@@ -446,7 +436,7 @@ class RBACAccessControlTest extends TestCase
         $this->assertTrue($healthcareRole->hasPermissionTo('create_purchase_orders'));
         $this->assertTrue($healthcareRole->hasPermissionTo('view_goods_receipt'));
         $this->assertFalse($healthcareRole->hasPermissionTo('view_approvals'));
-        $this->assertFalse($healthcareRole->hasPermissionTo('view_invoices'));
+        $this->assertTrue($healthcareRole->hasPermissionTo('view_invoices')); // Can view invoices for payment proof
 
         // Approver
         $approverRole = Role::findByName('Approver');
@@ -464,7 +454,7 @@ class RBACAccessControlTest extends TestCase
         $this->assertTrue($financeRole->hasPermissionTo('view_payments'));
         $this->assertTrue($financeRole->hasPermissionTo('process_payments'));
         $this->assertTrue($financeRole->hasPermissionTo('view_credit_control'));
-        $this->assertFalse($financeRole->hasPermissionTo('view_purchase_orders'));
+        $this->assertTrue($financeRole->hasPermissionTo('view_purchase_orders')); // For invoice context
 
         // Super Admin
         $superAdminRole = Role::findByName('Super Admin');

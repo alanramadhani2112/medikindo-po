@@ -38,21 +38,21 @@ class ReportController extends Controller
             PurchaseOrder::STATUS_SUBMITTED,
             PurchaseOrder::STATUS_APPROVED,
             PurchaseOrder::STATUS_REJECTED,
-            PurchaseOrder::STATUS_SHIPPED,
+            PurchaseOrder::STATUS_COMPLETED,
         ], 0), $byStatus);
 
         // Total spend (approved + sent)
         $totalSpend = (clone $query)
-            ->whereIn('status', [PurchaseOrder::STATUS_APPROVED, PurchaseOrder::STATUS_SHIPPED])
+            ->whereIn('status', [PurchaseOrder::STATUS_APPROVED, PurchaseOrder::STATUS_COMPLETED])
             ->sum('total_amount');
 
         $thisMonthSpend = (clone $query)
-            ->whereIn('status', [PurchaseOrder::STATUS_APPROVED, PurchaseOrder::STATUS_SHIPPED])
+            ->whereIn('status', [PurchaseOrder::STATUS_APPROVED, PurchaseOrder::STATUS_COMPLETED])
             ->whereBetween('approved_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('total_amount');
 
         $lastMonthSpend = (clone $query)
-            ->whereIn('status', [PurchaseOrder::STATUS_APPROVED, PurchaseOrder::STATUS_SHIPPED])
+            ->whereIn('status', [PurchaseOrder::STATUS_APPROVED, PurchaseOrder::STATUS_COMPLETED])
             ->whereBetween('approved_at', [
                 now()->subMonth()->startOfMonth(),
                 now()->subMonth()->endOfMonth(),
@@ -74,7 +74,7 @@ class ReportController extends Controller
             ->join('suppliers', 'suppliers.id', '=', 'purchase_orders.supplier_id')
             ->whereIn('purchase_orders.status', [
                 PurchaseOrder::STATUS_APPROVED,
-                PurchaseOrder::STATUS_SHIPPED,
+                PurchaseOrder::STATUS_COMPLETED,
             ])
             ->select(
                 'suppliers.id',
