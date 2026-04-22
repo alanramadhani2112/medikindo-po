@@ -15,9 +15,10 @@ use Illuminate\Support\Facades\DB;
 class InvoiceService
 {
     public function __construct(
-        private readonly AuditService $auditService,
-        private readonly InvoiceCalculationService $calculationService,
-        private readonly DiscrepancyDetectionService $discrepancyDetector
+        private readonly AuditService                $auditService,
+        private readonly InvoiceCalculationService   $calculationService,
+        private readonly DiscrepancyDetectionService $discrepancyDetector,
+        private readonly DocumentNumberService       $documentNumberService,
     ) {}
 
     // -----------------------------------------------------------------------
@@ -154,7 +155,7 @@ class InvoiceService
             // --- Customer Invoice (AR) ---
             if (! $customerInvoice) {
                 $customerInvoice = CustomerInvoice::create([
-                    'invoice_number'    => 'INV-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
+                    'invoice_number'    => $this->documentNumberService->generateInvoiceNumber($po->organization_id),
                     'organization_id'   => $po->organization_id,
                     'purchase_order_id' => $po->id,
                     'goods_receipt_id'  => $gr->id,

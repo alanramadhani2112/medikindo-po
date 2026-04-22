@@ -72,6 +72,10 @@
         @php
             $invoice = $allocation->customerInvoice ?? $allocation->supplierInvoice;
             $isCustomerInvoice = $allocation->customerInvoice !== null;
+            $step = 0;
+            $previousPayments = $isCustomerInvoice
+                ? $invoice->paymentAllocations()->with('payment')->whereHas('payment', fn($q) => $q->where('id', '!=', $payment->id))->get()
+                : collect();
         @endphp
         
         <div class="card card-flush mb-7">
@@ -91,6 +95,7 @@
                 <div class="d-flex flex-column gap-5">
                     {{-- Step 1: Purchase Order --}}
                     @if($invoice->purchaseOrder)
+                    @php $step++ @endphp
                     <div class="card border border-primary">
                         <div class="card-header min-h-60px bg-light-primary border-0 py-5">
                             <div class="card-title">
@@ -101,7 +106,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="badge badge-primary fs-8 fw-bold mb-2">STEP 1</span>
+                                        <span class="badge badge-primary fs-8 fw-bold mb-2">STEP {{ $step }}</span>
                                         <h5 class="fw-bold text-gray-900 fs-5 mb-0">Purchase Order</h5>
                                     </div>
                                 </div>
@@ -136,6 +141,7 @@
 
                     {{-- Step 2: Goods Receipt --}}
                     @if($invoice->goodsReceipt)
+                    @php $step++ @endphp
                     <div class="card border border-success">
                         <div class="card-header min-h-60px bg-light-success border-0 py-5">
                             <div class="card-title">
@@ -146,7 +152,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="badge badge-success fs-8 fw-bold mb-2">STEP {{ $invoice->purchaseOrder ? '2' : '1' }}</span>
+                                        <span class="badge badge-success fs-8 fw-bold mb-2">STEP {{ $step }}</span>
                                         <h5 class="fw-bold text-gray-900 fs-5 mb-0">Goods Receipt</h5>
                                     </div>
                                 </div>
@@ -177,11 +183,7 @@
 
                     {{-- Step 3: Supplier Invoice (for Customer Invoice) --}}
                     @if($isCustomerInvoice && $invoice->supplierInvoice)
-                    @php
-                        $stepNumber = 1;
-                        if($invoice->purchaseOrder) $stepNumber++;
-                        if($invoice->goodsReceipt) $stepNumber++;
-                    @endphp
+                    @php $step++ @endphp
                     <div class="card border border-warning">
                         <div class="card-header min-h-60px bg-light-warning border-0 py-5">
                             <div class="card-title">
@@ -192,7 +194,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="badge badge-warning fs-8 fw-bold mb-2">STEP {{ $stepNumber }}</span>
+                                        <span class="badge badge-warning fs-8 fw-bold mb-2">STEP {{ $step }}</span>
                                         <h5 class="fw-bold text-gray-900 fs-5 mb-0">Supplier Invoice</h5>
                                     </div>
                                 </div>
@@ -229,86 +231,19 @@
                     </div>
                     @endif
 
-                    {{-- Step 4: Customer/Supplier Invoice --}}
-                    @php
-                        $finalStepNumber = 1;
-                        if($invoice->purchaseOrder) $finalStepNumber++;
-                        if($invoice->goodsReceipt) $finalStepNumber++;
-                        if($isCustomerInvoice && $invoice->supplierInvoice) $finalStepNumber++;
-                    @endphp
-                    <div class="card border border-{{ $isCustomerInvoice ? 'success' : 'warning' }}">
-                        <div class="card-body py-5">
-                            <div class="d-flex align-items-center mb-5">
-                                <div class="symbol symbol-40px me-3">
-                                    <div class="symbol-label bg-{{ $isCustomerInvoice ? 'success' : 'warning' }}">
-                                        <i class="ki-outline ki-{{ $isCustomerInvoice ? 'entrance-right' : 'exit-up' }} fs-3 text-white"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <span class="badge badge-{{ $isCustomerInvoice ? 'success' : 'warning' }} fs-8 fw-semibold mb-1">STEP {{ $finalStepNumber }}</span>
-                                    <h5 class="fw-bold text-gray-900 mb-0">{{ $isCustomerInvoice ? 'Customer Invoice' : 'Supplier Invoice' }}</h5>
-                                </div>
-                            </div>
-                            <table class="table table-borderless table-sm mb-0">
-                                <tr>
-                                    <td class="text-gray-600 fs-7 fw-semibold ps-0" style="width: 150px;">Invoice Number</td>
-                                    <td class="text-gray-900 fw-bold fs-6">
-                                        <a href="{{ $isCustomerInvoice ? route('web.invoices.customer.show', $invoice) : route('web.invoices.supplier.show', $invoice) }}" 
-                                           class="text-gray-900 text-hover-primary">
-                                            {{ $invoice->invoice_number }}
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-gray-600 fs-7 fw-semibold ps-0">{{ $isCustomerInvoice ? 'Customer' : 'Supplier' }}</td>
-                                    <td class="text-gray-800 fw-semibold fs-6">
-                                        @if($isCustomerInvoice)
-                                            {{ $invoice->organization->name ?? '-' }}
-                                        @else
-                                            {{ $invoice->supplier->name ?? '-' }}
-                                        @endif
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-gray-600 fs-7 fw-semibold ps-0">Total Amount</td>
-                                    <td class="text-gray-800 fw-bold fs-6">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-gray-600 fs-7 fw-semibold ps-0">Status</td>
-                                    <td>
-                                        <span class="badge {{ $invoice->status->getBadgeClass() }} fs-8 fw-semibold">
-                                            {{ $invoice->status->getLabel() }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                @if($invoice->outstanding_amount > 0)
-                                <tr>
-                                    <td class="text-gray-600 fs-7 fw-semibold ps-0">Outstanding</td>
-                                    <td class="text-danger fw-bold fs-6">Rp {{ number_format($invoice->outstanding_amount, 0, ',', '.') }}</td>
-                                </tr>
-                                @endif
-                            </table>
-                        </div>
-                    </div>
-
-                    {{-- Step 4: Customer/Supplier Invoice --}}
-                    @php
-                        $finalStepNumber = 1;
-                        if($invoice->purchaseOrder) $finalStepNumber++;
-                        if($invoice->goodsReceipt) $finalStepNumber++;
-                        if($isCustomerInvoice && $invoice->supplierInvoice) $finalStepNumber++;
-                    @endphp
-                    <div class="card border border-{{ $isCustomerInvoice ? 'success' : 'warning' }}">
-                        <div class="card-header min-h-60px bg-light-{{ $isCustomerInvoice ? 'success' : 'warning' }} border-0 py-5">
+                    {{-- Step N: Customer / Supplier Invoice --}}
+                    @php $step++ @endphp
+                    <div class="card border border-info">
+                        <div class="card-header min-h-60px bg-light-info border-0 py-5">
                             <div class="card-title">
                                 <div class="d-flex align-items-center gap-4">
                                     <div class="symbol symbol-40px">
-                                        <div class="symbol-label bg-{{ $isCustomerInvoice ? 'success' : 'warning' }}">
-                                            <i class="ki-outline ki-{{ $isCustomerInvoice ? 'entrance-right' : 'exit-up' }} fs-3 text-white"></i>
+                                        <div class="symbol-label bg-info">
+                                            <i class="ki-outline ki-receipt-square fs-3 text-white"></i>
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="badge badge-{{ $isCustomerInvoice ? 'success' : 'warning' }} fs-8 fw-bold mb-2">STEP {{ $finalStepNumber }}</span>
+                                        <span class="badge badge-info fs-8 fw-bold mb-2">STEP {{ $step }}</span>
                                         <h5 class="fw-bold text-gray-900 fs-5 mb-0">{{ $isCustomerInvoice ? 'Customer Invoice' : 'Supplier Invoice' }}</h5>
                                     </div>
                                 </div>
@@ -321,7 +256,7 @@
                                         <tr>
                                             <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3" style="width: 150px;">Invoice Number</td>
                                             <td class="text-gray-900 fw-bold fs-6 py-3">
-                                                <a href="{{ $isCustomerInvoice ? route('web.invoices.customer.show', $invoice) : route('web.invoices.supplier.show', $invoice) }}" 
+                                                <a href="{{ $isCustomerInvoice ? route('web.invoices.customer.show', $invoice) : route('web.invoices.supplier.show', $invoice) }}"
                                                    class="text-gray-900 text-hover-primary text-decoration-underline">
                                                     {{ $invoice->invoice_number }}
                                                 </a>
@@ -330,15 +265,11 @@
                                         <tr>
                                             <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">{{ $isCustomerInvoice ? 'Customer' : 'Supplier' }}</td>
                                             <td class="text-gray-800 fw-semibold fs-6 py-3">
-                                                @if($isCustomerInvoice)
-                                                    {{ $invoice->organization->name ?? '-' }}
-                                                @else
-                                                    {{ $invoice->supplier->name ?? '-' }}
-                                                @endif
+                                                {{ $isCustomerInvoice ? ($invoice->organization->name ?? '-') : ($invoice->supplier->name ?? '-') }}
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Total Amount</td>
+                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Total Tagihan</td>
                                             <td class="text-gray-800 fw-bold fs-6 py-3">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</td>
                                         </tr>
                                         <tr>
@@ -351,7 +282,7 @@
                                         </tr>
                                         @if($invoice->outstanding_amount > 0)
                                         <tr>
-                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Outstanding</td>
+                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Sisa Tagihan</td>
                                             <td class="text-danger fw-bold fs-6 py-3">Rp {{ number_format($invoice->outstanding_amount, 0, ',', '.') }}</td>
                                         </tr>
                                         @endif
@@ -361,8 +292,63 @@
                         </div>
                     </div>
 
-                    {{-- Step 5: Payment --}}
-                    @php $paymentStepNumber = $finalStepNumber + 1; @endphp
+                    {{-- Step N+1...: Cicilan sebelumnya (jika ada) --}}
+                    @foreach($previousPayments as $prevAlloc)
+                    @php $step++ @endphp
+                    <div class="card border border-success border-dashed">
+                        <div class="card-header min-h-60px bg-light-success border-0 py-5">
+                            <div class="card-title">
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="symbol symbol-40px">
+                                        <div class="symbol-label bg-success">
+                                            <i class="ki-outline ki-check-circle fs-3 text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="badge badge-success fs-8 fw-bold mb-2">STEP {{ $step }}</span>
+                                        <h5 class="fw-bold text-gray-900 fs-5 mb-0">
+                                            Cicilan {{ $loop->iteration }}
+                                            <span class="badge badge-light-success fs-8 ms-2">Sudah Dibayar</span>
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-6 pb-6">
+                            <div class="table-responsive">
+                                <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4 mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3" style="width: 150px;">Payment Number</td>
+                                            <td class="text-gray-900 fw-bold fs-6 py-3">
+                                                <a href="{{ route('web.payments.show', $prevAlloc->payment) }}" class="text-hover-primary text-decoration-underline">
+                                                    {{ $prevAlloc->payment->payment_number ?? 'PAY-' . $prevAlloc->payment->id }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Jumlah</td>
+                                            <td class="text-success fw-bold fs-5 py-3">Rp {{ number_format($prevAlloc->allocated_amount, 0, ',', '.') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Tanggal</td>
+                                            <td class="text-gray-800 fw-semibold fs-6 py-3">{{ $prevAlloc->payment->payment_date->format('d M Y H:i') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Metode</td>
+                                            <td class="py-3">
+                                                <span class="badge badge-light-info fs-7">{{ $prevAlloc->payment->payment_method_label }}</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+
+                    {{-- Step Final: Pembayaran ini (current) --}}
+                    @php $step++ @endphp
                     <div class="card border border-primary">
                         <div class="card-header min-h-60px bg-light-primary border-0 py-5">
                             <div class="card-title">
@@ -373,8 +359,13 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="badge badge-primary fs-8 fw-bold mb-2">STEP {{ $paymentStepNumber }}</span>
-                                        <h5 class="fw-bold text-gray-900 fs-5 mb-0">{{ $isCustomerInvoice ? 'Payment Received' : 'Payment Sent' }}</h5>
+                                        <span class="badge badge-primary fs-8 fw-bold mb-2">STEP {{ $step }}</span>
+                                        <h5 class="fw-bold text-gray-900 fs-5 mb-0">
+                                            {{ $isCustomerInvoice ? 'Payment Received' : 'Payment Sent' }}
+                                            @if($previousPayments->isNotEmpty())
+                                                <span class="badge badge-light-primary fs-8 ms-2">Cicilan {{ $previousPayments->count() + 1 }}</span>
+                                            @endif
+                                        </h5>
                                     </div>
                                 </div>
                             </div>
@@ -384,11 +375,24 @@
                                 <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4 mb-0">
                                     <tbody>
                                         <tr>
-                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3" style="width: 150px;">Allocated Amount</td>
+                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3" style="width: 150px;">Jumlah Dibayar</td>
                                             <td class="fw-bold text-{{ $isCustomerInvoice ? 'success' : 'danger' }} fs-5 py-3">
                                                 Rp {{ number_format($allocation->allocated_amount, 0, ',', '.') }}
                                             </td>
                                         </tr>
+                                        @if($previousPayments->isNotEmpty())
+                                        <tr>
+                                            <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Total Terbayar</td>
+                                            <td class="fw-bold text-success fs-6 py-3">
+                                                Rp {{ number_format($invoice->paid_amount, 0, ',', '.') }}
+                                                @if($invoice->outstanding_amount <= 0)
+                                                    <span class="badge badge-success ms-2">LUNAS</span>
+                                                @else
+                                                    <span class="text-muted fs-7 ms-1">dari Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endif
                                         <tr>
                                             <td class="text-gray-600 fw-semibold fs-7 ps-0 py-3">Payment Date</td>
                                             <td class="text-gray-800 fw-semibold fs-6 py-3">{{ $payment->payment_date->format('d M Y H:i') }}</td>

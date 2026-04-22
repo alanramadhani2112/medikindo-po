@@ -184,6 +184,6 @@ class GoodsReceiptWebController extends Controller
         
         $pdf = Pdf::loadView('pdf.goods_receipt', compact('goodsReceipt'))->setPaper('a4', 'portrait');
         
-        return $pdf->stream('GR_' . $goodsReceipt->gr_number . '.pdf');
+        return $pdf->stream('GR_' . str_replace('/', '-', $goodsReceipt->gr_number) . '.pdf');
     }
 }

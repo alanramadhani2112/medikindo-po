@@ -415,7 +415,7 @@ class DashboardService
             ->get();
 
         // Recent Payments
-        $recentPayments = Payment::with(['invoice', 'user'])
+        $recentPayments = Payment::with(['user'])
             ->latest('payment_date')
             ->limit(10)
             ->get();

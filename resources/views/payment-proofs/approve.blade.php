@@ -24,9 +24,6 @@
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#docPreview{{ $doc->id }}">
                                         <i class="ki-outline ki-eye fs-3 me-1"></i> Lihat Bukti Bayar
                                     </button>
-                                    <a href="{{ route('web.payment-proofs.download-document', [$paymentProof, $doc->id]) }}" class="btn btn-light-primary">
-                                        <i class="ki-outline ki-cloud-download fs-3 me-1"></i> Download Bukti Bayar
-                                    </a>
                                 </div>
                             </div>
 
@@ -69,10 +66,6 @@
                                             @endif
                                         </div>
                                         <div class="modal-footer border-0 pt-0 justify-content-center">
-                                            <a href="{{ route('web.payment-proofs.download-document', [$paymentProof, $doc->id]) }}"
-                                               class="btn btn-light-success">
-                                                <i class="ki-outline ki-cloud-download fs-3 me-1"></i> Download Bukti Bayar
-                                            </a>
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
                                         </div>
                                     </div>

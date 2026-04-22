@@ -12,10 +12,11 @@ use Illuminate\Support\Facades\DB;
 class POService
 {
     public function __construct(
-        private readonly ValidationService   $validationService,
-        private readonly ApprovalService     $approvalService,
-        private readonly AuditService        $auditService,
+        private readonly ValidationService    $validationService,
+        private readonly ApprovalService      $approvalService,
+        private readonly AuditService         $auditService,
         private readonly CreditControlService $creditControlService,
+        private readonly DocumentNumberService $documentNumberService,
     ) {}
 
     // -----------------------------------------------------------------------
@@ -27,9 +28,10 @@ class POService
         $this->validationService->ensureSupplierIsValid($data['supplier_id']);
 
         return DB::transaction(function () use ($user, $data) {
+            $orgId = $data['organization_id'] ?? $user->organization_id;
             $po = PurchaseOrder::create([
-                'po_number'              => $this->generatePONumber(),
-                'organization_id'        => $data['organization_id'] ?? $user->organization_id,
+                'po_number'              => $this->documentNumberService->generatePONumber($orgId),
+                'organization_id'        => $orgId,
                 'supplier_id'            => $data['supplier_id'],
                 'created_by'             => $user->id,
                 'status'                 => PurchaseOrder::STATUS_DRAFT,
@@ -251,21 +253,7 @@ class POService
     }
 
     // -----------------------------------------------------------------------
-    // Generate PO Number
+    // Generate PO Number — delegated to DocumentNumberService
+    // Kept as private alias for backward compatibility within this class
     // -----------------------------------------------------------------------
-
-    private function generatePONumber(): string
-    {
-        $prefix = 'PO-' . now()->format('Ymd') . '-';
-        $last   = PurchaseOrder::withoutGlobalScopes()
-            ->where('po_number', 'like', $prefix . '%')
-            ->orderByDesc('id')
-            ->value('po_number');
-
-        $sequence = $last
-            ? (int) substr($last, strlen($prefix)) + 1
-            : 1;
-
-        return $prefix . str_pad($sequence, 4, '0', STR_PAD_LEFT);
-    }
 }

@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Storage;
 class GoodsReceiptService
 {
     public function __construct(
-        private readonly AuditService $auditService,
-        private readonly InventoryService $inventoryService,
+        private readonly AuditService          $auditService,
+        private readonly InventoryService      $inventoryService,
+        private readonly DocumentNumberService $documentNumberService,
     ) {}
 
     // -----------------------------------------------------------------------
@@ -56,7 +57,10 @@ class GoodsReceiptService
             $gr = GoodsReceipt::firstOrCreate(
                 ['purchase_order_id' => $po->id],
                 [
-                    'gr_number'       => $this->generateGRNumber(),
+                    'gr_number'       => $this->documentNumberService->generateGRNumber(
+                        $po->organization_id,
+                        $po->po_number,
+                    ),
                     'organization_id' => $po->organization_id,
                     'received_by'     => $actor->id,
                     'confirmed_by'    => $actor->id,
@@ -271,6 +275,7 @@ class GoodsReceiptService
         } else {
             $gr->items()->create([
                 'purchase_order_item_id' => $poItem->id,
+                'product_id'             => $poItem->product_id, // denormalized for direct access
                 'quantity_received'      => $data['quantity_received'],
                 'batch_no'               => $data['batch_no'],
                 'expiry_date'            => $data['expiry_date'],
@@ -299,11 +304,6 @@ class GoodsReceiptService
     }
 
     // -----------------------------------------------------------------------
-    // Generate GR Number
+    // Generate GR Number — delegated to DocumentNumberService
     // -----------------------------------------------------------------------
-
-    private function generateGRNumber(): string
-    {
-        return 'GR-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
-    }
 }

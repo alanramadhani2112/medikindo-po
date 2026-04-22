@@ -264,14 +264,14 @@ class InvoiceWebController extends Controller
     {
         $invoice->load(['supplier', 'purchaseOrder', 'goodsReceipt', 'lineItems.product', 'issuedBy']);
         $pdf = Pdf::loadView('pdf.invoice_supplier', ['invoice' => $invoice])->setPaper('a4', 'portrait');
-        return $pdf->stream('AP_INV_' . $invoice->invoice_number . '.pdf');
+        return $pdf->stream('AP_INV_' . str_replace('/', '-', $invoice->invoice_number) . '.pdf');
     }
 
     public function exportCustomerPdf(CustomerInvoice $invoice)
     {
-        $invoice->load(['organization', 'purchaseOrder', 'goodsReceipt', 'lineItems.product', 'issuedBy']);
-        $pdf = Pdf::loadView('pdf.invoice_customer_FIXED', ['invoice' => $invoice])->setPaper('a4', 'portrait');
-        return $pdf->stream('AR_INV_' . $invoice->invoice_number . '.pdf');
+        $invoice->load(['organization', 'purchaseOrder', 'goodsReceipt', 'lineItems.product', 'issuedBy', 'bankAccount']);
+        $pdf = Pdf::loadView('pdf.customer_invoice', ['invoice' => $invoice])->setPaper('a4', 'portrait');
+        return $pdf->stream('AR_INV_' . str_replace('/', '-', $invoice->invoice_number) . '.pdf');
     }
 
     // -----------------------------------------------------------------------

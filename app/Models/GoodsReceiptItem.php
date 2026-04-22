@@ -25,6 +25,10 @@ class GoodsReceiptItem extends Model
         return $this->belongsTo(PurchaseOrderItem::class);
     }
 
+    /**
+     * Direct product relationship — denormalized for performance.
+     * Populated from purchase_order_item.product_id on creation.
+     */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');

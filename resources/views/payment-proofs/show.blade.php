@@ -71,6 +71,47 @@
                 </div>
             @endif
 
+            {{-- ═══ LANJUTKAN PELUNASAN ═══ --}}
+            {{-- Shown when: proof is APPROVED, payment was partial, and invoice is not yet fully paid --}}
+            @if (
+                $paymentProof->status === App\Enums\PaymentProofStatus::APPROVED
+                && $paymentProof->payment_type === 'partial'
+                && $paymentProof->customerInvoice->status !== App\Enums\CustomerInvoiceStatus::PAID
+            )
+                @php
+                    $invoice = $paymentProof->customerInvoice;
+                    $sisaTagihan = (float) $invoice->total_amount - (float) $invoice->paid_amount;
+                @endphp
+                <div class="card card-flush border-success border border-dashed mb-5 shadow-sm">
+                    <div class="card-body py-6">
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="symbol symbol-50px">
+                                <span class="symbol-label bg-light-success">
+                                    <i class="ki-outline ki-wallet fs-2x text-success"></i>
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h4 class="text-success mb-1">Lanjutkan Pelunasan</h4>
+                                <div class="text-muted fs-7">
+                                    Pembayaran sebagian telah disetujui. Sisa tagihan untuk invoice
+                                    <strong>{{ $invoice->invoice_number }}</strong> adalah:
+                                </div>
+                                <div class="fs-3 fw-bolder text-success mt-2">
+                                    Rp {{ number_format($sisaTagihan, 0, ',', '.') }}
+                                </div>
+                            </div>
+                            <div>
+                                <a href="{{ route('web.payment-proofs.create', ['invoice_id' => $invoice->id]) }}"
+                                   class="btn btn-success">
+                                    <i class="ki-outline ki-plus fs-4 me-1"></i>
+                                    Bayar Pelunasan
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <x-card title="Informasi Pembayaran" icon="bill">
                 <div class="row mb-7">
                     <label class="col-lg-4 fw-semibold text-muted">Invoice Pelanggan</label>
@@ -261,47 +302,6 @@
                     @endforeach
                 </div>
             </x-card>
-
-            {{-- ═══ LANJUTKAN PELUNASAN ═══ --}}
-            {{-- Shown when: proof is APPROVED, payment was partial, and invoice is not yet fully paid --}}
-            @if (
-                $paymentProof->status === App\Enums\PaymentProofStatus::APPROVED
-                && $paymentProof->payment_type === 'partial'
-                && $paymentProof->customerInvoice->status !== App\Enums\CustomerInvoiceStatus::PAID
-            )
-                @php
-                    $invoice = $paymentProof->customerInvoice;
-                    $sisaTagihan = (float) $invoice->total_amount - (float) $invoice->paid_amount;
-                @endphp
-                <div class="card card-flush border-success border border-dashed mt-5 shadow-sm">
-                    <div class="card-body py-6">
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="symbol symbol-50px">
-                                <span class="symbol-label bg-light-success">
-                                    <i class="ki-outline ki-wallet fs-2x text-success"></i>
-                                </span>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h4 class="text-success mb-1">Lanjutkan Pelunasan</h4>
-                                <div class="text-muted fs-7">
-                                    Pembayaran sebagian telah disetujui. Sisa tagihan untuk invoice
-                                    <strong>{{ $invoice->invoice_number }}</strong> adalah:
-                                </div>
-                                <div class="fs-3 fw-bolder text-success mt-2">
-                                    Rp {{ number_format($sisaTagihan, 0, ',', '.') }}
-                                </div>
-                            </div>
-                            <div>
-                                <a href="{{ route('web.payment-proofs.create', ['invoice_id' => $invoice->id]) }}"
-                                   class="btn btn-success">
-                                    <i class="ki-outline ki-plus fs-4 me-1"></i>
-                                    Bayar Pelunasan
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
         </div>
 
         <div class="col-lg-4">

@@ -282,6 +282,6 @@ class PurchaseOrderWebController extends Controller
 
         $pdf = Pdf::loadView('pdf.purchase_order', ['po' => $purchaseOrder])->setPaper('a4', 'portrait');
 
-        return $pdf->stream('PO_' . $purchaseOrder->po_number . '.pdf');
+        return $pdf->stream('PO_' . str_replace('/', '-', $purchaseOrder->po_number) . '.pdf');
     }
 }

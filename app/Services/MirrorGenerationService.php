@@ -26,8 +26,9 @@ use Illuminate\Support\Facades\Notification;
 class MirrorGenerationService
 {
     public function __construct(
-        private readonly PriceListService $priceListService,
+        private readonly PriceListService          $priceListService,
         private readonly InvoiceCalculationService $calculationService,
+        private readonly DocumentNumberService     $documentNumberService,
     ) {}
 
     /**
@@ -98,7 +99,7 @@ class MirrorGenerationService
         $customerInvoice = DB::transaction(function () use ($apInvoice, $customerId) {
             // Step 3a: Create CustomerInvoice header
             $customerInvoice = CustomerInvoice::create([
-                'invoice_number'      => 'AR-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
+                'invoice_number'      => $this->documentNumberService->generateInvoiceNumber($customerId),
                 'organization_id'     => $customerId,
                 'supplier_invoice_id' => $apInvoice->id,
                 'purchase_order_id'   => $apInvoice->purchase_order_id,
