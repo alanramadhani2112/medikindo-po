@@ -15,26 +15,11 @@
     <x-slot name="tabs">
         @php
             $tabOptions = [
-                'pending' => ['label' => 'Antrian Persetujuan', 'icon' => 'ki-file-right'],
-                'history' => ['label' => 'Riwayat Keputusan', 'icon' => 'ki-document'],
+                'pending' => ['label' => 'Antrian Persetujuan', 'icon' => 'time'],
+                'history' => ['label' => 'Riwayat Keputusan',  'icon' => 'document'],
             ];
         @endphp
-        @foreach($tabOptions as $val => $tabData)
-            @php 
-                $isActive = ($tab ?? 'pending') === $val;
-                $count = $counts[$val] ?? 0;
-            @endphp
-            <li class="nav-item">
-                <a href="{{ route('web.approvals.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
-                   class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                    <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
-                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
-                    <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
-                        {{ $count }}
-                    </span>
-                </a>
-            </li>
-        @endforeach
+        <x-status-tabs :tabs="$tabOptions" :current="$tab ?? 'pending'" route="web.approvals.index" :counts="$counts" />
     </x-slot>
 
     <x-slot name="tableHeader">{{ ($tab ?? 'pending') === 'pending' ? 'Antrian Persetujuan' : 'Riwayat Keputusan' }}</x-slot>

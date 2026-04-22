@@ -29,31 +29,14 @@
     <x-slot name="tabs">
         @php
             $tabOptions = [
-                'all'       => ['label' => 'Semua GR', 'icon' => 'ki-home'],
-                'pending'   => ['label' => 'Menunggu Penerimaan', 'icon' => 'ki-notification-on'],
-                'partial'   => ['label' => 'Partial', 'icon' => 'ki-information-5'],
-                'completed' => ['label' => 'Selesai', 'icon' => 'ki-check-circle'],
+                'all'       => ['label' => 'Semua GR',           'icon' => 'home'],
+                'pending'   => ['label' => 'Menunggu Penerimaan', 'icon' => 'notification-on'],
+                'partial'   => ['label' => 'Diterima Sebagian',  'icon' => 'information-5'],
+                'completed' => ['label' => 'Selesai',            'icon' => 'check-circle'],
             ];
             $currentTab = $tab ?? 'all';
         @endphp
-        @foreach($tabOptions as $val => $tabData)
-            @php 
-                $isActive = $currentTab === $val;
-                $count = $counts[$val] ?? 0;
-            @endphp
-            <li class="nav-item">
-                <a href="{{ route('web.goods-receipts.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
-                   class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                    <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
-                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
-                    @if($count > 0)
-                        <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
-                            {{ $count }}
-                        </span>
-                    @endif
-                </a>
-            </li>
-        @endforeach
+        <x-status-tabs :tabs="$tabOptions" :current="$currentTab" route="web.goods-receipts.index" :counts="$counts" />
     </x-slot>
 
     <x-slot name="tableHeader">

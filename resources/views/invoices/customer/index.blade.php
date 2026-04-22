@@ -80,30 +80,16 @@
     <x-slot name="tabs">
         @php
             $tabOptions = [
-                'all'          => ['label' => 'Semua',          'icon' => 'ki-home'],
-                'issued'       => ['label' => 'Menunggu',       'icon' => 'ki-notification-on'],
-                'partial_paid' => ['label' => 'Partial',        'icon' => 'ki-information-5'],
-                'paid'         => ['label' => 'Lunas',          'icon' => 'ki-check-circle'],
-                'overdue'      => ['label' => 'Overdue',        'icon' => 'ki-cross-circle'],
-                'draft'        => ['label' => 'Draft',          'icon' => 'ki-document'],
+                'all'          => ['label' => 'Semua',          'icon' => 'home'],
+                'draft'        => ['label' => 'Draft',          'icon' => 'document'],
+                'issued'       => ['label' => 'Menunggu Bayar', 'icon' => 'notification-on'],
+                'partial_paid' => ['label' => 'Bayar Sebagian', 'icon' => 'information-5'],
+                'paid'         => ['label' => 'Lunas',          'icon' => 'check-circle'],
+                'overdue'      => ['label' => 'Jatuh Tempo',    'icon' => 'warning-2'],
             ];
             $currentTab = request('status', 'all');
         @endphp
-        @foreach ($tabOptions as $val => $tabData)
-            @php $isActive = $currentTab === $val; @endphp
-            <li class="nav-item">
-                <a href="{{ route('web.invoices.customer.index', array_merge(request()->except(['status', 'page']), ['status' => $val === 'all' ? null : $val])) }}"
-                    class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                    <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
-                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
-                    @if(isset($tabCounts[$val]))
-                        <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-1">
-                            {{ $tabCounts[$val] }}
-                        </span>
-                    @endif
-                </a>
-            </li>
-        @endforeach
+        <x-status-tabs :tabs="$tabOptions" :current="$currentTab" route="web.invoices.customer.index" :counts="$tabCounts" param="status" />
     </x-slot>
 
     <x-slot name="tableHeader">Daftar Tagihan Pelanggan</x-slot>

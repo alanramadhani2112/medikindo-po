@@ -7,32 +7,16 @@
     </x-slot>
 
     <x-slot name="tabs">
-        @foreach(['', 'draft', 'verified', 'paid', 'overdue'] as $statusKey)
-            @php 
-                $statusEnum = $statusKey ? App\Enums\SupplierInvoiceStatus::tryFrom($statusKey) : null;
-                $isActive = ($tab === $statusKey) || ($statusKey === '' && ($tab === 'all' || $tab === ''));
-                $label = $statusEnum ? $statusEnum->getLabel() : 'Semua Tagihan';
-                $icon = match($statusKey) {
-                    'draft' => 'document',
-                    'verified' => 'shield-search',
-                    'paid' => 'check-circle',
-                    'overdue' => 'warning',
-                    default => 'list'
-                };
-            @endphp
-            <li class="nav-item">
-                <a class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}" 
-                   href="{{ route('web.invoices.supplier.index', ['tab' => $statusKey]) }}">
-                    <i class="ki-outline ki-{{ $icon }} fs-4 me-3"></i>
-                    <span class="fs-6 fw-bold me-3">{{ $label }}</span>
-                    @if($statusKey !== '')
-                        <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
-                            {{ $stats[$statusKey] ?? 0 }}
-                        </span>
-                    @endif
-                </a>
-            </li>
-        @endforeach
+        @php
+            $supplierTabOptions = [
+                ''         => ['label' => 'Semua Tagihan', 'icon' => 'home'],
+                'draft'    => ['label' => 'Draft / Baru',  'icon' => 'document'],
+                'verified' => ['label' => 'Diverifikasi',  'icon' => 'shield-search'],
+                'paid'     => ['label' => 'Lunas',         'icon' => 'check-circle'],
+                'overdue'  => ['label' => 'Jatuh Tempo',   'icon' => 'warning-2'],
+            ];
+        @endphp
+        <x-status-tabs :tabs="$supplierTabOptions" :current="$tab" route="web.invoices.supplier.index" :counts="$stats" />
     </x-slot>
 
     <x-slot name="toolbar">

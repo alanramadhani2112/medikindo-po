@@ -20,35 +20,21 @@
     <x-slot name="tabs">
         @php
             $tabOptions = [
-                'all'         => ['label' => 'Semua',              'icon' => 'ki-home'],
-                'submitted'   => ['label' => 'Menunggu Tinjauan',  'icon' => 'ki-file-up'],
-                'resubmitted' => ['label' => 'Diajukan Ulang',     'icon' => 'ki-arrows-circle'],
-                'approved'    => ['label' => 'Disetujui',          'icon' => 'ki-check-circle'],
-                'rejected'    => ['label' => 'Ditolak',            'icon' => 'ki-cross-circle'],
+                'all'         => ['label' => 'Semua',              'icon' => 'home'],
+                'submitted'   => ['label' => 'Menunggu Tinjauan',  'icon' => 'file-up'],
+                'resubmitted' => ['label' => 'Diajukan Ulang',     'icon' => 'arrows-circle'],
+                'approved'    => ['label' => 'Disetujui',          'icon' => 'check-circle'],
+                'rejected'    => ['label' => 'Ditolak',            'icon' => 'cross-circle'],
             ];
 
             // Finance/Admin/Super Admin juga lihat tab Sudah Diverifikasi
             if (auth()->user()->hasAnyRole(['Finance', 'Super Admin', 'Admin Pusat'])) {
                 $tabOptions = array_slice($tabOptions, 0, 3, true)
-                    + ['verified' => ['label' => 'Sudah Diverifikasi', 'icon' => 'ki-shield-search']]
+                    + ['verified' => ['label' => 'Sudah Diverifikasi', 'icon' => 'shield-search']]
                     + array_slice($tabOptions, 3, null, true);
             }
         @endphp
-        @foreach($tabOptions as $statusKey => $tabData)
-            @php $isActive = ($tab === $statusKey) || ($statusKey === 'all' && ($tab === '' || $tab === 'all')); @endphp
-            <li class="nav-item">
-                <a class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}"
-                   href="{{ route('web.payment-proofs.index', ['tab' => $statusKey === 'all' ? '' : $statusKey]) }}">
-                    <i class="ki-outline ki-{{ $tabData['icon'] }} fs-4 me-3"></i>
-                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
-                    @if($statusKey !== 'all')
-                        <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
-                            {{ $stats[$statusKey] ?? 0 }}
-                        </span>
-                    @endif
-                </a>
-            </li>
-        @endforeach
+        <x-status-tabs :tabs="$tabOptions" :current="$tab" route="web.payment-proofs.index" :counts="$stats" />
     </x-slot>
 
     <x-slot name="tableHeader">Daftar Bukti Pembayaran</x-slot>

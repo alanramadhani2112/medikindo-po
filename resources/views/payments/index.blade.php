@@ -76,29 +76,14 @@
     <x-slot name="tabs">
         @php
             $tabOptions = [
-                'all' => ['label' => 'Semua Transaksi', 'icon' => 'ki-home'],
-                'incoming' => ['label' => 'Kas Masuk', 'icon' => 'ki-arrow-down'],
-                'outgoing' => ['label' => 'Kas Keluar', 'icon' => 'ki-arrow-up'],
-                'pending' => ['label' => 'Pending', 'icon' => 'ki-time'],
-                'confirmed' => ['label' => 'Confirmed', 'icon' => 'ki-check-circle'],
+                'all'       => ['label' => 'Semua Transaksi', 'icon' => 'home'],
+                'incoming'  => ['label' => 'Kas Masuk',       'icon' => 'arrow-down'],
+                'outgoing'  => ['label' => 'Kas Keluar',      'icon' => 'arrow-up'],
+                'pending'   => ['label' => 'Pending',         'icon' => 'time'],
+                'confirmed' => ['label' => 'Terkonfirmasi',   'icon' => 'check-circle'],
             ];
         @endphp
-        @foreach($tabOptions as $val => $tabData)
-            @php 
-                $isActive = $tab === $val;
-                $count = $counts[$val] ?? 0;
-            @endphp
-            <li class="nav-item">
-                <a href="{{ route('web.payments.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
-                   class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                    <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
-                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
-                    <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
-                        {{ $count }}
-                    </span>
-                </a>
-            </li>
-        @endforeach
+        <x-status-tabs :tabs="$tabOptions" :current="$tab" route="web.payments.index" :counts="$counts" />
     </x-slot>
 
     <x-slot name="tableHeader">Riwayat Transaksi</x-slot>

@@ -41,31 +41,16 @@
     <x-slot name="tabs">
         @php
             $tabOptions = [
-                'all'                => ['label' => 'Semua',             'icon' => 'ki-home'],
-                'draft'              => ['label' => 'Draft',             'icon' => 'ki-document'],
-                'submitted'          => ['label' => 'Diajukan',          'icon' => 'ki-send'],
-                'approved'           => ['label' => 'Disetujui',         'icon' => 'ki-check-circle'],
-                'partially_received' => ['label' => 'Diterima Sebagian', 'icon' => 'ki-delivery'],
-                'rejected'           => ['label' => 'Ditolak',           'icon' => 'ki-cross-circle'],
-                'completed'          => ['label' => 'Selesai',           'icon' => 'ki-verify'],
+                'all'                => ['label' => 'Semua',             'icon' => 'home'],
+                'draft'              => ['label' => 'Draft',             'icon' => 'document'],
+                'submitted'          => ['label' => 'Diajukan',          'icon' => 'send'],
+                'approved'           => ['label' => 'Disetujui',         'icon' => 'check-circle'],
+                'partially_received' => ['label' => 'Diterima Sebagian', 'icon' => 'delivery'],
+                'rejected'           => ['label' => 'Ditolak',           'icon' => 'cross-circle'],
+                'completed'          => ['label' => 'Selesai',           'icon' => 'verify'],
             ];
         @endphp
-        @foreach($tabOptions as $val => $tabData)
-            @php 
-                $isActive = ($tab ?? 'all') === $val;
-                $count = $counts[$val] ?? 0;
-            @endphp
-            <li class="nav-item">
-                <a href="{{ route('web.po.index', array_merge(request()->except(['tab', 'page']), ['tab' => $val])) }}" 
-                   class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
-                    <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
-                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
-                    <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
-                        {{ $count }}
-                    </span>
-                </a>
-            </li>
-        @endforeach
+        <x-status-tabs :tabs="$tabOptions" :current="$tab ?? 'all'" route="web.po.index" :counts="$counts" />
     </x-slot>
 
     <x-slot name="tableHeader">Daftar Purchase Order</x-slot>
