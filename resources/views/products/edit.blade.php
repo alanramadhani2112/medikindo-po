@@ -231,42 +231,6 @@
                                 @enderror
                             </div>
 
-                            {{-- Expiry Date & Batch Number --}}
-                            <div class="col-12">
-                                <div class="separator separator-dashed my-7"></div>
-                                <h3 class="fs-5 fw-bold text-gray-900 mb-5">
-                                    <i class="ki-outline ki-calendar-remove fs-3 text-warning me-2"></i>
-                                    Informasi Kadaluarsa (Opsional)
-                                </h3>
-                            </div>
-
-                            <div class="col-md-6">
-                                {{-- Expiry Date --}}
-                                <div class="mb-5">
-                                    <label class="form-label fs-6 fw-semibold">Tanggal Kadaluarsa</label>
-                                    <input type="date" name="expiry_date" value="{{ old('expiry_date', $product->expiry_date?->format('Y-m-d')) }}"
-                                           class="form-control form-control-solid @error('expiry_date') is-invalid @enderror">
-                                    <div class="form-text text-muted">Tanggal expired produk (jika ada)</div>
-                                    @error('expiry_date')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                {{-- Batch Number --}}
-                                <div class="mb-5">
-                                    <label class="form-label fs-6 fw-semibold">Nomor Batch</label>
-                                    <input type="text" name="batch_no" value="{{ old('batch_no', $product->batch_no) }}" maxlength="100"
-                                           placeholder="Contoh: BATCH-2026-001"
-                                           class="form-control form-control-solid @error('batch_no') is-invalid @enderror">
-                                    <div class="form-text text-muted">Nomor batch produk (jika ada)</div>
-                                    @error('batch_no')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
                             <div class="col-12">
                                 <div class="separator separator-dashed my-7"></div>
                             </div>
