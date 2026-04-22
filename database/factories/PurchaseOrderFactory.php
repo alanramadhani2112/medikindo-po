@@ -76,23 +76,14 @@ class PurchaseOrderFactory extends Factory
 
     public function shipped(): static
     {
-        return $this->state(fn(array $attributes) => [
-            'status'       => PurchaseOrder::STATUS_SHIPPED,
-            'submitted_at' => now()->subHours(4),
-            'approved_at'  => now()->subHours(2),
-            'shipped_at'   => now(),
-        ]);
+        // shipped status removed — maps to approved (delivery outside system)
+        return $this->approved();
     }
 
     public function delivered(): static
     {
-        return $this->state(fn(array $attributes) => [
-            'status'        => PurchaseOrder::STATUS_DELIVERED,
-            'submitted_at'  => now()->subHours(6),
-            'approved_at'   => now()->subHours(4),
-            'shipped_at'    => now()->subHours(2),
-            'delivered_at'  => now(),
-        ]);
+        // delivered status removed — maps to completed
+        return $this->completed();
     }
 
     public function completed(): static
@@ -101,8 +92,6 @@ class PurchaseOrderFactory extends Factory
             'status'        => PurchaseOrder::STATUS_COMPLETED,
             'submitted_at'  => now()->subHours(8),
             'approved_at'   => now()->subHours(6),
-            'shipped_at'    => now()->subHours(4),
-            'delivered_at'  => now()->subHours(2),
             'completed_at'  => now(),
         ]);
     }

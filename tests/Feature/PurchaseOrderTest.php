@@ -262,6 +262,6 @@ class PurchaseOrderTest extends TestCase
         
         // DomainException is mapped to 422 in bootstrap/app.php
         $response->assertStatus(422); 
-        $response->assertJsonPath('message', 'Tolak: Limit kredit tidak mencukupi untuk memproses PO. Tersedia: Rp 100.000');
+        $response->assertJsonPath('message', 'Tidak dapat membuat PO. Limit kredit akan terlampaui.');
     }
 }

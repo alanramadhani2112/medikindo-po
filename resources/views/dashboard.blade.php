@@ -115,7 +115,7 @@
                                 @forelse($recentOrders ?? [] as $order)
                                     @php
                                         $badge = match ($order->status) {
-                                            'approved', 'shipped', 'delivered', 'completed' => 'success',
+                                            'approved', 'partially_received', 'completed' => 'success',
                                             'partially_received' => 'primary',
                                             'submitted' => 'warning',
                                             'rejected' => 'danger',

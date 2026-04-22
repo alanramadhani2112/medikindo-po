@@ -59,8 +59,6 @@ class PurchaseOrder extends Model
         'submitted_at',
         'approved_at',
         'sent_at',
-        'shipped_at',
-        'delivered_at',
         'completed_at',
     ];
 
@@ -75,8 +73,6 @@ class PurchaseOrder extends Model
             'submitted_at'            => 'datetime',
             'approved_at'             => 'datetime',
             'sent_at'                 => 'datetime',
-            'shipped_at'              => 'datetime',
-            'delivered_at'            => 'datetime',
             'completed_at'            => 'datetime',
         ];
     }

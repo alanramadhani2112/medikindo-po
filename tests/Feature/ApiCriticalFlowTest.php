@@ -78,7 +78,7 @@ class ApiCriticalFlowTest extends TestCase
 
         $this->postJson("/api/purchase-orders/{$po->id}/send-to-supplier")
             ->assertOk()
-            ->assertJsonPath('purchase_order.status', PurchaseOrder::STATUS_SHIPPED);
+            ->assertJsonPath('purchase_order.status', PurchaseOrder::STATUS_APPROVED);
     }
 
     public function test_goods_receipt_store_endpoint_confirms_receipt_and_completes_po(): void
@@ -91,7 +91,7 @@ class ApiCriticalFlowTest extends TestCase
         $healthcare = User::factory()->healthcareUser()->forOrganization($organization)->create();
 
         $po = PurchaseOrder::factory()
-            ->delivered()
+            ->approved()
             ->forOrganization($organization)
             ->forSupplier($supplier)
             ->createdBy($healthcare)
@@ -106,17 +106,24 @@ class ApiCriticalFlowTest extends TestCase
 
         $this->actingAsUser($healthcare);
 
+        $fakePhoto = \Illuminate\Http\UploadedFile::fake()->image('delivery.jpg', 100, 100);
+
         $this->postJson('/api/goods-receipts', [
-            'purchase_order_id' => $po->id,
+            'purchase_order_id'     => $po->id,
+            'delivery_order_number' => 'DO-TEST-001',
+            'delivery_photo'        => $fakePhoto,
             'items' => [
                 [
                     'purchase_order_item_id' => $item->id,
-                    'quantity_received' => 3,
-                    'condition' => 'Good',
+                    'product_id'             => $product->id,
+                    'quantity_received'      => 3,
+                    'batch_no'               => 'BATCH-001',
+                    'expiry_date'            => now()->addYear()->toDateString(),
+                    'condition'              => 'Good',
                 ],
             ],
         ])->assertStatus(201)
-            ->assertJsonPath('data.status', GoodsReceipt::STATUS_COMPLETED);
+            ->assertJsonPath('data.status', GoodsReceipt::STATUS_PARTIAL);
 
         $this->assertEquals(PurchaseOrder::STATUS_COMPLETED, $po->fresh()->status);
     }
@@ -160,7 +167,7 @@ class ApiCriticalFlowTest extends TestCase
             'goods_receipt_id' => $gr->id,
             'total_amount' => 200000,
             'paid_amount' => 0,
-            'status' => SupplierInvoice::STATUS_ISSUED,
+            'status' => \App\Enums\SupplierInvoiceStatus::VERIFIED->value,
             'due_date' => now()->addDays(14)->toDateString(),
         ]);
 

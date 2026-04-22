@@ -7,7 +7,6 @@ use App\Http\Requests\StorePurchaseOrderRequest;
 use App\Http\Requests\SyncPOItemsRequest;
 use App\Http\Requests\UpdatePurchaseOrderRequest;
 use App\Models\PurchaseOrder;
-use App\Services\DeliveryService;
 use App\Services\POService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +16,6 @@ class PurchaseOrderController extends Controller
 {
     public function __construct(
         private readonly POService $poService,
-        private readonly DeliveryService $deliveryService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -124,15 +122,18 @@ class PurchaseOrderController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        try {
-            $po = $this->deliveryService->markShipped($purchaseOrder, $request->user());
-
+        if (! $purchaseOrder->isApproved()) {
             return response()->json([
-                'message'        => 'Purchase Order sent to supplier.',
-                'purchase_order' => $po,
-            ]);
-        } catch (\DomainException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+                'message' => "PO hanya bisa dikirim ke supplier saat berstatus 'approved'. Status saat ini: [{$purchaseOrder->status}]."
+            ], 422);
         }
+
+        // Mark as sent — delivery happens outside the system
+        $purchaseOrder->update(['sent_at' => now()]);
+
+        return response()->json([
+            'message'        => 'Purchase Order telah ditandai sebagai dikirim ke supplier.',
+            'purchase_order' => $purchaseOrder->fresh(),
+        ]);
     }
 }

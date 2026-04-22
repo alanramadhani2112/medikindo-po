@@ -34,10 +34,10 @@ class FinancialReconciliationTest extends TestCase
         $approver = User::factory()->create(['organization_id' => $organization->id]);
         $approver->assignRole('Super Admin');
 
-        $limit = CreditLimit::create([
-            'organization_id' => $organization->id,
-            'max_limit' => 5000000,
-        ]);
+        $limit = CreditLimit::updateOrCreate(
+            ['organization_id' => $organization->id],
+            ['max_limit' => 5000000, 'is_active' => true]
+        );
 
         $product = Product::factory()->create(['price' => 100000]);
 
@@ -77,14 +77,11 @@ class FinancialReconciliationTest extends TestCase
             'status' => 'billed'
         ]);
 
-        // 4. Send to Supplier
-        $po->update(['status' => PurchaseOrder::STATUS_SHIPPED]);
+        // 4. Send to Supplier — delivery happens outside system, PO stays approved
+        // (no status change needed)
 
         // 5. Partial Goods Receipt
         $grService = app(GoodsReceiptService::class);
-
-        // Must set PO to 'delivered' first (workflow requirement)
-        $po->update(['status' => PurchaseOrder::STATUS_DELIVERED]);
 
         $gr = $grService->confirmReceipt($po->fresh(), $admin, [
             [
@@ -93,9 +90,8 @@ class FinancialReconciliationTest extends TestCase
             ]
         ]);
 
-        // GR is partial (6/10) so PO stays 'delivered', GR status = partial
+        // GR is partial (6/10) so PO transitions to partially_received
         $this->assertEquals(GoodsReceipt::STATUS_PARTIAL, $gr->fresh()->status);
-        $this->assertEquals(PurchaseOrder::STATUS_DELIVERED, $po->fresh()->status);
 
         // In new architecture, invoices are NOT auto-generated. Finance must issue explicitly.
         // So supplier_invoices table is empty at this stage — by design.

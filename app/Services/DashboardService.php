@@ -129,7 +129,7 @@ class DashboardService
         
         // ROW 1: My PO Status
         $poActive = PurchaseOrder::where('organization_id', $orgId)
-            ->whereIn('status', ['approved', 'shipped', 'delivered'])
+            ->whereIn('status', ['approved', 'partially_received', 'completed'])
             ->count();
             
         $poWaitingApproval = PurchaseOrder::where('organization_id', $orgId)
@@ -137,11 +137,11 @@ class DashboardService
             ->count();
             
         $poAwaitingDelivery = PurchaseOrder::where('organization_id', $orgId)
-            ->whereIn('status', ['approved', 'shipped'])
+            ->whereIn('status', ['approved', 'partially_received'])
             ->count();
             
         $poCompletedMonth = PurchaseOrder::where('organization_id', $orgId)
-            ->where('status', 'delivered')
+            ->where('status', 'completed')
             ->whereMonth('created_at', now()->month)
             ->count();
 
@@ -697,12 +697,12 @@ class DashboardService
     {
         // 1. PO STATUS DISTRIBUTION (Donut Chart)
         $poStatusData = [
-            'labels' => ['Submitted', 'Approved', 'Shipped', 'Delivered', 'Rejected'],
+            'labels' => ['Submitted', 'approved', 'partially_received', 'completed', 'Rejected'],
             'data' => [
                 PurchaseOrder::where('status', 'submitted')->count(),
                 PurchaseOrder::where('status', 'approved')->count(),
-                PurchaseOrder::where('status', 'shipped')->count(),
-                PurchaseOrder::where('status', 'delivered')->count(),
+                PurchaseOrder::where('status', 'approved')->count(),
+                PurchaseOrder::where('status', 'completed')->count(),
                 PurchaseOrder::where('status', 'rejected')->count(),
             ],
             'colors' => [
@@ -778,7 +778,7 @@ class DashboardService
             $labels[] = $date->format('M Y');
             $data[] = PurchaseOrder::whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
-                ->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                ->whereIn('status', ['approved', 'partially_received', 'completed'])
                 ->sum('total_amount');
         }
 
@@ -855,7 +855,7 @@ class DashboardService
         $topProducts = DB::table('purchase_order_items')
             ->join('products', 'purchase_order_items.product_id', '=', 'products.id')
             ->join('purchase_orders', 'purchase_order_items.purchase_order_id', '=', 'purchase_orders.id')
-            ->whereIn('purchase_orders.status', ['approved', 'shipped', 'delivered', 'completed'])
+            ->whereIn('purchase_orders.status', ['approved', 'partially_received', 'completed'])
             ->select(
                 'products.id',
                 'products.name',
@@ -874,7 +874,7 @@ class DashboardService
         // 2. TOP SUPPLIERS (Most Ordered From)
         $topSuppliers = DB::table('purchase_orders')
             ->join('suppliers', 'purchase_orders.supplier_id', '=', 'suppliers.id')
-            ->whereIn('purchase_orders.status', ['approved', 'shipped', 'delivered', 'completed'])
+            ->whereIn('purchase_orders.status', ['approved', 'partially_received', 'completed'])
             ->select(
                 'suppliers.id',
                 'suppliers.name',
@@ -894,7 +894,7 @@ class DashboardService
             ->leftJoin('purchase_order_items', 'products.id', '=', 'purchase_order_items.product_id')
             ->leftJoin('purchase_orders', function($join) {
                 $join->on('purchase_order_items.purchase_order_id', '=', 'purchase_orders.id')
-                     ->whereIn('purchase_orders.status', ['approved', 'shipped', 'delivered', 'completed'])
+                     ->whereIn('purchase_orders.status', ['approved', 'partially_received', 'completed'])
                      ->where('purchase_orders.created_at', '>=', now()->subMonths(6));
             })
             ->where('products.is_active', true)
@@ -919,30 +919,30 @@ class DashboardService
         $purchaseSummary = [
             'total_quantity' => DB::table('purchase_order_items')
                 ->join('purchase_orders', 'purchase_order_items.purchase_order_id', '=', 'purchase_orders.id')
-                ->whereIn('purchase_orders.status', ['approved', 'shipped', 'delivered', 'completed'])
+                ->whereIn('purchase_orders.status', ['approved', 'partially_received', 'completed'])
                 ->sum('purchase_order_items.quantity'),
             
             'total_value' => DB::table('purchase_orders')
-                ->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                ->whereIn('status', ['approved', 'partially_received', 'completed'])
                 ->sum('total_amount'),
             
             'total_orders' => DB::table('purchase_orders')
-                ->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                ->whereIn('status', ['approved', 'partially_received', 'completed'])
                 ->count(),
             
             'avg_order_value' => DB::table('purchase_orders')
-                ->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                ->whereIn('status', ['approved', 'partially_received', 'completed'])
                 ->avg('total_amount'),
             
             'month_quantity' => DB::table('purchase_order_items')
                 ->join('purchase_orders', 'purchase_order_items.purchase_order_id', '=', 'purchase_orders.id')
-                ->whereIn('purchase_orders.status', ['approved', 'shipped', 'delivered', 'completed'])
+                ->whereIn('purchase_orders.status', ['approved', 'partially_received', 'completed'])
                 ->whereMonth('purchase_orders.created_at', now()->month)
                 ->whereYear('purchase_orders.created_at', now()->year)
                 ->sum('purchase_order_items.quantity'),
             
             'month_value' => DB::table('purchase_orders')
-                ->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+                ->whereIn('status', ['approved', 'partially_received', 'completed'])
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->sum('total_amount'),
@@ -1002,7 +1002,7 @@ class DashboardService
             ->join('products', 'purchase_order_items.product_id', '=', 'products.id')
             ->join('purchase_orders', 'purchase_order_items.purchase_order_id', '=', 'purchase_orders.id')
             ->where('products.is_narcotic', true)
-            ->whereIn('purchase_orders.status', ['approved', 'shipped', 'delivered'])
+            ->whereIn('purchase_orders.status', ['approved', 'partially_received', 'completed'])
             ->whereMonth('purchase_orders.created_at', now()->month)
             ->sum('purchase_order_items.quantity');
 
@@ -1019,7 +1019,7 @@ class DashboardService
 
         // Recommendation 4: Supplier diversification
         $supplierCount = DB::table('purchase_orders')
-            ->whereIn('status', ['approved', 'shipped', 'delivered', 'completed'])
+            ->whereIn('status', ['approved', 'partially_received', 'completed'])
             ->whereMonth('created_at', now()->month)
             ->distinct('supplier_id')
             ->count('supplier_id');

@@ -63,8 +63,8 @@
                                     'submitted' => 'warning',
                                     'approved' => 'success',
                                     'partially_received' => 'primary',
-                                    'shipped' => 'primary',
-                                    'delivered', 'completed' => 'success',
+                                    
+                                    'completed' => 'success',
                                     'rejected', 'cancelled' => 'danger',
                                     default => 'primary'
                                 };
@@ -169,8 +169,8 @@
                                     'submitted' => 'warning',
                                     'approved' => 'success',
                                     'partially_received' => 'primary',
-                                    'shipped' => 'primary',
-                                    'delivered', 'completed' => 'success',
+                                    
+                                    'completed' => 'success',
                                     'rejected', 'cancelled' => 'danger',
                                     default => 'primary'
                                 };

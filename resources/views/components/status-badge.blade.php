@@ -21,9 +21,9 @@ $workflowColors = [
     'approved' => 'badge-light-success',
     'rejected' => 'badge-light-danger',
     'sent' => 'badge-light-primary',
-    'shipped' => 'badge-light-info',
+    
     'in_delivery' => 'badge-light-info',
-    'delivered' => 'badge-light-success',
+    
     'completed' => 'badge-light-primary',
     'cancelled' => 'badge-light-secondary',
 ];
