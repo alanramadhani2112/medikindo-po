@@ -45,8 +45,7 @@ class InvoiceConcurrencyTest extends TestCase
 
         $this->assertEquals(0, $invoice->version);
 
-        // Update the invoice
-        $invoice->status = 'issued';
+        $invoice->status = 'verified';
         $invoice->save();
 
         $this->assertEquals(1, $invoice->fresh()->version);
@@ -57,22 +56,18 @@ class InvoiceConcurrencyTest extends TestCase
         $this->expectException(ConcurrencyException::class);
         $this->expectExceptionMessage('Concurrent modification detected');
         
-        // Create invoice
         $invoice = SupplierInvoice::factory()->create([
             'organization_id' => $this->organization->id,
             'status' => 'draft',
             'total_amount' => '1000.00',
         ]);
 
-        // Simulate User A loading the invoice
         $invoiceUserA = SupplierInvoice::find($invoice->id);
         
-        // Simulate User B loading and updating the invoice
         $invoiceUserB = SupplierInvoice::find($invoice->id);
-        $invoiceUserB->status = 'issued';
+        $invoiceUserB->status = 'verified';
         $invoiceUserB->save();
 
-        // User A tries to update (should fail)
         $invoiceUserA->total_amount = '2000.00';
         $invoiceUserA->save();
     }
@@ -85,7 +80,7 @@ class InvoiceConcurrencyTest extends TestCase
         ]);
 
         // First update
-        $invoice->status = 'issued';
+        $invoice->status = 'verified';
         $invoice->save();
         $this->assertEquals(1, $invoice->version);
 
@@ -114,7 +109,6 @@ class InvoiceConcurrencyTest extends TestCase
 
         $this->assertEquals(0, $invoice->version);
 
-        // Update the invoice
         $invoice->status = 'issued';
         $invoice->save();
 
@@ -126,22 +120,18 @@ class InvoiceConcurrencyTest extends TestCase
         $this->expectException(ConcurrencyException::class);
         $this->expectExceptionMessage('Concurrent modification detected');
         
-        // Create invoice
         $invoice = CustomerInvoice::factory()->create([
             'organization_id' => $this->organization->id,
             'status' => 'draft',
             'total_amount' => '1000.00',
         ]);
 
-        // Simulate User A loading the invoice
         $invoiceUserA = CustomerInvoice::find($invoice->id);
         
-        // Simulate User B loading and updating the invoice
         $invoiceUserB = CustomerInvoice::find($invoice->id);
         $invoiceUserB->status = 'issued';
         $invoiceUserB->save();
 
-        // User A tries to update (should fail)
         $invoiceUserA->total_amount = '2000.00';
         $invoiceUserA->save();
     }
@@ -155,18 +145,15 @@ class InvoiceConcurrencyTest extends TestCase
 
         $this->assertEquals(0, $invoice->version);
 
-        // Update 1
-        $invoice->status = 'issued';
+        $invoice->status = 'verified';
         $invoice->save();
         $this->assertEquals(1, $invoice->fresh()->version);
 
-        // Update 2
         $invoice = $invoice->fresh();
         $invoice->paid_amount = '500.00';
         $invoice->save();
         $this->assertEquals(2, $invoice->fresh()->version);
 
-        // Update 3
         $invoice = $invoice->fresh();
         $invoice->paid_amount = '1000.00';
         $invoice->save();
@@ -180,8 +167,6 @@ class InvoiceConcurrencyTest extends TestCase
         ]);
 
         $version = $invoice->version;
-
-        // Save without changes
         $invoice->save();
 
         $this->assertEquals($version, $invoice->fresh()->version);
@@ -194,11 +179,10 @@ class InvoiceConcurrencyTest extends TestCase
             'status' => 'draft',
         ]);
 
-        // Simulate concurrent modification
         $invoiceUserA = SupplierInvoice::find($invoice->id);
         $invoiceUserB = SupplierInvoice::find($invoice->id);
         
-        $invoiceUserB->status = 'issued';
+        $invoiceUserB->status = 'verified';
         $invoiceUserB->save();
 
         try {
@@ -220,11 +204,10 @@ class InvoiceConcurrencyTest extends TestCase
             'status' => 'draft',
         ]);
 
-        // Simulate concurrent modification
         $invoiceUserA = SupplierInvoice::find($invoice->id);
         $invoiceUserB = SupplierInvoice::find($invoice->id);
         
-        $invoiceUserB->status = 'issued';
+        $invoiceUserB->status = 'verified';
         $invoiceUserB->save();
 
         try {
@@ -250,25 +233,21 @@ class InvoiceConcurrencyTest extends TestCase
     {
         $invoice = SupplierInvoice::factory()->create([
             'organization_id' => $this->organization->id,
-            'status' => 'issued', // Start with issued status
+            'status' => 'verified',
             'paid_amount' => '0.00',
         ]);
 
-        // Initial version should be 0
         $this->assertEquals(0, $invoice->getVersion());
 
-        // Update mutable field (paid_amount is mutable)
         $invoice->paid_amount = '500.00';
         $invoice->save();
 
-        // Verify in database (this is what matters for optimistic locking)
         $this->assertDatabaseHas('supplier_invoices', [
             'id' => $invoice->id,
             'version' => 1,
             'paid_amount' => '500.00',
         ]);
         
-        // Fresh instance should have updated version
         $this->assertEquals(1, $invoice->fresh()->version);
     }
 
@@ -279,12 +258,10 @@ class InvoiceConcurrencyTest extends TestCase
             'status' => 'draft',
         ]);
 
-        // First update
         $invoice->status = 'issued';
         $invoice->save();
         $this->assertEquals(1, $invoice->version);
 
-        // Second update
         $invoice = $invoice->fresh();
         $invoice->status = 'paid';
         $invoice->save();

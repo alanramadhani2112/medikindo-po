@@ -72,11 +72,12 @@ class ImmutabilityGuardService
         // AR Invoice statuses (Requirement 6.6)
         'issued',
         'partial_paid',
+        'partially_paid',
         'paid',
         'void',
+        'approved',
         // Supplier Invoice statuses
         'verified',
-        'paid',
         'overdue',
         // Legacy / Mixed
         'pending_approval',

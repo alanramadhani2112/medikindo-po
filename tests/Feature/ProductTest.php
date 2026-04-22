@@ -39,11 +39,13 @@ class ProductTest extends TestCase
         $this->actingAsHealthcareUser($organization);
 
         $this->postJson('/api/products', [
-            'supplier_id' => $supplier->id,
-            'name'        => 'Amoxicillin 500mg',
-            'sku'         => 'AMX-500',
-            'unit'        => 'Tablet',
-            'price'       => 3000,
+            'supplier_id'  => $supplier->id,
+            'name'         => 'Amoxicillin 500mg',
+            'sku'          => 'AMX-500',
+            'unit'         => 'Tablet',
+            'price'        => 3000,
+            'cost_price'   => 2500,
+            'selling_price'=> 3000,
         ])->assertStatus(201)
             ->assertJsonPath('product.name', 'Amoxicillin 500mg');
     }

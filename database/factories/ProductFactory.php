@@ -16,15 +16,16 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'supplier_id' => Supplier::factory(),
-            'name'        => fake()->words(3, true),
-            'sku'         => strtoupper(fake()->unique()->bothify('PRD-###??')),
-            'category'    => fake()->randomElement(['Analgesic', 'Antibiotic', 'Vitamin', 'Antiseptic', 'General']),
-            'unit'        => fake()->randomElement(['Box', 'Bottle', 'Tablet', 'Ampul', 'Vial']),
-            'price'       => fake()->numberBetween(5000, 500000),
-            'is_narcotic' => false,
-            'description' => fake()->sentence(),
-            'is_active'   => true,
+            'supplier_id'  => Supplier::factory(),
+            'name'         => fake()->words(3, true),
+            'sku'          => strtoupper(fake()->unique()->bothify('PRD-###??')),
+            'unit'         => fake()->randomElement(['Box', 'Bottle', 'Tablet', 'Ampul', 'Vial']),
+            'price'        => fake()->numberBetween(5000, 500000),
+            'cost_price'   => fake()->numberBetween(3000, 300000),
+            'selling_price'=> fake()->numberBetween(5000, 500000),
+            'is_narcotic'  => false,
+            'description'  => fake()->sentence(),
+            'is_active'    => true,
         ];
     }
 
