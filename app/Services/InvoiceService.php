@@ -159,6 +159,7 @@ class InvoiceService
                     'organization_id'   => $po->organization_id,
                     'purchase_order_id' => $po->id,
                     'goods_receipt_id'  => $gr->id,
+                    'supplier_invoice_id' => $supplierInvoice->id, // Fix: link anti-phantom
                     'total_amount'      => $customerInvoiceCalculation['invoice_totals']['total_amount'],
                     'subtotal_amount'   => $customerInvoiceCalculation['invoice_totals']['subtotal_amount'],
                     'discount_amount'   => $customerInvoiceCalculation['invoice_totals']['discount_amount'],

@@ -409,30 +409,53 @@ class PaymentProofService
      */
     private function autoAllocatePaymentOut(CustomerInvoice $customerInvoice, float $paidAmount): void
     {
-        $supplierInvoice = SupplierInvoice::where('purchase_order_id', $customerInvoice->purchase_order_id)
-            ->where('goods_receipt_id', $customerInvoice->goods_receipt_id)
-            ->where('status', '!=', 'paid')
-            ->first();
+        // Cari Supplier Invoice via supplier_invoice_id (anti-phantom link) atau fallback ke PO+GR
+        $supplierInvoice = $customerInvoice->supplier_invoice_id
+            ? SupplierInvoice::find($customerInvoice->supplier_invoice_id)
+            : SupplierInvoice::where('purchase_order_id', $customerInvoice->purchase_order_id)
+                ->where('goods_receipt_id', $customerInvoice->goods_receipt_id)
+                ->where('status', '!=', 'paid')
+                ->first();
 
-        if ($supplierInvoice) {
-            try {
-                $remainingToPay = $supplierInvoice->total_amount - $supplierInvoice->paid_amount;
-                $amountToPay    = min($paidAmount, $remainingToPay);
-
-                if ($amountToPay > 0) {
-                    $this->paymentService->processOutgoingPayment([
-                        'amount'         => $amountToPay,
-                        'payment_date'   => now(),
-                        'payment_method' => 'Internal Allocation',
-                        'reference'      => "Auto-alloc dari Customer Invoice #{$customerInvoice->invoice_number}",
-                    ], $supplierInvoice);
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::warning(
-                    "Auto-allocation to Supplier Invoice failed: " . $e->getMessage()
-                );
-            }
+        if (! $supplierInvoice) {
+            \Illuminate\Support\Facades\Log::warning(
+                "Auto-allocation: Supplier Invoice tidak ditemukan untuk Customer Invoice #{$customerInvoice->invoice_number}"
+            );
+            return;
         }
+
+        // Hanya proses jika Supplier Invoice sudah VERIFIED
+        $supplierStatus = $supplierInvoice->status instanceof \BackedEnum
+            ? $supplierInvoice->status->value
+            : $supplierInvoice->status;
+
+        if (! in_array($supplierStatus, [
+            \App\Enums\SupplierInvoiceStatus::VERIFIED->value,
+            \App\Enums\SupplierInvoiceStatus::OVERDUE->value,
+        ])) {
+            // Supplier Invoice belum verified — log sebagai pending, jangan gagal diam-diam
+            \Illuminate\Support\Facades\Log::info(
+                "Auto-allocation ditunda: Supplier Invoice #{$supplierInvoice->invoice_number} " .
+                "belum verified (status: {$supplierStatus}). " .
+                "Payment OUT ke supplier harus dilakukan manual setelah invoice diverifikasi."
+            );
+            return;
+        }
+
+        $remainingToPay = (float) $supplierInvoice->total_amount - (float) $supplierInvoice->paid_amount;
+        $amountToPay    = min($paidAmount, $remainingToPay);
+
+        if ($amountToPay <= 0) {
+            return;
+        }
+
+        // Tidak silent — biarkan exception naik agar transaksi induk rollback
+        $this->paymentService->processOutgoingPayment([
+            'amount'         => $amountToPay,
+            'payment_date'   => now(),
+            'payment_method' => 'Internal Allocation',
+            'reference'      => "Auto-alloc dari Customer Invoice #{$customerInvoice->invoice_number}",
+        ], $supplierInvoice);
     }
 
     /**

@@ -121,6 +121,19 @@ class PaymentService
                 throw new DomainException('Jumlah pembayaran harus lebih dari 0.');
             }
 
+            // Gate: Supplier Invoice harus sudah VERIFIED sebelum bisa dibayar
+            $invoiceStatus = $invoice->status instanceof \BackedEnum ? $invoice->status->value : $invoice->status;
+            if (! in_array($invoiceStatus, [
+                \App\Enums\SupplierInvoiceStatus::VERIFIED->value,
+                \App\Enums\SupplierInvoiceStatus::OVERDUE->value,
+            ])) {
+                throw new DomainException(
+                    "Supplier Invoice [{$invoice->invoice_number}] belum diverifikasi. " .
+                    "Invoice harus berstatus 'verified' sebelum dapat dibayar. " .
+                    "Status saat ini: [{$invoiceStatus}]."
+                );
+            }
+
             $outstanding = (float) $invoice->total_amount - (float) $invoice->paid_amount;
             if ($amount > $outstanding) {
                 throw new DomainException(
