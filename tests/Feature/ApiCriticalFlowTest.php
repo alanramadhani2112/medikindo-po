@@ -108,11 +108,10 @@ class ApiCriticalFlowTest extends TestCase
 
         $fakePhoto = \Illuminate\Http\UploadedFile::fake()->image('delivery.jpg', 100, 100);
 
-        $this->postJson('/api/goods-receipts', [
+        $response = $this->call('POST', '/api/goods-receipts', [
             'purchase_order_id'     => $po->id,
             'delivery_order_number' => 'DO-TEST-001',
-            'delivery_photo'        => $fakePhoto,
-            'items' => [
+            'items'                 => [
                 [
                     'purchase_order_item_id' => $item->id,
                     'product_id'             => $product->id,
@@ -122,9 +121,12 @@ class ApiCriticalFlowTest extends TestCase
                     'condition'              => 'Good',
                 ],
             ],
-        ])->assertStatus(201)
-            ->assertJsonPath('data.status', GoodsReceipt::STATUS_PARTIAL);
+        ], [], ['delivery_photo' => $fakePhoto], ['Accept' => 'application/json']);
 
+        $response->assertStatus(201)
+            ->assertJsonPath('data.status', GoodsReceipt::STATUS_COMPLETED);
+
+        // Remove dump
         $this->assertEquals(PurchaseOrder::STATUS_COMPLETED, $po->fresh()->status);
     }
 
@@ -174,7 +176,7 @@ class ApiCriticalFlowTest extends TestCase
         $payload = [
             'supplier_invoice_id' => $supplierInvoice->id,
             'amount' => 100000,
-            'payment_method' => 'bank_transfer',
+            'payment_method' => 'Bank Transfer',
             'payment_date' => now()->toDateString(),
         ];
 

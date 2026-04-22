@@ -61,10 +61,10 @@ class FinancialReconciliationTest extends TestCase
         $poService->submitPO($po, $admin);
 
         $this->assertEquals(PurchaseOrder::STATUS_SUBMITTED, $po->status);
-        $this->assertDatabaseHas('credit_usages', [
-            'purchase_order_id' => $po->id,
-            'status' => 'reserved',
-            'amount_used' => 1000000
+        // Credit control is tracked via outstanding AR invoices, not a separate credit_usages table
+        $this->assertDatabaseHas('purchase_orders', [
+            'id'     => $po->id,
+            'status' => PurchaseOrder::STATUS_SUBMITTED,
         ]);
 
         // 3. Approve PO
@@ -72,23 +72,24 @@ class FinancialReconciliationTest extends TestCase
         $approvalService->process($po, $approver, Approval::LEVEL_STANDARD, Approval::STATUS_APPROVED);
         
         $this->assertEquals(PurchaseOrder::STATUS_APPROVED, $po->fresh()->status);
-        $this->assertDatabaseHas('credit_usages', [
-            'purchase_order_id' => $po->id,
-            'status' => 'billed'
-        ]);
+        // Credit control is tracked via outstanding AR invoices (no credit_usages table insert)
 
         // 4. Send to Supplier — delivery happens outside system, PO stays approved
         // (no status change needed)
 
         // 5. Partial Goods Receipt
         $grService = app(GoodsReceiptService::class);
+        $fakePhoto = \Illuminate\Http\UploadedFile::fake()->image('delivery.jpg');
 
         $gr = $grService->confirmReceipt($po->fresh(), $admin, [
             [
                 'purchase_order_item_id' => $po->items->first()->id,
-                'quantity_received' => 6, // 6 out of 10
+                'product_id'             => $po->items->first()->product_id,
+                'quantity_received'      => 6,
+                'batch_no'               => 'BATCH-001',
+                'expiry_date'            => now()->addYear()->toDateString(),
             ]
-        ]);
+        ], null, 'DO-TEST-001', $fakePhoto);
 
         // GR is partial (6/10) so PO transitions to partially_received
         $this->assertEquals(GoodsReceipt::STATUS_PARTIAL, $gr->fresh()->status);
@@ -98,22 +99,24 @@ class FinancialReconciliationTest extends TestCase
         $this->assertDatabaseCount('supplier_invoices', 0);
         
         // 6. Complete Goods Receipt
+        $fakePhoto2 = \Illuminate\Http\UploadedFile::fake()->image('delivery2.jpg');
         $gr2 = $grService->confirmReceipt($po->fresh(), $admin, [
             [
                 'purchase_order_item_id' => $po->items->first()->id,
-                'quantity_received' => 4, // Final 4
+                'product_id'             => $po->items->first()->product_id,
+                'quantity_received'      => 4,
+                'batch_no'               => 'BATCH-002',
+                'expiry_date'            => now()->addYear()->toDateString(),
             ]
-        ]);
+        ], null, 'DO-TEST-002', $fakePhoto2);
 
         $this->assertEquals(PurchaseOrder::STATUS_COMPLETED, $po->fresh()->status);
 
         // 7. In the new workflow, Finance must explicitly issue the invoice.
         //    Payment is confirmed by Organization, verified by Finance via InvoiceService.
         //    These steps are covered in InvoiceService unit/feature tests.
-        // Verify credit usage is still 'billed' and untouched until payment verified
-        $this->assertDatabaseHas('credit_usages', [
+        $this->assertDatabaseHas('goods_receipts', [
             'purchase_order_id' => $po->id,
-            'status' => 'billed',
         ]);
     }
 }

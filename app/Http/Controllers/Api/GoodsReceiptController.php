@@ -69,6 +69,8 @@ class GoodsReceiptController extends Controller
                 $request->user(),
                 $data['items'],
                 $data['notes'] ?? null,
+                $data['delivery_order_number'] ?? null,
+                $request->file('delivery_photo'),
             );
             return response()->json([
                 'message' => 'Goods Receipt recorded successfully',
