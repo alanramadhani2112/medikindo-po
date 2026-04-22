@@ -26,16 +26,12 @@
                 '' => ['label' => 'Semua', 'icon' => 'ki-home'],
                 'non-narcotic' => ['label' => 'Non-Narkotika', 'icon' => 'ki-shield-tick'],
                 'narcotic' => ['label' => 'Narkotika', 'icon' => 'ki-shield-cross'],
-                'expiring' => ['label' => 'Akan Kadaluarsa', 'icon' => 'ki-timer'],
-                'expired' => ['label' => 'Kadaluarsa', 'icon' => 'ki-cross-circle'],
             ];
             $currentTab = request('type', '');
             $counts = [
                 '' => \App\Models\Product::count(),
                 'non-narcotic' => \App\Models\Product::where('is_narcotic', false)->count(),
                 'narcotic' => \App\Models\Product::where('is_narcotic', true)->count(),
-                'expiring' => \App\Models\Product::expiringSoon(60)->count(),
-                'expired' => \App\Models\Product::expired()->count(),
             ];
         @endphp
         @foreach($tabOptions as $val => $tabData)
@@ -63,7 +59,6 @@
                 <th>Produk</th>
                 <th>Kategori</th>
                 <th>Klasifikasi</th>
-                <th>Kadaluarsa</th>
                 <th class="text-end">Harga Beli</th>
                 <th class="text-end">Harga Jual</th>
                 <th>Status</th>
@@ -94,20 +89,6 @@
                             <span class="badge badge-light-success fs-7 fw-semibold">NON-NARKOTIKA</span>
                         @endif
                     </td>
-                    <td>
-                        @if($product->registration_expiry)
-                            <div class="d-flex flex-column">
-                                <span class="text-gray-800 fw-semibold fs-7">{{ $product->registration_expiry->format('d M Y') }}</span>
-                                @if($product->expiry_status !== 'none')
-                                    <span class="badge badge-light-{{ $product->expiry_status_color }} fs-8 mt-1">
-                                        {{ $product->expiry_status === 'expired' ? 'Kadaluarsa' : abs($product->days_until_expiry) . ' hari lagi' }}
-                                    </span>
-                                @endif
-                            </div>
-                        @else
-                            <span class="text-gray-400 fs-7">-</span>
-                        @endif
-                    </td>
                     <td class="text-end">
                         <span class="text-gray-600 fs-7">Rp {{ number_format($product->cost_price, 0, ',', '.') }}</span>
                     </td>
@@ -136,7 +117,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center py-10">
+                    <td colspan="7" class="text-center py-10">
                         <x-empty-state icon="file-deleted" title="Tidak Ada Data" message="Belum ada produk terdaftar untuk filter ini." />
                     </td>
                 </tr>

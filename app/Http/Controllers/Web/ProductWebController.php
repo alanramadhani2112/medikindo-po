@@ -31,8 +31,6 @@ class ProductWebController extends Controller
             ->when($request->type, function($q, $type) {
                 if ($type === 'narcotic') return $q->where('is_narcotic', true);
                 if ($type === 'non-narcotic') return $q->where('is_narcotic', false);
-                if ($type === 'expiring') return $q->expiringSoon(60);
-                if ($type === 'expired') return $q->expired();
             })
             ->orderBy('name')
             ->paginate(20)
@@ -42,8 +40,6 @@ class ProductWebController extends Controller
             'all'          => Product::where('is_active', true)->count(),
             'non-narcotic' => Product::where('is_active', true)->where('is_narcotic', false)->count(),
             'narcotic'     => Product::where('is_active', true)->where('is_narcotic', true)->count(),
-            'expiring'     => Product::where('is_active', true)->expiringSoon(60)->count(),
-            'expired'      => Product::where('is_active', true)->expired()->count(),
         ];
 
         $breadcrumbs = [
