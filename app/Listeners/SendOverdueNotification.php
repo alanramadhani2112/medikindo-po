@@ -52,11 +52,15 @@ class SendOverdueNotification
      */
     protected function getUsersToNotify($invoice): \Illuminate\Support\Collection
     {
-        // Get organization users with finance or admin roles
-        return $invoice->organization->users()
-            ->whereHas('roles', function ($query) {
-                $query->whereIn('name', ['admin', 'finance', 'manager']);
-            })
+        return \App\Models\User::role(['Finance', 'Super Admin', 'Admin Pusat'])
+            ->where('is_active', true)
+            ->when(
+                $invoice->organization_id,
+                fn($q) => $q->where(function ($sub) use ($invoice) {
+                    $sub->whereHas('roles', fn($r) => $r->where('name', 'Super Admin'))
+                        ->orWhere('organization_id', $invoice->organization_id);
+                })
+            )
             ->get();
     }
 }

@@ -292,7 +292,7 @@ class PaymentProofService
         // Notify submitter of rejection
         $submitter = $proof->submittedBy;
         if ($submitter) {
-            $submitter->notify(new PaymentProofApprovedNotification($proof, 'healthcare'));
+            $submitter->notify(new \App\Notifications\PaymentProofRejectedNotification($proof, $reason));
         }
 
         return $proof;

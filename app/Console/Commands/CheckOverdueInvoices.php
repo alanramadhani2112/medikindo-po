@@ -57,7 +57,9 @@ class CheckOverdueInvoices extends Command
         }
 
         // ── Notify Finance / Super Admin ───────────────────────────────────
-        $financeUsers = User::role(['Super Admin'])->get();
+        $financeUsers = User::role(['Finance', 'Super Admin', 'Admin Pusat'])
+            ->where('is_active', true)
+            ->get();
 
         if ($financeUsers->isNotEmpty()) {
             $allOverdue = collect();
@@ -70,16 +72,19 @@ class CheckOverdueInvoices extends Command
                 ->whereNotNull('due_date')
                 ->whereDate('due_date', '<', $today)
                 ->get()
-                ->each(fn($inv) => $allOverdue->push($inv));
+                ->each(fn($inv) => $allOverdue->push(['invoice' => $inv, 'type' => 'AR']));
 
             // AP overdue
             SupplierInvoice::where('status', SupplierInvoiceStatus::OVERDUE->value)
                 ->get()
-                ->each(fn($inv) => $allOverdue->push($inv));
+                ->each(fn($inv) => $allOverdue->push(['invoice' => $inv, 'type' => 'AP']));
 
-            foreach ($allOverdue as $inv) {
+            foreach ($allOverdue as $item) {
+                $inv      = $item['invoice'];
+                $type     = $item['type'];
+                $days     = (int) now()->startOfDay()->diffInDays($inv->due_date);
                 foreach ($financeUsers as $user) {
-                    $user->notify(new InvoiceOverdueNotification($inv));
+                    $user->notify(new InvoiceOverdueNotification($inv, $type, $days));
                 }
             }
         }

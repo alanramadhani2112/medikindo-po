@@ -14,14 +14,16 @@ class InvoiceOverdueNotification extends Notification
 
     private $invoice;
     private string $type;
+    private int $daysOverdue;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(SupplierInvoice|CustomerInvoice $invoice)
+    public function __construct(SupplierInvoice|CustomerInvoice $invoice, string $invoiceType = '', int $daysOverdue = 0)
     {
         $this->invoice = $invoice;
-        $this->type = $invoice instanceof SupplierInvoice ? 'AP' : 'AR';
+        $this->type = $invoiceType ?: ($invoice instanceof SupplierInvoice ? 'AP' : 'AR');
+        $this->daysOverdue = $daysOverdue;
     }
 
     /**
@@ -48,13 +50,15 @@ class InvoiceOverdueNotification extends Notification
             ? route('web.invoices.supplier.show', $this->invoice)
             : route('web.invoices.customer.show', $this->invoice);
 
+        $overdueText = $this->daysOverdue > 0 ? " (telah {$this->daysOverdue} hari)" : '';
+
         return [
             'invoice_id' => $this->invoice->id,
             'title'      => 'Peringatan: ' . $subject,
-            'message'    => "Faktur {$this->invoice->invoice_number} terkait {$partnerName} telah melewati batas jatuh tempo. Sisa Tagihan: Rp " . number_format($amount, 0, ',', '.'),
+            'message'    => "Faktur {$this->invoice->invoice_number} terkait {$partnerName} telah melewati batas jatuh tempo{$overdueText}. Sisa Tagihan: Rp " . number_format($amount, 0, ',', '.'),
             'url'        => $url,
             'icon'       => 'danger',
-            'type'       => 'warning' // Consistent typing for styling
+            'type'       => 'warning'
         ];
     }
 }
