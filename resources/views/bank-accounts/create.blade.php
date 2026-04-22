@@ -62,7 +62,7 @@
                             <label class="form-label required fw-bold">Atas Nama</label>
                             <input type="text" name="account_holder_name"
                                 class="form-control form-control-solid @error('account_holder_name') is-invalid @enderror"
-                                placeholder="Contoh: PT Medikindo Farma"
+                                placeholder="Contoh: PT. Mentari Medika Indonesia"
                                 value="{{ old('account_holder_name') }}" required>
                             @error('account_holder_name')
                                 <div class="invalid-feedback">{{ $message }}</div>

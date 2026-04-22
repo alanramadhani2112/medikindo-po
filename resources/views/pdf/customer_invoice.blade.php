@@ -249,7 +249,7 @@
      HEADER: Logo | Company Info | Title
      ================================================================ --}}
 @php
-    $logoPath = public_path('logo-medikindo.png');
+    $logoPath = public_path(config('company.logo', 'logo-medikindo.png'));
     $logoBase64 = '';
     if (file_exists($logoPath)) {
         $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
@@ -261,15 +261,15 @@
             @if($logoBase64)
                 <img src="{{ $logoBase64 }}" alt="Medikindo" style="max-width: 75px; max-height: 50px;">
             @else
-                <div style="font-size: 14px; font-weight: bold; color: #1B4B7F;">MEDIKINDO</div>
+                <div style="font-size: 14px; font-weight: bold; color: #1B4B7F;">MMI</div>
             @endif
         </td>
         <td class="header-company">
-            <strong>PT. MEDIKINDO ARTHA MEDIKA</strong><br>
-            NPWP: 01.234.567.8-901.000<br>
-            Izin PBF: PBF-2024-001/KEMENKES<br>
-            Jl. Raya Farmasi No. 123, Jakarta Selatan 12345<br>
-            Telp: (021) 1234-5678 | Fax: (021) 1234-5679
+            <strong>{{ config('company.name_upper') }}</strong><br>
+            NPWP: {{ config('company.npwp') }}<br>
+            Izin PBF: {{ config('company.pbf_license') }}<br>
+            {{ config('company.address') }}<br>
+            Telp: {{ config('company.phone') }} | Fax: {{ config('company.fax') }}
         </td>
         <td class="header-title">
             INVOICE LOCAL
@@ -311,7 +311,7 @@
                 <tr class="meta-row">
                     <td class="meta-key">Tanggal Invoice</td>
                     <td>:</td>
-                    <td class="meta-val">{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('d/m/Y') : '—' }}</td>
+                    <td class="meta-val">{{ $invoice->issued_at ? $invoice->issued_at->format('d/m/Y') : ($invoice->created_at ? $invoice->created_at->format('d/m/Y') : '—') }}</td>
                     <td class="meta-key">Payment Term</td>
                     <td>:</td>
                     <td class="meta-val">{{ $invoice->payment_term ?? '—' }}</td>
@@ -414,11 +414,16 @@
         <td style="width: 48%;">
             <div class="bank-box">
                 <div class="section-label">Informasi Rekening Bank</div>
-                <strong>BRI</strong> — No. Rek: <strong>0123-01-012345-30-6</strong><br>
-                a.n. PT. Medikindo Artha Medika<br>
-                <br>
-                <strong>Danamon</strong> — No. Rek: <strong>000-1234567</strong><br>
-                a.n. PT. Medikindo Artha Medika
+                @if($invoice->bankAccount)
+                    <strong>{{ $invoice->bankAccount->bank_name }}</strong><br>
+                    No. Rek: <strong>{{ $invoice->bankAccount->account_number }}</strong><br>
+                    a.n. {{ $invoice->bankAccount->account_holder_name }}<br>
+                    @if($invoice->bankAccount->branch)
+                        Cabang: {{ $invoice->bankAccount->branch }}
+                    @endif
+                @else
+                    <span style="color: #999; font-style: italic;">Rekening bank belum ditentukan</span>
+                @endif
             </div>
         </td>
         {{-- Right: Calculation Summary --}}
@@ -516,11 +521,12 @@
      ================================================================ --}}
 @php
     $barcodeImg = '';
-    if (!empty($invoice->barcode_serial)) {
+    $barcodeValue = $invoice->barcode_serial ?: $invoice->invoice_number;
+    if (!empty($barcodeValue)) {
         try {
             $generator = new \Picqer\Barcode\BarcodeGeneratorPNG();
             $barcodeData = $generator->getBarcode(
-                $invoice->barcode_serial,
+                $barcodeValue,
                 \Picqer\Barcode\BarcodeGeneratorPNG::TYPE_CODE_128,
                 2,
                 40
@@ -536,14 +542,14 @@
         <td style="width: 50%;">
             @if($barcodeImg)
                 <img src="{{ $barcodeImg }}" alt="Barcode" style="height: 40px; max-width: 200px;"><br>
-                <span style="font-size: 8px; color: #666; letter-spacing: 1px;">{{ $invoice->barcode_serial }}</span>
+                <span style="font-size: 8px; color: #666; letter-spacing: 1px;">{{ $barcodeValue }}</span>
             @else
                 <span style="font-size: 8px; color: #aaa;">[ Barcode tidak tersedia ]</span>
             @endif
         </td>
         <td class="print-log">
-            Dicetak: {{ $invoice->last_printed_at?->format('d/m/Y H:i') ?? now()->format('d/m/Y H:i') }}<br>
-            Cetak ke-{{ $invoice->print_count ?? 1 }}<br>
+            Dicetak: {{ now()->format('d/m/Y H:i') }}<br>
+            Cetak ke-{{ ($invoice->print_count ?? 0) + 1 }}<br>
             {{ $invoice->invoice_number }}
         </td>
     </tr>

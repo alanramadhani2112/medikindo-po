@@ -270,6 +270,14 @@ class InvoiceWebController extends Controller
     public function exportCustomerPdf(CustomerInvoice $invoice)
     {
         $invoice->load(['organization', 'purchaseOrder', 'goodsReceipt', 'lineItems.product', 'issuedBy', 'bankAccount']);
+        // Auto-assign default receive bank if not set
+        if (! $invoice->bankAccount) {
+            $defaultBank = \App\Models\BankAccount::defaultReceive()->first();
+            if ($defaultBank) {
+                $invoice->update(['bank_account_id' => $defaultBank->id]);
+                $invoice->setRelation('bankAccount', $defaultBank);
+            }
+        }
         $pdf = Pdf::loadView('pdf.customer_invoice', ['invoice' => $invoice])->setPaper('a4', 'portrait');
         return $pdf->stream('AR_INV_' . str_replace('/', '-', $invoice->invoice_number) . '.pdf');
     }
@@ -426,6 +434,7 @@ class InvoiceWebController extends Controller
             ]);
         }
 
+        $invoice->update(['issued_at' => now()]);
         $invoice->transitionTo(\App\Enums\CustomerInvoiceStatus::ISSUED);
 
         return redirect()

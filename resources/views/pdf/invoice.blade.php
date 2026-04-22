@@ -126,7 +126,7 @@
                     <strong>Instruksi Pembayaran:</strong><br>
                     Mohon transfer sebesar nilai tagihan ke:<br>
                     <strong>Bank BCA: 0987654321</strong><br>
-                    a.n PT Medikindo Sejahtera<br>
+                    a.n PT. Mentari Medika Indonesia<br>
                     Cantumkan Nomor Invoice pada berita transfer.
                 @endif
             </td>
@@ -185,7 +185,7 @@
                     <div style="margin-bottom: 50px;">Diterbitkan Oleh,</div>
                     <div style="border-top: 1px solid #333; padding-top: 5px;">
                         <strong>Admin Keuangan</strong><br>
-                        <span style="color: #666;">PT Medikindo Sejahtera</span><br>
+                        <span style="color: #666;">PT. Mentari Medika Indonesia</span><br>
                         <span style="color: #999; font-size: 10px;">Tanggal: _______________</span>
                     </div>
                 </td>

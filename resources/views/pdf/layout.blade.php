@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>@yield('title', 'Dokumen Medikindo')</title>
+    <title>@yield('title', 'Dokumen PT. Mentari Medika Indonesia')</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -124,11 +124,11 @@
         <table>
             <tr>
                 <td>
-                    <h1 class="logo-text">Medikindo</h1>
+                    <h1 class="logo-text">PT. Mentari Medika Indonesia</h1>
                     <div class="company-info">
-                        Jl. Gatot Subroto No. 45, Jakarta Selatan<br>
-                        Telp. (021) 1234567 • Email: operasi@medikindo.com<br>
-                        NPWP: 01.234.567.8-090.000
+                        Jl. Raya Farmasi No. 123, Jakarta Selatan 12345<br>
+                        Telp. (021) 1234-5678 • Email: finance@mentarimedika.co.id<br>
+                        NPWP: 01.234.567.8-901.000
                     </div>
                 </td>
                 <td>
@@ -146,7 +146,7 @@
     @yield('content')
 
     <div style="position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 9px; color: #94a3b8;">
-        Dokumen ini dibuat oleh Sistem Medikindo-PO dan merupakan bukti administratif yang sah secara elektronik.
+        Dokumen ini dibuat oleh Sistem PT. Mentari Medika Indonesia dan merupakan bukti administratif yang sah secara elektronik.
     </div>
 </body>
 </html>

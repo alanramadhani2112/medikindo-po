@@ -110,7 +110,7 @@
         <footer class="bg-slate-50 border-t border-slate-100 py-12">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <p class="text-sm font-medium text-slate-400">
-                    &copy; {{ date('Y') }} PT Medikindo Sejahtera Bersama. All rights reserved.
+                    &copy; {{ date('Y') }} PT. Mentari Medika Indonesia. All rights reserved.
                 </p>
                 <div class="mt-4 flex justify-center gap-6 text-xs font-bold text-slate-400 uppercase tracking-widest">
                     <a href="#" class="hover:text-brand-600 transition-colors">Privacy Policy</a>

@@ -34,7 +34,7 @@
             <button onclick="window.open('{{ route('web.invoices.supplier.pdf', $invoice) }}', '_blank')"
                     class="btn btn-light-primary btn-sm">
                 <i class="ki-outline ki-document fs-3"></i>
-                PDF
+                Cetak Invoice AP
             </button>
             <a href="{{ route('web.invoices.supplier.index') }}" class="btn btn-light-secondary btn-sm">
                 <i class="ki-outline ki-arrow-left fs-3"></i>

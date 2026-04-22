@@ -5,7 +5,7 @@
     <base href="" />
     <title>{{ $title ?? 'Medikindo PO System' }} | Medikindo</title>
     <meta charset="utf-8" />
-    <meta name="description" content="Medikindo Procurement & Financial System" />
+    <meta name="description" content="PT. Mentari Medika Indonesia - Procurement System" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="shortcut icon" href="{{ asset('favicon.png') }}" type="image/png" />
@@ -88,7 +88,7 @@
                             class="app-container container-fluid d-flex flex-column flex-md-row flex-center flex-md-stack py-3">
                             <div class="text-dark order-2 order-md-1">
                                 <span class="text-muted fw-semibold me-1">{{ date('Y') }}&copy;</span>
-                                <span class="text-gray-800 fw-semibold">Medikindo Procurement System</span>
+                                <span class="text-gray-800 fw-semibold">PT. Mentari Medika Indonesia</span>
                             </div>
                         </div>
                     </div>

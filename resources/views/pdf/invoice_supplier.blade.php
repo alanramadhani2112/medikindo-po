@@ -12,12 +12,11 @@
         <tr>
             <td style="width: 50%; vertical-align: top;">
                 <div class="info-box">
-                    <div class="info-title">PT MEDIKINDO SEJAHTERA</div>
+                    <div class="info-title">{{ config('company.name_upper') }}</div>
                     <strong>Penerima Invoice (Received By)</strong><br>
-                    Jl. Industri Raya No. 45<br>
-                    Jakarta Pusat 10110<br>
-                    Telp: (021) 1234-5678<br>
-                    Email: finance@medikindo.co.id
+                    {{ config('company.address') }}<br>
+                    Telp: {{ config('company.phone') }}<br>
+                    Email: {{ config('company.email') }}
                 </div>
             </td>
             <td style="width: 50%; vertical-align: top;">
@@ -194,7 +193,7 @@
                 <td style="width: 50%; text-align: center; vertical-align: top;">
                     <div style="border: 1px solid #e5e7eb; padding: 15px; border-radius: 5px; background-color: #f9fafb;">
                         <div style="font-size: 11px; font-weight: bold; margin-bottom: 5px;">DITERIMA OLEH</div>
-                        <div style="font-size: 10px; color: #666; margin-bottom: 50px;">PT Medikindo Sejahtera</div>
+                        <div style="font-size: 10px; color: #666; margin-bottom: 50px;">{{ config('company.name') }}</div>
                         <div style="border-top: 1px solid #333; width: 150px; margin: 0 auto; padding-top: 5px;">
                             <div style="font-size: 11px; font-weight: bold;">{{ $invoice->issuedBy?->name ?? 'Admin Keuangan' }}</div>
                             <div style="font-size: 9px; color: #666;">Finance & Accounting Dept.</div>
@@ -207,7 +206,7 @@
                 <td style="width: 50%; text-align: center; vertical-align: top;">
                     <div style="border: 1px solid #e5e7eb; padding: 15px; border-radius: 5px; background-color: #f9fafb;">
                         <div style="font-size: 11px; font-weight: bold; margin-bottom: 5px;">DIVERIFIKASI OLEH</div>
-                        <div style="font-size: 10px; color: #666; margin-bottom: 50px;">Finance Medikindo</div>
+                        <div style="font-size: 10px; color: #666; margin-bottom: 50px;">Finance {{ config('company.name') }}</div>
                         <div style="border-top: 1px solid #333; width: 150px; margin: 0 auto; padding-top: 5px;">
                             <div style="font-size: 11px; font-weight: bold;">( _________________ )</div>
                             <div style="font-size: 9px; color: #666;">Nama & Tanda Tangan</div>
@@ -228,7 +227,7 @@
             <li>Dokumen ini adalah pencatatan internal invoice dari supplier</li>
             <li>Invoice asli dari supplier disimpan sebagai lampiran digital</li>
             <li>Pembayaran ke supplier hanya dilakukan setelah pembayaran dari RS/Klinik diterima</li>
-            <li>Untuk pertanyaan, hubungi Finance Dept. di (021) 1234-5678 ext. 101</li>
+            <li>Untuk pertanyaan, hubungi Finance Dept. di {{ config('company.phone') }} ext. 101</li>
         </ul>
     </div>
 

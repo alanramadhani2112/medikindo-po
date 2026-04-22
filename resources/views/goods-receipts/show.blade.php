@@ -39,7 +39,7 @@
             @endif
             <a href="{{ route('web.goods-receipts.pdf', $goodsReceipt) }}" target="_blank"
                class="btn btn-light-primary btn-sm">
-                <i class="ki-outline ki-document fs-4 me-1"></i>PDF
+                <i class="ki-outline ki-document fs-4 me-1"></i>Cetak GR
             </a>
             <a href="{{ route('web.goods-receipts.index') }}" class="btn btn-light btn-sm">
                 <i class="ki-outline ki-arrow-left fs-4 me-1"></i>Kembali

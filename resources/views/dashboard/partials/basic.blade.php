@@ -14,7 +14,7 @@
         <div class="card card-flush">
             <div class="card-body text-center py-10">
                 <i class="ki-outline ki-check-circle fs-5x text-primary mb-5"></i>
-                <h2 class="fw-bold text-gray-900 mb-3">Selamat Datang di Medikindo Procurement System</h2>
+                <h2 class="fw-bold text-gray-900 mb-3">Selamat Datang di PT. Mentari Medika Indonesia</h2>
                 <p class="text-gray-600 fs-5 mb-0">
                     Gunakan menu navigasi di sebelah kiri atau aksi cepat di bawah untuk mengakses fitur yang tersedia.
                 </p>

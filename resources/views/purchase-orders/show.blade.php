@@ -68,7 +68,7 @@ Conversion Metadata:
 
             <button type="button" class="btn btn-light" onclick="window.open('{{ route('web.po.pdf', $po) }}', '_blank')">
                 <i class="ki-outline ki-document fs-3 me-2"></i>
-                PDF
+                Cetak PO
             </button>
             <a href="{{ route('web.po.index') }}" class="btn btn-secondary">
                 <i class="ki-outline ki-arrow-left fs-3 me-2"></i>

@@ -24,7 +24,7 @@
         <div class="d-flex gap-2">
             <button onclick="window.open('{{ route('web.invoices.customer.pdf', $invoice) }}', '_blank')"
                 class="btn btn-light-primary btn-sm">
-                <i class="ki-outline ki-document fs-4 me-1"></i>PDF
+                <i class="ki-outline ki-document fs-4 me-1"></i>Cetak Invoice
             </button>
             <a href="{{ route('web.invoices.customer.index') }}" class="btn btn-light btn-sm">
                 <i class="ki-outline ki-arrow-left fs-4 me-1"></i>Kembali
