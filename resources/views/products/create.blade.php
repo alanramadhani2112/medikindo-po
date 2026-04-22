@@ -70,7 +70,7 @@
                                     <select name="unit" required class="form-select form-select-solid @error('unit') is-invalid @enderror">
                                         <option value="">— Pilih Satuan —</option>
                                         @foreach($units as $u)
-                                            <option value="{{ $u }}" {{ old('unit') == $u ? 'selected' : '' }}>{{ $u }}</option>
+                                            <option value="{{ $u->name }}" {{ old('unit') == $u->name ? 'selected' : '' }}>{{ $u->name }}</option>
                                         @endforeach
                                     </select>
                                     @error('unit')

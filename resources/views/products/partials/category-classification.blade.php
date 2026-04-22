@@ -130,8 +130,33 @@
 
     regulatorySelect.addEventListener('change', updateClassOptions);
 
+    // ── Auto-show narcotic checkbox when NARKOTIKA/PSIKOTROPIKA selected ──
+    const narcoticField = document.getElementById('narcotic_group_field');
+    const narcoticCheckbox = document.getElementById('is_narcotic');
+
+    function updateNarcoticVisibility() {
+        const classVal = classSelect.value;
+        const isNarcoticClass = classVal === 'NARKOTIKA' || classVal === 'PSIKOTROPIKA';
+
+        if (isNarcoticClass) {
+            // Auto-check and show narcotic field
+            if (narcoticCheckbox) narcoticCheckbox.checked = true;
+            if (narcoticField) narcoticField.style.display = '';
+            // Trigger change event so narcotic group field shows
+            if (narcoticCheckbox) narcoticCheckbox.dispatchEvent(new Event('change'));
+        } else if (classVal !== '' && !isNarcoticClass) {
+            // Non-narcotic class selected — uncheck and hide
+            if (narcoticCheckbox) narcoticCheckbox.checked = false;
+            if (narcoticField) narcoticField.style.display = 'none';
+            if (narcoticCheckbox) narcoticCheckbox.dispatchEvent(new Event('change'));
+        }
+    }
+
+    classSelect.addEventListener('change', updateNarcoticVisibility);
+
     // Run on page load to restore state
     updateClassOptions();
+    updateNarcoticVisibility();
 })();
 </script>
 @endpush

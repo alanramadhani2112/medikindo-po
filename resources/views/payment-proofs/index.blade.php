@@ -35,7 +35,7 @@
             }
         @endphp
         @foreach($tabOptions as $statusKey => $tabData)
-            @php $isActive = ($tab === $statusKey) || ($statusKey === 'all' && $tab === ''); @endphp
+            @php $isActive = ($tab === $statusKey) || ($statusKey === 'all' && ($tab === '' || $tab === 'all')); @endphp
             <li class="nav-item">
                 <a class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}"
                    href="{{ route('web.payment-proofs.index', ['tab' => $statusKey === 'all' ? '' : $statusKey]) }}">

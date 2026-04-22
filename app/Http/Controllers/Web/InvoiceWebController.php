@@ -26,7 +26,7 @@ class InvoiceWebController extends Controller
     public function indexSupplier(Request $request)
     {
         $user = $request->user();
-        $tab = $request->get('tab', 'draft');
+        $tab = $request->get('tab', 'all');
 
         // Load Supplier Invoices
         $supplierQuery = SupplierInvoice::with(['supplier', 'purchaseOrder', 'goodsReceipt'])
@@ -44,7 +44,7 @@ class InvoiceWebController extends Controller
         }
 
         // Apply tab filter if exists
-        if ($tab !== '') {
+        if ($tab !== '' && $tab !== 'all') {
             $supplierQuery->where('status', $tab);
         }
 
@@ -74,7 +74,7 @@ class InvoiceWebController extends Controller
     public function indexCustomer(Request $request)
     {
         $user   = $request->user();
-        $tab    = $request->get('tab', 'draft');
+        $tab    = $request->get('tab', 'all');
         $status = $request->get('status', '');
         $aging  = $request->get('aging', '');
 
