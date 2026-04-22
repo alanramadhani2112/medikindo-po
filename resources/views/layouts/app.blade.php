@@ -98,6 +98,7 @@
     </div>
     <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
+    <script src="{{ asset('assets/js/anti-double-click.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="{{ asset('js/sweetalert-confirmations.js') }}"></script>
     <script src="{{ asset('js/notifications.js') }}"></script>

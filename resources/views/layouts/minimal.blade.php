@@ -100,6 +100,7 @@
     
     <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
+    <script src="{{ asset('assets/js/anti-double-click.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof KTApp !== 'undefined' && typeof KTApp.init === 'function') {

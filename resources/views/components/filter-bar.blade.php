@@ -5,7 +5,7 @@
 
 <div class="card mb-5">
     <div class="card-body">
-        <form action="{{ $action }}" method="{{ $method }}" class="d-flex flex-wrap gap-3">
+        <form action="{{ $action }}" method="{{ $method }}" class="d-flex flex-wrap gap-3" data-no-guard="true">
             @if(strtoupper($method) !== 'GET')
                 @csrf
                 @method($method)
