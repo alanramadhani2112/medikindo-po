@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('payment_proofs', function (Blueprint $table) {
-            $table->string('sender_account_number', 50)->nullable()->after('sender_bank_name');
+            $table->string('sender_account_number', 50)->nullable();
         });
     }
 
