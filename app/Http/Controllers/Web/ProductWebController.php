@@ -53,7 +53,6 @@ class ProductWebController extends Controller
     public function create()
     {
         $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
-        $categories = Product::CATEGORIES;
         $units = \App\Models\Unit::where('is_active', true)->orderBy('name')->get();
         $productTypes = Product::PRODUCT_TYPES;
         $riskClassAlkes = Product::RISK_CLASS_ALKES;
@@ -74,7 +73,6 @@ class ProductWebController extends Controller
         
         return view('products.create', compact(
             'suppliers', 
-            'categories', 
             'units',
             'productTypes',
             'riskClassAlkes',
@@ -175,7 +173,6 @@ class ProductWebController extends Controller
     public function edit(Product $product)
     {
         $suppliers = Supplier::where('is_active', true)->orderBy('name')->get();
-        $categories = Product::CATEGORIES;
         $units = \App\Models\Unit::where('is_active', true)->orderBy('name')->get();
         $productTypes = Product::PRODUCT_TYPES;
         $riskClassAlkes = Product::RISK_CLASS_ALKES;
@@ -198,7 +195,6 @@ class ProductWebController extends Controller
         return view('products.edit', compact(
             'product', 
             'suppliers', 
-            'categories', 
             'units',
             'productTypes',
             'riskClassAlkes',

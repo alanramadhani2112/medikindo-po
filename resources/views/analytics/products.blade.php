@@ -195,7 +195,7 @@
                                 <td>
                                     <div class="d-flex flex-column">
                                         <span class="text-gray-900 fw-bold fs-6">{{ $product->name }}</span>
-                                        <span class="text-gray-500 fs-7">{{ $product->sku }} • {{ $product->category }}</span>
+                                        <span class="text-gray-500 fs-7">{{ $product->sku }} • {{ \App\Models\Product::CATEGORY_REGULATORY[$product->category_regulatory] ?? ($product->category_regulatory ?? '—') }}</span>
                                     </div>
                                 </td>
                                 <td class="text-end">

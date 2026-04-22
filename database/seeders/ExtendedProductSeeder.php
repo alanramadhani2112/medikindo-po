@@ -36,7 +36,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Beta blocker untuk hipertensi dan jantung',
                 'price' => 15000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Kardiovaskular',
             ],
             [
                 'name' => 'Clopidogrel 75mg',
@@ -44,7 +43,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antiplatelet untuk pencegahan stroke',
                 'price' => 28000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Kardiovaskular',
             ],
             [
                 'name' => 'Atorvastatin 20mg',
@@ -52,7 +50,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Statin penurun kolesterol',
                 'price' => 18000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Kardiovaskular',
             ],
             [
                 'name' => 'Valsartan 80mg',
@@ -60,7 +57,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'ARB untuk hipertensi',
                 'price' => 22000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Kardiovaskular',
             ],
             [
                 'name' => 'Isosorbide Dinitrate 5mg',
@@ -68,7 +64,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Vasodilator untuk angina',
                 'price' => 12000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Kardiovaskular',
             ],
             [
                 'name' => 'Spironolactone 25mg',
@@ -76,7 +71,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Diuretik hemat kalium',
                 'price' => 16000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Kardiovaskular',
             ],
             [
                 'name' => 'Digoxin 0.25mg',
@@ -84,7 +78,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Glikosida jantung untuk gagal jantung',
                 'price' => 14000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Kardiovaskular',
             ],
             [
                 'name' => 'Nitroglycerin Sublingual 0.5mg',
@@ -92,7 +85,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Obat angina akut sublingual',
                 'price' => 35000.00,
                 'unit' => 'Botol (100 tablet)',
-                'category' => 'Kardiovaskular',
             ],
 
             // Obat Diabetes (6 items)
@@ -102,7 +94,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Sulfonilurea untuk diabetes tipe 2',
                 'price' => 13000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Diabetes',
             ],
             [
                 'name' => 'Glibenclamide 5mg',
@@ -110,7 +101,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Obat diabetes oral',
                 'price' => 10000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Diabetes',
             ],
             [
                 'name' => 'Acarbose 50mg',
@@ -118,7 +108,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Alpha-glucosidase inhibitor',
                 'price' => 20000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Diabetes',
             ],
             [
                 'name' => 'Insulin Glargine 100IU/ml',
@@ -126,7 +115,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Insulin long-acting',
                 'price' => 280000.00,
                 'unit' => 'Vial 10ml',
-                'category' => 'Diabetes',
             ],
             [
                 'name' => 'Insulin Aspart 100IU/ml',
@@ -134,7 +122,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Insulin rapid-acting',
                 'price' => 320000.00,
                 'unit' => 'Vial 10ml',
-                'category' => 'Diabetes',
             ],
             [
                 'name' => 'Test Strip Gula Darah',
@@ -142,7 +129,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Strip tes gula darah',
                 'price' => 150000.00,
                 'unit' => 'Box (50 strips)',
-                'category' => 'Diabetes',
             ],
 
             // Obat Saluran Pernapasan (8 items)
@@ -152,7 +138,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Bronkodilator inhaler untuk asma',
                 'price' => 65000.00,
                 'unit' => 'Inhaler 200 dosis',
-                'category' => 'Pernapasan',
             ],
             [
                 'name' => 'Budesonide Inhaler 200mcg',
@@ -160,7 +145,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Kortikosteroid inhaler',
                 'price' => 180000.00,
                 'unit' => 'Inhaler 200 dosis',
-                'category' => 'Pernapasan',
             ],
             [
                 'name' => 'Ambroxol 30mg',
@@ -168,7 +152,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Mukolitik pengencer dahak',
                 'price' => 8000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pernapasan',
             ],
             [
                 'name' => 'Loratadine 10mg',
@@ -176,7 +159,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antihistamin untuk alergi',
                 'price' => 7000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pernapasan',
             ],
             [
                 'name' => 'Dextromethorphan Syrup',
@@ -184,7 +166,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Obat batuk kering',
                 'price' => 18000.00,
                 'unit' => 'Botol 60ml',
-                'category' => 'Pernapasan',
             ],
             [
                 'name' => 'Guaifenesin Syrup',
@@ -192,7 +173,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Ekspektoran untuk batuk berdahak',
                 'price' => 20000.00,
                 'unit' => 'Botol 60ml',
-                'category' => 'Pernapasan',
             ],
             [
                 'name' => 'Pseudoephedrine 60mg',
@@ -200,7 +180,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Dekongestan hidung',
                 'price' => 9000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pernapasan',
             ],
             [
                 'name' => 'Montelukast 10mg',
@@ -208,7 +187,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Obat asma dan alergi',
                 'price' => 25000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pernapasan',
             ],
 
             // Obat Pencernaan (8 items)
@@ -218,7 +196,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Pelindung mukosa lambung',
                 'price' => 28000.00,
                 'unit' => 'Botol 100ml',
-                'category' => 'Pencernaan',
             ],
             [
                 'name' => 'Bismuth Subsalicylate',
@@ -226,7 +203,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Obat diare dan gangguan pencernaan',
                 'price' => 15000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pencernaan',
             ],
             [
                 'name' => 'Metoclopramide 10mg',
@@ -234,7 +210,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Prokinetik anti mual',
                 'price' => 6000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pencernaan',
             ],
             [
                 'name' => 'Lactulose Syrup',
@@ -242,7 +217,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Laksatif untuk konstipasi',
                 'price' => 45000.00,
                 'unit' => 'Botol 200ml',
-                'category' => 'Pencernaan',
             ],
             [
                 'name' => 'Attapulgite 600mg',
@@ -250,7 +224,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Obat diare',
                 'price' => 8000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pencernaan',
             ],
             [
                 'name' => 'Simethicone 80mg',
@@ -258,7 +231,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Anti kembung',
                 'price' => 7000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pencernaan',
             ],
             [
                 'name' => 'Pancreatin Tablet',
@@ -266,7 +238,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Enzim pencernaan',
                 'price' => 12000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Pencernaan',
             ],
             [
                 'name' => 'Probiotik Kapsul',
@@ -274,7 +245,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Probiotik untuk kesehatan usus',
                 'price' => 35000.00,
                 'unit' => 'Strip (10 kapsul)',
-                'category' => 'Pencernaan',
             ],
 
             // Antibiotik Tambahan (6 items)
@@ -284,7 +254,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antibiotik sefalosporin generasi 3',
                 'price' => 30000.00,
                 'unit' => 'Strip (10 kapsul)',
-                'category' => 'Antibiotik',
             ],
             [
                 'name' => 'Levofloxacin 500mg',
@@ -292,7 +261,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antibiotik fluorokuinolon',
                 'price' => 35000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Antibiotik',
             ],
             [
                 'name' => 'Metronidazole 500mg',
@@ -300,7 +268,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antibiotik untuk infeksi anaerob',
                 'price' => 12000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Antibiotik',
             ],
             [
                 'name' => 'Doxycycline 100mg',
@@ -308,7 +275,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antibiotik tetrasiklin',
                 'price' => 16000.00,
                 'unit' => 'Strip (10 kapsul)',
-                'category' => 'Antibiotik',
             ],
             [
                 'name' => 'Clindamycin 300mg',
@@ -316,7 +282,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antibiotik linkomisin',
                 'price' => 28000.00,
                 'unit' => 'Strip (10 kapsul)',
-                'category' => 'Antibiotik',
             ],
             [
                 'name' => 'Cotrimoxazole 480mg',
@@ -324,7 +289,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antibiotik kombinasi sulfa',
                 'price' => 10000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Antibiotik',
             ],
 
             // Obat Mata & Telinga (6 items)
@@ -334,7 +298,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Tetes mata antibiotik',
                 'price' => 15000.00,
                 'unit' => 'Botol 5ml',
-                'category' => 'Mata & Telinga',
             ],
             [
                 'name' => 'Timolol Eye Drops 0.5%',
@@ -342,7 +305,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Tetes mata untuk glaukoma',
                 'price' => 45000.00,
                 'unit' => 'Botol 5ml',
-                'category' => 'Mata & Telinga',
             ],
             [
                 'name' => 'Artificial Tears',
@@ -350,7 +312,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Tetes mata pelumas',
                 'price' => 25000.00,
                 'unit' => 'Botol 10ml',
-                'category' => 'Mata & Telinga',
             ],
             [
                 'name' => 'Ofloxacin Ear Drops',
@@ -358,7 +319,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Tetes telinga antibiotik',
                 'price' => 28000.00,
                 'unit' => 'Botol 5ml',
-                'category' => 'Mata & Telinga',
             ],
             [
                 'name' => 'Ciprofloxacin Eye Ointment',
@@ -366,7 +326,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Salep mata antibiotik',
                 'price' => 22000.00,
                 'unit' => 'Tube 3.5g',
-                'category' => 'Mata & Telinga',
             ],
             [
                 'name' => 'Dexamethasone Eye Drops',
@@ -374,7 +333,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Tetes mata kortikosteroid',
                 'price' => 32000.00,
                 'unit' => 'Botol 5ml',
-                'category' => 'Mata & Telinga',
             ],
 
             // Obat Hormonal & Endokrin (5 items)
@@ -384,7 +342,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Hormon tiroid',
                 'price' => 18000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Endokrin',
             ],
             [
                 'name' => 'Methylprednisolone 4mg',
@@ -392,7 +349,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Kortikosteroid sistemik',
                 'price' => 12000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Endokrin',
             ],
             [
                 'name' => 'Prednisone 5mg',
@@ -400,7 +356,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Kortikosteroid oral',
                 'price' => 10000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Endokrin',
             ],
             [
                 'name' => 'Calcium Carbonate 500mg',
@@ -408,7 +363,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Suplemen kalsium',
                 'price' => 15000.00,
                 'unit' => 'Botol (30 tablet)',
-                'category' => 'Endokrin',
             ],
             [
                 'name' => 'Vitamin D3 + Calcium',
@@ -416,7 +370,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Kombinasi vitamin D3 dan kalsium',
                 'price' => 55000.00,
                 'unit' => 'Botol (30 tablet)',
-                'category' => 'Endokrin',
             ],
 
             // Obat Neurologi & Psikiatri (6 items)
@@ -426,7 +379,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Anxiolytic dan antikonvulsan',
                 'price' => 15000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Neurologi',
             ],
             [
                 'name' => 'Phenytoin 100mg',
@@ -434,7 +386,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antikonvulsan untuk epilepsi',
                 'price' => 12000.00,
                 'unit' => 'Strip (10 kapsul)',
-                'category' => 'Neurologi',
             ],
             [
                 'name' => 'Carbamazepine 200mg',
@@ -442,7 +393,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antikonvulsan dan mood stabilizer',
                 'price' => 18000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Neurologi',
             ],
             [
                 'name' => 'Fluoxetine 20mg',
@@ -450,7 +400,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antidepresan SSRI',
                 'price' => 22000.00,
                 'unit' => 'Strip (10 kapsul)',
-                'category' => 'Psikiatri',
             ],
             [
                 'name' => 'Alprazolam 0.5mg',
@@ -458,7 +407,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Anxiolytic benzodiazepine',
                 'price' => 16000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Psikiatri',
             ],
             [
                 'name' => 'Haloperidol 5mg',
@@ -466,7 +414,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Antipsikotik',
                 'price' => 14000.00,
                 'unit' => 'Strip (10 tablet)',
-                'category' => 'Psikiatri',
             ],
 
             // Peralatan Laboratorium (7 items)
@@ -476,7 +423,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Tabung darah EDTA untuk hematologi',
                 'price' => 80000.00,
                 'unit' => 'Box (100 tubes)',
-                'category' => 'Laboratorium',
             ],
             [
                 'name' => 'Tabung Vacutainer Plain',
@@ -484,7 +430,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Tabung darah plain untuk serologi',
                 'price' => 75000.00,
                 'unit' => 'Box (100 tubes)',
-                'category' => 'Laboratorium',
             ],
             [
                 'name' => 'Urine Container Steril',
@@ -492,7 +437,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Wadah urine steril',
                 'price' => 50000.00,
                 'unit' => 'Pack (50 pcs)',
-                'category' => 'Laboratorium',
             ],
             [
                 'name' => 'Rapid Test HIV',
@@ -500,7 +444,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Rapid test kit HIV',
                 'price' => 150000.00,
                 'unit' => 'Box (25 tests)',
-                'category' => 'Laboratorium',
             ],
             [
                 'name' => 'Rapid Test Dengue',
@@ -508,7 +451,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Rapid test kit dengue NS1/IgG/IgM',
                 'price' => 180000.00,
                 'unit' => 'Box (25 tests)',
-                'category' => 'Laboratorium',
             ],
             [
                 'name' => 'Rapid Test Malaria',
@@ -516,7 +458,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Rapid test kit malaria',
                 'price' => 120000.00,
                 'unit' => 'Box (25 tests)',
-                'category' => 'Laboratorium',
             ],
             [
                 'name' => 'Lancet Steril',
@@ -524,7 +465,6 @@ class ExtendedProductSeeder extends Seeder
                 'description' => 'Lancet untuk pengambilan darah kapiler',
                 'price' => 40000.00,
                 'unit' => 'Box (200 pcs)',
-                'category' => 'Laboratorium',
             ],
         ];
 
@@ -552,7 +492,7 @@ class ExtendedProductSeeder extends Seeder
                         'supplier_id' => $supplier->id,
                         'name' => $productData['name'],
                         'sku' => $uniqueSku,
-                        'description' => $productData['description'] . ' (Kategori: ' . $productData['category'] . ')',
+                        'description' => $productData['description'],
                         'price' => $productData['price'],
                         'cost_price' => $productData['price'] * 0.8,
                         'selling_price' => $productData['price'],
@@ -578,3 +518,4 @@ class ExtendedProductSeeder extends Seeder
         $this->command->info('✓ Extended product seeding completed successfully!');
     }
 }
+
