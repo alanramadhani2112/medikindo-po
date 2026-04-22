@@ -212,12 +212,12 @@ class ProductAnalyticsController extends Controller
                 'products.id',
                 'products.name',
                 'products.sku',
-                'products.category',
+                'products.category_regulatory',
                 DB::raw('SUM(purchase_order_items.quantity) as total_quantity'),
                 DB::raw('SUM(purchase_order_items.quantity * purchase_order_items.unit_price) as total_value'),
                 DB::raw('COUNT(DISTINCT purchase_orders.id) as order_count')
             )
-            ->groupBy('products.id', 'products.name', 'products.sku', 'products.category')
+            ->groupBy('products.id', 'products.name', 'products.sku', 'products.category_regulatory')
             ->orderByDesc('total_quantity')
             ->limit($limit)
             ->get();
@@ -234,15 +234,18 @@ class ProductAnalyticsController extends Controller
             ->whereIn('purchase_orders.status', ['approved', 'completed'])
             ->whereBetween('purchase_orders.created_at', [$startDate, $endDate])
             ->select(
-                'products.category',
+                'products.category_regulatory',
                 DB::raw('SUM(purchase_order_items.quantity * purchase_order_items.unit_price) as total_value')
             )
-            ->groupBy('products.category')
+            ->groupBy('products.category_regulatory')
             ->orderByDesc('total_value')
             ->get();
 
+        // Map enum values to Indonesian labels
+        $regulatoryLabels = \App\Models\Product::CATEGORY_REGULATORY;
+
         return [
-            'labels' => $data->pluck('category')->toArray(),
+            'labels' => $data->pluck('category_regulatory')->map(fn($v) => $regulatoryLabels[$v] ?? ($v ?? 'Tidak Dikategorikan'))->toArray(),
             'data' => $data->pluck('total_value')->toArray(),
             'colors' => [
                 'rgba(54, 162, 235, 0.8)',

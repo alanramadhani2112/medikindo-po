@@ -80,7 +80,7 @@
                         </div>
                     </td>
                     <td>
-                        <span class="badge badge-light-primary">{{ strtoupper($product->category ?? 'General') }}</span>
+                        <span class="badge badge-light-primary">{{ \App\Models\Product::CATEGORY_REGULATORY[$product->category_regulatory] ?? strtoupper($product->category_regulatory ?? '—') }}</span>
                     </td>
                     <td>
                         @if($product->is_narcotic)

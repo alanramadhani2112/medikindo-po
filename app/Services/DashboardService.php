@@ -860,13 +860,13 @@ class DashboardService
                 'products.id',
                 'products.name',
                 'products.sku',
-                'products.category',
+                'products.category_regulatory',
                 'products.is_narcotic',
                 DB::raw('SUM(purchase_order_items.quantity) as total_quantity'),
                 DB::raw('SUM(purchase_order_items.quantity * purchase_order_items.unit_price) as total_value'),
                 DB::raw('COUNT(DISTINCT purchase_orders.id) as order_count')
             )
-            ->groupBy('products.id', 'products.name', 'products.sku', 'products.category', 'products.is_narcotic')
+            ->groupBy('products.id', 'products.name', 'products.sku', 'products.category_regulatory', 'products.is_narcotic')
             ->orderByDesc('total_quantity')
             ->limit(10)
             ->get();
@@ -902,13 +902,13 @@ class DashboardService
                 'products.id',
                 'products.name',
                 'products.sku',
-                'products.category',
+                'products.category_regulatory',
                 'products.is_narcotic',
                 DB::raw('COALESCE(SUM(purchase_order_items.quantity), 0) as total_quantity'),
                 DB::raw('COALESCE(COUNT(DISTINCT purchase_orders.id), 0) as order_count'),
                 DB::raw('MAX(purchase_orders.created_at) as last_purchase_date')
             )
-            ->groupBy('products.id', 'products.name', 'products.sku', 'products.category', 'products.is_narcotic')
+            ->groupBy('products.id', 'products.name', 'products.sku', 'products.category_regulatory', 'products.is_narcotic')
             ->havingRaw('COALESCE(COUNT(DISTINCT purchase_orders.id), 0) <= 2')
             ->orderBy('order_count', 'asc')
             ->orderBy('last_purchase_date', 'asc')

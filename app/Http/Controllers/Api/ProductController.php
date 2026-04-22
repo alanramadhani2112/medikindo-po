@@ -25,7 +25,7 @@ class ProductController extends Controller implements HasMiddleware
             ->with('supplier:id,name,code')
             ->when($request->search, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
             ->when($request->supplier_id, fn($q, $id) => $q->where('supplier_id', $id))
-            ->when($request->category, fn($q, $c) => $q->where('category', $c))
+            ->when($request->category, fn($q, $c) => $q->where('category_regulatory', $c))
             ->when($request->has('narcotic'), fn($q) => $q->where('is_narcotic', true))
             ->when($request->has('active'), fn($q) => $q->where('is_active', true))
             ->orderBy('name')

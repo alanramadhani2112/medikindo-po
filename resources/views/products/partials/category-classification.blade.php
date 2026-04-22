@@ -12,21 +12,7 @@
     <p class="text-muted fs-7 mb-5">Klasifikasi produk berdasarkan regulasi, kelas, dan operasional.</p>
 </div>
 
-{{-- Row 1: Kategori Lama + Regulatory --}}
-<div class="col-md-6">
-    <div class="mb-5">
-        <label class="form-label fs-6 fw-semibold">Kategori Produk (Lama)</label>
-        <select name="category" class="form-select form-select-solid @error('category') is-invalid @enderror">
-            <option value="">— Pilih Kategori —</option>
-            @foreach($categories as $c)
-                <option value="{{ $c }}" {{ old('category', $product->category ?? '') == $c ? 'selected' : '' }}>{{ $c }}</option>
-            @endforeach
-        </select>
-        <div class="form-text text-muted">Kategori operasional lama (tetap dipertahankan)</div>
-        @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
-    </div>
-</div>
-
+{{-- Row 1: Regulatory + Operational --}}
 <div class="col-md-6">
     <div class="mb-5">
         <label class="form-label fs-6 fw-semibold">Kategori Regulasi</label>

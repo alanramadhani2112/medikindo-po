@@ -103,10 +103,9 @@ class ProductWebController extends Controller
             'selling_price'       => ['required', 'numeric', 'min:0'],
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'discount_amount'     => ['nullable', 'numeric', 'min:0'],
-            'category'            => ['nullable', 'string', 'max:100'],
             'category_regulatory' => ['nullable', 'in:OBAT,ALKES,PKRT,KOSMETIK,SUPLEMEN'],
             'category_class'      => ['nullable', 'in:OBAT_KERAS,OBAT_BEBAS,OBAT_BEBAS_TERBATAS,NARKOTIKA,PSIKOTROPIKA,BIOLOGIS,KELAS_A,KELAS_B,KELAS_C,KELAS_D'],
-            'category_operational'=> ['nullable', 'in:CONSUMABLE,NON_CONSUMABLE,REAGENT,FARMASI,SERVICE'],
+            'category_operational'=> ['nullable', 'in:CONSUMABLE,NON_CONSUMABLE,REAGENT,FARMASI'],
             'description'         => ['nullable', 'string'],
             'is_narcotic'         => ['nullable', 'boolean'],
             
@@ -228,10 +227,9 @@ class ProductWebController extends Controller
             'selling_price'       => ['required', 'numeric', 'min:0'],
             'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'discount_amount'     => ['nullable', 'numeric', 'min:0'],
-            'category'            => ['nullable', 'string', 'max:100'],
             'category_regulatory' => ['nullable', 'in:OBAT,ALKES,PKRT,KOSMETIK,SUPLEMEN'],
             'category_class'      => ['nullable', 'in:OBAT_KERAS,OBAT_BEBAS,OBAT_BEBAS_TERBATAS,NARKOTIKA,PSIKOTROPIKA,BIOLOGIS,KELAS_A,KELAS_B,KELAS_C,KELAS_D'],
-            'category_operational'=> ['nullable', 'in:CONSUMABLE,NON_CONSUMABLE,REAGENT,FARMASI,SERVICE'],
+            'category_operational'=> ['nullable', 'in:CONSUMABLE,NON_CONSUMABLE,REAGENT,FARMASI'],
             'description'         => ['nullable', 'string'],
             'is_narcotic'         => ['nullable', 'boolean'],
             

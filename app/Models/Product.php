@@ -11,15 +11,6 @@ class Product extends Model
 {
     use HasFactory;
     
-    public const CATEGORIES = [
-        'Obat Umum',
-        'Obat Keras',
-        'Narkotika',
-        'Psikotropika',
-        'Alat Kesehatan',
-        'BMHP'
-    ];
-
     // Regulatory Category
     public const CATEGORY_REGULATORY = [
         'OBAT'     => 'Obat',
@@ -117,7 +108,6 @@ class Product extends Model
         'registration_number',
         'registration_date',
         'registration_expiry',
-        'category',
         'category_regulatory',
         'category_class',
         'category_operational',

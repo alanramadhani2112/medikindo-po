@@ -167,7 +167,7 @@ Conversion Metadata:
                                         <td>
                                             <div class="d-flex flex-column">
                                                 <span class="text-gray-900 fw-bold d-block fs-6">{{ $item->product?->name ?? '—' }}</span>
-                                                <span class="text-gray-600 fw-semibold fs-7">{{ $item->product?->category ?? 'General' }}</span>
+                                                <span class="text-gray-600 fw-semibold fs-7">{{ \App\Models\Product::CATEGORY_REGULATORY[$item->product?->category_regulatory] ?? ($item->product?->category_regulatory ?? '—') }}</span>
                                             </div>
                                         </td>
                                         <td>
