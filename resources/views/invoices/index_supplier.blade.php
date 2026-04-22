@@ -10,7 +10,7 @@
         @foreach(['', 'draft', 'verified', 'paid', 'overdue'] as $statusKey)
             @php 
                 $statusEnum = $statusKey ? App\Enums\SupplierInvoiceStatus::tryFrom($statusKey) : null;
-                $isActive = ($tab === $statusKey);
+                $isActive = ($tab === $statusKey) || ($statusKey === '' && ($tab === 'all' || $tab === ''));
                 $label = $statusEnum ? $statusEnum->getLabel() : 'Semua Tagihan';
                 $icon = match($statusKey) {
                     'draft' => 'document',

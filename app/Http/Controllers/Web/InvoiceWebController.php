@@ -26,7 +26,7 @@ class InvoiceWebController extends Controller
     public function indexSupplier(Request $request)
     {
         $user = $request->user();
-        $tab = $request->get('tab', 'all');
+        $tab = $request->get('tab', '');
 
         // Load Supplier Invoices
         $supplierQuery = SupplierInvoice::with(['supplier', 'purchaseOrder', 'goodsReceipt'])
@@ -47,6 +47,7 @@ class InvoiceWebController extends Controller
         if ($tab !== '' && $tab !== 'all') {
             $supplierQuery->where('status', $tab);
         }
+        // tab='' atau tab='all' → tampilkan semua, tidak filter
 
         // Clone for stats
         $statsQuery = SupplierInvoice::query();
