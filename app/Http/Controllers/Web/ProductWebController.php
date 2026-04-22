@@ -102,8 +102,6 @@ class ProductWebController extends Controller
             'category'            => ['nullable', 'string', 'max:100'],
             'description'         => ['nullable', 'string'],
             'is_narcotic'         => ['nullable', 'boolean'],
-            'expiry_date'         => ['nullable', 'date', 'after:today'],
-            'batch_no'            => ['nullable', 'string', 'max:100'],
             
             // Compliance fields
             'product_type'        => ['nullable', 'in:ALKES,ALKES_DIV,PKRT'],
@@ -218,8 +216,6 @@ class ProductWebController extends Controller
             'category'            => ['nullable', 'string', 'max:100'],
             'description'         => ['nullable', 'string'],
             'is_narcotic'         => ['nullable', 'boolean'],
-            'expiry_date'         => ['nullable', 'date', 'after:today'],
-            'batch_no'            => ['nullable', 'string', 'max:100'],
             
             // Compliance fields
             'product_type'        => ['nullable', 'in:ALKES,ALKES_DIV,PKRT'],

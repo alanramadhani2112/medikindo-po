@@ -95,11 +95,13 @@
                         @endif
                     </td>
                     <td>
-                        @if($product->expiry_date)
+                        @if($product->registration_expiry)
                             <div class="d-flex flex-column">
-                                <span class="text-gray-800 fw-semibold fs-7">{{ $product->expiry_date->format('d M Y') }}</span>
-                                @if(($product->expiry_status instanceof \BackedEnum ? $product->expiry_status->value : $product->expiry_status) !== 'none')
-                                    <span class="badge badge-light-{{ $product->expiry_status_color }} fs-8 mt-1">{{ abs($product->days_until_expiry) }} hari</span>
+                                <span class="text-gray-800 fw-semibold fs-7">{{ $product->registration_expiry->format('d M Y') }}</span>
+                                @if($product->expiry_status !== 'none')
+                                    <span class="badge badge-light-{{ $product->expiry_status_color }} fs-8 mt-1">
+                                        {{ $product->expiry_status === 'expired' ? 'Kadaluarsa' : abs($product->days_until_expiry) . ' hari lagi' }}
+                                    </span>
                                 @endif
                             </div>
                         @else

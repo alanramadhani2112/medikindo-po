@@ -134,6 +134,32 @@ class Product extends Model
     }
 
     /**
+     * Check if registration is expiring soon based on registration_expiry
+     */
+    public function getExpiryStatusAttribute(): string
+    {
+        if (!$this->registration_expiry) return 'none';
+        if ($this->registration_expiry->isPast()) return 'expired';
+        if ($this->registration_expiry->diffInDays(now()) <= 60) return 'expiring';
+        return 'none';
+    }
+
+    public function getExpiryStatusColorAttribute(): string
+    {
+        return match($this->expiry_status) {
+            'expired'  => 'danger',
+            'expiring' => 'warning',
+            default    => 'success',
+        };
+    }
+
+    public function getDaysUntilExpiryAttribute(): ?int
+    {
+        if (!$this->registration_expiry) return null;
+        return (int) now()->diffInDays($this->registration_expiry, false);
+    }
+
+    /**
      * PROFIT CALCULATIONS
      */
 
@@ -323,6 +349,29 @@ class Product extends Model
         }
 
         return $quantity * $unit->conversion_to_base;
+    }
+
+    /**
+     * QUERY SCOPES
+     */
+
+    /**
+     * Scope: products with registration expiring within $days days
+     */
+    public function scopeExpiringSoon(\Illuminate\Database\Eloquent\Builder $query, int $days = 60): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereNotNull('registration_expiry')
+                     ->where('registration_expiry', '>', now())
+                     ->where('registration_expiry', '<=', now()->addDays($days));
+    }
+
+    /**
+     * Scope: products with expired registration
+     */
+    public function scopeExpired(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereNotNull('registration_expiry')
+                     ->where('registration_expiry', '<', now());
     }
 
     /**
