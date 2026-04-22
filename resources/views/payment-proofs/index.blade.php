@@ -23,10 +23,16 @@
                 'all'         => ['label' => 'Semua',              'icon' => 'ki-home'],
                 'submitted'   => ['label' => 'Menunggu Tinjauan',  'icon' => 'ki-file-up'],
                 'resubmitted' => ['label' => 'Diajukan Ulang',     'icon' => 'ki-arrows-circle'],
-                'verified'    => ['label' => 'Sudah Diverifikasi', 'icon' => 'ki-shield-search'],
                 'approved'    => ['label' => 'Disetujui',          'icon' => 'ki-check-circle'],
                 'rejected'    => ['label' => 'Ditolak',            'icon' => 'ki-cross-circle'],
             ];
+
+            // Finance/Admin/Super Admin juga lihat tab Sudah Diverifikasi
+            if (auth()->user()->hasAnyRole(['Finance', 'Super Admin', 'Admin Pusat'])) {
+                $tabOptions = array_slice($tabOptions, 0, 3, true)
+                    + ['verified' => ['label' => 'Sudah Diverifikasi', 'icon' => 'ki-shield-search']]
+                    + array_slice($tabOptions, 3, null, true);
+            }
         @endphp
         @foreach($tabOptions as $statusKey => $tabData)
             @php $isActive = ($tab === $statusKey) || ($statusKey === 'all' && $tab === ''); @endphp
