@@ -17,7 +17,6 @@ use App\Policies\ApprovalPolicy;
 use App\Policies\PurchaseOrderPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\GoodsReceiptPolicy;
-use App\Policies\CreditNotePolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -61,7 +60,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(User::class,                       UserPolicy::class);
         Gate::policy(\App\Models\PaymentProof::class,   \App\Policies\PaymentProofPolicy::class);
         Gate::policy(\App\Models\GoodsReceipt::class,   \App\Policies\GoodsReceiptPolicy::class);
-        Gate::policy(\App\Models\CreditNote::class,     \App\Policies\CreditNotePolicy::class);
 
         // Register observers
         PurchaseOrderItem::observe(PurchaseOrderItemObserver::class);

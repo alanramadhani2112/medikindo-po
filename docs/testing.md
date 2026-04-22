@@ -118,7 +118,6 @@ Area berikut belum memiliki test dan akan ditambahkan:
 
 - [ ] **Payment Proof** — submit, verify, approve, reject, resubmit workflow
 - [ ] **Goods Receipt** — partial receipt, delivery items, multi-delivery
-- [ ] **Credit Note** — create, apply to invoice, credit usage
 - [ ] **Inventory** — stock movement, inventory items
 - [ ] **Bank Account** — CRUD, validasi
 - [ ] **Price List** — CRUD, lookup per customer

@@ -204,7 +204,11 @@ class InvoiceService
                         'after_status'           => $initialStatus,
                         'supplier_total_amount'  => $supplierInvoiceCalculation['invoice_totals']['total_amount'],
                         'customer_total_amount'  => $customerInvoiceCalculation['invoice_totals']['total_amount'],
-                        'profit_amount'          => bcmath($customerInvoiceCalculation['invoice_totals']['total_amount'] - $supplierInvoiceCalculation['invoice_totals']['total_amount'], 2),
+                        'profit_amount'          => bcsub(
+                            (string) $customerInvoiceCalculation['invoice_totals']['total_amount'],
+                            (string) $supplierInvoiceCalculation['invoice_totals']['total_amount'],
+                            2
+                        ),
                         'line_items_count'       => count($customerInvoiceCalculation['line_items']),
                         'supplier_invoice_id'    => $supplierInvoice->id,
                         'discrepancy_detected'   => $discrepancyResult['discrepancy_detected'],

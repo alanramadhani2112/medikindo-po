@@ -235,23 +235,18 @@ class DashboardService
 
         return [
             'role' => 'healthcare',
-            'cards' => [
-                // Row 1: My PO Status
-                ['label' => 'My Active POs', 'value' => $poActive, 'icon' => 'ki-purchase', 'color' => 'primary', 'sub' => 'Total value: Rp ' . number_format($poActive * 5000000, 0, ',', '.')],
-                ['label' => 'Pending Approvals', 'value' => $poWaitingApproval, 'icon' => 'ki-time', 'color' => 'warning', 'sub' => $poWaitingApproval > 0 ? 'Oldest: ' . PurchaseOrder::where('organization_id', $orgId)->where('status', 'submitted')->oldest('submitted_at')->first()?->submitted_at?->diffForHumans() : 'None'],
-                ['label' => 'Awaiting Delivery', 'value' => $poAwaitingDelivery, 'icon' => 'ki-questionnaire-tablet', 'color' => 'info', 'sub' => 'Expected this week'],
-                ['label' => 'Completed This Month', 'value' => $poCompletedMonth, 'icon' => 'ki-check-circle', 'color' => 'success', 'sub' => 'On-time: 92%'],
-                
-                // Row 2: Financial Status
-                ['label' => 'Outstanding Invoices', 'value' => 'Rp ' . number_format($outstandingInvoices, 0, ',', '.'), 'icon' => 'ki-bill', 'color' => 'warning', 'sub' => \App\Models\CustomerInvoice::where('organization_id', $orgId)->whereIn('status', ['unpaid', 'partial'])->count() . ' invoices unpaid'],
-                ['label' => 'Credit Limit Status', 'value' => number_format($creditUtilization, 0) . '%', 'icon' => 'ki-chart-line', 'color' => $creditUtilization > 80 ? 'danger' : 'success', 'sub' => 'Available: Rp ' . number_format($creditAvailable, 0, ',', '.'), 'alert' => $creditUtilization > 80],
-                ['label' => 'Payment Due Soon', 'value' => 'Rp ' . number_format($paymentDueSoon, 0, ',', '.'), 'icon' => 'ki-wallet', 'color' => 'warning', 'sub' => 'Due in 7 days'],
-                
-                // Row 3: Quick Stats
-                ['label' => 'Available Products', 'value' => $totalProducts, 'icon' => 'ki-capsule', 'color' => 'info', 'sub' => 'Active catalog'],
-                ['label' => 'Recent Deliveries', 'value' => $recentDeliveries, 'icon' => 'ki-questionnaire-tablet', 'color' => 'success', 'sub' => 'This week'],
-                ['label' => 'Active Suppliers', 'value' => $activeSuppliers, 'icon' => 'ki-cube-2', 'color' => 'secondary', 'sub' => 'This month'],
-            ],
+            'poActive' => $poActive,
+            'poWaitingApproval' => $poWaitingApproval,
+            'poAwaitingDelivery' => $poAwaitingDelivery,
+            'poCompletedMonth' => $poCompletedMonth,
+            'outstandingInvoices' => $outstandingInvoices,
+            'creditUtilization' => round($creditUtilization, 1),
+            'creditAvailable' => $creditAvailable,
+            'creditLimit' => $creditLimit,
+            'paymentDueSoon' => $paymentDueSoon,
+            'totalProducts' => $totalProducts,
+            'recentDeliveries' => $recentDeliveries,
+            'activeSuppliers' => $activeSuppliers,
             'recentPOs' => $recentPOs,
             'alerts' => $alerts,
         ];
@@ -291,7 +286,7 @@ class DashboardService
             ->count();
             
         $budgetAlerts = \App\Models\CreditLimit::where('is_active', true)
-            ->whereRaw('(SELECT SUM(total_amount - paid_amount) FROM customer_invoices WHERE organization_id = credit_limits.organization_id AND status IN ("unpaid", "partial")) / max_limit > 0.8')
+            ->whereRaw('(SELECT SUM(total_amount - paid_amount) FROM customer_invoices WHERE organization_id = credit_limits.organization_id AND status IN ("issued", "partial_paid")) / max_limit > 0.8')
             ->count();
 
         // ROW 3: Performance Metrics
@@ -446,15 +441,23 @@ class DashboardService
             ];
         }
 
+        // Payment Proofs Pending (NEW)
+        $paymentProofsPending = \App\Models\PaymentProof::whereIn('status', [
+            \App\Enums\PaymentProofStatus::SUBMITTED->value,
+            \App\Enums\PaymentProofStatus::VERIFIED->value,
+            \App\Enums\PaymentProofStatus::RESUBMITTED->value,
+        ])->count();
+
         return [
             'role' => 'finance',
             'cards' => [
                 ['label' => 'Total Receivable (AR)', 'value' => 'Rp ' . number_format($totalReceivable, 0, ',', '.'), 'icon' => 'ki-arrow-down', 'color' => 'success'],
                 ['label' => 'Total Payable (AP)', 'value' => 'Rp ' . number_format($totalPayable, 0, ',', '.'), 'icon' => 'ki-arrow-up', 'color' => 'danger'],
-                ['label' => 'Invoice Overdue', 'value' => $overdueInvoices, 'icon' => 'ki-information', 'color' => 'warning'],
-                ['label' => 'Pending Payment', 'value' => $pendingPayments, 'icon' => 'ki-wallet', 'color' => 'info'],
+                ['label' => 'Invoice Overdue', 'value' => $overdueInvoices, 'icon' => 'ki-information', 'color' => 'warning', 'alert' => $overdueInvoices > 0],
+                ['label' => 'Bukti Bayar Pending', 'value' => $paymentProofsPending, 'icon' => 'ki-shield-tick', 'color' => 'info', 'alert' => $paymentProofsPending > 0],
                 ['label' => 'Cashflow Hari Ini', 'value' => 'Rp ' . number_format($todayCashflow, 0, ',', '.'), 'icon' => 'ki-dollar', 'color' => 'primary'],
             ],
+            'paymentProofsPending' => $paymentProofsPending,
             'outstandingInvoices' => $outstandingInvoices,
             'recentPayments' => $recentPayments,
             'alerts' => $alerts,

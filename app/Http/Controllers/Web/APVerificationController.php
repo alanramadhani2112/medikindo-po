@@ -27,7 +27,7 @@ class APVerificationController extends Controller
         SupplierInvoice $invoice,
         MirrorGenerationService $mirror
     ): RedirectResponse {
-        if (! $request->user()->can('create_invoices')) {
+        if (! $request->user()->can('manage_invoice')) {
             abort(403, 'Akses Ditolak.');
         }
 

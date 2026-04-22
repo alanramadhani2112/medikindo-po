@@ -7,7 +7,7 @@ use App\Models\CustomerInvoice;
 use App\Services\AuditService;
 use App\Services\ImmutabilityGuardService;
 use Mockery;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 /**
  * Property 10: Immutability Guard

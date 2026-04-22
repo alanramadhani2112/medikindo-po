@@ -57,8 +57,8 @@ class DashboardController extends Controller
         $stats = [
             'ar_total'      => (clone $arQuery)->sum(\DB::raw('total_amount - paid_amount')),
             'ap_total'      => (clone $apQuery)->sum(\DB::raw('total_amount - paid_amount')),
-            'ar_overdue'    => (clone $arQuery)->where('due_date', '<', now())->whereIn('status', ['unpaid', 'partial'])->count(),
-            'ap_overdue'    => (clone $apQuery)->where('due_date', '<', now())->whereIn('status', ['unpaid', 'partial'])->count(),
+            'ar_overdue'    => (clone $arQuery)->where('due_date', '<', now())->whereIn('status', ['issued', 'partial_paid'])->count(),
+            'ap_overdue'    => (clone $apQuery)->where('due_date', '<', now())->whereIn('status', ['draft', 'verified'])->count(),
         ];
 
         $breadcrumbs = [

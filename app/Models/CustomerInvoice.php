@@ -17,6 +17,23 @@ class CustomerInvoice extends Model
 {
     use HasFactory, SoftDeletes, BelongsToOrganization, Filterable, HasOptimisticLocking;
 
+    // -----------------------------------------------------------------------
+    // Status Constants (for backward compatibility with non-enum code)
+    // -----------------------------------------------------------------------
+    public const STATUS_DRAFT        = 'draft';
+    public const STATUS_ISSUED       = 'issued';
+    public const STATUS_PARTIAL_PAID = 'partial_paid';
+    public const STATUS_PAID         = 'paid';
+    public const STATUS_VOID         = 'void';
+
+    public const TRANSITIONS = [
+        self::STATUS_DRAFT        => [self::STATUS_ISSUED, self::STATUS_VOID],
+        self::STATUS_ISSUED       => [self::STATUS_PARTIAL_PAID, self::STATUS_PAID, self::STATUS_VOID],
+        self::STATUS_PARTIAL_PAID => [self::STATUS_PAID, self::STATUS_VOID],
+        self::STATUS_PAID         => [],
+        self::STATUS_VOID         => [],
+    ];
+
     protected $guarded = ['id'];
 
     protected $casts = [
@@ -102,20 +119,30 @@ class CustomerInvoice extends Model
 
     /**
      * Check if this invoice can transition to the given status.
+     * Accepts either a CustomerInvoiceStatus enum or a string value.
      */
-    public function canTransitionTo(CustomerInvoiceStatus $status): bool
+    public function canTransitionTo(CustomerInvoiceStatus|string $status): bool
     {
+        if (is_string($status)) {
+            $status = CustomerInvoiceStatus::from($status);
+        }
         return $this->status->canTransitionTo($status);
     }
 
     /**
      * Transition the invoice to a new status, enforcing the state machine.
+     * Accepts either a CustomerInvoiceStatus enum or a string value.
      *
-     * @param CustomerInvoiceStatus $newStatus Target status
+     * @param CustomerInvoiceStatus|string $newStatus Target status
      * @throws InvalidStateTransitionException If the transition is not allowed
      */
-    public function transitionTo(CustomerInvoiceStatus $newStatus): void
+    public function transitionTo(CustomerInvoiceStatus|string $newStatus): void
     {
+        // Auto-convert string to enum
+        if (is_string($newStatus)) {
+            $newStatus = CustomerInvoiceStatus::from($newStatus);
+        }
+
         if (!$this->canTransitionTo($newStatus)) {
             throw new InvalidStateTransitionException(
                 "Tidak dapat mengubah status dari '{$this->status->getLabel()}' ke '{$newStatus->getLabel()}'"

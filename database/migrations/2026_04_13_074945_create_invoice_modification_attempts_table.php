@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unsignedBigInteger('invoice_id');
             
             // User who attempted the modification
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             
             // Attempt details
             $table->timestamp('attempted_at');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->text('rejection_reason');
             
             // Network information for security audit
-            $table->string('ip_address', 45); // IPv6 support
+            $table->string('ip_address', 45)->nullable(); // IPv6 support
             $table->text('user_agent')->nullable();
             
             // Indexes for efficient querying

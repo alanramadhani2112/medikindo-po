@@ -12,6 +12,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Table was already created in migration 300001 alongside goods_receipt_deliveries.
+        // This migration is a no-op to avoid duplicate table creation.
+        if (Schema::hasTable('goods_receipt_delivery_items')) {
+            return;
+        }
+
         Schema::create('goods_receipt_delivery_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('goods_receipt_delivery_id')

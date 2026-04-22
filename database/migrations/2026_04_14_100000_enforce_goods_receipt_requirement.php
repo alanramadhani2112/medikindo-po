@@ -15,21 +15,24 @@ return new class extends Migration
 
         // Fix supplier_invoices: drop any existing SET NULL FK first, then make nullable (safe approach)
         // We keep goods_receipt_id nullable to avoid conflicts with ON DELETE SET NULL constraints
-        $siFKs = DB::select("
-            SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
-            WHERE TABLE_SCHEMA = DATABASE()
-            AND TABLE_NAME = 'supplier_invoices'
-            AND COLUMN_NAME = 'goods_receipt_id'
-            AND REFERENCED_TABLE_NAME = 'goods_receipts'
-        ");
+        // SQLite doesn't have information_schema, so skip FK introspection for SQLite
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $siFKs = DB::select("
+                SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
+                WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'supplier_invoices'
+                AND COLUMN_NAME = 'goods_receipt_id'
+                AND REFERENCED_TABLE_NAME = 'goods_receipts'
+            ");
 
-        foreach ($siFKs as $fk) {
-            try {
-                Schema::table('supplier_invoices', function (Blueprint $table) use ($fk) {
-                    $table->dropForeign($fk->CONSTRAINT_NAME);
-                });
-            } catch (\Throwable $e) {
-                // FK may not exist, continue
+            foreach ($siFKs as $fk) {
+                try {
+                    Schema::table('supplier_invoices', function (Blueprint $table) use ($fk) {
+                        $table->dropForeign($fk->CONSTRAINT_NAME);
+                    });
+                } catch (\Throwable $e) {
+                    // FK may not exist, continue
+                }
             }
         }
 
@@ -51,21 +54,23 @@ return new class extends Migration
         }
 
         // Fix customer_invoices: same approach
-        $ciFKs = DB::select("
-            SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
-            WHERE TABLE_SCHEMA = DATABASE()
-            AND TABLE_NAME = 'customer_invoices'
-            AND COLUMN_NAME = 'goods_receipt_id'
-            AND REFERENCED_TABLE_NAME = 'goods_receipts'
-        ");
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $ciFKs = DB::select("
+                SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
+                WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'customer_invoices'
+                AND COLUMN_NAME = 'goods_receipt_id'
+                AND REFERENCED_TABLE_NAME = 'goods_receipts'
+            ");
 
-        foreach ($ciFKs as $fk) {
-            try {
-                Schema::table('customer_invoices', function (Blueprint $table) use ($fk) {
-                    $table->dropForeign($fk->CONSTRAINT_NAME);
-                });
-            } catch (\Throwable $e) {
-                // FK may not exist, continue
+            foreach ($ciFKs as $fk) {
+                try {
+                    Schema::table('customer_invoices', function (Blueprint $table) use ($fk) {
+                        $table->dropForeign($fk->CONSTRAINT_NAME);
+                    });
+                } catch (\Throwable $e) {
+                    // FK may not exist, continue
+                }
             }
         }
 

@@ -4,6 +4,7 @@ namespace Tests\Unit\Properties;
 
 use App\Exceptions\AntiPhantomBillingException;
 use App\Models\SupplierInvoice;
+use App\Services\DocumentNumberService;
 use App\Services\InvoiceCalculationService;
 use App\Services\MirrorGenerationService;
 use App\Services\PriceListService;
@@ -26,19 +27,18 @@ class AntiPhantomProperty7Test extends TestCase
 
     private array $invalidStatuses = [
         'draft',
-        'issued',
-        'rejected',
-        'cancelled',
+        'overdue',
     ];
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $priceListService = Mockery::mock(PriceListService::class);
-        $calcService      = Mockery::mock(InvoiceCalculationService::class);
+        $priceListService    = Mockery::mock(PriceListService::class);
+        $calcService         = Mockery::mock(InvoiceCalculationService::class);
+        $documentNumService  = Mockery::mock(DocumentNumberService::class);
 
-        $this->service = new MirrorGenerationService($priceListService, $calcService);
+        $this->service = new MirrorGenerationService($priceListService, $calcService, $documentNumService);
     }
 
     protected function tearDown(): void
@@ -74,29 +74,20 @@ class AntiPhantomProperty7Test extends TestCase
         $this->runAntiPhantomIterations('draft');
     }
 
-    public function test_anti_phantom_throws_for_issued_status(): void
+    public function test_anti_phantom_throws_for_overdue_status(): void
     {
-        $this->runAntiPhantomIterations('issued');
-    }
-
-    public function test_anti_phantom_throws_for_rejected_status(): void
-    {
-        $this->runAntiPhantomIterations('rejected');
-    }
-
-    public function test_anti_phantom_throws_for_cancelled_status(): void
-    {
-        $this->runAntiPhantomIterations('cancelled');
+        $this->runAntiPhantomIterations('overdue');
     }
 
     private function runAntiPhantomIterations(string $invalidStatus): void
     {
-        $priceListService = Mockery::mock(PriceListService::class);
-        $calcService      = Mockery::mock(InvoiceCalculationService::class);
+        $priceListService   = Mockery::mock(PriceListService::class);
+        $calcService        = Mockery::mock(InvoiceCalculationService::class);
+        $documentNumService = Mockery::mock(DocumentNumberService::class);
 
         // Partial mock of MirrorGenerationService so draftExists() returns false
         // (so we reach the status check)
-        $service = Mockery::mock(MirrorGenerationService::class, [$priceListService, $calcService])
+        $service = Mockery::mock(MirrorGenerationService::class, [$priceListService, $calcService, $documentNumService])
             ->makePartial()
             ->shouldAllowMockingProtectedMethods();
 
@@ -120,10 +111,11 @@ class AntiPhantomProperty7Test extends TestCase
         // We verify by checking that AntiPhantomBillingException is NOT thrown
         // (it may throw DuplicateMirrorException or another exception from DB calls).
 
-        $priceListService = Mockery::mock(PriceListService::class);
-        $calcService      = Mockery::mock(InvoiceCalculationService::class);
+        $priceListService   = Mockery::mock(PriceListService::class);
+        $calcService        = Mockery::mock(InvoiceCalculationService::class);
+        $documentNumService = Mockery::mock(DocumentNumberService::class);
 
-        $service = Mockery::mock(MirrorGenerationService::class, [$priceListService, $calcService])
+        $service = Mockery::mock(MirrorGenerationService::class, [$priceListService, $calcService, $documentNumService])
             ->makePartial();
 
         $service->shouldReceive('draftExists')->andReturn(false);

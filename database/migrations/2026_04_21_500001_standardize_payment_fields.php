@@ -18,37 +18,53 @@ return new class extends Migration
         // ── 1. Standardize `payments` table ──────────────────────────────────
         Schema::table('payments', function (Blueprint $table) {
             // Bank reference — link to Medikindo's own bank accounts
-            $table->foreignId('bank_account_id')
-                ->nullable()
-                ->after('supplier_id')
-                ->constrained('bank_accounts')
-                ->nullOnDelete();
+            if (!Schema::hasColumn('payments', 'bank_account_id')) {
+                $table->foreignId('bank_account_id')
+                    ->nullable()
+                    ->after('supplier_id')
+                    ->constrained('bank_accounts')
+                    ->nullOnDelete();
+            }
 
             // Manual bank name (for cases where bank is not in system, e.g. supplier's bank)
-            $table->string('bank_name_manual', 100)->nullable()->after('bank_account_id');
+            if (!Schema::hasColumn('payments', 'bank_name_manual')) {
+                $table->string('bank_name_manual', 100)->nullable()->after('bank_account_id');
+            }
 
             // Description / notes
-            $table->text('description')->nullable()->after('reference');
+            if (!Schema::hasColumn('payments', 'description')) {
+                $table->text('description')->nullable()->after('reference');
+            }
 
             // Surcharge fields (biaya tambahan atas metode pembayaran tertentu)
-            $table->decimal('surcharge_amount', 15, 2)->default(0)->after('description');
-            $table->decimal('surcharge_percentage', 5, 2)->default(0)->after('surcharge_amount');
+            if (!Schema::hasColumn('payments', 'surcharge_amount')) {
+                $table->decimal('surcharge_amount', 15, 2)->default(0)->after('description');
+            }
+            if (!Schema::hasColumn('payments', 'surcharge_percentage')) {
+                $table->decimal('surcharge_percentage', 5, 2)->default(0)->after('surcharge_amount');
+            }
         });
 
         // ── 2. Standardize `payment_proofs` table ────────────────────────────
         Schema::table('payment_proofs', function (Blueprint $table) {
             // Payment method (how RS/Klinik paid)
-            $table->string('payment_method', 50)->nullable()->after('bank_reference');
+            if (!Schema::hasColumn('payment_proofs', 'payment_method')) {
+                $table->string('payment_method', 50)->nullable()->after('bank_reference');
+            }
 
             // Bank account used (Medikindo's receiving bank)
-            $table->foreignId('bank_account_id')
-                ->nullable()
-                ->after('payment_method')
-                ->constrained('bank_accounts')
-                ->nullOnDelete();
+            if (!Schema::hasColumn('payment_proofs', 'bank_account_id')) {
+                $table->foreignId('bank_account_id')
+                    ->nullable()
+                    ->after('payment_method')
+                    ->constrained('bank_accounts')
+                    ->nullOnDelete();
+            }
 
             // Sender bank name (RS/Klinik's bank — manual input)
-            $table->string('sender_bank_name', 100)->nullable()->after('bank_account_id');
+            if (!Schema::hasColumn('payment_proofs', 'sender_bank_name')) {
+                $table->string('sender_bank_name', 100)->nullable()->after('bank_account_id');
+            }
 
             // Recall reason (already in model but may be missing in DB)
             if (!Schema::hasColumn('payment_proofs', 'recall_reason')) {

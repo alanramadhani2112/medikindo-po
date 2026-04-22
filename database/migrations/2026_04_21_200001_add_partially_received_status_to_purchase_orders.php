@@ -15,16 +15,30 @@ return new class extends Migration
         // No schema change needed — status is already varchar(30)
         // Data migration: any PO in 'approved' that has at least one partial GR
         // should be moved to 'partially_received'
-        DB::statement("
-            UPDATE purchase_orders po
-            SET po.status = 'partially_received'
-            WHERE po.status = 'approved'
-              AND EXISTS (
-                  SELECT 1 FROM goods_receipts gr
-                  WHERE gr.purchase_order_id = po.id
-                    AND gr.deleted_at IS NULL
-              )
-        ");
+        // SQLite-compatible: no table alias in UPDATE
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            DB::statement("
+                UPDATE purchase_orders
+                SET status = 'partially_received'
+                WHERE status = 'approved'
+                  AND EXISTS (
+                      SELECT 1 FROM goods_receipts
+                      WHERE goods_receipts.purchase_order_id = purchase_orders.id
+                        AND goods_receipts.deleted_at IS NULL
+                  )
+            ");
+        } else {
+            DB::statement("
+                UPDATE purchase_orders po
+                SET po.status = 'partially_received'
+                WHERE po.status = 'approved'
+                  AND EXISTS (
+                      SELECT 1 FROM goods_receipts gr
+                      WHERE gr.purchase_order_id = po.id
+                        AND gr.deleted_at IS NULL
+                  )
+            ");
+        }
     }
 
     public function down(): void

@@ -18,12 +18,27 @@ return new class extends Migration
             });
 
             // Data Migration: Fill organization_id from purchase_orders
-            DB::statement("
-                UPDATE goods_receipts gr
-                JOIN purchase_orders po ON gr.purchase_order_id = po.id
-                SET gr.organization_id = po.organization_id
-                WHERE gr.organization_id IS NULL
-            ");
+            // SQLite-compatible: use subquery instead of JOIN
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                DB::statement("
+                    UPDATE goods_receipts
+                    SET organization_id = (
+                        SELECT organization_id 
+                        FROM purchase_orders 
+                        WHERE purchase_orders.id = goods_receipts.purchase_order_id
+                    )
+                    WHERE organization_id IS NULL
+                      AND purchase_order_id IS NOT NULL
+                ");
+            } else {
+                // MySQL/PostgreSQL: use JOIN syntax
+                DB::statement("
+                    UPDATE goods_receipts gr
+                    JOIN purchase_orders po ON gr.purchase_order_id = po.id
+                    SET gr.organization_id = po.organization_id
+                    WHERE gr.organization_id IS NULL
+                ");
+            }
             
             // Make it non-nullable after migration if all rows are filled
             // (Keeping it nullable for safety if some GRs don't have POs, though they should)

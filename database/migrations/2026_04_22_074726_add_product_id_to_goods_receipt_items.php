@@ -22,12 +22,26 @@ return new class extends Migration
         });
 
         // Backfill existing rows: resolve product_id via purchase_order_items
-        DB::statement('
-            UPDATE goods_receipt_items gri
-            INNER JOIN purchase_order_items poi ON poi.id = gri.purchase_order_item_id
-            SET gri.product_id = poi.product_id
-            WHERE gri.product_id IS NULL
-        ');
+        // SQLite-compatible: use subquery instead of JOIN
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            DB::statement('
+                UPDATE goods_receipt_items
+                SET product_id = (
+                    SELECT product_id
+                    FROM purchase_order_items
+                    WHERE purchase_order_items.id = goods_receipt_items.purchase_order_item_id
+                )
+                WHERE product_id IS NULL
+                  AND purchase_order_item_id IS NOT NULL
+            ');
+        } else {
+            DB::statement('
+                UPDATE goods_receipt_items gri
+                INNER JOIN purchase_order_items poi ON poi.id = gri.purchase_order_item_id
+                SET gri.product_id = poi.product_id
+                WHERE gri.product_id IS NULL
+            ');
+        }
     }
 
     public function down(): void

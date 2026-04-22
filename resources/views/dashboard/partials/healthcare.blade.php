@@ -1,110 +1,182 @@
-{{-- HEALTHCARE / CLINIC USER DASHBOARD --}}
-{{-- Purpose: Procurement + Payment monitoring --}}
+{{-- ═══════════════════════════════════════════════════════════
+     HEALTHCARE USER DASHBOARD
+     Focus: Procurement status + Financial awareness
+     ═══════════════════════════════════════════════════════════ --}}
 
-{{-- Page Header --}}
-<div class="d-flex justify-content-between align-items-center mb-7">
+{{-- ── PAGE HEADER ──────────────────────────────────────────── --}}
+<div class="d-flex justify-content-between align-items-center mb-6">
     <div>
-        <h1 class="fs-2hx fw-bold text-gray-900 mb-2">Dashboard Procurement</h1>
-        <p class="text-gray-600 fs-6 mb-0">Selamat datang, {{ auth()->user()->name }}</p>
+        <h1 class="fs-2hx fw-bold text-gray-900 mb-1">Dashboard Procurement</h1>
+        <p class="text-gray-500 fs-6 mb-0">
+            <i class="ki-outline ki-geolocation fs-6 me-1 text-primary"></i>
+            {{ auth()->user()->organization?->name ?? 'Organisasi' }} &mdash; {{ auth()->user()->name }}
+        </p>
     </div>
     @can('create_purchase_orders')
-    <a href="{{ route('web.po.create') }}" class="btn btn-primary">
-        <i class="ki-outline ki-picture fs-2"></i>
-        Buat PO Baru
+    <a href="{{ route('web.po.create') }}" class="btn btn-primary btn-lg">
+        <i class="ki-outline ki-plus fs-3 me-1"></i>Buat PO Baru
     </a>
     @endcan
 </div>
 
-{{-- Period Selector --}}
-<x-period-selector :current-period="$currentPeriod ?? 'today'" />
+{{-- ── CRITICAL ALERTS ─────────────────────────────────────── --}}
+@if(count($alerts) > 0)
+<div class="mb-6">
+    @foreach($alerts as $alert)
+    <div class="alert alert-{{ $alert['type'] }} border border-{{ $alert['type'] }} d-flex align-items-center p-4 mb-3">
+        <i class="ki-outline {{ $alert['icon'] }} fs-2x text-{{ $alert['type'] }} me-4 flex-shrink-0"></i>
+        <div class="flex-grow-1">
+            <div class="fw-bold fs-6 text-{{ $alert['type'] }}">{{ $alert['title'] }}</div>
+            <div class="fs-7 text-gray-700">{{ $alert['message'] }}</div>
+        </div>
+        @if(isset($alert['action']))
+        <a href="{{ $alert['action'] }}" class="btn btn-sm btn-{{ $alert['type'] }} ms-3">Lihat →</a>
+        @endif
+    </div>
+    @endforeach
+</div>
+@endif
 
-{{-- Summary Cards --}}
+{{-- ── ROW 1: 4 KPI CARDS ──────────────────────────────────── --}}
 <div class="row g-5 g-xl-8 mb-7">
-    @foreach($cards as $card)
-    <div class="col-12 col-md-6 col-xl-{{ count($cards) > 4 ? '3' : (12 / count($cards)) }}">
-        <div class="card card-flush h-100 bg-{{ $card['color'] }}">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <div class="d-flex align-items-center justify-content-between mb-5">
-                    <div class="d-flex flex-column">
-                        <span class="text-white opacity-75 fw-semibold fs-7 mb-2">{{ $card['label'] }}</span>
-                        <span class="text-white fw-bold fs-2x">{{ $card['value'] }}</span>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-20 rounded" style="width:60px;height:60px;">
-                        <i class="ki-outline {{ $card['icon'] }} fs-2x text-white"></i>
+    {{-- PO Aktif --}}
+    <div class="col-6 col-xl-3">
+        <div class="card card-flush h-100">
+            <div class="card-body d-flex align-items-center py-5">
+                <div class="symbol symbol-50px me-4">
+                    <span class="symbol-label bg-light-primary">
+                        <i class="ki-outline ki-document fs-2x text-primary"></i>
+                    </span>
+                </div>
+                <div>
+                    <span class="text-gray-500 fw-semibold fs-7 d-block">PO Aktif</span>
+                    <span class="text-gray-900 fw-bold fs-2">{{ $poActive }}</span>
+                    @if($poWaitingApproval > 0)
+                    <span class="badge badge-light-warning fs-8 mt-1 d-block">{{ $poWaitingApproval }} pending</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Menunggu Pengiriman --}}
+    <div class="col-6 col-xl-3">
+        <div class="card card-flush h-100">
+            <div class="card-body d-flex align-items-center py-5">
+                <div class="symbol symbol-50px me-4">
+                    <span class="symbol-label bg-light-info">
+                        <i class="ki-outline ki-delivery fs-2x text-info"></i>
+                    </span>
+                </div>
+                <div>
+                    <span class="text-gray-500 fw-semibold fs-7 d-block">Menunggu Pengiriman</span>
+                    <span class="text-gray-900 fw-bold fs-2">{{ $poAwaitingDelivery }}</span>
+                    <span class="text-muted fs-8 d-block">{{ $poCompletedMonth }} selesai bulan ini</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Sisa Tagihan --}}
+    <div class="col-6 col-xl-3">
+        <div class="card card-flush h-100 {{ $outstandingInvoices > 0 ? 'border border-danger border-dashed' : '' }}">
+            <div class="card-body d-flex align-items-center py-5">
+                <div class="symbol symbol-50px me-4">
+                    <span class="symbol-label bg-light-danger">
+                        <i class="ki-outline ki-bill fs-2x text-danger"></i>
+                    </span>
+                </div>
+                <div>
+                    <span class="text-gray-500 fw-semibold fs-7 d-block">Sisa Tagihan</span>
+                    <span class="text-gray-900 fw-bold fs-2">Rp {{ number_format($outstandingInvoices / 1000000, 1) }}jt</span>
+                    @if($paymentDueSoon > 0)
+                    <span class="text-danger fs-8 fw-semibold d-block">Rp {{ number_format($paymentDueSoon / 1000000, 1) }}jt jatuh tempo</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Credit Limit --}}
+    <div class="col-6 col-xl-3">
+        @php $creditColor = $creditUtilization > 90 ? 'danger' : ($creditUtilization > 70 ? 'warning' : 'success'); @endphp
+        <div class="card card-flush h-100">
+            <div class="card-body d-flex align-items-center py-5">
+                <div class="symbol symbol-50px me-4">
+                    <span class="symbol-label bg-light-{{ $creditColor }}">
+                        <i class="ki-outline ki-chart-pie-3 fs-2x text-{{ $creditColor }}"></i>
+                    </span>
+                </div>
+                <div class="flex-grow-1">
+                    <span class="text-gray-500 fw-semibold fs-7 d-block">Kredit Tersedia</span>
+                    <span class="text-{{ $creditColor }} fw-bold fs-2">{{ number_format($creditUtilization, 0) }}%</span>
+                    <div class="progress h-4px mt-1" style="max-width: 100px;">
+                        <div class="progress-bar bg-{{ $creditColor }}" style="width: {{ min($creditUtilization, 100) }}%"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @endforeach
 </div>
 
-{{-- Main Content Row --}}
-<div class="row g-5 g-xl-8 mb-7">
-    {{-- Recent Purchase Orders Table --}}
+{{-- ── ROW 2: TABEL PO + QUICK ACTIONS ─────────────────────── --}}
+<div class="row g-5 mb-6">
+    {{-- Tabel PO Terbaru --}}
     <div class="col-xl-8">
-        <div class="card card-flush h-100">
-            <div class="card-header border-0 pt-6">
-                <h3 class="card-title align-items-start flex-column">
-                    <span class="card-label fw-bold text-gray-900 fs-3">Purchase Order Terbaru</span>
-                    <span class="text-muted mt-1 fw-semibold fs-7">Aktivitas pengadaan terkini</span>
-                </h3>
+        <div class="card shadow-sm h-100">
+            <div class="card-header border-0 pt-5 pb-0">
+                <div class="card-title flex-column">
+                    <h3 class="fw-bold text-gray-900 fs-4 mb-1">Purchase Order Terbaru</h3>
+                    <span class="text-muted fs-7">Aktivitas pengadaan terkini</span>
+                </div>
                 <div class="card-toolbar">
-                    <a href="{{ route('web.po.index') }}" class="btn btn-sm btn-light-primary">
-                        Lihat Semua
-                        <i class="ki-outline ki-right fs-5 ms-1"></i>
-                    </a>
+                    <a href="{{ route('web.po.index') }}" class="btn btn-sm btn-light-primary">Lihat Semua</a>
                 </div>
             </div>
-            <div class="card-body pt-3">
+            <div class="card-body pt-4 pb-2">
                 <div class="table-responsive">
-                    <table class="table table-row-bordered table-row-gray-300 align-middle gs-0 gy-4">
+                    <table class="table table-row-gray-200 align-middle gs-0 gy-3 mb-0">
                         <thead>
-                            <tr class="fw-bold text-muted bg-light">
-                                <th class="ps-4 min-w-150px rounded-start">Nomor PO</th>
-                                <th class="min-w-150px">Supplier</th>
-                                <th class="min-w-100px">Status</th>
-                                <th class="min-w-120px">Total</th>
-                                <th class="text-end pe-4 min-w-100px rounded-end">Tanggal</th>
+                            <tr class="fw-semibold text-muted fs-7 text-uppercase bg-light">
+                                <th class="ps-4 rounded-start">No. PO</th>
+                                <th>Supplier</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end pe-4 rounded-end">Tanggal</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($recentPOs as $po)
                             @php
-                                $badgeColor = match($po->status) {
-                                    'approved', 'shipped', 'delivered', 'completed' => 'success',
-                                    'partially_received' => 'primary',
+                                $st = $po->status;
+                                $bc = match($st) {
+                                    'completed' => 'success',
+                                    'approved', 'partially_received' => 'primary',
                                     'submitted' => 'warning',
                                     'rejected' => 'danger',
-                                    default => 'primary'
+                                    default => 'secondary'
                                 };
                             @endphp
                             <tr>
                                 <td class="ps-4">
-                                    <a href="{{ route('web.po.show', $po) }}" class="text-gray-900 fw-bold text-hover-primary fs-6">
+                                    <a href="{{ route('web.po.show', $po) }}" class="text-gray-900 fw-bold text-hover-primary fs-7">
                                         {{ $po->po_number }}
                                     </a>
                                 </td>
-                                <td>
-                                    <span class="text-gray-800 fw-semibold fs-6">{{ $po->supplier->name ?? '-' }}</span>
+                                <td class="text-gray-700 fs-7">{{ $po->supplier?->name ?? '—' }}</td>
+                                <td class="text-center">
+                                    <span class="badge badge-light-{{ $bc }} fs-8">{{ strtoupper(str_replace('_', ' ', $st)) }}</span>
                                 </td>
-                                <td>
-                                    <span class="badge badge-light-{{ $badgeColor }} fs-7 fw-semibold">{{ strtoupper($po->status) }}</span>
+                                <td class="text-end text-gray-900 fw-semibold fs-7">
+                                    Rp {{ number_format($po->total_amount, 0, ',', '.') }}
                                 </td>
-                                <td>
-                                    <span class="text-gray-900 fw-bold fs-6">Rp {{ number_format($po->total_amount, 0, ',', '.') }}</span>
-                                </td>
-                                <td class="text-end pe-4">
-                                    <span class="text-gray-700 fw-semibold fs-6">{{ $po->created_at->format('d M Y') }}</span>
-                                </td>
+                                <td class="text-end pe-4 text-muted fs-8">{{ $po->created_at->format('d M Y') }}</td>
                             </tr>
                             @empty
                             <tr>
                                 <td colspan="5" class="text-center py-10">
-                                    <div class="d-flex flex-column align-items-center">
-                                        <i class="ki-outline ki-file-deleted fs-3x text-gray-400 mb-3"></i>
-                                        <span class="text-gray-700 fs-5 fw-semibold">Belum ada purchase order</span>
-                                    </div>
+                                    <i class="ki-outline ki-document fs-3x text-gray-300 mb-3 d-block"></i>
+                                    <span class="text-muted fs-6">Belum ada purchase order</span>
                                 </td>
                             </tr>
                             @endforelse
@@ -115,98 +187,87 @@
         </div>
     </div>
 
-    {{-- Quick Actions & Alerts --}}
+    {{-- Quick Actions --}}
     <div class="col-xl-4">
-        {{-- Quick Actions --}}
-        <div class="card card-flush mb-5 mb-xl-8">
-            <div class="card-header border-0 pt-6">
-                <h3 class="card-title">
-                    <span class="card-label fw-bold text-gray-900 fs-3">Aksi Cepat</span>
-                </h3>
+        <div class="card shadow-sm h-100">
+            <div class="card-header border-0 pt-5 pb-0">
+                <div class="card-title">
+                    <h3 class="fw-bold text-gray-900 fs-4 mb-0">Aksi Cepat</h3>
+                </div>
             </div>
-            <div class="card-body pt-3">
+            <div class="card-body pt-4">
                 <div class="d-flex flex-column gap-3">
                     @can('create_purchase_orders')
-                    <a href="{{ route('web.po.create') }}" class="btn btn-light-primary justify-content-start">
-                        <i class="ki-outline ki-picture fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Buat PO</div>
-                            <div class="text-muted fs-7">Ajukan purchase order baru</div>
+                    <a href="{{ route('web.po.create') }}" class="d-flex align-items-center p-3 rounded bg-light-primary text-hover-primary border border-dashed border-primary">
+                        <div class="symbol symbol-40px me-3 flex-shrink-0">
+                            <div class="symbol-label bg-primary">
+                                <i class="ki-outline ki-plus fs-3 text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-gray-900">Buat PO Baru</div>
+                            <div class="text-muted fs-8">Ajukan purchase order</div>
                         </div>
                     </a>
                     @endcan
-                    @can('view_purchase_orders')
-                    <a href="{{ route('web.po.index') }}" class="btn btn-light-info justify-content-start">
-                        <i class="ki-outline ki-document fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Lihat Semua PO</div>
-                            <div class="text-muted fs-7">Riwayat purchase order</div>
-                        </div>
-                    </a>
-                    @endcan
-                    @can('view_goods_receipt')
-                    <a href="{{ route('web.goods-receipts.index') }}" class="btn btn-light-warning justify-content-start">
-                        <i class="ki-outline ki-courier-express fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Goods Receipt</div>
-                            <div class="text-muted fs-7">Penerimaan barang dari supplier</div>
-                        </div>
-                    </a>
-                    @endcan
-                    @can('submit_payment_proof')
-                    <a href="{{ route('web.payment-proofs.create') }}" class="btn btn-light-success justify-content-start">
-                        <i class="ki-outline ki-shield-tick fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Upload Bukti Bayar</div>
-                            <div class="text-muted fs-7">Submit bukti pembayaran</div>
-                        </div>
-                    </a>
-                    @endcan
-                    @can('view_payment_status')
-                    <a href="{{ route('web.payment-proofs.index') }}" class="btn btn-light-dark justify-content-start">
-                        <i class="ki-outline ki-eye fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Status Pembayaran</div>
-                            <div class="text-muted fs-7">Pantau status bukti bayar</div>
-                        </div>
-                    </a>
-                    @endcan
-                    @can('view_inventory')
-                    <a href="{{ route('web.inventory.index') }}" class="btn btn-light-danger justify-content-start">
-                        <i class="ki-outline ki-package fs-3 me-3"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-6">Inventory</div>
-                            <div class="text-muted fs-7">Stok & batch produk</div>
-                        </div>
-                    </a>
-                    @endcan
-                </div>
-            </div>
-        </div>
 
-        {{-- Alerts --}}
-        @if(count($alerts) > 0)
-        <div class="card card-flush">
-            <div class="card-header border-0 pt-6">
-                <h3 class="card-title">
-                    <span class="card-label fw-bold text-gray-900 fs-3">Notifikasi</span>
-                </h3>
-            </div>
-            <div class="card-body pt-3">
-                @foreach($alerts as $alert)
-                <div class="alert alert-{{ $alert['type'] }} d-flex align-items-center p-5 mb-5">
-                    <i class="ki-outline {{ $alert['icon'] }} fs-2hx text-{{ $alert['type'] }} me-4"></i>
-                    <div class="d-flex flex-column flex-grow-1">
-                        <h4 class="mb-1 text-{{ $alert['type'] }} fw-bold">{{ $alert['title'] }}</h4>
-                        <span class="fs-6">{{ $alert['message'] }}</span>
-                        @if(isset($alert['action']))
-                        <a href="{{ $alert['action'] }}" class="fw-bold mt-2">Lihat Detail →</a>
-                        @endif
-                    </div>
+                    @can('confirm_receipt')
+                    <a href="{{ route('web.goods-receipts.create') }}" class="d-flex align-items-center p-3 rounded bg-light-warning text-hover-warning">
+                        <div class="symbol symbol-40px me-3 flex-shrink-0">
+                            <div class="symbol-label bg-warning">
+                                <i class="ki-outline ki-package fs-3 text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-gray-900">Terima Barang</div>
+                            <div class="text-muted fs-8">Konfirmasi penerimaan GR</div>
+                        </div>
+                    </a>
+                    @endcan
+
+                    @can('submit_payment_proof')
+                    <a href="{{ route('web.payment-proofs.create') }}" class="d-flex align-items-center p-3 rounded bg-light-success text-hover-success">
+                        <div class="symbol symbol-40px me-3 flex-shrink-0">
+                            <div class="symbol-label bg-success">
+                                <i class="ki-outline ki-shield-tick fs-3 text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-gray-900">Upload Bukti Bayar</div>
+                            <div class="text-muted fs-8">Submit bukti pembayaran</div>
+                        </div>
+                    </a>
+                    @endcan
+
+                    @can('view_payment_status')
+                    <a href="{{ route('web.payment-proofs.index') }}" class="d-flex align-items-center p-3 rounded bg-light text-hover-primary">
+                        <div class="symbol symbol-40px me-3 flex-shrink-0">
+                            <div class="symbol-label bg-light-info">
+                                <i class="ki-outline ki-eye fs-3 text-info"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-gray-900">Status Pembayaran</div>
+                            <div class="text-muted fs-8">Pantau bukti bayar</div>
+                        </div>
+                    </a>
+                    @endcan
+
+                    @can('view_invoices')
+                    <a href="{{ route('web.invoices.customer.index') }}" class="d-flex align-items-center p-3 rounded bg-light text-hover-primary">
+                        <div class="symbol symbol-40px me-3 flex-shrink-0">
+                            <div class="symbol-label bg-light-danger">
+                                <i class="ki-outline ki-bill fs-3 text-danger"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-gray-900">Invoice Saya</div>
+                            <div class="text-muted fs-8">Tagihan dari Medikindo</div>
+                        </div>
+                    </a>
+                    @endcan
                 </div>
-                @endforeach
             </div>
         </div>
-        @endif
     </div>
 </div>

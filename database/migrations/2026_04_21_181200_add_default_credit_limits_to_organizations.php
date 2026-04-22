@@ -13,21 +13,40 @@ return new class extends Migration
     public function up(): void
     {
         // Setup default credit limits for existing organizations
-        DB::statement("
-            INSERT INTO credit_limits (organization_id, max_limit, is_active, created_at, updated_at)
-            SELECT 
-                id,
-                CASE 
-                    WHEN LOWER(type) = 'hospital' OR LOWER(type) = 'rs' THEN 20000000000.00
-                    WHEN LOWER(type) = 'clinic' OR LOWER(type) = 'klinik' THEN 500000000.00
-                    ELSE 500000000.00
-                END as max_limit,
-                true as is_active,
-                NOW() as created_at,
-                NOW() as updated_at
-            FROM organizations
-            WHERE id NOT IN (SELECT organization_id FROM credit_limits)
-        ");
+        // SQLite-compatible: use DATETIME('now') instead of NOW()
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            DB::statement("
+                INSERT INTO credit_limits (organization_id, max_limit, is_active, created_at, updated_at)
+                SELECT 
+                    id,
+                    CASE 
+                        WHEN LOWER(type) = 'hospital' OR LOWER(type) = 'rs' THEN 20000000000.00
+                        WHEN LOWER(type) = 'clinic' OR LOWER(type) = 'klinik' THEN 500000000.00
+                        ELSE 500000000.00
+                    END as max_limit,
+                    1 as is_active,
+                    DATETIME('now') as created_at,
+                    DATETIME('now') as updated_at
+                FROM organizations
+                WHERE id NOT IN (SELECT organization_id FROM credit_limits)
+            ");
+        } else {
+            DB::statement("
+                INSERT INTO credit_limits (organization_id, max_limit, is_active, created_at, updated_at)
+                SELECT 
+                    id,
+                    CASE 
+                        WHEN LOWER(type) = 'hospital' OR LOWER(type) = 'rs' THEN 20000000000.00
+                        WHEN LOWER(type) = 'clinic' OR LOWER(type) = 'klinik' THEN 500000000.00
+                        ELSE 500000000.00
+                    END as max_limit,
+                    true as is_active,
+                    NOW() as created_at,
+                    NOW() as updated_at
+                FROM organizations
+                WHERE id NOT IN (SELECT organization_id FROM credit_limits)
+            ");
+        }
     }
 
     /**

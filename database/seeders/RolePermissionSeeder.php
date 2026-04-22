@@ -61,12 +61,6 @@ class RolePermissionSeeder extends Seeder
             'manage_invoice',         // Alias for create_invoices
             'approve_invoice_discrepancy',
 
-            // Credit Notes
-            'view_credit_notes',
-            'create_credit_notes',
-            'issue_credit_notes',
-            'apply_credit_notes',
-
             // Payments
             'view_payments',
             'process_payments',
