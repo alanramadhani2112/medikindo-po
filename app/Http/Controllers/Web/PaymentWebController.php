@@ -18,7 +18,7 @@ class PaymentWebController extends Controller
     public function index(Request $request)
     {
         $user   = $request->user();
-        $tab    = $request->get('tab', 'all');
+        $tab    = $request->get('tab', 'pending');
         $type   = $request->get('type');
         $search = $request->get('search');
 

@@ -18,19 +18,28 @@
     </x-slot>
 
     <x-slot name="tabs">
-        @foreach(['submitted', 'resubmitted', 'verified', 'approved', 'rejected'] as $statusKey)
-            @php 
-                $statusEnum = App\Enums\PaymentProofStatus::tryFrom($statusKey);
-                $isActive = ($tab === $statusKey);
-            @endphp
+        @php
+            $tabOptions = [
+                'all'         => ['label' => 'Semua',              'icon' => 'ki-home'],
+                'submitted'   => ['label' => 'Menunggu Tinjauan',  'icon' => 'ki-file-up'],
+                'resubmitted' => ['label' => 'Diajukan Ulang',     'icon' => 'ki-arrows-circle'],
+                'verified'    => ['label' => 'Sudah Diverifikasi', 'icon' => 'ki-shield-search'],
+                'approved'    => ['label' => 'Disetujui',          'icon' => 'ki-check-circle'],
+                'rejected'    => ['label' => 'Ditolak',            'icon' => 'ki-cross-circle'],
+            ];
+        @endphp
+        @foreach($tabOptions as $statusKey => $tabData)
+            @php $isActive = ($tab === $statusKey) || ($statusKey === 'all' && $tab === ''); @endphp
             <li class="nav-item">
-                <a class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}" 
-                   href="{{ route('web.payment-proofs.index', ['tab' => $statusKey]) }}">
-                    <i class="ki-outline ki-{{ $statusKey === 'submitted' ? 'file-up' : ($statusKey === 'verified' ? 'shield-search' : ($statusKey === 'approved' ? 'check-circle' : 'cross-circle')) }} fs-4 me-3"></i>
-                    <span class="fs-6 fw-bold me-3">{{ $statusEnum?->label() ?? ucfirst($statusKey) }}</span>
-                    <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
-                        {{ $stats[$statusKey] ?? 0 }}
-                    </span>
+                <a class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}"
+                   href="{{ route('web.payment-proofs.index', ['tab' => $statusKey === 'all' ? '' : $statusKey]) }}">
+                    <i class="ki-outline ki-{{ $tabData['icon'] }} fs-4 me-3"></i>
+                    <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
+                    @if($statusKey !== 'all')
+                        <span class="badge {{ $isActive ? 'badge-primary' : 'badge-light-secondary' }} ms-2">
+                            {{ $stats[$statusKey] ?? 0 }}
+                        </span>
+                    @endif
                 </a>
             </li>
         @endforeach

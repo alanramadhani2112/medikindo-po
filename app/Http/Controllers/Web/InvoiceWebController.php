@@ -26,7 +26,7 @@ class InvoiceWebController extends Controller
     public function indexSupplier(Request $request)
     {
         $user = $request->user();
-        $tab = $request->get('tab', '');
+        $tab = $request->get('tab', 'draft');
 
         // Load Supplier Invoices
         $supplierQuery = SupplierInvoice::with(['supplier', 'purchaseOrder', 'goodsReceipt'])
@@ -74,7 +74,7 @@ class InvoiceWebController extends Controller
     public function indexCustomer(Request $request)
     {
         $user   = $request->user();
-        $tab    = $request->get('tab', '');
+        $tab    = $request->get('tab', 'draft');
         $status = $request->get('status', '');
         $aging  = $request->get('aging', '');
 

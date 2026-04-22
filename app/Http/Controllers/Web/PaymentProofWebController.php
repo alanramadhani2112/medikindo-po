@@ -47,7 +47,7 @@ class PaymentProofWebController extends Controller
         }
 
         // Status filtering — support both ?tab= and legacy ?status=
-        $tab = $request->get('tab') ?? $request->get('status', '');
+        $tab = $request->get('tab') ?? $request->get('status', 'submitted');
         if ($tab !== '') {
             $status = PaymentProofStatus::tryFrom($tab);
             if ($status) {

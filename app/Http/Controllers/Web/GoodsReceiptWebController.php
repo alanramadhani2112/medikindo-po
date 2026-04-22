@@ -19,7 +19,7 @@ class GoodsReceiptWebController extends Controller
         $this->authorize('viewAny', GoodsReceipt::class);
         
         $user  = $request->user();
-        $tab   = $request->get('tab', 'all');
+        $tab   = $request->get('tab', 'pending');
         
         $query = GoodsReceipt::with(['purchaseOrder.organization', 'purchaseOrder.supplier', 'receivedBy', 'items'])
             ->filter($request, [
