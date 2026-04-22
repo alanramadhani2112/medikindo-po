@@ -48,11 +48,10 @@ class Product extends Model
 
     // Operational Category
     public const CATEGORY_OPERATIONAL = [
-        'CONSUMABLE'     => 'Consumable (Habis Pakai)',
-        'NON_CONSUMABLE' => 'Non-Consumable (Tidak Habis Pakai)',
+        'CONSUMABLE'     => 'Habis Pakai',
+        'NON_CONSUMABLE' => 'Tidak Habis Pakai',
         'REAGENT'        => 'Reagen',
         'FARMASI'        => 'Farmasi',
-        'SERVICE'        => 'Jasa / Service',
     ];
 
     public const UNITS = [

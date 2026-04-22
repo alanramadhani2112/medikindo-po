@@ -29,7 +29,7 @@
 
 <div class="col-md-6">
     <div class="mb-5">
-        <label class="form-label fs-6 fw-semibold">Regulatory Category</label>
+        <label class="form-label fs-6 fw-semibold">Kategori Regulasi</label>
         <select name="category_regulatory" id="category_regulatory"
                 class="form-select form-select-solid @error('category_regulatory') is-invalid @enderror">
             <option value="">— Pilih Regulatory —</option>
@@ -48,7 +48,7 @@
 <div class="col-md-6">
     <div class="mb-5" id="category_class_wrapper">
         <label class="form-label fs-6 fw-semibold">
-            Class Category
+            Kategori Kelas
             <span id="category_class_required_badge" class="badge badge-danger ms-2 fs-8" style="display:none;">Wajib</span>
         </label>
         <select name="category_class" id="category_class"
@@ -82,7 +82,7 @@
 
 <div class="col-md-6">
     <div class="mb-5">
-        <label class="form-label fs-6 fw-semibold">Operational Category</label>
+        <label class="form-label fs-6 fw-semibold">Kategori Operasional</label>
         <select name="category_operational"
                 class="form-select form-select-solid @error('category_operational') is-invalid @enderror">
             <option value="">— Pilih Operational —</option>
