@@ -209,19 +209,26 @@ class MirrorGenerationService
     }
 
     /**
-     * Dispatch a NewInvoiceNotification to all finance staff users.
+     * Dispatch notifications when Customer Invoice is generated.
+     * - Finance: NewInvoiceNotification (for review)
+     * - Healthcare User (org): CustomerInvoiceIssuedNotification (must pay)
      */
     private function notifyFinanceStaff(CustomerInvoice $invoice): void
     {
         try {
-            $financeUsers = \App\Models\User::permission('view_customer_invoices')
-                ->get();
-
+            // Notify Finance/Admin Pusat/Super Admin
+            $financeUsers = \App\Models\User::permission('view_customer_invoices')->get();
             if ($financeUsers->isNotEmpty()) {
                 Notification::send($financeUsers, new NewInvoiceNotification($invoice));
             }
+
+            // Notify Healthcare User of the organization — invoice issued, must pay
+            \App\Models\User::role(['Healthcare User'])->get()
+                ->filter(fn($u) => $u->organization_id === $invoice->organization_id)
+                ->each(fn($u) => $u->notify(
+                    new \App\Notifications\CustomerInvoiceIssuedNotification($invoice)
+                ));
         } catch (\Throwable $e) {
-            // Non-critical — log but don't fail the transaction
             Log::warning('MirrorGenerationService: Failed to dispatch notification', [
                 'invoice_id' => $invoice->id,
                 'error'      => $e->getMessage(),

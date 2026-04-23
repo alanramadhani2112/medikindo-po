@@ -138,6 +138,15 @@ class InvoiceFromGRService
                 userId: $actor->id,
             );
 
+            // Notify Finance/Admin Pusat that Supplier Invoice is ready to verify
+            try {
+                \App\Models\User::role(['Finance', 'Admin Pusat', 'Super Admin'])
+                    ->where('is_active', true)->get()
+                    ->each(fn($u) => $u->notify(new \App\Notifications\SupplierInvoiceReadyNotification($invoice)));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('SI ready notification failed: ' . $e->getMessage());
+            }
+
             return $invoice->load(['lineItems', 'goodsReceipt', 'purchaseOrder', 'supplier']);
         });
     }
