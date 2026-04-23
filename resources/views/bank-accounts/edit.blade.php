@@ -110,7 +110,7 @@
 
                         <div class="d-flex justify-content-end gap-3 pt-5 border-top border-gray-200">
                             <a href="{{ route('web.bank-accounts.index') }}" class="btn btn-light">Batal</a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary update-confirm" data-name="{{ $bankAccount->bank_name }}">
                                 <i class="ki-outline ki-check fs-4 me-1"></i>Simpan Perubahan
                             </button>
                         </div>

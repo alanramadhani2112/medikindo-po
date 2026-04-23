@@ -317,8 +317,11 @@
                         <a href="{{ route('web.payment-proofs.index') }}" class="btn btn-light">
                             <i class="ki-outline ki-arrow-left fs-2"></i> Batal
                         </a>
-                        <button type="submit" class="btn btn-primary"
-                                :disabled="invoiceId === '' || (paymentType === 'partial' && !isPartialValid) || paymentMethod === ''">
+                        <button type="submit" class="btn btn-primary submit-confirm"
+                                :disabled="invoiceId === '' || (paymentType === 'partial' && !isPartialValid) || paymentMethod === ''"
+                                data-title="Konfirmasi Submit Bukti Bayar"
+                                data-message="Apakah Anda yakin ingin mengajukan bukti pembayaran ini? Finance akan mereview dan memverifikasi."
+                                data-confirm-text="Ya, Submit!">
                             <i class="ki-outline ki-check fs-2"></i>
                             Submit Bukti Pembayaran
                         </button>

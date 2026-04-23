@@ -35,7 +35,10 @@
 
                     <div class="d-flex justify-content-end gap-3">
                         <a href="{{ route('web.payment-proofs.show', $paymentProof) }}" class="btn btn-light">Kembali</a>
-                        <button type="submit" class="btn btn-danger">
+                        <button type="submit" class="btn btn-danger submit-confirm"
+                                data-title="Konfirmasi Tolak Bukti Bayar"
+                                data-message="Apakah Anda yakin ingin <strong>menolak</strong> bukti pembayaran ini? Pengirim akan diberitahu dan dapat mengajukan ulang."
+                                data-confirm-text="Ya, Tolak!">
                             <i class="ki-outline ki-cross fs-2"></i>
                             Tolak Bukti Bayar
                         </button>

@@ -95,8 +95,10 @@
                         <a href="{{ route('web.payment-proofs.show', $paymentProof) }}" class="btn btn-light">
                             <i class="ki-outline ki-arrow-left fs-4"></i> Batal
                         </a>
-                        <button type="submit" class="btn btn-danger"
-                                onclick="return confirm('Anda yakin ingin melakukan koreksi? Tindakan ini tidak dapat dibatalkan dan akan merevisi pencatatan keuangan.')">
+                        <button type="submit" class="btn btn-danger submit-confirm"
+                                data-title="⚠️ Konfirmasi Koreksi Pembayaran"
+                                data-message="Tindakan ini akan <strong>membatalkan</strong> bukti bayar yang sudah disetujui dan membuat pengajuan baru. Tindakan ini <strong>tidak dapat dibatalkan</strong> dan akan merevisi pencatatan keuangan."
+                                data-confirm-text="Ya, Proses Koreksi!">
                             <i class="ki-outline ki-check fs-4 me-1"></i> Proses Koreksi
                         </button>
                     </div>

@@ -172,7 +172,11 @@
                         <a href="{{ route('web.payment-proofs.reject', $paymentProof) }}" class="btn btn-danger">
                             <i class="ki-outline ki-cross-circle fs-2"></i> Tolak
                         </a>
-                        <button type="submit" class="btn btn-success" :disabled="!(checkBank && checkAmount && checkCustomer && checkDoc)">
+                        <button type="submit" class="btn btn-success submit-confirm"
+                                :disabled="!(checkBank && checkAmount && checkCustomer && checkDoc)"
+                                data-title="Konfirmasi Persetujuan Pembayaran"
+                                data-message="Apakah Anda yakin ingin <strong>menyetujui</strong> bukti pembayaran ini? Payment IN dan Payment OUT akan otomatis dicatat."
+                                data-confirm-text="Ya, Setujui!">
                             <i class="ki-outline ki-verify fs-2"></i> Setujui & Terima Pembayaran
                         </button>
                     </div>
