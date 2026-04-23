@@ -13,6 +13,7 @@ use App\Notifications\PaymentProofSubmittedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\UploadedFile;
+use App\StateMachines\StateMachineRegistry;
 use DomainException;
 
 class PaymentProofService
@@ -104,9 +105,12 @@ class PaymentProofService
      */
     public function verifyPaymentProof(PaymentProof $proof, User $actor, array $data = []): PaymentProof
     {
-        if (!in_array($proof->status, [PaymentProofStatus::SUBMITTED, PaymentProofStatus::RESUBMITTED])) {
-            throw new DomainException('Hanya bukti bayar berstatus "Submitted" atau "Diajukan Ulang" yang dapat diverifikasi.');
-        }
+        StateMachineRegistry::for(PaymentProof::class)->validate(
+            from:   $proof->status->value,
+            to:     PaymentProofStatus::VERIFIED->value,
+            actor:  $actor,
+            entity: $proof,
+        );
 
         $proof->update([
             'status'      => PaymentProofStatus::VERIFIED,
@@ -130,15 +134,12 @@ class PaymentProofService
      */
     public function approvePaymentProof(PaymentProof $proof, User $actor, array $data = []): PaymentProof
     {
-        $allowedStatuses = [
-            PaymentProofStatus::VERIFIED,
-            PaymentProofStatus::SUBMITTED,
-            PaymentProofStatus::RESUBMITTED,
-        ];
-
-        if (!in_array($proof->status, $allowedStatuses)) {
-            throw new DomainException('Bukti bayar tidak dalam status yang dapat disetujui.');
-        }
+        StateMachineRegistry::for(PaymentProof::class)->validate(
+            from:   $proof->status->value,
+            to:     PaymentProofStatus::APPROVED->value,
+            actor:  $actor,
+            entity: $proof,
+        );
 
         $paymentIn = null;
 
@@ -185,12 +186,12 @@ class PaymentProofService
      */
     public function recallPaymentProof(PaymentProof $proof, User $actor, string $reason): PaymentProof
     {
-        if (!$proof->canBeRecalled()) {
-            throw new DomainException(
-                'Bukti pembayaran tidak dapat ditarik kembali. ' .
-                'Hanya bukti yang masih berstatus "Menunggu Review" yang dapat ditarik.'
-            );
-        }
+        StateMachineRegistry::for(PaymentProof::class)->validate(
+            from:   $proof->status->value,
+            to:     PaymentProofStatus::RECALLED->value,
+            actor:  $actor,
+            entity: $proof,
+        );
 
         $proof->update([
             'status'       => PaymentProofStatus::RECALLED,
@@ -282,6 +283,12 @@ class PaymentProofService
      */
     public function rejectPaymentProof(PaymentProof $proof, User $actor, string $reason): PaymentProof
     {
+        StateMachineRegistry::for(PaymentProof::class)->validate(
+            from:   $proof->status->value,
+            to:     PaymentProofStatus::REJECTED->value,
+            actor:  $actor,
+            entity: $proof,
+        );
         $proof->update([
             'status'           => PaymentProofStatus::REJECTED,
             'rejection_reason' => $reason,

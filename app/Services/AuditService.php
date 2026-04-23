@@ -8,12 +8,38 @@ use Illuminate\Support\Facades\Auth;
 
 class AuditService
 {
+    /**
+     * Map action prefix to module name.
+     */
+    private static function resolveModule(string $action): string
+    {
+        return match (true) {
+            str_starts_with($action, 'po.')               => 'PO',
+            str_starts_with($action, 'goods_receipt.')    => 'GR',
+            str_starts_with($action, 'supplier_invoice.') => 'INVOICE_AP',
+            str_starts_with($action, 'customer_invoice.') => 'INVOICE_AR',
+            str_starts_with($action, 'invoice.')          => 'INVOICE',
+            str_starts_with($action, 'payment_proof.')    => 'PAYMENT_PROOF',
+            str_starts_with($action, 'payment.')          => 'PAYMENT',
+            str_starts_with($action, 'approval.')         => 'APPROVAL',
+            str_starts_with($action, 'auth.')             => 'AUTH',
+            str_starts_with($action, 'create')            => 'MASTER_DATA',
+            str_starts_with($action, 'update')            => 'MASTER_DATA',
+            str_starts_with($action, 'deactivate')        => 'MASTER_DATA',
+            default                                       => 'SYSTEM',
+        };
+    }
+
     public function log(
         string $action,
         string $entityType,
         ?int $entityId = null,
         array $metadata = [],
         ?int $userId = null,
+        ?array $beforeValue = null,
+        ?array $afterValue = null,
+        ?string $correlationId = null,
+        ?string $module = null,
     ): AuditLog {
         $finalUserId = $userId ?? Auth::id();
         $organizationId = null;
@@ -26,9 +52,13 @@ class AuditService
             'user_id'         => $finalUserId,
             'organization_id' => $organizationId,
             'action'          => $action,
+            'module'          => $module ?? self::resolveModule($action),
             'entity_type'     => $entityType,
             'entity_id'       => $entityId,
+            'before_value'    => $beforeValue,
+            'after_value'     => $afterValue,
             'metadata'        => $metadata,
+            'correlation_id'  => $correlationId,
             'ip_address'      => request()->ip(),
             'user_agent'      => request()->userAgent(),
         ]);

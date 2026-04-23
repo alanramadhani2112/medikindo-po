@@ -17,9 +17,13 @@ class AuditLog extends Model
         'user_id',
         'organization_id',
         'action',
+        'module',
         'entity_type',
         'entity_id',
+        'before_value',
+        'after_value',
         'metadata',
+        'correlation_id',
         'ip_address',
         'user_agent',
         'occurred_at',
@@ -28,8 +32,10 @@ class AuditLog extends Model
     protected function casts(): array
     {
         return [
-            'metadata'    => 'array',
-            'occurred_at' => 'datetime',
+            'metadata'     => 'array',
+            'before_value' => 'array',
+            'after_value'  => 'array',
+            'occurred_at'  => 'datetime',
         ];
     }
 

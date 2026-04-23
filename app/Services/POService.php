@@ -6,6 +6,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\User;
 use App\Notifications\POSubmittedNotification;
+use App\StateMachines\StateMachineRegistry;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
@@ -62,12 +63,13 @@ class POService
 
     public function submitPO(PurchaseOrder $po, User $actor): PurchaseOrder
     {
-        // Gate: only draft POs can be submitted
-        if (! $po->isDraft()) {
-            throw new DomainException("Only draft POs can be submitted. Current status: {$po->status}.");
-        }
-
-        $this->validationService->ensurePOHasItems($po);
+        // Gate: validate via state machine (single source of truth)
+        StateMachineRegistry::for(PurchaseOrder::class)->validate(
+            from:   $po->status,
+            to:     PurchaseOrder::STATUS_SUBMITTED,
+            actor:  $actor,
+            entity: $po,
+        );
 
         return DB::transaction(function () use ($po, $actor) {
             $before = $po->status;
@@ -84,16 +86,16 @@ class POService
             $this->approvalService->initializeApprovals($po);
 
             $this->auditService->log(
-                action:     'po.submitted',
-                entityType: PurchaseOrder::class,
-                entityId:   $po->id,
-                metadata:   [
+                action:      'po.submitted',
+                entityType:  PurchaseOrder::class,
+                entityId:    $po->id,
+                metadata:    [
                     'po_number'     => $po->po_number,
-                    'before_status' => $before,
-                    'after_status'  => PurchaseOrder::STATUS_SUBMITTED,
                     'has_narcotics' => $po->has_narcotics,
                     'total_amount'  => $po->total_amount,
                 ],
+                beforeValue: ['status' => $before],
+                afterValue:  ['status' => PurchaseOrder::STATUS_SUBMITTED, 'submitted_at' => now()->toIso8601String()],
             );
 
             // Notify Approvers + Super Admin + Creator

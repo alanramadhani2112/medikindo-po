@@ -6,6 +6,7 @@ use App\Models\Approval;
 use App\Models\PurchaseOrder;
 use App\Models\User;
 use App\Notifications\POApprovalDecisionNotification;
+use App\StateMachines\StateMachineRegistry;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -76,16 +77,33 @@ class ApprovalService
                 'actioned_at' => now(),
             ]);
 
+            // Validate via state machine before changing PO status
+            $targetPOStatus = $decision === Approval::STATUS_APPROVED
+                ? PurchaseOrder::STATUS_APPROVED
+                : PurchaseOrder::STATUS_REJECTED;
+
+            // Only validate PO transition when all levels are done (for approval)
+            // For rejection, validate immediately
+            if ($decision === Approval::STATUS_REJECTED) {
+                StateMachineRegistry::for(PurchaseOrder::class)->validate(
+                    from:   $po->status,
+                    to:     PurchaseOrder::STATUS_REJECTED,
+                    actor:  $approver,
+                    entity: $po,
+                );
+            }
+
             $this->auditService->log(
-                action:     "po.approval.{$decision}",
-                entityType: PurchaseOrder::class,
-                entityId:   $po->id,
-                metadata:   [
+                action:      "po.approval.{$decision}",
+                entityType:  PurchaseOrder::class,
+                entityId:    $po->id,
+                metadata:    [
                     'approval_id' => $approval->id,
                     'level'       => $approval->level,
-                    'approver_id' => $approver->id,
                     'notes'       => $notes,
                 ],
+                beforeValue: ['approval_status' => Approval::STATUS_PENDING],
+                afterValue:  ['approval_status' => $decision, 'approver_id' => $approver->id, 'actioned_at' => now()->toIso8601String()],
             );
 
             // If rejected at any level, reject the whole PO and reverse credit
@@ -135,14 +153,12 @@ class ApprovalService
         $po->update(array_merge(['status' => $status], $timestamps));
 
         $this->auditService->log(
-            action:     "po.{$status}",
-            entityType: PurchaseOrder::class,
-            entityId:   $po->id,
-            metadata:   [
-                'po_number'     => $po->po_number,
-                'before_status' => $before,
-                'after_status'  => $status,
-            ],
+            action:      "po.{$status}",
+            entityType:  PurchaseOrder::class,
+            entityId:    $po->id,
+            metadata:    ['po_number' => $po->po_number],
+            beforeValue: ['status' => $before],
+            afterValue:  array_merge(['status' => $status], $timestamps),
         );
     }
 

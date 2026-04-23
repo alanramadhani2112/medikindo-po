@@ -196,25 +196,27 @@ class InvoiceService
 
             if ($supplierInvoice->wasRecentlyCreated || $customerInvoice->wasRecentlyCreated) {
                 $this->auditService->log(
-                    action:     'invoice.issued',
-                    entityType: CustomerInvoice::class,
-                    entityId:   $customerInvoice->id,
-                    metadata:   [
-                        'po_number'              => $po->po_number,
-                        'before_status'          => null,
-                        'after_status'           => $initialStatus,
-                        'supplier_total_amount'  => $supplierInvoiceCalculation['invoice_totals']['total_amount'],
-                        'customer_total_amount'  => $customerInvoiceCalculation['invoice_totals']['total_amount'],
-                        'profit_amount'          => bcsub(
+                    action:      'invoice.issued',
+                    entityType:  CustomerInvoice::class,
+                    entityId:    $customerInvoice->id,
+                    metadata:    [
+                        'po_number'             => $po->po_number,
+                        'supplier_invoice_id'   => $supplierInvoice->id,
+                        'discrepancy_detected'  => $discrepancyResult['discrepancy_detected'],
+                        'variance_amount'       => $discrepancyResult['variance_amount'],
+                        'variance_percentage'   => $discrepancyResult['variance_percentage'],
+                        'line_items_count'      => count($customerInvoiceCalculation['line_items']),
+                    ],
+                    beforeValue: null,
+                    afterValue:  [
+                        'status'                => $initialStatus,
+                        'supplier_total_amount' => $supplierInvoiceCalculation['invoice_totals']['total_amount'],
+                        'customer_total_amount' => $customerInvoiceCalculation['invoice_totals']['total_amount'],
+                        'profit_amount'         => bcsub(
                             (string) $customerInvoiceCalculation['invoice_totals']['total_amount'],
                             (string) $supplierInvoiceCalculation['invoice_totals']['total_amount'],
                             2
                         ),
-                        'line_items_count'       => count($customerInvoiceCalculation['line_items']),
-                        'supplier_invoice_id'    => $supplierInvoice->id,
-                        'discrepancy_detected'   => $discrepancyResult['discrepancy_detected'],
-                        'variance_amount'        => $discrepancyResult['variance_amount'],
-                        'variance_percentage'    => $discrepancyResult['variance_percentage'],
                     ],
                     userId: $actor->id,
                 );
