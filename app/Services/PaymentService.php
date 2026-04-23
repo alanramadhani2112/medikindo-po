@@ -112,6 +112,22 @@ class PaymentService
                 ['amount' => $amount, 'invoice_id' => $invoice->id, 'new_status' => $invoice->status->value]
             );
 
+            // Notify Finance + Healthcare User about Payment IN
+            try {
+                $financeUsers = \App\Models\User::role(['Finance', 'Admin Pusat', 'Super Admin'])
+                    ->where('is_active', true)->get();
+                \Illuminate\Support\Facades\Notification::send(
+                    $financeUsers,
+                    new \App\Notifications\PaymentRecordedNotification($payment, 'finance')
+                );
+                // Also notify the Healthcare User (org-scoped)
+                \App\Models\User::role(['Healthcare User'])->get()
+                    ->filter(fn($u) => $u->organization_id === $invoice->organization_id)
+                    ->each(fn($u) => $u->notify(new \App\Notifications\PaymentRecordedNotification($payment, 'healthcare')));
+            } catch (\Exception $e) {
+                Log::warning('Payment IN notification failed: ' . $e->getMessage());
+            }
+
             event(new PaymentCreated($payment, $allocation, $invoice, 'customer'));
 
             return $payment;
@@ -230,6 +246,18 @@ class PaymentService
             );
 
             event(new PaymentCreated($payment, $allocation, $invoice, 'supplier'));
+
+            // Notify Finance about Payment OUT
+            try {
+                $financeUsers = \App\Models\User::role(['Finance', 'Admin Pusat', 'Super Admin'])
+                    ->where('is_active', true)->get();
+                \Illuminate\Support\Facades\Notification::send(
+                    $financeUsers,
+                    new \App\Notifications\PaymentRecordedNotification($payment, 'finance')
+                );
+            } catch (\Exception $e) {
+                Log::warning('Payment OUT notification failed: ' . $e->getMessage());
+            }
 
             return $payment;
         });

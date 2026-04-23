@@ -222,15 +222,17 @@ class InvoiceService
                     userId: $actor->id,
                 );
 
-                // Notify Finance + Healthcare User only when a new invoice is created.
-                // If discrepancy detected, notify about approval requirement
-                $notificationMessage = $discrepancyResult['discrepancy_detected']
-                    ? 'Invoice requires approval due to discrepancy'
-                    : 'New invoice issued';
+                // 1. Notify Finance/Admin to verify Supplier Invoice
+                User::role(['Finance', 'Admin Pusat', 'Super Admin'])
+                    ->where('is_active', true)->get()
+                    ->each(fn($u) => $u->notify(new \App\Notifications\SupplierInvoiceReadyNotification($supplierInvoice)));
 
-                User::role(['Super Admin', 'Healthcare User'])->get()
-                    ->filter(fn($u) => $u->hasRole('Super Admin') || $u->organization_id === $po->organization_id)
-                    ->each(fn($u) => $u->notify(new \App\Notifications\NewInvoiceNotification($customerInvoice)));
+                // 2. Notify Healthcare User that invoice is issued and payment required
+                if (! $discrepancyResult['discrepancy_detected']) {
+                    User::role(['Healthcare User'])->get()
+                        ->filter(fn($u) => $u->organization_id === $po->organization_id)
+                        ->each(fn($u) => $u->notify(new \App\Notifications\CustomerInvoiceIssuedNotification($customerInvoice)));
+                }
             }
 
             return [
@@ -326,12 +328,12 @@ class InvoiceService
                 userId:      $actor->id,
             );
 
-            // Notify Healthcare User that invoice has been approved
+            // Notify Healthcare User that invoice is now issued and payment required
             $po = $fresh->purchaseOrder;
             if ($po) {
                 User::role(['Healthcare User'])->get()
                     ->filter(fn($u) => $u->organization_id === $fresh->organization_id)
-                    ->each(fn($u) => $u->notify(new \App\Notifications\NewInvoiceNotification($fresh)));
+                    ->each(fn($u) => $u->notify(new \App\Notifications\CustomerInvoiceIssuedNotification($fresh)));
             }
 
             return $fresh->fresh();

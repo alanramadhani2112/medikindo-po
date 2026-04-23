@@ -45,12 +45,12 @@ class POService
                 action:     'po.created',
                 entityType: PurchaseOrder::class,
                 entityId:   $po->id,
-                metadata:   [
-                    'po_number'      => $po->po_number,
-                    'before_status'  => null,
-                    'after_status'   => PurchaseOrder::STATUS_DRAFT,
-                ],
+                metadata:   ['po_number' => $po->po_number],
+                afterValue: ['status' => PurchaseOrder::STATUS_DRAFT],
             );
+
+            // Notify creator that draft was saved
+            $user->notify(new \App\Notifications\POCreatedNotification($po));
 
             return $po;
         });
