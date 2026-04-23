@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSupplierRequest;
 use App\Models\Supplier;
+use App\Services\AuditService;
+use App\Services\SupplierService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -12,6 +14,11 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class SupplierController extends Controller implements HasMiddleware
 {
+    public function __construct(
+        private readonly AuditService $auditService,
+        private readonly SupplierService $supplierService,
+    ) {}
+
     public static function middleware(): array
     {
         return [
@@ -34,6 +41,14 @@ class SupplierController extends Controller implements HasMiddleware
     {
         $supplier = Supplier::create($request->validated());
 
+        $this->auditService->log(
+            action: 'supplier.created',
+            entityType: Supplier::class,
+            entityId: $supplier->id,
+            metadata: $supplier->toArray(),
+            userId: $request->user()->id,
+        );
+
         return response()->json([
             'message'  => 'Supplier created.',
             'supplier' => $supplier,
@@ -47,15 +62,28 @@ class SupplierController extends Controller implements HasMiddleware
 
     public function update(StoreSupplierRequest $request, Supplier $supplier): JsonResponse
     {
+        $oldData = $supplier->toArray();
         $supplier->update($request->validated());
+        $changes = $supplier->getChanges();
+
+        $this->auditService->log(
+            action: 'supplier.updated',
+            entityType: Supplier::class,
+            entityId: $supplier->id,
+            metadata: ['old' => $oldData, 'changes' => $changes],
+            userId: $request->user()->id,
+        );
 
         return response()->json(['message' => 'Supplier updated.', 'supplier' => $supplier]);
     }
 
     public function destroy(Supplier $supplier): JsonResponse
     {
-        $supplier->update(['is_active' => false]);
-
-        return response()->json(['message' => 'Supplier deactivated.']);
+        try {
+            $this->supplierService->deactivate($supplier, auth()->id());
+            return response()->json(['message' => 'Supplier deactivated.']);
+        } catch (\DomainException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Models\Organization;
+use App\Services\AuditService;
+use App\Services\OrganizationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -12,6 +14,11 @@ use Illuminate\Routing\Controllers\Middleware;
 
 class OrganizationController extends Controller implements HasMiddleware
 {
+    public function __construct(
+        private readonly AuditService $auditService,
+        private readonly OrganizationService $organizationService,
+    ) {}
+
     public static function middleware(): array
     {
         return [
@@ -34,6 +41,14 @@ class OrganizationController extends Controller implements HasMiddleware
     {
         $organization = Organization::create($request->validated());
 
+        $this->auditService->log(
+            action: 'organization.created',
+            entityType: Organization::class,
+            entityId: $organization->id,
+            metadata: $organization->toArray(),
+            userId: $request->user()->id,
+        );
+
         return response()->json([
             'message'      => 'Organization created.',
             'organization' => $organization,
@@ -47,15 +62,28 @@ class OrganizationController extends Controller implements HasMiddleware
 
     public function update(StoreOrganizationRequest $request, Organization $organization): JsonResponse
     {
+        $oldData = $organization->toArray();
         $organization->update($request->validated());
+        $changes = $organization->getChanges();
+
+        $this->auditService->log(
+            action: 'organization.updated',
+            entityType: Organization::class,
+            entityId: $organization->id,
+            metadata: ['old' => $oldData, 'changes' => $changes],
+            userId: $request->user()->id,
+        );
 
         return response()->json(['message' => 'Organization updated.', 'organization' => $organization]);
     }
 
     public function destroy(Organization $organization): JsonResponse
     {
-        $organization->update(['is_active' => false]);
-
-        return response()->json(['message' => 'Organization deactivated.']);
+        try {
+            $this->organizationService->deactivate($organization, auth()->id());
+            return response()->json(['message' => 'Organization deactivated.']);
+        } catch (\DomainException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
     }
 }
