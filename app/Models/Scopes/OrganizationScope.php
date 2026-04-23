@@ -17,8 +17,13 @@ class OrganizationScope implements Scope
         if (Auth::check()) {
             $user = Auth::user();
             
-            // Skip scope for users with approver roles (they can see all organizations)
-            if ($user->hasAnyRole(['Super Admin', 'Approver', 'Admin Approver'])) {
+            // Skip scope for internal Medikindo staff (they can see all organizations)
+            if ($user->hasAnyRole(['Super Admin', 'Approver', 'Admin Approver', 'Finance', 'Admin Pusat'])) {
+                return;
+            }
+            
+            // Skip scope if user has no organization (internal staff without explicit role)
+            if ($user->organization_id === null) {
                 return;
             }
             
