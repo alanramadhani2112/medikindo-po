@@ -60,4 +60,13 @@ class GoodsReceiptPolicy
     {
         return (int) $goodsReceipt->purchaseOrder->organization_id === (int) $user->organization_id;
     }
+
+    /**
+     * Determine whether the user can confirm receipt for a PO.
+     */
+    public function confirmReceipt(User $user, \App\Models\PurchaseOrder $purchaseOrder): bool
+    {
+        return $user->can('confirm_receipt') 
+            && (int) $purchaseOrder->organization_id === (int) $user->organization_id;
+    }
 }

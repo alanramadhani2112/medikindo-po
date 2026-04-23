@@ -102,6 +102,11 @@ class DocumentNumberService
      */
     private function nextSequence(string $docType, string $orgCode): int
     {
+        // Ensure this is called within a transaction
+        if (DB::transactionLevel() === 0) {
+            throw new \RuntimeException('nextSequence() must be called within a database transaction');
+        }
+
         $year  = (int) now()->format('Y');
         $month = (int) now()->format('m');
 

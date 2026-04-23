@@ -16,13 +16,13 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $guard = 'sanctum';
+        $guard = config('auth.defaults.guard', 'web');
 
         // 1. Create Permissions
         $permissions = [
             'create_po','update_po','submit_po','view_po',
             'approve_po','reject_po',
-            'confirm_receipt','view_receipt',
+            'confirm_receipt','view_receipt','view_goods_receipt',
             'view_invoice','manage_invoice',
             'confirm_payment','verify_payment',
             'manage_product','manage_supplier','manage_organization','manage_user',
@@ -36,10 +36,13 @@ abstract class TestCase extends BaseTestCase
         $superAdmin = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => $guard]);
         $superAdmin->syncPermissions($permissions); // All permissions
 
+        $adminPusat = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Admin Pusat', 'guard_name' => $guard]);
+        $adminPusat->syncPermissions($permissions); // All permissions like Super Admin
+
         $healthcareUser = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Healthcare User', 'guard_name' => $guard]);
         $healthcareUser->syncPermissions([
             'create_po','update_po','submit_po','view_po',
-            'confirm_receipt','view_receipt',
+            'confirm_receipt','view_receipt','view_goods_receipt',
             'view_invoice','confirm_payment',
             'manage_product','manage_supplier','manage_user',
             'view_audit'
@@ -52,7 +55,7 @@ abstract class TestCase extends BaseTestCase
         $approver->syncPermissions(['view_po','approve_po','reject_po']);
 
         $finance = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => $guard]);
-        $finance->syncPermissions(['view_invoice','manage_invoice','verify_payment']);
+        $finance->syncPermissions(['view_invoice','manage_invoice','verify_payment','view_goods_receipt']);
     }
 
     // -----------------------------------------------------------------------

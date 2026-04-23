@@ -54,10 +54,15 @@ class GoodsReceiptService
 
         return DB::transaction(function () use ($po, $actor, $items, $deliveryOrderNumber, $photo, $notes) {
 
-            // --- Get or create the single GR for this PO ---
-            $gr = GoodsReceipt::firstOrCreate(
-                ['purchase_order_id' => $po->id],
-                [
+            // --- Get or create the single GR for this PO with proper locking ---
+            // Lock the PO row to prevent concurrent GR creation
+            $po = PurchaseOrder::lockForUpdate()->findOrFail($po->id);
+            
+            $gr = GoodsReceipt::where('purchase_order_id', $po->id)->first();
+            
+            if (!$gr) {
+                $gr = GoodsReceipt::create([
+                    'purchase_order_id' => $po->id,
                     'gr_number'       => $this->documentNumberService->generateGRNumber(
                         $po->organization_id,
                         $po->po_number,
@@ -69,18 +74,31 @@ class GoodsReceiptService
                     'received_date'   => now()->toDateString(),
                     'status'          => GoodsReceipt::STATUS_PARTIAL,
                     'notes'           => null,
-                ]
-            );
+                ]);
+            }
 
-            // --- Determine delivery sequence ---
-            $sequence = $gr->deliveries()->count() + 1;
+            // --- Determine delivery sequence with lock to prevent race condition ---
+            $sequence = DB::table('goods_receipt_deliveries')
+                ->where('goods_receipt_id', $gr->id)
+                ->lockForUpdate()
+                ->count() + 1;
 
-            // --- Validate items: qty must not exceed remaining ---
+            // --- Validate items: qty must not exceed remaining + expiry date validation ---
             $grItems = [];
             $allFulfilled = true;
 
             foreach ($items as $item) {
                 $poItem = $po->items()->findOrFail($item['purchase_order_item_id']);
+
+                // Validate expiry date in business logic (defense in depth)
+                if (isset($item['expiry_date'])) {
+                    $expiryDate = \Carbon\Carbon::parse($item['expiry_date']);
+                    if ($expiryDate->isPast() || $expiryDate->isToday()) {
+                        throw new DomainException(
+                            "Tidak dapat menerima barang kadaluarsa: produk [{$poItem->product?->name}] dengan tanggal expiry {$expiryDate->format('Y-m-d')} sudah atau akan kadaluarsa."
+                        );
+                    }
+                }
 
                 // Total already received across ALL previous deliveries for this PO item
                 $alreadyReceived = GoodsReceiptDelivery::where('goods_receipt_id', $gr->id)
@@ -129,8 +147,8 @@ class GoodsReceiptService
                 }
             }
 
-            // --- Store photo ---
-            $photoPath = $photo->store("gr-photos/{$gr->id}", 'public');
+            // --- Store photo with safe path ---
+            $photoPath = $photo->store("gr-photos/" . now()->format('Y/m'), 'public');
 
             // --- Create delivery record ---
             $delivery = GoodsReceiptDelivery::create([
@@ -187,6 +205,7 @@ class GoodsReceiptService
                 StateMachineRegistry::for(PurchaseOrder::class)->validate(
                     from:   $po->status,
                     to:     PurchaseOrder::STATUS_COMPLETED,
+                    actor:  $actor,
                     entity: $po,
                 );
                 $po->update(['status' => PurchaseOrder::STATUS_COMPLETED, 'completed_at' => now()]);
@@ -203,6 +222,7 @@ class GoodsReceiptService
                 StateMachineRegistry::for(PurchaseOrder::class)->validate(
                     from:   $po->status,
                     to:     PurchaseOrder::STATUS_PARTIALLY_RECEIVED,
+                    actor:  $actor,
                     entity: $po,
                 );
                 $po->update(['status' => PurchaseOrder::STATUS_PARTIALLY_RECEIVED]);
@@ -234,10 +254,19 @@ class GoodsReceiptService
                 $totalReceived = $gr->items()->sum('quantity_received');
                 $remaining     = max(0, $totalOrdered - $totalReceived);
 
-                // Notifikasi khusus partial ke Finance & Super Admin Medikindo
-                $financeUsers = \App\Models\User::role(['Finance', 'Super Admin', 'Admin Pusat'])
-                    ->where('is_active', true)
-                    ->get();
+                // Notifikasi khusus partial ke Finance & Super Admin Medikindo (max 50 users)
+                try {
+                    $financeUsers = \App\Models\User::role(['Finance', 'Super Admin', 'Admin Pusat'])
+                        ->where('is_active', true)
+                        ->limit(50)
+                        ->get();
+                } catch (\Exception $e) {
+                    // Fallback if roles don't exist
+                    $financeUsers = \App\Models\User::role(['Super Admin', 'Admin Pusat'])
+                        ->where('is_active', true)
+                        ->limit(50)
+                        ->get();
+                }
 
                 foreach ($financeUsers as $user) {
                     $user->notify(new \App\Notifications\PartialDeliveryNotification(
@@ -260,7 +289,20 @@ class GoodsReceiptService
                     $po->creator->notify(new \App\Notifications\GoodsReceiptNotification($gr));
                 }
 
-                \App\Models\User::role(['Super Admin', 'Healthcare User', 'Finance', 'Admin Pusat'])->get()
+                try {
+                    $notifyUsers = \App\Models\User::role(['Super Admin', 'Healthcare User', 'Finance', 'Admin Pusat'])
+                        ->where('is_active', true)
+                        ->limit(50)
+                        ->get();
+                } catch (\Exception $e) {
+                    // Fallback if roles don't exist
+                    $notifyUsers = \App\Models\User::role(['Super Admin', 'Healthcare User', 'Admin Pusat'])
+                        ->where('is_active', true)
+                        ->limit(50)
+                        ->get();
+                }
+
+                $notifyUsers
                     ->filter(fn($u) =>
                         $u->id !== $po->created_by && (
                             $u->hasRole(['Super Admin', 'Finance', 'Admin Pusat']) ||
@@ -272,6 +314,42 @@ class GoodsReceiptService
 
             return $gr;
         });
+    }
+
+    // -----------------------------------------------------------------------
+    // Get POs available for receipt with remaining quantities
+    // -----------------------------------------------------------------------
+
+    public function getAvailablePOsForReceipt(User $user): \Illuminate\Support\Collection
+    {
+        $pos = PurchaseOrder::with(['items.product', 'organization', 'supplier', 'goodsReceipts.items'])
+            ->whereIn('status', [
+                PurchaseOrder::STATUS_APPROVED,
+                PurchaseOrder::STATUS_PARTIALLY_RECEIVED,
+            ])
+            ->when(! $user->hasRole('Super Admin'), function ($q) use ($user) {
+                $q->where('organization_id', $user->organization_id);
+            })
+            ->latest()
+            ->get();
+
+        // Calculate already_received and remaining for each item
+        $pos->each(function ($po) {
+            $po->items->each(function ($item) use ($po) {
+                $alreadyReceived = $po->goodsReceipts->flatMap(function ($gr) {
+                    return $gr->items;
+                })->where('purchase_order_item_id', $item->id)->sum('quantity_received');
+                
+                $item->already_received = $alreadyReceived;
+                $item->remaining = max(0, $item->quantity - $alreadyReceived);
+            });
+            
+            // Filter out items that are already fully received
+            $po->setRelation('items', $po->items->filter(fn($item) => $item->remaining > 0)->values());
+        });
+        
+        // Filter out POs that have no remaining items to receive
+        return $pos->filter(fn($po) => $po->items->isNotEmpty())->values();
     }
 
     // -----------------------------------------------------------------------

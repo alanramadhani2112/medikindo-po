@@ -27,6 +27,12 @@ class PurchaseOrderPolicy
 
     public function view(User $user, PurchaseOrder $po): bool
     {
+        // Approver can view any PO for approval purposes
+        if ($user->hasRole('Approver')) {
+            return true;
+        }
+
+        // Other roles must belong to same organization
         return $user->organization_id === $po->organization_id;
     }
 

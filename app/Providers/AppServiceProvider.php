@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Approval;
 use App\Models\CustomerInvoice;
+use App\Models\GoodsReceipt;
 use App\Models\Organization;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
@@ -56,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
 
         // ── Policy Registration ──────────────────────────────────────────────
         Gate::policy(PurchaseOrder::class,              PurchaseOrderPolicy::class);
+        Gate::policy(GoodsReceipt::class,               GoodsReceiptPolicy::class);
         Gate::policy(Approval::class,                   ApprovalPolicy::class);
         Gate::policy(User::class,                       UserPolicy::class);
         Gate::policy(\App\Models\PaymentProof::class,   \App\Policies\PaymentProofPolicy::class);

@@ -82,36 +82,8 @@ class GoodsReceiptWebController extends Controller
         
         $user = $request->user();
 
-        // Load POs available to receive — approved or partially received
-        // NOTE: Delivery (shipped/delivered) happens OUTSIDE the system
-        $pos = PurchaseOrder::with(['items.product', 'organization', 'supplier', 'goodsReceipts.items'])
-            ->whereIn('status', [
-                PurchaseOrder::STATUS_APPROVED,
-                PurchaseOrder::STATUS_PARTIALLY_RECEIVED,
-            ])
-            ->when(! $user->hasRole('Super Admin'), function ($q) use ($user) {
-                $q->where('organization_id', $user->organization_id);
-            })
-            ->latest()
-            ->get();
-
-        // Calculate already_received and remaining for each item
-        $pos->each(function ($po) {
-            $po->items->each(function ($item) use ($po) {
-                $alreadyReceived = $po->goodsReceipts->flatMap(function ($gr) {
-                    return $gr->items;
-                })->where('purchase_order_item_id', $item->id)->sum('quantity_received');
-                
-                $item->already_received = $alreadyReceived;
-                $item->remaining = max(0, $item->quantity - $alreadyReceived);
-            });
-            
-            // Filter out items that are already fully received
-            $po->setRelation('items', $po->items->filter(fn($item) => $item->remaining > 0)->values());
-        });
-        
-        // Filter out POs that have no remaining items to receive
-        $pos = $pos->filter(fn($po) => $po->items->isNotEmpty())->values();
+        // Use service method to get available POs
+        $pos = $this->goodsReceiptService->getAvailablePOsForReceipt($user);
 
         $breadcrumbs = [
             ['label' => 'Logistics & Operations', 'url' => 'javascript:void(0)'],

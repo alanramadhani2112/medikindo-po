@@ -158,9 +158,8 @@ class PurchaseOrderWebController extends Controller
 
     public function submit(Request $request, PurchaseOrder $purchaseOrder)
     {
-        if (! $request->user()->can('submit_po')) {
-            abort(403, 'Akses Ditolak. Anda tidak memiliki izin untuk mengajukan Purchase Order.');
-        }
+        // Use consistent authorization with Policy
+        $this->authorize('submit', $purchaseOrder);
 
         try {
             $this->poService->submitPO($purchaseOrder, $request->user());
@@ -265,9 +264,9 @@ class PurchaseOrderWebController extends Controller
 
     public function destroy(PurchaseOrder $purchaseOrder)
     {
-        if (! auth()->user()->hasRole('Super Admin') && ! auth()->user()->can('update_po')) {
-            abort(403, 'Akses Ditolak. Anda tidak memiliki izin untuk menghapus Purchase Order.');
-        }
+        // Use consistent authorization with Policy
+        $this->authorize('delete', $purchaseOrder);
+        
         try {
             $this->poService->delete($purchaseOrder);
             return redirect()->route('web.po.index')->with('success', 'Purchase Order berhasil dihapus.');

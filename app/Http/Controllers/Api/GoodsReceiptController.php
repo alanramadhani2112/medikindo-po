@@ -48,29 +48,28 @@ class GoodsReceiptController extends Controller
 
     public function store(StoreGoodsReceiptRequest $request): JsonResponse
     {
-        if (! $request->user()->can('confirm_receipt')) {
-            return response()->json(['message' => 'Forbidden.'], 403);
-        }
-
         $data = $request->validated();
-
-        $po = PurchaseOrder::findOrFail($data['purchase_order_id']);
-
-        if (
-            ! $request->user()->hasRole('Super Admin')
-            && $po->organization_id !== $request->user()->organization_id
-        ) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+        
+        // Resolve PO — either from new GR flow or from adding delivery to existing GR
+        if (! empty($data['goods_receipt_id'])) {
+            $gr = GoodsReceipt::findOrFail($data['goods_receipt_id']);
+            $po = $gr->purchaseOrder;
+        } else {
+            $po = PurchaseOrder::findOrFail($data['purchase_order_id']);
         }
+
+        // Use consistent Policy authorization
+        $this->authorize('create', GoodsReceipt::class);
+        $this->authorize('confirmReceipt', $po);
 
         try {
-            $receipt = $this->goodsReceiptService->confirmReceipt(
-                $po,
-                $request->user(),
-                $data['items'],
-                $data['notes'] ?? null,
-                $data['delivery_order_number'] ?? null,
-                $request->file('delivery_photo'),
+            $receipt = $this->goodsReceiptService->addDelivery(
+                po: $po,
+                actor: $request->user(),
+                items: $data['items'],
+                deliveryOrderNumber: $data['delivery_order_number'],
+                photo: $request->file('delivery_photo'),
+                notes: $data['notes'] ?? null,
             );
             return response()->json([
                 'message' => 'Goods Receipt recorded successfully',

@@ -29,6 +29,14 @@ class CreditControlService
             throw new \DomainException($result['message']);
         }
 
+        // Actually reserve the credit by creating a credit_usage record
+        \App\Models\CreditUsage::create([
+            'organization_id'    => $po->organization_id,
+            'purchase_order_id'  => $po->id,
+            'amount_used'        => $po->total_amount,
+            'status'             => 'reserved',
+        ]);
+
         Log::info('Credit reserved for PO', [
             'po_id'           => $po->id,
             'po_number'       => $po->po_number,
@@ -43,8 +51,11 @@ class CreditControlService
      */
     public function billCredit(\App\Models\PurchaseOrder $po): void
     {
-        // Credit utilisation is tracked via outstanding AR invoices.
-        // No separate reservation table — this is a no-op hook for future extension.
+        // Update credit usage status from reserved to billed
+        \App\Models\CreditUsage::where('purchase_order_id', $po->id)
+            ->where('status', 'reserved')
+            ->update(['status' => 'billed']);
+
         Log::info('Credit billed (PO approved)', [
             'po_id'           => $po->id,
             'po_number'       => $po->po_number,
@@ -59,6 +70,11 @@ class CreditControlService
      */
     public function reverseCredit(\App\Models\PurchaseOrder $po): void
     {
+        // Delete the reserved credit usage record
+        \App\Models\CreditUsage::where('purchase_order_id', $po->id)
+            ->where('status', 'reserved')
+            ->delete();
+
         Log::info('Credit reversed (PO rejected)', [
             'po_id'           => $po->id,
             'po_number'       => $po->po_number,
@@ -73,6 +89,11 @@ class CreditControlService
      */
     public function releaseCreditByAmount(int $organizationId, \App\Models\PurchaseOrder $purchaseOrder, float $amount): void
     {
+        // Update credit usage status from billed to released
+        \App\Models\CreditUsage::where('purchase_order_id', $purchaseOrder->id)
+            ->where('status', 'billed')
+            ->update(['status' => 'released']);
+
         Log::info('Credit released by payment', [
             'organization_id' => $organizationId,
             'po_id'           => $purchaseOrder->id,
@@ -207,13 +228,15 @@ class CreditControlService
 
     /**
      * Get current outstanding amount for organization
+     * Includes both AR invoices and reserved credit from pending POs
      *
      * @param int $organizationId
      * @return float
      */
     public function getCurrentOutstanding(int $organizationId): float
     {
-        return (float) CustomerInvoice::query()
+        // Outstanding AR invoices
+        $arOutstanding = (float) CustomerInvoice::query()
             ->where('organization_id', $organizationId)
             ->whereIn('status', [
                 CustomerInvoiceStatus::ISSUED->value,
@@ -221,6 +244,14 @@ class CreditControlService
             ])
             ->get()
             ->sum('outstanding_amount');
+
+        // Reserved credit from pending POs
+        $reservedCredit = (float) \App\Models\CreditUsage::query()
+            ->where('organization_id', $organizationId)
+            ->whereIn('status', ['reserved', 'billed'])
+            ->sum('amount_used');
+
+        return $arOutstanding + $reservedCredit;
     }
 
     /**

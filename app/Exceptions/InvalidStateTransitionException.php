@@ -2,9 +2,9 @@
 
 namespace App\Exceptions;
 
-use RuntimeException;
+use DomainException;
 
-class InvalidStateTransitionException extends RuntimeException
+class InvalidStateTransitionException extends DomainException
 {
     public function __construct(
         string $fromStatus = '',

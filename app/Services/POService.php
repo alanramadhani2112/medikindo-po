@@ -63,6 +63,9 @@ class POService
 
     public function submitPO(PurchaseOrder $po, User $actor): PurchaseOrder
     {
+        // Validate PO has items before submission
+        $this->validationService->ensurePOHasItems($po);
+
         // Gate: validate via state machine (single source of truth)
         StateMachineRegistry::for(PurchaseOrder::class)->validate(
             from:   $po->status,
@@ -172,13 +175,27 @@ class POService
         }
 
         return DB::transaction(function () use ($po, $data) {
-            $po->update(array_filter([
-                'organization_id'        => $data['organization_id'] ?? null,
-                'supplier_id'            => $data['supplier_id'] ?? null,
-                'requested_date'         => $data['requested_date'] ?? null,
-                'expected_delivery_date' => $data['expected_delivery_date'] ?? null,
-                'notes'                  => $data['notes'] ?? null,
-            ], fn($v) => $v !== null));
+            $updateData = [];
+            
+            if (array_key_exists('organization_id', $data)) {
+                $updateData['organization_id'] = $data['organization_id'];
+            }
+            if (array_key_exists('supplier_id', $data)) {
+                $updateData['supplier_id'] = $data['supplier_id'];
+            }
+            if (array_key_exists('requested_date', $data)) {
+                $updateData['requested_date'] = $data['requested_date'];
+            }
+            if (array_key_exists('expected_delivery_date', $data)) {
+                $updateData['expected_delivery_date'] = $data['expected_delivery_date'];
+            }
+            if (array_key_exists('notes', $data)) {
+                $updateData['notes'] = $data['notes']; // Allow null/empty to clear notes
+            }
+
+            if (!empty($updateData)) {
+                $po->update($updateData);
+            }
 
             $this->auditService->log(
                 action:     'po.updated',
