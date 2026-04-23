@@ -11,6 +11,7 @@ use App\Enums\SupplierInvoiceStatus;
 use App\Events\PaymentCreated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\StateMachines\StateMachineRegistry;
 use DomainException;
 
 class PaymentService
@@ -75,11 +76,22 @@ class PaymentService
                 'allocated_amount'    => $amount,
             ]);
 
-            // Update invoice paid_amount & status
-            $invoice->paid_amount = (float) $invoice->paid_amount + $amount;
-            $invoice->status = $invoice->paid_amount >= (float) $invoice->total_amount
+            // Update invoice paid_amount & status via state machine
+            $newPaidAmount = (float) $invoice->paid_amount + $amount;
+            $remaining     = (float) $invoice->total_amount - $newPaidAmount;
+            $targetStatus  = $remaining <= 0
                 ? CustomerInvoiceStatus::PAID
                 : CustomerInvoiceStatus::PARTIAL_PAID;
+
+            StateMachineRegistry::for(CustomerInvoice::class)->validate(
+                from:    $invoice->status->value,
+                to:      $targetStatus->value,
+                entity:  $invoice,
+                context: ['amount' => $amount, 'remaining' => $remaining],
+            );
+
+            $invoice->paid_amount = $newPaidAmount;
+            $invoice->status      = $targetStatus;
             $invoice->save();
 
             // Release credit control
@@ -182,11 +194,25 @@ class PaymentService
                 'allocated_amount'    => $amount,
             ]);
 
-            // Update supplier invoice paid_amount & status
-            $invoice->paid_amount = (float) $invoice->paid_amount + $amount;
-            $invoice->status = $invoice->paid_amount >= (float) $invoice->total_amount
+            // Update supplier invoice paid_amount & status via state machine
+            $newPaidAmount = (float) $invoice->paid_amount + $amount;
+            $remaining     = (float) $invoice->total_amount - $newPaidAmount;
+            $targetStatus  = $remaining <= 0
                 ? SupplierInvoiceStatus::PAID
                 : SupplierInvoiceStatus::VERIFIED;
+
+            // Only validate transition to PAID (VERIFIED stays as-is for partial)
+            if ($targetStatus === SupplierInvoiceStatus::PAID) {
+                StateMachineRegistry::for(SupplierInvoice::class)->validate(
+                    from:    $invoice->status->value,
+                    to:      SupplierInvoiceStatus::PAID->value,
+                    entity:  $invoice,
+                    context: ['amount' => $amount],
+                );
+            }
+
+            $invoice->paid_amount = $newPaidAmount;
+            $invoice->status      = $targetStatus;
             $invoice->save();
 
             $this->auditService->log(

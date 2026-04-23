@@ -7,6 +7,7 @@ use App\Models\CustomerInvoice;
 use App\Enums\SupplierInvoiceStatus;
 use App\Enums\CustomerInvoiceStatus;
 use App\Events\InvoiceOverdue;
+use App\StateMachines\StateMachineRegistry;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
@@ -34,21 +35,14 @@ class OverdueService
             if ($invoice->outstanding_amount > 0) {
                 try {
                     DB::transaction(function () use ($invoice) {
-                        if ($invoice->canTransitionTo(SupplierInvoiceStatus::OVERDUE)) {
-                            $invoice->status = SupplierInvoiceStatus::OVERDUE;
-                            $invoice->save();
-
-                            Log::info('Supplier Invoice marked as OVERDUE', [
-                                'invoice_id' => $invoice->id,
-                                'invoice_number' => $invoice->invoice_number,
-                                'due_date' => $invoice->due_date->format('Y-m-d'),
-                                'days_overdue' => $invoice->days_overdue,
-                                'outstanding' => $invoice->outstanding_amount,
-                            ]);
-
-                            // Dispatch event
-                            event(new InvoiceOverdue($invoice, 'supplier', $invoice->days_overdue));
-                        }
+                        StateMachineRegistry::for(SupplierInvoice::class)->validate(
+                            from:   $invoice->status->value,
+                            to:     SupplierInvoiceStatus::OVERDUE->value,
+                            entity: $invoice,
+                        );
+                        $invoice->status = SupplierInvoiceStatus::OVERDUE;
+                        $invoice->save();
+                        event(new InvoiceOverdue($invoice, 'supplier', $invoice->days_overdue));
                     });
                     $updated++;
                 } catch (\Exception $e) {

@@ -9,6 +9,7 @@ use App\Models\PurchaseOrder;
 use App\Models\SupplierInvoice;
 use App\Models\SupplierInvoiceLineItem;
 use App\Models\User;
+use App\StateMachines\StateMachineRegistry;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
@@ -275,42 +276,54 @@ class InvoiceService
 
             $before = $fresh->status;
 
+            // Validate via state machine
+            StateMachineRegistry::for(CustomerInvoice::class)->validate(
+                from:   $fresh->status->value,
+                to:     \App\Enums\CustomerInvoiceStatus::ISSUED->value,
+                actor:  $actor,
+                entity: $fresh,
+            );
+
             $fresh->update([
-                'status' => \App\Enums\CustomerInvoiceStatus::ISSUED,
-                'approved_by' => $actor->id,
-                'approved_at' => now(),
+                'status'          => \App\Enums\CustomerInvoiceStatus::ISSUED,
+                'approved_by'     => $actor->id,
+                'approved_at'     => now(),
                 'approval_reason' => $approvalReason,
             ]);
 
-            // Also update corresponding supplier invoice
+            // Also verify corresponding supplier invoice
             $supplierInvoice = SupplierInvoice::where('purchase_order_id', $fresh->purchase_order_id)
                 ->where('goods_receipt_id', $fresh->goods_receipt_id)
                 ->first();
 
             if ($supplierInvoice) {
+                StateMachineRegistry::for(SupplierInvoice::class)->validate(
+                    from:   $supplierInvoice->status->value,
+                    to:     \App\Enums\SupplierInvoiceStatus::VERIFIED->value,
+                    actor:  $actor,
+                    entity: $supplierInvoice,
+                );
                 $supplierInvoice->update([
-                    'status' => \App\Enums\SupplierInvoiceStatus::VERIFIED,
-                    'approved_by' => $actor->id,
-                    'approved_at' => now(),
+                    'status'          => \App\Enums\SupplierInvoiceStatus::VERIFIED,
+                    'approved_by'     => $actor->id,
+                    'approved_at'     => now(),
                     'approval_reason' => $approvalReason,
                 ]);
             }
 
             $this->auditService->log(
-                action:     'invoice.discrepancy_approved',
-                entityType: CustomerInvoice::class,
-                entityId:   $fresh->id,
-                metadata:   [
-                    'before_status'       => $before,
-                    'after_status'        => CustomerInvoice::STATUS_ISSUED,
+                action:      'invoice.discrepancy_approved',
+                entityType:  CustomerInvoice::class,
+                entityId:    $fresh->id,
+                metadata:    [
                     'approved_by'         => $actor->id,
                     'approval_reason'     => $approvalReason,
                     'variance_amount'     => $fresh->variance_amount,
                     'variance_percentage' => $fresh->variance_percentage,
-                    'expected_total'      => $fresh->expected_total,
-                    'actual_total'        => $fresh->total_amount,
                 ],
-                userId: $actor->id,
+                beforeValue: ['status' => $before->value ?? $before],
+                afterValue:  ['status' => \App\Enums\CustomerInvoiceStatus::ISSUED->value],
+                userId:      $actor->id,
             );
 
             // Notify Healthcare User that invoice has been approved

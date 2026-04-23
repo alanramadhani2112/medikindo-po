@@ -6,6 +6,7 @@ use App\Models\GoodsReceipt;
 use App\Models\GoodsReceiptDelivery;
 use App\Models\PurchaseOrder;
 use App\Models\User;
+use App\StateMachines\StateMachineRegistry;
 use DomainException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -180,24 +181,39 @@ class GoodsReceiptService
             $grStatus = $allFulfilled ? GoodsReceipt::STATUS_COMPLETED : GoodsReceipt::STATUS_PARTIAL;
             $gr->update(['status' => $grStatus]);
 
-            // --- Update PO status ---
+            // --- Update PO status via state machine ---
             $poBefore = $po->status;
             if ($grStatus === GoodsReceipt::STATUS_COMPLETED) {
-                $po->update([
-                    'status'       => PurchaseOrder::STATUS_COMPLETED,
-                    'completed_at' => now(),
-                ]);
+                StateMachineRegistry::for(PurchaseOrder::class)->validate(
+                    from:   $po->status,
+                    to:     PurchaseOrder::STATUS_COMPLETED,
+                    entity: $po,
+                );
+                $po->update(['status' => PurchaseOrder::STATUS_COMPLETED, 'completed_at' => now()]);
                 $this->auditService->log(
-                    action: 'po.completed', entityType: PurchaseOrder::class, entityId: $po->id,
-                    metadata: ['po_number' => $po->po_number, 'before_status' => $poBefore, 'after_status' => PurchaseOrder::STATUS_COMPLETED, 'gr_id' => $gr->id],
-                    userId: $actor->id,
+                    action:      'po.completed',
+                    entityType:  PurchaseOrder::class,
+                    entityId:    $po->id,
+                    metadata:    ['po_number' => $po->po_number, 'gr_id' => $gr->id],
+                    beforeValue: ['status' => $poBefore],
+                    afterValue:  ['status' => PurchaseOrder::STATUS_COMPLETED],
+                    userId:      $actor->id,
                 );
             } else {
+                StateMachineRegistry::for(PurchaseOrder::class)->validate(
+                    from:   $po->status,
+                    to:     PurchaseOrder::STATUS_PARTIALLY_RECEIVED,
+                    entity: $po,
+                );
                 $po->update(['status' => PurchaseOrder::STATUS_PARTIALLY_RECEIVED]);
                 $this->auditService->log(
-                    action: 'po.partially_received', entityType: PurchaseOrder::class, entityId: $po->id,
-                    metadata: ['po_number' => $po->po_number, 'before_status' => $poBefore, 'after_status' => PurchaseOrder::STATUS_PARTIALLY_RECEIVED, 'gr_id' => $gr->id],
-                    userId: $actor->id,
+                    action:      'po.partially_received',
+                    entityType:  PurchaseOrder::class,
+                    entityId:    $po->id,
+                    metadata:    ['po_number' => $po->po_number, 'gr_id' => $gr->id],
+                    beforeValue: ['status' => $poBefore],
+                    afterValue:  ['status' => PurchaseOrder::STATUS_PARTIALLY_RECEIVED],
+                    userId:      $actor->id,
                 );
             }
 
