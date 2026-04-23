@@ -170,10 +170,12 @@ class ApprovalService
             $creator->notify(new POApprovalDecisionNotification($po, $approval, $approver));
         }
 
-        // Also notify relevant organization staff and Super Admins
+        // Notify org Healthcare Users (excluding creator who already got notified)
+        // and Super Admin — NOT the approver themselves
         User::role(['Super Admin', 'Healthcare User'])->get()
-            ->filter(function ($u) use ($po, $creator) {
-                if ($creator && $u->id === $creator->id) return false;
+            ->filter(function ($u) use ($po, $creator, $approver) {
+                if ($u->id === $approver->id) return false; // skip the approver
+                if ($creator && $u->id === $creator->id) return false; // skip creator (already notified)
                 if ($u->hasRole('Super Admin')) return true;
                 return $u->organization_id === $po->organization_id;
             })

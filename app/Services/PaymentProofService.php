@@ -152,11 +152,19 @@ class PaymentProofService
             ]);
 
             // 1. Process Incoming Payment (Payment IN)
+            // Use bank_account_id from proof (set by Healthcare when submitting)
+            // Fallback to default receive bank account
+            $receiveBankAccountId = $proof->bank_account_id
+                ?? \App\Models\BankAccount::defaultReceive()->value('id');
+
             $paymentIn = $this->paymentService->processIncomingPayment([
-                'amount'         => $proof->amount,
-                'payment_date'   => $proof->payment_date,
-                'payment_method' => 'Transfer',
-                'reference'      => "Bukti Bayar #{$proof->id}: " . ($proof->bank_reference ?? ''),
+                'amount'          => $proof->amount,
+                'payment_date'    => $proof->payment_date,
+                'payment_method'  => $proof->payment_method ?? 'Bank Transfer',
+                'bank_account_id' => $receiveBankAccountId,
+                'reference'       => "Bukti Bayar #{$proof->id}: " . ($proof->bank_reference ?? ''),
+                'sender_bank_name'       => $proof->sender_bank_name,
+                'sender_account_number'  => $proof->sender_account_number,
             ], $proof->customerInvoice);
 
             // 2. Automated Allocation for Payment OUT (to Supplier)
@@ -458,10 +466,11 @@ class PaymentProofService
 
         // Tidak silent — biarkan exception naik agar transaksi induk rollback
         $this->paymentService->processOutgoingPayment([
-            'amount'         => $amountToPay,
-            'payment_date'   => now(),
-            'payment_method' => 'Internal Allocation',
-            'reference'      => "Auto-alloc dari Customer Invoice #{$customerInvoice->invoice_number}",
+            'amount'          => $amountToPay,
+            'payment_date'    => now(),
+            'payment_method'  => 'Internal Allocation',
+            'bank_account_id' => \App\Models\BankAccount::defaultSend()->value('id'),
+            'reference'       => "Auto-alloc dari Customer Invoice #{$customerInvoice->invoice_number}",
         ], $supplierInvoice);
     }
 

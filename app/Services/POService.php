@@ -105,9 +105,9 @@ class POService
                 $po->creator->notify(new POSubmittedNotification($po));
             }
 
-            User::role(['Approver', 'Super Admin'])->get()
+            User::role(['Approver', 'Admin Pusat', 'Super Admin'])->get()
                 ->filter(fn($u) => $u->id !== $po->created_by && (
-                    $u->hasRole('Super Admin') || $u->organization_id === $po->organization_id
+                    $u->hasRole(['Super Admin', 'Admin Pusat']) || $u->organization_id === $po->organization_id
                 ))
                 ->each(fn(User $u) => $u->notify(new POSubmittedNotification($po)));
 

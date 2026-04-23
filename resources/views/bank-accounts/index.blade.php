@@ -164,6 +164,7 @@
                             <th class="text-end text-success">Uang Masuk</th>
                             <th class="text-end text-danger">Uang Keluar</th>
                             <th class="text-end">Net Cashflow</th>
+                            <th class="text-end">Saldo Saat Ini</th>
                             <th class="text-center">Detail</th>
                         </tr>
                     </thead>
@@ -195,6 +196,19 @@
                                     <span class="fw-bold fs-7 {{ $net >= 0 ? 'text-primary' : 'text-warning' }}">
                                         {{ $net >= 0 ? '+' : '' }}Rp {{ number_format($net, 0, ',', '.') }}
                                     </span>
+                                </td>
+                                <td class="text-end">
+                                    @php $balance = $row['current_balance']; @endphp
+                                    @if($balance !== null)
+                                        <span class="fw-bold fs-7 {{ $balance >= 0 ? 'text-success' : 'text-danger' }}">
+                                            Rp {{ number_format($balance, 0, ',', '.') }}
+                                        </span>
+                                        @if($bank?->balance_updated_at)
+                                            <div class="text-muted fs-9">{{ $bank->balance_updated_at->diffForHumans() }}</div>
+                                        @endif
+                                    @else
+                                        <span class="text-muted fs-8">Belum ada transaksi</span>
+                                    @endif
                                 </td>
                                 <td class="text-center">
                                     @if($bank)

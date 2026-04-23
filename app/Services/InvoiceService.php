@@ -416,8 +416,8 @@ class InvoiceService
             // Notify Healthcare User and Finance that invoice has been rejected
             $po = $fresh->purchaseOrder;
             if ($po) {
-                User::role(['Healthcare User', 'Finance', 'Super Admin'])->get()
-                    ->filter(fn($u) => $u->hasRole('Super Admin') || $u->organization_id === $fresh->organization_id)
+                User::role(['Healthcare User', 'Finance', 'Admin Pusat', 'Super Admin'])->get()
+                    ->filter(fn($u) => $u->hasRole(['Super Admin', 'Finance', 'Admin Pusat']) || $u->organization_id === $fresh->organization_id)
                     ->each(fn($u) => $u->notify(new \App\Notifications\NewInvoiceNotification($fresh)));
             }
 
@@ -476,8 +476,9 @@ class InvoiceService
                 userId: $actor->id,
             );
 
-            // Notify Finance to verify
-            User::role(['Finance', 'Super Admin'])->get()
+            // Notify Finance + Admin Pusat that payment was submitted and needs verification
+            User::role(['Finance', 'Admin Pusat', 'Super Admin'])
+                ->where('is_active', true)->get()
                 ->each(fn($u) => $u->notify(new \App\Notifications\NewInvoiceNotification($fresh)));
 
             return $fresh->fresh();
@@ -529,12 +530,12 @@ class InvoiceService
                 userId: $actor->id,
             );
 
-            // Notify Healthcare User that payment has been verified
+            // Notify Healthcare User that payment has been verified (invoice PAID)
             $po = $fresh->purchaseOrder;
             if ($po) {
                 User::role(['Healthcare User'])->get()
                     ->filter(fn($u) => $u->organization_id === $fresh->organization_id)
-                    ->each(fn($u) => $u->notify(new \App\Notifications\NewInvoiceNotification($fresh)));
+                    ->each(fn($u) => $u->notify(new \App\Notifications\CustomerInvoiceIssuedNotification($fresh)));
             }
 
             return $fresh->fresh();

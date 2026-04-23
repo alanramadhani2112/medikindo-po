@@ -94,6 +94,14 @@ class PaymentService
             $invoice->status      = $targetStatus;
             $invoice->save();
 
+            // Update bank account balance (incoming = credit)
+            if ($payment->bank_account_id) {
+                \App\Models\BankAccount::where('id', $payment->bank_account_id)
+                    ->increment('current_balance', $amount);
+                \App\Models\BankAccount::where('id', $payment->bank_account_id)
+                    ->update(['balance_updated_at' => now()]);
+            }
+
             // Release credit control
             try {
                 app(CreditControlService::class)->releaseCreditByAmount(
@@ -230,6 +238,14 @@ class PaymentService
             $invoice->paid_amount = $newPaidAmount;
             $invoice->status      = $targetStatus;
             $invoice->save();
+
+            // Update bank account balance (outgoing = debit)
+            if ($payment->bank_account_id) {
+                \App\Models\BankAccount::where('id', $payment->bank_account_id)
+                    ->decrement('current_balance', $amount);
+                \App\Models\BankAccount::where('id', $payment->bank_account_id)
+                    ->update(['balance_updated_at' => now()]);
+            }
 
             $this->auditService->log(
                 'payment.outgoing',

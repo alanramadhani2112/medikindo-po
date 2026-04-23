@@ -255,15 +255,18 @@ class GoodsReceiptService
                     $po->creator->notify(new \App\Notifications\GoodsReceiptNotification($gr));
                 }
             } else {
-                // GR completed — notifikasi standar ke semua pihak
+                // GR completed — notify creator + org Healthcare + Finance + Super Admin
                 if ($po->creator) {
                     $po->creator->notify(new \App\Notifications\GoodsReceiptNotification($gr));
                 }
 
-                \App\Models\User::role(['Super Admin', 'Healthcare User', 'Finance'])->get()
-                    ->filter(fn($u) => $u->id !== $po->created_by && (
-                        $u->hasRole(['Super Admin', 'Finance']) || $u->organization_id === $po->organization_id
-                    ))
+                \App\Models\User::role(['Super Admin', 'Healthcare User', 'Finance', 'Admin Pusat'])->get()
+                    ->filter(fn($u) =>
+                        $u->id !== $po->created_by && (
+                            $u->hasRole(['Super Admin', 'Finance', 'Admin Pusat']) ||
+                            $u->organization_id === $po->organization_id
+                        )
+                    )
                     ->each(fn($u) => $u->notify(new \App\Notifications\GoodsReceiptNotification($gr)));
             }
 
