@@ -37,11 +37,6 @@ class Payment extends Model
         return $this->belongsTo(\App\Models\BankAccount::class);
     }
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function allocations(): HasMany
     {
         return $this->hasMany(PaymentAllocation::class);

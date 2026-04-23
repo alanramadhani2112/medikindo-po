@@ -104,11 +104,13 @@ class PaymentService
 
             // Release credit control
             try {
-                app(CreditControlService::class)->releaseCreditByAmount(
-                    $invoice->organization_id,
-                    clone $invoice->purchaseOrder,
-                    $amount
-                );
+                if ($invoice->purchaseOrder) {
+                    app(CreditControlService::class)->releaseCreditByAmount(
+                        $invoice->organization_id,
+                        clone $invoice->purchaseOrder,
+                        $amount
+                    );
+                }
             } catch (\Exception $e) {
                 Log::warning('Credit release failed (non-critical): ' . $e->getMessage());
             }
