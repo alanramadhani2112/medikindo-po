@@ -18,7 +18,7 @@ abstract class TestCase extends BaseTestCase
 
         $guard = config('auth.defaults.guard', 'web');
 
-        // 1. Create Permissions
+        // 1. Create Permissions for both guards
         $permissions = [
             'create_po','update_po','submit_po','view_po',
             'approve_po','reject_po',
@@ -28,8 +28,10 @@ abstract class TestCase extends BaseTestCase
             'manage_product','manage_supplier','manage_organization','manage_user',
             'view_audit','full_access'
         ];
+        
         foreach ($permissions as $p) {
             \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $p, 'guard_name' => $guard]);
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $p, 'guard_name' => 'sanctum']);
         }
 
         // 2. Create Roles & Assign Permissions
@@ -56,6 +58,31 @@ abstract class TestCase extends BaseTestCase
 
         $finance = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => $guard]);
         $finance->syncPermissions(['view_invoice','manage_invoice','verify_payment','view_goods_receipt']);
+        
+        // Create roles for sanctum guard (API)
+        $superAdminSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'sanctum']);
+        $superAdminSanctum->syncPermissions($permissions);
+        
+        $adminPusatSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Admin Pusat', 'guard_name' => 'sanctum']);
+        $adminPusatSanctum->syncPermissions($permissions);
+        
+        $healthcareUserSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Healthcare User', 'guard_name' => 'sanctum']);
+        $healthcareUserSanctum->syncPermissions([
+            'create_po','update_po','submit_po','view_po',
+            'confirm_receipt','view_receipt','view_goods_receipt',
+            'view_invoice','confirm_payment',
+            'manage_product','manage_supplier','manage_user',
+            'view_audit'
+        ]);
+        
+        $procStaffSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Procurement Staff', 'guard_name' => 'sanctum']);
+        $procStaffSanctum->syncPermissions(['create_po','update_po','submit_po','view_po']);
+        
+        $approverSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Approver', 'guard_name' => 'sanctum']);
+        $approverSanctum->syncPermissions(['view_po','approve_po','reject_po']);
+        
+        $financeSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => 'sanctum']);
+        $financeSanctum->syncPermissions(['view_invoice','manage_invoice','verify_payment','view_goods_receipt']);
     }
 
     // -----------------------------------------------------------------------
@@ -79,6 +106,13 @@ abstract class TestCase extends BaseTestCase
     protected function actingAsApprover(?Organization $organization = null): User
     {
         $user = User::factory()->approver()->create(['organization_id' => $organization?->id]);
+        Sanctum::actingAs($user);
+        return $user;
+    }
+
+    protected function actingAsFinanceUser(?Organization $organization = null): User
+    {
+        $user = User::factory()->financeUser()->create(['organization_id' => $organization?->id]);
         Sanctum::actingAs($user);
         return $user;
     }

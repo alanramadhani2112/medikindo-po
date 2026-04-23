@@ -68,6 +68,11 @@ class UserFactory extends Factory
         });
     }
 
+    public function financeUser(): static
+    {
+        return $this->finance();
+    }
+
     public function approver(): static
     {
         return $this->afterCreating(function (User $user) {

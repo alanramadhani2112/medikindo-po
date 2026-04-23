@@ -31,6 +31,20 @@ class SupplierInvoiceFactory extends Factory
         ];
     }
 
+    public function forOrganization(Organization $organization): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'organization_id' => $organization->id,
+        ]);
+    }
+
+    public function forSupplier(Supplier $supplier): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'supplier_id' => $supplier->id,
+        ]);
+    }
+
     public function verified(): static
     {
         return $this->state(fn(array $attributes) => [
@@ -43,6 +57,14 @@ class SupplierInvoiceFactory extends Factory
         return $this->state(fn(array $attributes) => [
             'status' => SupplierInvoiceStatus::PAID,
             'paid_amount' => $attributes['total_amount'],
+        ]);
+    }
+
+    public function overdue(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'status' => SupplierInvoiceStatus::OVERDUE,
+            'due_date' => now()->subDays(10),
         ]);
     }
 }
