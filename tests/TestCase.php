@@ -23,7 +23,7 @@ abstract class TestCase extends BaseTestCase
             'create_po','update_po','submit_po','view_po',
             'approve_po','reject_po','view_approvals','approve_purchase_orders',
             'confirm_receipt','view_receipt','view_goods_receipt',
-            'view_invoice','manage_invoice',
+            'view_invoice','view_invoices','manage_invoice',
             'confirm_payment','verify_payment','view_payments','process_payments',
             'manage_product','manage_supplier','manage_organization','manage_user',
             'view_inventory','manage_inventory',
@@ -46,7 +46,7 @@ abstract class TestCase extends BaseTestCase
         $healthcareUser->syncPermissions([
             'create_po','update_po','submit_po','view_po',
             'confirm_receipt','view_receipt','view_goods_receipt',
-            'view_invoice', // Removed 'confirm_payment' - Healthcare users should NOT process payments
+            'view_invoice','view_invoices', // Removed 'confirm_payment' - Healthcare users should NOT process payments
             'manage_product','manage_supplier','manage_user',
             'view_inventory','manage_inventory',
             'view_audit'
@@ -59,7 +59,7 @@ abstract class TestCase extends BaseTestCase
         $approver->syncPermissions(['view_po','approve_po','reject_po','view_approvals','approve_purchase_orders']);
 
         $finance = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => $guard]);
-        $finance->syncPermissions(['view_invoice','manage_invoice','confirm_payment','verify_payment','view_payments','process_payments','view_goods_receipt']);
+        $finance->syncPermissions(['view_invoice','view_invoices','manage_invoice','confirm_payment','verify_payment','view_payments','process_payments','view_goods_receipt']);
         
         // Create roles for sanctum guard (API)
         $superAdminSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'sanctum']);
@@ -72,7 +72,7 @@ abstract class TestCase extends BaseTestCase
         $healthcareUserSanctum->syncPermissions([
             'create_po','update_po','submit_po','view_po',
             'confirm_receipt','view_receipt','view_goods_receipt',
-            'view_invoice', // Removed 'confirm_payment' - Healthcare users should NOT process payments
+            'view_invoice','view_invoices', // Removed 'confirm_payment' - Healthcare users should NOT process payments
             'manage_product','manage_supplier','manage_user',
             'view_inventory','manage_inventory',
             'view_audit'
@@ -85,7 +85,7 @@ abstract class TestCase extends BaseTestCase
         $approverSanctum->syncPermissions(['view_po','approve_po','reject_po','view_approvals','approve_purchase_orders']);
         
         $financeSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => 'sanctum']);
-        $financeSanctum->syncPermissions(['view_invoice','manage_invoice','confirm_payment','verify_payment','view_payments','process_payments','view_goods_receipt']);
+        $financeSanctum->syncPermissions(['view_invoice','view_invoices','manage_invoice','confirm_payment','verify_payment','view_payments','process_payments','view_goods_receipt']);
     }
 
     // -----------------------------------------------------------------------
