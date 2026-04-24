@@ -21,7 +21,7 @@ abstract class TestCase extends BaseTestCase
         // 1. Create Permissions for both guards
         $permissions = [
             'create_po','update_po','submit_po','view_po',
-            'approve_po','reject_po',
+            'approve_po','reject_po','view_approvals','approve_purchase_orders',
             'confirm_receipt','view_receipt','view_goods_receipt',
             'view_invoice','manage_invoice',
             'confirm_payment','verify_payment','view_payments','process_payments',
@@ -54,7 +54,7 @@ abstract class TestCase extends BaseTestCase
         $procStaff->syncPermissions(['create_po','update_po','submit_po','view_po']);
 
         $approver = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Approver', 'guard_name' => $guard]);
-        $approver->syncPermissions(['view_po','approve_po','reject_po']);
+        $approver->syncPermissions(['view_po','approve_po','reject_po','view_approvals','approve_purchase_orders']);
 
         $finance = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => $guard]);
         $finance->syncPermissions(['view_invoice','manage_invoice','confirm_payment','verify_payment','view_payments','process_payments','view_goods_receipt']);
@@ -79,7 +79,7 @@ abstract class TestCase extends BaseTestCase
         $procStaffSanctum->syncPermissions(['create_po','update_po','submit_po','view_po']);
         
         $approverSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Approver', 'guard_name' => 'sanctum']);
-        $approverSanctum->syncPermissions(['view_po','approve_po','reject_po']);
+        $approverSanctum->syncPermissions(['view_po','approve_po','reject_po','view_approvals','approve_purchase_orders']);
         
         $financeSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => 'sanctum']);
         $financeSanctum->syncPermissions(['view_invoice','manage_invoice','confirm_payment','verify_payment','view_payments','process_payments','view_goods_receipt']);
@@ -121,5 +121,29 @@ abstract class TestCase extends BaseTestCase
     {
         Sanctum::actingAs($user);
         return $user;
+    }
+
+    // -----------------------------------------------------------------------
+    // User Creation Helpers
+    // -----------------------------------------------------------------------
+
+    protected function createHealthcareUser(Organization $organization): User
+    {
+        return User::factory()->healthcareUser()->forOrganization($organization)->create();
+    }
+
+    protected function createApprover(?Organization $organization = null): User
+    {
+        return User::factory()->approver()->create(['organization_id' => $organization?->id]);
+    }
+
+    protected function createFinanceUser(?Organization $organization = null): User
+    {
+        return User::factory()->financeUser()->create(['organization_id' => $organization?->id]);
+    }
+
+    protected function createSuperAdmin(?Organization $organization = null): User
+    {
+        return User::factory()->superAdmin()->create(['organization_id' => $organization?->id]);
     }
 }
