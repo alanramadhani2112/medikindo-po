@@ -176,6 +176,8 @@ class PaymentWebController extends Controller
 
     public function show(Payment $payment)
     {
+        $this->authorize('view', $payment);
+
         $payment->load([
             'organization',
             'supplier',

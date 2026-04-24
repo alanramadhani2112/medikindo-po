@@ -24,7 +24,7 @@ abstract class TestCase extends BaseTestCase
             'approve_po','reject_po',
             'confirm_receipt','view_receipt','view_goods_receipt',
             'view_invoice','manage_invoice',
-            'confirm_payment','verify_payment',
+            'confirm_payment','verify_payment','view_payments','process_payments',
             'manage_product','manage_supplier','manage_organization','manage_user',
             'view_audit','full_access'
         ];
@@ -57,7 +57,7 @@ abstract class TestCase extends BaseTestCase
         $approver->syncPermissions(['view_po','approve_po','reject_po']);
 
         $finance = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => $guard]);
-        $finance->syncPermissions(['view_invoice','manage_invoice','confirm_payment','verify_payment','view_goods_receipt']);
+        $finance->syncPermissions(['view_invoice','manage_invoice','confirm_payment','verify_payment','view_payments','process_payments','view_goods_receipt']);
         
         // Create roles for sanctum guard (API)
         $superAdminSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'sanctum']);
@@ -82,7 +82,7 @@ abstract class TestCase extends BaseTestCase
         $approverSanctum->syncPermissions(['view_po','approve_po','reject_po']);
         
         $financeSanctum = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'Finance', 'guard_name' => 'sanctum']);
-        $financeSanctum->syncPermissions(['view_invoice','manage_invoice','confirm_payment','verify_payment','view_goods_receipt']);
+        $financeSanctum->syncPermissions(['view_invoice','manage_invoice','confirm_payment','verify_payment','view_payments','process_payments','view_goods_receipt']);
     }
 
     // -----------------------------------------------------------------------
