@@ -107,7 +107,7 @@
 
     @can('view_inventory')
     <div class="col-12 col-md-6 col-xl-4">
-        <a href="{{ route('web.inventory.index') }}" class="card card-flush card-hover h-100 text-decoration-none">
+        <a href="{{ route('inventory.index') }}" class="card card-flush card-hover h-100 text-decoration-none">
             <div class="card-body d-flex align-items-center gap-4 p-6">
                 <div class="d-flex align-items-center justify-content-center bg-light-dark rounded" style="width:60px;height:60px;flex-shrink:0;">
                     <i class="ki-outline ki-package fs-2x text-dark"></i>

@@ -1,7 +1,7 @@
-<x-layout :title="'Stok Produk: ' . $product->name" :breadcrumbs="[['label' => 'Inventory', 'url' => route('web.inventory.index')], ['label' => $product->name]]">
+<x-layout :title="'Stok Produk: ' . $product->name" :breadcrumbs="[['label' => 'Inventory', 'url' => route('inventory.index')], ['label' => $product->name]]">
     <x-page-header :title="$product->name">
         <x-slot name="actions">
-            <a href="{{ route('web.inventory.index') }}" class="btn btn-light me-3">
+            <a href="{{ route('inventory.index') }}" class="btn btn-light me-3">
                 <i class="ki-outline ki-arrow-left fs-3"></i> Kembali
             </a>
             <div class="d-flex align-items-center">
@@ -39,7 +39,7 @@
                                     <span class="text-muted fs-8">Total On Hand</span>
                                 </div>
                                 <div class="text-end">
-                                    <a href="{{ route('web.inventory.adjust.form', $item) }}" class="btn btn-icon btn-sm btn-light-warning">
+                                    <a href="{{ route('inventory.adjust-form', $item) }}" class="btn btn-icon btn-sm btn-light-warning">
                                         <i class="ki-outline ki-pencil fs-4"></i>
                                     </a>
                                 </div>

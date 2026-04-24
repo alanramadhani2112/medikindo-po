@@ -1,7 +1,7 @@
-<x-layout :title="'Adjustment Stok: ' . $inventoryItem->product->name" :breadcrumbs="[['label' => 'Inventory', 'url' => route('web.inventory.index')], ['label' => 'Adjustment']]">
+<x-layout :title="'Adjustment Stok: ' . $inventoryItem->product->name" :breadcrumbs="[['label' => 'Inventory', 'url' => route('inventory.index')], ['label' => 'Adjustment']]">
     <x-page-header :title="'Adjustment Stok: ' . $inventoryItem->product->name">
         <x-slot name="actions">
-            <a href="{{ route('web.inventory.show', $inventoryItem->product_id) }}" class="btn btn-light">
+            <a href="{{ route('inventory.show', $inventoryItem->product_id) }}" class="btn btn-light">
                 <i class="ki-outline ki-arrow-left fs-3"></i> Batal
             </a>
         </x-slot>
@@ -37,7 +37,7 @@
                     <h3 class="card-title fw-bold text-gray-800">Form Penyesuaian</h3>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('web.inventory.adjust', $inventoryItem) }}" method="POST">
+                    <form action="{{ route('inventory.adjust', $inventoryItem) }}" method="POST">
                         @csrf
                         <div class="mb-8">
                             <label class="form-label required fw-bold">Quantity Penyesuaian Baru</label>

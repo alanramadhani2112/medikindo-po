@@ -42,7 +42,7 @@
     </x-slot>
 
     <x-slot name="toolbar">
-        <x-filter-bar :action="route('web.inventory.index')">
+        <x-filter-bar :action="route('inventory.index')">
             <input type="hidden" name="status" value="{{ request('status') }}">
             <div class="flex-grow-1" style="max-width: 400px;">
                 <div class="position-relative">
@@ -66,7 +66,7 @@
         @foreach($tabOptions as $val => $tabData)
             @php $isActive = (string)$currentStatus === (string)$val; @endphp
             <li class="nav-item">
-                <a href="{{ route('web.inventory.index', array_merge(request()->except(['status', 'page']), ['status' => $val === '' ? null : $val])) }}" 
+                <a href="{{ route('inventory.index', array_merge(request()->except(['status', 'page']), ['status' => $val === '' ? null : $val])) }}" 
                    class="nav-link text-active-primary d-flex align-items-center {{ $isActive ? 'active' : '' }}">
                     <i class="ki-outline {{ $tabData['icon'] }} fs-4 me-3"></i>
                     <span class="fs-6 fw-bold me-3">{{ $tabData['label'] }}</span>
@@ -137,8 +137,8 @@
                     </td>
                     <td class="text-end">
                         <x-table-action>
-                            <x-table-action.item :href="route('web.inventory.show', $item->product_id)" icon="eye" label="Lihat History" />
-                            <x-table-action.item :href="route('web.inventory.adjust.form', $item)" icon="pencil" label="Adjust Stok" color="warning" />
+                            <x-table-action.item :href="route('inventory.show', $item->product_id)" icon="eye" label="Lihat History" />
+                            <x-table-action.item :href="route('inventory.adjust-form', $item)" icon="pencil" label="Adjust Stok" color="warning" />
                         </x-table-action>
                     </td>
                 </tr>

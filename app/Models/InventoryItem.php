@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Traits\BelongsToOrganization;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InventoryItem extends Model
 {
-    use BelongsToOrganization;
+    use BelongsToOrganization, HasFactory;
 
     protected $fillable = [
         'organization_id',
@@ -55,7 +56,10 @@ class InventoryItem extends Model
         if (!$this->expiry_date) {
             return false;
         }
-        return $this->expiry_date->diffInDays(now()) <= 60;
+        
+        // Check if expiry date is in the future and within 60 days
+        return $this->expiry_date->isFuture() && 
+               now()->diffInDays($this->expiry_date, false) <= 60;
     }
 
     /**

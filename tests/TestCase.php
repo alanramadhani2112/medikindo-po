@@ -26,6 +26,7 @@ abstract class TestCase extends BaseTestCase
             'view_invoice','manage_invoice',
             'confirm_payment','verify_payment','view_payments','process_payments',
             'manage_product','manage_supplier','manage_organization','manage_user',
+            'view_inventory','manage_inventory',
             'view_audit','full_access'
         ];
         
@@ -47,6 +48,7 @@ abstract class TestCase extends BaseTestCase
             'confirm_receipt','view_receipt','view_goods_receipt',
             'view_invoice', // Removed 'confirm_payment' - Healthcare users should NOT process payments
             'manage_product','manage_supplier','manage_user',
+            'view_inventory','manage_inventory',
             'view_audit'
         ]);
 
@@ -72,6 +74,7 @@ abstract class TestCase extends BaseTestCase
             'confirm_receipt','view_receipt','view_goods_receipt',
             'view_invoice', // Removed 'confirm_payment' - Healthcare users should NOT process payments
             'manage_product','manage_supplier','manage_user',
+            'view_inventory','manage_inventory',
             'view_audit'
         ]);
         

@@ -329,8 +329,8 @@
                         </div>
                     </div>
                     <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs('web.inventory.*') ? 'active' : '' }}"
-                            href="{{ route('web.inventory.index') }}">
+                        <a class="menu-link {{ request()->routeIs('inventory.*') ? 'active' : '' }}"
+                            href="{{ route('inventory.index') }}">
                             <span class="menu-icon">
                                 <i class="ki-outline ki-package fs-2"></i>
                             </span>

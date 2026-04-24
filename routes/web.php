@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\ApprovalWebController;
 use App\Http\Controllers\Web\ARAgingController;
 use App\Http\Controllers\Web\AuthWebController;
 use App\Http\Controllers\Web\CustomerInvoiceWebController;
+use App\Http\Controllers\Web\InventoryWebController;
 use App\Http\Controllers\Web\OrganizationWebController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DeliveryWebController;
@@ -280,8 +281,14 @@ Route::middleware('auth')->group(function () {
     });
 
     // ── Inventory ──────────────────────────────────────────────
-    Route::prefix('inventory')->name('web.inventory.')->middleware('can:view_inventory')->group(function () {
-        Route::get('/{any?}', fn() => view('inventory.coming-soon'))->where('any', '.*')->name('index');
+    Route::prefix('inventory')->name('inventory.')->middleware('can:view_inventory')->group(function () {
+        Route::get('/',                                 [InventoryWebController::class, 'index'])->name('index');
+        Route::get('/product/{product}',                [InventoryWebController::class, 'show'])->name('show');
+        Route::get('/movements',                        [InventoryWebController::class, 'movements'])->name('movements');
+        Route::get('/low-stock',                        [InventoryWebController::class, 'lowStock'])->name('low-stock');
+        Route::get('/expiring',                         [InventoryWebController::class, 'expiring'])->name('expiring');
+        Route::get('/adjust/{inventoryItem}',           [InventoryWebController::class, 'adjustForm'])->name('adjust-form');
+        Route::post('/adjust/{inventoryItem}',          [InventoryWebController::class, 'adjust'])->name('adjust');
     });
 
     // ── Examples/Tests ────────────────────────────────────────
