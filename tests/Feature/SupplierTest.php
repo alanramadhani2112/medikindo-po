@@ -29,14 +29,17 @@ class SupplierTest extends TestCase
             ->assertJsonPath('supplier.code', 'KF001');
     }
 
-    public function test_healthcare_user_cannot_create_supplier(): void
+    public function test_procurement_staff_cannot_create_supplier(): void
     {
         $organization = \App\Models\Organization::factory()->create();
-        $this->actingAsHealthcareUser($organization);
+        $user = \App\Models\User::factory()->create(['organization_id' => $organization->id]);
+        $user->assignRole('Procurement Staff'); // Procurement Staff doesn't have manage_supplier permission
+        $this->actingAsUser($user);
 
         $this->postJson('/api/suppliers', [
             'name' => 'PT Kimia Farma',
             'code' => 'KF001',
+            'license_number' => 'LIC-KF-001',
         ])->assertStatus(403);
     }
 
@@ -138,10 +141,12 @@ class SupplierTest extends TestCase
             ->assertJsonPath('supplier.name', 'New Name');
     }
 
-    public function test_healthcare_user_cannot_update_supplier(): void
+    public function test_procurement_staff_cannot_update_supplier(): void
     {
         $organization = \App\Models\Organization::factory()->create();
-        $this->actingAsHealthcareUser($organization);
+        $user = \App\Models\User::factory()->create(['organization_id' => $organization->id]);
+        $user->assignRole('Procurement Staff'); // Procurement Staff doesn't have manage_supplier permission
+        $this->actingAsUser($user);
         
         $supplier = Supplier::factory()->create();
 
@@ -187,10 +192,12 @@ class SupplierTest extends TestCase
         ]);
     }
 
-    public function test_healthcare_user_cannot_deactivate_supplier(): void
+    public function test_procurement_staff_cannot_deactivate_supplier(): void
     {
         $organization = \App\Models\Organization::factory()->create();
-        $this->actingAsHealthcareUser($organization);
+        $user = \App\Models\User::factory()->create(['organization_id' => $organization->id]);
+        $user->assignRole('Procurement Staff'); // Procurement Staff doesn't have manage_supplier permission
+        $this->actingAsUser($user);
         
         $supplier = Supplier::factory()->create();
 
